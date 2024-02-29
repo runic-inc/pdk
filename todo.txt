@@ -1,0 +1,33 @@
+PDK TODO
+
+#1 transfer these into github issues
+
+all Patch-Fragment permutations override functions
+
+natspec
+
+Accept .ts as contract config
+
+Static References:
+- size 1 - LiteRef1
+- size 9+ - LiteRef9
+- multiple pools - LiteRefMultiPool
+
+Dynamic References:
+- multiple pools
+
+Static + Dynamic in same contract
+
+
+Generated Tests:
+- Codegen should generate a contract and a test contract for it
+- Tests for codegen should run the generated test contract, or at least 2 steps with a script that does it
+
+Should generate a base contract called ContractBase that a user extends to create theirs
+
+
+Notes
+- Static literef storage does not support starting at any offset but 0
+- String64 is not yet supported in PDK
+
+

@@ -1,0 +1,45 @@
+{
+  "scopeName": "test",
+  "name": "Basic1",
+  "symbol": "BASIC",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+        "id": 1,
+        "key": "name",
+        "type": "char16",
+        "description": "Short Name"
+    },
+    {
+        "id": 2,
+        "key": "fieldu16",
+        "type": "uint16",
+        "description": "Some Uint16"
+    },
+    {
+        "id": 3,
+        "key": "fieldu128a",
+        "type": "uint128",
+        "description": "Some Uint128"
+    },
+    {
+        "id": 4,
+        "key": "fieldu128b",
+        "type": "uint128",
+        "description": "Some Uint128"
+    },
+    {
+        "id": 5,
+        "key": "fieldu32",
+        "type": "uint32",
+        "description": "Some Uint32"
+    },
+    {
+        "id": 6,
+        "key": "c8",
+        "type": "char8",
+        "description": "c8"
+    }
+  ]
+}
