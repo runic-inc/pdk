@@ -1,0 +1,8 @@
+[profile.default]
+libs = ['lib']
+src = 'src/test_data'
+out = 'src/test_data/out'
+test = 'src/test_data/test'
+cache_path = 'src/test_data/cache'
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config

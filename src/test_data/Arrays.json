@@ -1,0 +1,47 @@
+{
+  "scopeName": "test",
+  "name": "Arrays",
+  "symbol": "ARRAYS",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+        "id": 1,
+        "key": "names",
+        "type": "char8",
+        "arrayLength": 4,
+        "description": "Names"
+    },
+    {
+        "id": 2,
+        "key": "u16array",
+        "type": "uint16",
+        "arrayLength": 32,
+        "description": "Uint16 array"
+    },
+    {
+        "id": 3,
+        "key": "fieldu128a",
+        "type": "uint128",
+        "description": "Some Uint128"
+    },
+    {
+        "id": 4,
+        "key": "fieldu128b",
+        "type": "uint128",
+        "description": "Some Uint128"
+    },
+    {
+        "id": 5,
+        "key": "fieldu32",
+        "type": "uint32",
+        "description": "Some Uint32"
+    },
+    {
+        "id": 6,
+        "key": "c8",
+        "type": "char8",
+        "description": "c8"
+    }
+  ]
+}

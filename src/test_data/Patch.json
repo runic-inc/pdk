@@ -1,0 +1,16 @@
+{
+  "scopeName": "test",
+  "name": "Patch",
+  "symbol": "PATCH",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "features": ["patch"],
+  "fields": [
+      {
+          "id": 1,
+          "key": "name",
+          "type": "char32",
+          "description": "Name"
+      }
+  ]
+}
