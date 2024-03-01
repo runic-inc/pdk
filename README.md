@@ -1,11 +1,29 @@
 # Patchwork Development Kit
 
+
 ## Setup
 
-TODO - forge
-TODO - submodules
-TODO - npm
-TODO - install pdk
+install foundry (https://book.getfoundry.sh/getting-started/installation)
+run:
+
+forge install
+
+run: 
+
+npm install
+
+
+## Testing your environment
+
+npm test
+forge test
+
+
+## Using the PDK
+
+run:
+
+npx pdk
 
 
 ## Development
