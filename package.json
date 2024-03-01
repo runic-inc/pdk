@@ -1,15 +1,15 @@
 {
   "name": "pdk",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.9.0",
+  "description": "Patchwork Development Kit",
   "main": "src/index.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["solidity","patchwork","codegen"],
+  "author": "Runic Labs, Inc",
+  "license": "MIT",
   "dependencies": {
     "ajv": "^8.12.0",
     "typescript": "^5.0.2",
