@@ -1,32 +1,65 @@
 # Patchwork Development Kit
 
-
 ## Setup
 
-install foundry (https://book.getfoundry.sh/getting-started/installation)
-run:
+To set up your development environment, follow these steps:
 
-forge install
+1. **Install Foundry**:
+   Foundry is a smart contract development toolchain. You can install it by following the instructions at [Foundry's installation guide](https://book.getfoundry.sh/getting-started/installation).
 
-run: 
+   ```shell
+   forge install
+   ```
 
-npm install
+2. **Install Node.js dependencies**:
 
+   ```shell
+   npm install
+   ```
 
-## Testing your environment
+## Testing Your Environment
 
-npm test
-forge test
+To ensure your environment is set up correctly, you can run the following tests:
 
+- Using npm:
+
+  ```shell
+  npm test
+  ```
+
+- Using Foundry:
+
+  ```shell
+  forge test
+  ```
 
 ## Using the PDK
 
-run:
+To use the Patchwork Development Kit (PDK), run:
 
+```shell
 npx pdk
-
+```
 
 ## Development
-Run `npm run build` to build typescript to javascript
-Run `npm link` to link the executable
-Run `pdk` to use
+
+For development tasks such as building the TypeScript project and linking the executable, follow these steps:
+
+1. **Build TypeScript to JavaScript**:
+
+   ```shell
+   npm run build
+   ```
+
+2. **Link the Executable**:
+
+   ```shell
+   npm link
+   ```
+
+3. **Using the PDK**:
+   After linking, you can use the `pdk` command to access the Patchwork Development Kit:
+
+   ```shell
+   pdk
+   ```
