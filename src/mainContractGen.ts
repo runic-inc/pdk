@@ -39,7 +39,6 @@ export class MainContractGen implements Generator {
   }
 
   gen(schema: ContractSchema): string {
-    schema.validate();
     return this.appendGens([
       "header",
       "nl",

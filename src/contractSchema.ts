@@ -23,6 +23,7 @@ export interface Entry {
     arrayLength: number;
     visibility: string;
     key: string;
+    description: string;
 }
 
 export interface ContractConfig {
@@ -43,6 +44,7 @@ export class ContractStorageField implements Entry {
     arrayLength!: number;
     visibility!: string;
     key!: string;
+    description!: string;
     // calculated
     solidityType!: string;
     fieldTypeSolidityEnum!: string;
@@ -115,7 +117,8 @@ export class ContractSchemaImpl implements ContractSchema {
                 totalBits: bits,
                 key: entry.key,
                 slot: -1,
-                offset: -1
+                offset: -1,
+                description: entry.description
             };
             return field;
         });
