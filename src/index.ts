@@ -42,23 +42,32 @@ const argv = yargs(hideBin(process.argv))
     .alias("h", "help")
     .argv;
 
-function validateJson(argv: any): void {
-    const jsonFile = argv.jsonFile;
-    const schemaFile = path.resolve(__dirname, "../src/patchwork.schema.json");
-
+function tryValidate(jsonFile: string, schemaFile: string): any {
     try {
         const jsonData = require(path.resolve(jsonFile));
         const schemaData = require(schemaFile);
         const ajv = new Ajv2019()
         const validate = ajv.compile(schemaData);
-
         if (validate(jsonData)) {
-            console.log("The JSON file is a valid Patchwork metadata schema.");
-        } else {
-            console.log("The JSON file is not a valid Patchwork metadata schema. Errors:", validate.errors);
+            return true;
         }
+        return validate.errors;
     }catch (error: any) {
         console.error("Error reading JSON or schema file:", error.message);
+    }
+}
+
+function validateJson(argv: any): void {
+    const jsonFile = argv.jsonFile;
+    const t1 = tryValidate(jsonFile, "../src/patchwork-contract-config.schema.json");
+    // TODO need separate commands to validate metadata schemas as one can bury errors in the other
+    //const t2 = tryValidate(jsonFile, "../src/patchwork-metadata.schema.json")
+    if (t1 === true) {
+        console.log("The JSON file is a valid Patchwork contract configuration.");
+    } else {
+        console.log("The JSON file is not a valid Patchwork contract config");
+        console.log("Contract Config Validation Errors:", t1);
+        // console.log("Metadata Schema Validation Errors:", t2);
     }
 }
 
