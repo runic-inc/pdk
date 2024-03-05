@@ -1,7 +1,7 @@
 {
-    "$id": "https://runic.inc/patchwork.schema.json",
+    "$id": "https://runic.inc/patchwork-metadata.schema.json",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "title": "Patchwork Contract Config",
+    "title": "Patchwork Metadata",
     "type": "object",
     "required": [
         "name",
@@ -31,7 +31,9 @@
                 "required": [
                     "id",
                     "key",
-                    "type"
+                    "type",
+                    "slot",
+                    "offset"
                 ],
                 "properties": {
                     "id": {

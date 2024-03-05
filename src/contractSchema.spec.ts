@@ -27,8 +27,8 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
-                {id: 1, permissionId: 0, fieldType: "char32", arrayLength: 1, visibility: "public", key: "name"},
-                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count"},
+                {id: 1, permissionId: 0, fieldType: "char32", arrayLength: 1, visibility: "public", key: "name", description: ""},
+                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
             ],
             features: []
         }
@@ -51,9 +51,9 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
-                {id: 1, permissionId: 0, fieldType: "uint16", arrayLength: 1, visibility: "public", key: "little"},
-                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count"},
-                {id: 3, permissionId: 0, fieldType: "char32", arrayLength: 1, visibility: "public", key: "name"},
+                {id: 1, permissionId: 0, fieldType: "uint16", arrayLength: 1, visibility: "public", key: "little", description: ""},
+                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
+                {id: 3, permissionId: 0, fieldType: "char32", arrayLength: 1, visibility: "public", key: "name", description: ""},
             ],
             features: []
         }
@@ -77,13 +77,13 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
-                {id: 1, permissionId: 0, fieldType: "uint256", arrayLength: 1, visibility: "public", key: "k1"},
-                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "k2"},
-                {id: 3, permissionId: 0, fieldType: "uint64", arrayLength: 1, visibility: "public", key: "k3"},
-                {id: 4, permissionId: 0, fieldType: "uint32", arrayLength: 1, visibility: "public", key: "k4"},
-                {id: 5, permissionId: 0, fieldType: "uint16", arrayLength: 1, visibility: "public", key: "k5"},
-                {id: 6, permissionId: 0, fieldType: "uint8", arrayLength: 1, visibility: "public", key: "k6"},
-                {id: 7, permissionId: 0, fieldType: "uint8", arrayLength: 1, visibility: "public", key: "k7"},
+                {id: 1, permissionId: 0, fieldType: "uint256", arrayLength: 1, visibility: "public", key: "k1", description: ""},
+                {id: 2, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "k2", description: ""},
+                {id: 3, permissionId: 0, fieldType: "uint64", arrayLength: 1, visibility: "public", key: "k3", description: ""},
+                {id: 4, permissionId: 0, fieldType: "uint32", arrayLength: 1, visibility: "public", key: "k4", description: ""},
+                {id: 5, permissionId: 0, fieldType: "uint16", arrayLength: 1, visibility: "public", key: "k5", description: ""},
+                {id: 6, permissionId: 0, fieldType: "uint8", arrayLength: 1, visibility: "public", key: "k6", description: ""},
+                {id: 7, permissionId: 0, fieldType: "uint8", arrayLength: 1, visibility: "public", key: "k7", description: ""},
             ],
             features: []
         }
@@ -111,8 +111,8 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
-                {id: 1, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count"},
-                {id: 2, permissionId: 0, fieldType: "uint16", arrayLength: 4, visibility: "public", key: "arr"},
+                {id: 1, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
+                {id: 2, permissionId: 0, fieldType: "uint16", arrayLength: 4, visibility: "public", key: "arr", description: ""},
             ],
             features: []
         }
@@ -135,8 +135,8 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
-                {id: 2, permissionId: 0, fieldType: "uint16", arrayLength: 4, visibility: "public", key: "arr"},
-                {id: 1, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count"},
+                {id: 2, permissionId: 0, fieldType: "uint16", arrayLength: 4, visibility: "public", key: "arr", description: ""},
+                {id: 1, permissionId: 0, fieldType: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
             ],
             features: []
         }

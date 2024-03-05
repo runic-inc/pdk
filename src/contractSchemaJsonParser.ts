@@ -43,6 +43,7 @@ function parseFieldEntries(jsonData: any): Entry[] {
             arrayLength: fieldArrayLength,
             visibility: "FieldVisibility.PUBLIC",
             key: field.key,
+            description: field.description,
         };
         return entry;
     });

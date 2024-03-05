@@ -7,6 +7,7 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { parseJson } from './contractSchemaJsonParser';
 import { MainContractGen } from './mainContractGen';
+import { JSONSchemaGen } from "./jsonSchemaGen";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -77,13 +78,23 @@ function generateSolidity(argv: any) {
   
     try {
       const jsonData = require(path.resolve(jsonFile));
-      const solidityCode = new MainContractGen().gen(parseJson(jsonData));
+      const schema = parseJson(jsonData);
+      schema.validate();
+      const solidityCode = new MainContractGen().gen(schema);
   
       const solidityFilename = path.basename(jsonFile, ".json") + ".sol";
-      const outputPath = path.join(outputDir, solidityFilename);
+      let outputPath = path.join(outputDir, solidityFilename);
   
       fs.writeFileSync(outputPath, solidityCode);
       console.log(`Solidity file generated at ${outputPath}`);
+
+      const jsonSchema = new JSONSchemaGen().gen(schema);
+
+      const jsonFilename = path.basename(jsonFile, ".json") + "-schema.json";
+      outputPath = path.join(outputDir, jsonFilename);
+  
+      fs.writeFileSync(outputPath, jsonSchema);
+      console.log(`JSON Schema file generated at ${outputPath}`);
     } catch (error: any) {
       console.error("Error generating Solidity file:", error.message);
     }
