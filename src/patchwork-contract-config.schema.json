@@ -1,5 +1,5 @@
 {
-    "$id": "https://runic.inc/patchwork-contract-config.schema.json",
+    "$id": "https://github.com/runic-inc/patchwork/schema/patchwork-contract-config.schema.json",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "title": "Patchwork Contract Config",
     "type": "object",
@@ -88,8 +88,8 @@
                             "char32",
                             "char64",
                             "literef",
-			                "address",
-			                "string"
+                            "address",
+                            "string"
                         ]
                     },
                     "arrayLength": {
