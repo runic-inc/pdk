@@ -23,19 +23,22 @@
         "id": 3,
         "key": "fieldu128a",
         "type": "uint128",
-        "description": "Some Uint128"
+        "description": "Some Uint128",
+        "permissionId": 1
     },
     {
         "id": 4,
         "key": "fieldu128b",
         "type": "uint128",
-        "description": "Some Uint128"
+        "description": "Some Uint128",
+        "permissionId": 2
     },
     {
         "id": 5,
         "key": "fieldu32",
         "type": "uint32",
-        "description": "Some Uint32"
+        "description": "Some Uint32",
+        "permissionId": 3
     },
     {
         "id": 6,

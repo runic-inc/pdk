@@ -39,10 +39,10 @@ contract Arrays is Patchwork721 {
 
     function schema() pure external override returns (MetadataSchema memory) {
         MetadataSchemaEntry[] memory entries = new MetadataSchemaEntry[](6);
-        entries[0] = MetadataSchemaEntry(3, 0, FieldType.UINT128, 1, FieldVisibility.PUBLIC, 0, 0, "fieldu128a");
-        entries[1] = MetadataSchemaEntry(4, 0, FieldType.UINT128, 1, FieldVisibility.PUBLIC, 0, 128, "fieldu128b");
+        entries[0] = MetadataSchemaEntry(3, 1, FieldType.UINT128, 1, FieldVisibility.PUBLIC, 0, 0, "fieldu128a");
+        entries[1] = MetadataSchemaEntry(4, 2, FieldType.UINT128, 1, FieldVisibility.PUBLIC, 0, 128, "fieldu128b");
         entries[2] = MetadataSchemaEntry(6, 0, FieldType.CHAR8, 1, FieldVisibility.PUBLIC, 1, 0, "c8");
-        entries[3] = MetadataSchemaEntry(5, 0, FieldType.UINT32, 1, FieldVisibility.PUBLIC, 1, 64, "fieldu32");
+        entries[3] = MetadataSchemaEntry(5, 3, FieldType.UINT32, 1, FieldVisibility.PUBLIC, 1, 64, "fieldu32");
         entries[4] = MetadataSchemaEntry(1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 2, 0, "names");
         entries[5] = MetadataSchemaEntry(2, 0, FieldType.UINT16, 32, FieldVisibility.PUBLIC, 3, 0, "u16array");
         return MetadataSchema(1, entries);
@@ -117,7 +117,7 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu128a
     function storeFieldu128a(uint256 tokenId, uint128 fieldu128a) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0, "not authorized");
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask);
@@ -131,7 +131,7 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu128b
     function storeFieldu128b(uint256 tokenId, uint128 fieldu128b) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x2 > 0, "not authorized");
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 128);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128b) & mask) << 128;
@@ -159,7 +159,7 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu32
     function storeFieldu32(uint256 tokenId, uint32 fieldu32) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x4 > 0, "not authorized");
         uint256 mask = (1 << 32) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 64);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu32) & mask) << 64;
