@@ -13,9 +13,9 @@ export class FieldFuncGen implements Generator {
                     continue;
                 }
                 let capName = capitalizeFirstLetter(field.key);
-                const permissionLine = field.permissionId ? 
-                `require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${field.permissionId.toString(16)} > 0, "not authorized");` : 
-                `require(_checkTokenWriteAuth(tokenId), "not authorized");`;                
+                const permissionLine = field.permissionId ?
+                `require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0, "not authorized");` : 
+                `require(_checkTokenWriteAuth(tokenId), "not authorized");`;
                 if (field.arrayLength > 1) {
                     let loadArrayLines = [];
                     let storeArrayLines = [];
