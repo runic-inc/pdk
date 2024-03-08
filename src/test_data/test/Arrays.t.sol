@@ -72,7 +72,7 @@ contract ArraysTest is Test {
         assertEq(6, schema.entries.length);
         IPatchworkMetadata.MetadataSchemaEntry memory entry = schema.entries[0];
         assertEq(entry.id, 3);
-        assertEq(entry.permissionId, 0);
+        assertEq(entry.permissionId, 1);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
@@ -81,7 +81,7 @@ contract ArraysTest is Test {
         assertEq(entry.key, "fieldu128a");
         entry = schema.entries[1];
         assertEq(entry.id, 4);
-        assertEq(entry.permissionId, 0);
+        assertEq(entry.permissionId, 2);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
@@ -99,7 +99,7 @@ contract ArraysTest is Test {
         assertEq(entry.key, "c8");
         entry = schema.entries[3];
         assertEq(entry.id, 5);
-        assertEq(entry.permissionId, 0);
+        assertEq(entry.permissionId, 3);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT32));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
