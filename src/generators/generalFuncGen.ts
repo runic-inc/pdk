@@ -82,11 +82,14 @@ export class GeneralFuncGen implements Generator {
         if (features.some((feature: Feature) => feature === Feature.MINTABLE)) {
             support.push(`IPatchworkMintable`);
         }
+        if (bases.length === 0 && support.length > 0) {
+            bases.push(`Patchwork721`);
+        }
         if (bases.length <= 1 && support.length === 0) {
             // No need for an override
             return ``;
         }
-        let baseString = ``;
+        let baseString = `override `;
         if (bases.length > 1) {
             baseString = `override(${bases.join(", ")}) `;
         }

@@ -15,7 +15,7 @@ export class HeaderGen implements Generator {
             header += `import "@patchwork/PatchworkLiteRef.sol";\n`;
         }
         if (schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
-            return `import "@patchwork/interfaces/IPatchworkMintable.sol";\n`;
+            header += `import "@patchwork/interfaces/IPatchworkMintable.sol";\n`;
         }
         if (schema.storage.fields.some((field: ContractStorageField) => field.isString)) {
             header += `import "@patchwork/PatchworkUtils.sol";\n`;

@@ -8,6 +8,9 @@ export class ContractStartGen implements Generator {
         if (schema.hasLiteRef()) {
             inheritance.push("PatchworkLiteRef");
         }
+        if (schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
+            inheritance.push("IPatchworkMintable");
+        }
         return `contract ${capitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
     }
 
