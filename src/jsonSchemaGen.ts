@@ -43,12 +43,14 @@ export class JSONSchemaGen implements Generator {
       out += `      "id": ${field.id},\n`;
       out += `      "key": "${field.key}",\n`;
       out += `      "type": "${field.fieldType}",\n`;
-      out += `      "arrayLength": "${field.arrayLength}",\n`;
+      out += `      "arrayLength": ${field.arrayLength},\n`;
       out += `      "description": "${field.description}",\n`;
-      out += `      "permissionId": "${field.permissionId}",\n`;
+      if (field.permissionId > 0) {
+        out += `      "permissionId": ${field.permissionId},\n`;
+      }
       out += `      "visibility": "public",\n`;
-      out += `      "slot": "${field.slot}",\n`;
-      out += `      "offset": "${field.offset}"\n`;
+      out += `      "slot": ${field.slot},\n`;
+      out += `      "offset": ${field.offset}\n`;
       out += `    }`;
     }
     if (schema.storage.fields.length > 0) {
