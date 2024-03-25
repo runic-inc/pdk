@@ -7,6 +7,7 @@ export enum Feature {
     PATCH1155 = "1155PATCH",
     MINTABLE = "MINTABLE",
     REVERSIBLE = "REVERSIBLE",
+    WEAKREF = "WEAKREF"
 }
 
 export type FieldType = {
@@ -229,6 +230,10 @@ export class ContractSchemaImpl implements ContractSchema {
         const hasReversible = this.features.includes(Feature.REVERSIBLE);
         if (hasReversible && patchTypeCount === 0) {
             throw new Error('REVERSIBLE feature requires at least one of PATCH, 1155PATCH, or ACCOUNTPATCH to be present.');
+        }
+        const hasWeakRef = this.features.includes(Feature.WEAKREF);
+        if (hasWeakRef && !this.features.includes(Feature.FRAGMENTSINGLE)) {
+            throw new Error('WEAKREF feature requires FRAGMENTSINGLE feature');
         }
     }
 
