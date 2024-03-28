@@ -38,16 +38,22 @@ export class StaticRefFuncGen implements Generator {
                         }
                     }
                     let lines = addReferenceLines.join(" else ");
-                    return `` +
+                    let retBlock = `` +
                     `function addReference(uint256 tokenId, uint64 liteRef) public override {\n` +
                     `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
                     `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
                     `    uint256 slot = mdStorage[${entry.slot}];\n` +
-                    `    ${lines} else {\n` +
-                    `            revert("No reference slots available");\n` +
-                    `        }\n` +
+                    `    ${lines} else {\n`;
+                    if (indent == 0) {
+                        retBlock +=  `        revert("No reference slots available");\n`;
+                    } else {
+                        retBlock +=  `            revert("No reference slots available");\n` +
+                        `        }\n`;
+                    }
+                    retBlock += `` +
                     `    }\n` +
                     `}\n`;
+                    return retBlock;
                 }
             }
             return "";
@@ -59,6 +65,7 @@ export class StaticRefFuncGen implements Generator {
                 `function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {\n` +
                 `    // This will overwrite all ref values starting at slot 0 idx 0\n` +
                 `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
+                `    require(liteRefs.length <= ${schema.liteRefArrayLength(0)}, "too many references");\n` +
                 `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
                 `    for (uint256 slotIdx = ${startSlot(0)}; slotIdx < ${endSlot(0)}; slotIdx++) {\n` +
                 `        require(mdStorage[slotIdx] == 0, "already have references");\n` +

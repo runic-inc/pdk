@@ -1,0 +1,23 @@
+{
+  "scopeName": "test",
+  "name": "LiteRef1",
+  "symbol": "LR1",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+      {
+          "id": 1,
+          "key": "attributeIDs",
+          "type": "literef",
+          "arrayLength": 1,
+          "description": "The attributes equipped by this this"
+      },
+      {
+          "id": 2,
+          "permissionId": 1,
+          "key": "counter",
+          "type": "uint32",
+          "description": "Counter"
+      }
+  ]
+}
