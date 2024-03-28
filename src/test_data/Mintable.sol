@@ -12,7 +12,7 @@ contract Mintable is Patchwork721, IPatchworkMintable {
         string name;
     }
 
-    uint256 private _nextTokenId;
+    uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
         Patchwork721("test", "Mintable", "MINT", _manager, _owner)
@@ -75,7 +75,7 @@ contract Mintable is Patchwork721, IPatchworkMintable {
         }
     }
 
-    function _mintSingle(address to, bytes calldata /* data */) private returns (uint256) {
+    function _mintSingle(address to, bytes calldata /* data */) internal returns (uint256) {
         uint256 tokenId = _nextTokenId;
         _metadataStorage[tokenId] = new uint256[](1);
         _nextTokenId++;

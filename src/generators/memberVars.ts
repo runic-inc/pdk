@@ -15,7 +15,7 @@ export class MemberVarsGen implements Generator {
         }
         const hasAnyPatchType = [Feature.PATCH, Feature.PATCH1155, Feature.PATCHACCOUNT].some(patch => schema.features.includes(patch));
         if (hasAnyPatchType ||  schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
-            members += `uint256 private _nextTokenId;\n\n`;
+            members += `uint256 internal _nextTokenId;\n\n`;
         }
         return ind(4, members);
     }

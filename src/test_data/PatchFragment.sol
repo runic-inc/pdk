@@ -12,7 +12,7 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
         string name;
     }
 
-    uint256 private _nextTokenId;
+    uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
         Patchwork721("test", "PatchFragment", "PFRAG", _manager, _owner)

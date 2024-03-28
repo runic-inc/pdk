@@ -23,7 +23,7 @@ export class MintFuncGen implements Generator {
             out += `    }\n`;
             out += `}\n`;
             out += `\n`;
-            out += `function _mintSingle(address to, bytes calldata /* data */) private returns (uint256) {\n`;
+            out += `function _mintSingle(address to, bytes calldata /* data */) internal returns (uint256) {\n`;
             out += `    uint256 tokenId = _nextTokenId;\n`;
             out += `    _metadataStorage[tokenId] = new uint256[](${schema.slots()});\n`;
             out += `    _nextTokenId++;\n`;
