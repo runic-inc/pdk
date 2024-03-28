@@ -60,7 +60,7 @@ contract Basic1Test is Test {
     }
 
     function testSchemaURI() public {
-        assertEq("https://mything/my-metadata.json", _myContract.schemaURI());
+        assertEq("https://basic.xyz/schema/basic.json", _myContract.schemaURI());
     }
 
     function testImageURI() public {
