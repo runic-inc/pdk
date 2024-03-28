@@ -1,6 +1,6 @@
 import { ContractSchema, Feature } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { capitalizeFirstLetter } from "../utils";
+import { cleanAndCapitalizeFirstLetter } from "../utils";
 
 export class MintFuncGen implements Generator {
     gen(schema: ContractSchema): string {

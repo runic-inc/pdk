@@ -1,6 +1,6 @@
 {
   "name": "@patchworkdev/pdk",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Patchwork Development Kit",
   "main": "src/index.ts",
   "scripts": {

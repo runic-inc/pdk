@@ -1,5 +1,7 @@
-export function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+export function cleanAndCapitalizeFirstLetter(string: string) {
+     // Remove non-alphanumeric characters and whitespace
+     const cleanedString = string.replace(/[^a-zA-Z0-9]/g, '');
 
-// TODO add indent function
+     // Capitalize the first letter of the cleaned string
+     return cleanedString.charAt(0).toUpperCase() + cleanedString.slice(1);
+}

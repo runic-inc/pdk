@@ -1,6 +1,6 @@
 {
   "scopeName": "test",
-  "name": "Basic1",
+  "name": "Basic1: Complex Name",
   "symbol": "BASIC",
   "schemaURI": "https://basic.xyz/schema/basic.json",
   "imageURI": "https://mything/my/{tokenID}.png",
