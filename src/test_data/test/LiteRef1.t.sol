@@ -71,23 +71,23 @@ contract LiteRef1Test is Test {
         IPatchworkMetadata.MetadataSchema memory schema = _myContract.schema();
         assertEq(2, schema.entries.length);
         IPatchworkMetadata.MetadataSchemaEntry memory entry = schema.entries[0];
+        assertEq(entry.id, 2);
+        assertEq(entry.permissionId, 1);
+        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
+        assertEq(entry.fieldCount, 1);
+        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
+        assertEq(entry.slot, 0);
+        assertEq(entry.offset, 0);
+        assertEq(entry.key, "counter");
+        entry = schema.entries[1];
         assertEq(entry.id, 1);
         assertEq(entry.permissionId, 0);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.LITEREF));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
         assertEq(entry.slot, 0);
-        assertEq(entry.offset, 0);
+        assertEq(entry.offset, 128);
         assertEq(entry.key, "attributeIDs");
-        entry = schema.entries[1];
-        assertEq(entry.id, 2);
-        assertEq(entry.permissionId, 1);
-        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT32));
-        assertEq(entry.fieldCount, 1);
-        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 0);
-        assertEq(entry.offset, 64);
-        assertEq(entry.key, "counter");
     }
 
     function testPackUnpackMetadata() public {
@@ -120,6 +120,17 @@ contract LiteRef1Test is Test {
         assertEq(5, _myContract.loadCounter(tokenId));
     }
 
-    // TODO test references (need a mock fragment to use)
+    function testAdjacents() public {
+        vm.startPrank(_scopeOwner);
+        uint256 tokenId = _myContract.mint(_userAddress);
+        _myContract.storeAttributeIDs(tokenId, 57);
+        _myContract.storeCounter(tokenId, 5);
+        _myContract.storeAttributeIDs(tokenId, 57);
+        _myContract.storeCounter(tokenId, 5);
+        assertEq(5, _myContract.loadCounter(tokenId));
+        uint64 attIDs = _myContract.loadAttributeIDs(tokenId);
+        assertEq(attIDs, 57);
+    }
+    // TODO test add/remove references (need a mock fragment to use)
 }
 

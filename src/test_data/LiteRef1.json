@@ -16,7 +16,7 @@
           "id": 2,
           "permissionId": 1,
           "key": "counter",
-          "type": "uint32",
+          "type": "uint128",
           "description": "Counter"
       }
   ]

@@ -69,6 +69,7 @@ export interface ContractSchema extends ContractConfig {
     storage: ContractStorage;
     hasLiteRef(): boolean;
     getMetadataStructName(): string;
+    liteRefField(which: number): ContractStorageField;
     liteRefFieldCount(): number;
     liteRefArrayLength(which: number): number;
     liteRefSlotNumber(which: number): number;
@@ -197,6 +198,11 @@ export class ContractSchemaImpl implements ContractSchema {
         return `Metadata`; 
     }
 
+    liteRefField(which: number): ContractStorageField {
+        const liteRefFields = this.storage.fields.filter((field: any) => field.fieldTypeSolidityEnum === "LITEREF");
+        return liteRefFields[which];
+    }
+
     liteRefFieldCount(): number {
         // Count fields where fieldType is "literef"
         return this.storage.fields.filter((field: any) => field.fieldTypeSolidityEnum === "LITEREF").length;
@@ -204,15 +210,13 @@ export class ContractSchemaImpl implements ContractSchema {
 
     liteRefArrayLength(which: number): number {
         // Filter fields by fieldType "literef" and find by index
-        const liteRefFields = this.storage.fields.filter((field: any) => field.fieldTypeSolidityEnum === "LITEREF");
-        const liteRefField = liteRefFields[which];
+        const liteRefField = this.liteRefField(which);
         return liteRefField ? liteRefField.arrayLength : 0;
     }
 
     liteRefSlotNumber(which: number): number {
         // Filter fields by fieldType "literef" and find by index
-        const liteRefFields = this.storage.fields.filter((field: any) => field.fieldTypeSolidityEnum === "LITEREF");
-        const liteRefField = liteRefFields[which];
+        const liteRefField = this.liteRefField(which);
         return liteRefField ? liteRefField.slot : 0;
     }
 
