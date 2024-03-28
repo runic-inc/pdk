@@ -38,16 +38,22 @@ export class StaticRefFuncGen implements Generator {
                         }
                     }
                     let lines = addReferenceLines.join(" else ");
-                    return `` +
+                    let retBlock = `` +
                     `function addReference(uint256 tokenId, uint64 liteRef) public override {\n` +
                     `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
                     `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
                     `    uint256 slot = mdStorage[${entry.slot}];\n` +
-                    `    ${lines} else {\n` +
-                    `            revert("No reference slots available");\n` +
-                    `        }\n` +
+                    `    ${lines} else {\n`;
+                    if (indent == 0) {
+                        retBlock +=  `        revert("No reference slots available");\n`;
+                    } else {
+                        retBlock +=  `            revert("No reference slots available");\n` +
+                        `        }\n`;
+                    }
+                    retBlock += `` +
                     `    }\n` +
                     `}\n`;
+                    return retBlock;
                 }
             }
             return "";
@@ -55,27 +61,33 @@ export class StaticRefFuncGen implements Generator {
         
         function generateAddReferenceBatchFunction(entries: Entry[]) {
             if (schema.hasLiteRef()) {
-                return`` +
+                let out = `` +
                 `function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {\n` +
                 `    // This will overwrite all ref values starting at slot 0 idx 0\n` +
                 `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
-                `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
-                `    for (uint256 slotIdx = ${startSlot(0)}; slotIdx < ${endSlot(0)}; slotIdx++) {\n` +
-                `        require(mdStorage[slotIdx] == 0, "already have references");\n` +
-                `        uint256 slot = 0;\n` +
-                `        for (uint256 refPos = 0; refPos < 4; refPos++) {\n` +
-                `            uint256 refIdx = slotIdx * 4 + refPos;\n` +
-                `            if (refIdx >= liteRefs.length) {\n` +
-                `                break;\n` +
-                `            }\n` +
-                `            slot = slot | uint256(liteRefs[refIdx]) << (64 * refPos);\n` +
-                `        }\n` +
-                `        if (slot != 0) {\n` +
-                `            mdStorage[slotIdx] = slot;\n` +
-                `        }\n` +
-                `    }\n` +
-                `}\n`;
-            }
+                `    require(liteRefs.length <= ${schema.liteRefArrayLength(0)}, "too many references");\n`;
+                if (schema.liteRefArrayLength(0) == 1) {
+                    out += `    addReference(tokenId, liteRefs[0]);\n`;
+                } else {
+                    out += `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n`;
+                    out += `    for (uint256 slotIdx = ${startSlot(0)}; slotIdx < ${endSlot(0)}; slotIdx++) {\n` +
+                    `        require(mdStorage[slotIdx] == 0, "already have references");\n` +
+                    `        uint256 slot = 0;\n` +
+                    `        for (uint256 refPos = 0; refPos < 4; refPos++) {\n` +
+                    `            uint256 refIdx = slotIdx * 4 + refPos;\n` +
+                    `            if (refIdx >= liteRefs.length) {\n` +
+                    `                break;\n` +
+                    `            }\n` +
+                    `            slot = slot | uint256(liteRefs[refIdx]) << (64 * refPos);\n` +
+                    `        }\n` +
+                    `        if (slot != 0) {\n` +
+                    `            mdStorage[slotIdx] = slot;\n` +
+                    `        }\n` +
+                    `    }\n`;
+                }
+                out += `}\n`;
+                return out;
+            } 
             return "";
         }
 
@@ -101,36 +113,62 @@ export class StaticRefFuncGen implements Generator {
         `    addReferenceBatch(tokenId, liteRefs);\n` +
         `}\n`;
 
-        const removeReferenceFunction = schema.hasLiteRef() ? `` +
-        `function removeReference(uint256 tokenId, uint64 liteRef) public {\n` +
-        `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
-        `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
-        `    uint256 nextSlotNumber = ${schema.liteRefSlotNumber(0)};\n` +
-        `    uint256 curSlotNumber = ${schema.liteRefSlotNumber(0)};\n` +
-        `    uint256 slot;\n` +
-        `    for (uint256 i = 0; i < ${schema.liteRefArrayLength(0)}; i++) {\n` +
-        `        uint256 subSlotNumber = i % 4;\n` +
-        `        if (subSlotNumber == 0) {\n` +
-        `            slot = mdStorage[nextSlotNumber];\n` +
-        `            nextSlotNumber++;\n` +
-        `            curSlotNumber = nextSlotNumber - 1;\n` +
-        `        }\n` +
-        `        uint256 shift = subSlotNumber * 64;\n` +
-        `        if (uint64(slot >> shift) == liteRef) {\n` +
-        `            if (subSlotNumber == 0) {\n` +
-        `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000;\n` +
-        `            } else if (subSlotNumber == 1) {\n` +
-        `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF;\n` +
-        `            } else if (subSlotNumber == 2) {\n` +
-        `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;\n` +
-        `            } else {\n` +
-        `                mdStorage[curSlotNumber] = slot & 0x0000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;\n` +
-        `            }\n` +
-        `            return;\n` +
-        `        }\n` +
-        `    }\n` +
-        `    revert("no reference");\n` +
-        `}\n` : "";
+        function generateRemoveReferenceFunction() {
+            let out = ``;
+            if (schema.hasLiteRef()) {
+                out += `` +
+                `function removeReference(uint256 tokenId, uint64 liteRef) public {\n` +
+                `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
+                `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n`;
+                if (schema.liteRefArrayLength(0) == 1) {
+                    let slot = schema.liteRefField(0).slot;
+                    let shift = ``;
+                    let revShift = ``;
+                    if (schema.liteRefField(0).offset > 0) {
+                        shift = ` >> ${schema.liteRefField(0).offset}`;
+                        revShift = ` << ${schema.liteRefField(0).offset}`;
+                    }
+                    out += `` +
+                    `    if (uint64(mdStorage[${slot}]${shift}) == liteRef) {\n` +
+                    `        uint256 mask = (1 << 64) - 1;\n` +
+                    `        uint256 cleared = uint256(mdStorage[${slot}]) & ~(mask${revShift});\n` +
+                    `        mdStorage[${slot}] = cleared;\n` +
+                    `        return;\n` +
+                    `    }\n`;
+                } else {
+                    out += `` +
+                    `    uint256 nextSlotNumber = ${schema.liteRefSlotNumber(0)};\n` +
+                    `    uint256 curSlotNumber = ${schema.liteRefSlotNumber(0)};\n` +
+                    `    uint256 slot;\n` +
+                    `    for (uint256 i = 0; i < ${schema.liteRefArrayLength(0)}; i++) {\n` +
+                    `        uint256 subSlotNumber = i % 4;\n` +
+                    `        if (subSlotNumber == 0) {\n` +
+                    `            slot = mdStorage[nextSlotNumber];\n` +
+                    `            nextSlotNumber++;\n` +
+                    `            curSlotNumber = nextSlotNumber - 1;\n` +
+                    `        }\n` +
+                    `        uint256 shift = subSlotNumber * 64;\n` +
+                    `        if (uint64(slot >> shift) == liteRef) {\n` +
+                    `            if (subSlotNumber == 0) {\n` +
+                    `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000;\n` +
+                    `            } else if (subSlotNumber == 1) {\n` +
+                    `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF;\n` +
+                    `            } else if (subSlotNumber == 2) {\n` +
+                    `                mdStorage[curSlotNumber] = slot & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;\n` +
+                    `            } else {\n` +
+                    `                mdStorage[curSlotNumber] = slot & 0x0000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;\n` +
+                    `            }\n` +
+                    `            return;\n` +
+                    `        }\n` +
+                    `    }\n`;
+                }
+                out +=  `    revert("no reference");\n`;
+                out += `}\n`;
+            }
+            return out;
+        }
+
+        const removeReferenceFunction = generateRemoveReferenceFunction();
 
         const removeReferenceDirectFunction = schema.hasLiteRef() ? `` +
         `function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) external {\n` +

@@ -11,7 +11,7 @@ contract AccountPatch is PatchworkAccountPatch {
         string name;
     }
 
-    uint256 private _nextTokenId;
+    uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
         Patchwork721("test", "AccountPatch", "AP", _manager, _owner)

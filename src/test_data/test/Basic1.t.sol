@@ -8,10 +8,10 @@ import "../Basic1.sol";
 import "@patchwork/PatchworkProtocol.sol";
 import "@patchwork/PatchworkProtocolAssigner.sol";
 
-contract MyBasic1 is Basic1 {
+contract MyBasic1 is Basic1ComplexName {
     uint256 _nextTokenId;
 
-    constructor(address _manager, address _owner) Basic1(_manager, _owner) {}
+    constructor(address _manager, address _owner) Basic1ComplexName(_manager, _owner) {}
 
     /// test mint that allows minting from anyone to anyone
     function mint(address to) public returns (uint256 tokenId) {
@@ -60,7 +60,7 @@ contract Basic1Test is Test {
     }
 
     function testSchemaURI() public {
-        assertEq("https://mything/my-metadata.json", _myContract.schemaURI());
+        assertEq("https://basic.xyz/schema/basic.json", _myContract.schemaURI());
     }
 
     function testImageURI() public {
@@ -127,7 +127,7 @@ contract Basic1Test is Test {
     }
 
     function testPackUnpackMetadata() public {
-        Basic1.Metadata memory originalData;
+        Basic1ComplexName.Metadata memory originalData;
         // Fill in the originalData with test values
         originalData.name = "testname"; 
         originalData.c8 = "shorty";
@@ -137,7 +137,7 @@ contract Basic1Test is Test {
         originalData.fieldu32 = 2181203918;
 
         uint256[] memory packed = _myContract.packMetadata(originalData);
-        Basic1.Metadata memory unpackedData = _myContract.unpackMetadata(packed);
+        Basic1ComplexName.Metadata memory unpackedData = _myContract.unpackMetadata(packed);
 
         // Assertions to verify that original and unpacked data match
         assertEq(unpackedData.name, originalData.name, "Names do not match");

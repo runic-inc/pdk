@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract Basic1 is Patchwork721 {
+contract Basic1ComplexName is Patchwork721 {
 
     struct Metadata {
         string name;
@@ -17,11 +17,11 @@ contract Basic1 is Patchwork721 {
     }
 
     constructor(address _manager, address _owner)
-        Patchwork721("test", "Basic1", "BASIC", _manager, _owner)
+        Patchwork721("test", "Basic1: Complex Name", "BASIC", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
-        return "https://mything/my-metadata.json";
+        return "https://basic.xyz/schema/basic.json";
     }
 
     function imageURI(uint256 tokenId) pure external override returns (string memory) {

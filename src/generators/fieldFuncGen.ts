@@ -1,6 +1,6 @@
 import { ContractSchema, ContractStorageField } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { capitalizeFirstLetter } from "../utils";
+import { cleanAndCapitalizeFirstLetter } from "../utils";
 
 export class FieldFuncGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -12,7 +12,7 @@ export class FieldFuncGen implements Generator {
                 if (field.arrayLength === 0) {
                     continue;
                 }
-                let capName = capitalizeFirstLetter(field.key);
+                let capName = cleanAndCapitalizeFirstLetter(field.key);
                 const permissionLine = field.permissionId ?
                 `require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0, "not authorized");` : 
                 `require(_checkTokenWriteAuth(tokenId), "not authorized");`;

@@ -1,6 +1,6 @@
 import { ContractSchema, Feature } from "../contractSchema";
 import { Generator } from "../generator";
-import { capitalizeFirstLetter } from "../utils";
+import { cleanAndCapitalizeFirstLetter } from "../utils";
 
 export class ContractStartGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -11,7 +11,7 @@ export class ContractStartGen implements Generator {
         if (schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
             inheritance.push("IPatchworkMintable");
         }
-        return `contract ${capitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
+        return `contract ${cleanAndCapitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
     }
 
     getBaseInheritance(features: Feature[]): string[] {

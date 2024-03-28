@@ -156,6 +156,7 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
     function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {
         // This will overwrite all ref values starting at slot 0 idx 0
         require(_checkTokenWriteAuth(tokenId), "not authorized");
+        require(liteRefs.length <= 8, "too many references");
         uint256[] storage mdStorage = _metadataStorage[tokenId];
         for (uint256 slotIdx = 1; slotIdx < 3; slotIdx++) {
             require(mdStorage[slotIdx] == 0, "already have references");

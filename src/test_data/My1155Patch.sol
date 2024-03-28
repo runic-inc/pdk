@@ -11,7 +11,7 @@ contract My1155Patch is Patchwork1155Patch {
         string name;
     }
 
-    uint256 private _nextTokenId;
+    uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
         Patchwork721("test", "My1155Patch", "AP", _manager, _owner)
