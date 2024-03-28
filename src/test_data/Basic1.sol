@@ -21,7 +21,7 @@ contract Basic1 is Patchwork721 {
     {}
 
     function schemaURI() pure external override returns (string memory) {
-        return "https://mything/my-metadata.json";
+        return "https://basic.xyz/schema/basic.json";
     }
 
     function imageURI(uint256 tokenId) pure external override returns (string memory) {

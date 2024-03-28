@@ -6,7 +6,7 @@ export class GeneralFuncGen implements Generator {
         const schemaURI = schema.schemaURI ? schema.schemaURI : "";
         const schemaURIFunction = `` +
         `function schemaURI() pure external override returns (string memory) {\n` +
-        `    return "https://mything/my-metadata.json";\n` +
+        `    return "${schemaURI}";\n` +
         `}\n`;
     
         const imageURI = schema.imageURI && schema.imageURI.includes('{tokenID}') 
