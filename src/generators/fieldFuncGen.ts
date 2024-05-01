@@ -14,8 +14,8 @@ export class FieldFuncGen implements Generator {
                 }
                 let capName = cleanAndCapitalizeFirstLetter(field.key);
                 const permissionLine = field.permissionId ?
-                `require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0, "not authorized");` : 
-                `require(_checkTokenWriteAuth(tokenId), "not authorized");`;
+                `if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}` :
+                `if (!_checkTokenWriteAuth(tokenId)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}`;
                 if (field.arrayLength > 1) {
                     let loadArrayLines = [];
                     let storeArrayLines = [];
@@ -59,8 +59,10 @@ export class FieldFuncGen implements Generator {
                     const storeFunction = `` +
                     `// Store Array for ${field.key}\n` +
                     `function store${capName}(uint256 tokenId, ${field.solidityType}[] memory ${field.key}) public {\n` +
-                    `    ${permissionLine}\n` +
-                    `    require(${field.key}.length == ${field.arrayLength}, "Invalid array length");\n` +
+                    `${ind(4, permissionLine)}\n` +
+                    `    if (${field.key}.length != ${field.arrayLength}) {\n` +
+                    `        revert IPatchworkProtocol.BadInputLengths();\n` +
+                    `    }\n` +
                     `    uint256 slot = 0;\n` +
                     `    ${storeArrayLines.join("\n    ")}\n` +
                     `}\n`;
@@ -86,7 +88,7 @@ export class FieldFuncGen implements Generator {
                     let storeFunction = `` +
                     `// Store Only ${field.key}\n` +
                     `function store${capName}(uint256 tokenId, ${field.solidityType} ${field.isString ? `memory ` : ``}${field.key}) public {\n` +
-                    `    ${permissionLine}\n`;
+                    `${ind(4, permissionLine)}\n`;
                     if (field.elementBits < 256) {
                         let shift = field.offset === 0 ? `` : ` << ${field.offset}`;
                         storeFunction += `    uint256 mask = (1 << ${field.totalBits}) - 1;\n`;

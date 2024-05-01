@@ -7,6 +7,12 @@ import "@patchwork/PatchworkLiteRef.sol";
 
 contract LiteRef8 is Patchwork721, PatchworkLiteRef {
 
+    error NoReferenceSlotsAvailable();
+    error TooManyReferences();
+    error NoReference();
+    error UnsupportedMetadataId();
+    error AlreadyHaveReferences();
+
     struct Metadata {
         uint32 counter;
         uint64[8] attributeIDs;
@@ -31,7 +37,9 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -78,7 +86,9 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
 
     // Store Only counter
     function storeCounter(uint256 tokenId, uint32 counter) public {
-        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0, "not authorized");
+        if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 32) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(counter) & mask);
@@ -102,8 +112,12 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
 
     // Store Array for attributeIDs
     function storeAttributeIDs(uint256 tokenId, uint64[] memory attributeIDs) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
-        require(attributeIDs.length == 8, "Invalid array length");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
+        if (attributeIDs.length != 8) {
+            revert IPatchworkProtocol.BadInputLengths();
+        }
         uint256 slot = 0;
         slot = slot | uint256(attributeIDs[0]) << 0;
         slot = slot | uint256(attributeIDs[1]) << 64;
@@ -119,7 +133,9 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
     }
 
     function addReference(uint256 tokenId, uint64 liteRef) public override {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256[] storage mdStorage = _metadataStorage[tokenId];
         uint256 slot = mdStorage[1];
         if (uint64(slot) == 0) {
@@ -141,25 +157,31 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
             } else if (uint64(slot >> 192) == 0) {
                 mdStorage[2] = slot | uint256(liteRef) << 192;
             } else {
-                revert("No reference slots available");
+                revert NoReferenceSlotsAvailable();
             }
         }
     }
 
     function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) external {
         if (targetMetadataId != 0) {
-            revert("unsupported metadata Id");
+            revert UnsupportedMetadataId();
         }
         addReference(tokenId, liteRef);
     }
 
     function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {
         // This will overwrite all ref values starting at slot 0 idx 0
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
-        require(liteRefs.length <= 8, "too many references");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
+        if (liteRefs.length > 8) {
+            revert TooManyReferences();
+        }
         uint256[] storage mdStorage = _metadataStorage[tokenId];
         for (uint256 slotIdx = 1; slotIdx < 3; slotIdx++) {
-            require(mdStorage[slotIdx] == 0, "already have references");
+            if (mdStorage[slotIdx] != 0) {
+                revert AlreadyHaveReferences();
+            }
             uint256 slot = 0;
             for (uint256 refPos = 0; refPos < 4; refPos++) {
                 uint256 refIdx = slotIdx * 4 + refPos;
@@ -176,13 +198,15 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
 
     function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs, uint256 targetMetadataId) external {
         if (targetMetadataId != 0) {
-            revert("unsupported metadata Id");
+            revert UnsupportedMetadataId();
         }
         addReferenceBatch(tokenId, liteRefs);
     }
 
     function removeReference(uint256 tokenId, uint64 liteRef) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256[] storage mdStorage = _metadataStorage[tokenId];
         uint256 nextSlotNumber = 1;
         uint256 curSlotNumber = 1;
@@ -208,12 +232,12 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
                 return;
             }
         }
-        revert("no reference");
+        revert NoReference();
     }
 
     function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) external {
         if (targetMetadataId != 0) {
-            revert("unsupported metadata Id");
+            revert UnsupportedMetadataId();
         }
         removeReference(tokenId, liteRef);
     }

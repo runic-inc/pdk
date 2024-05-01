@@ -24,7 +24,9 @@ contract FragmentMulti is PatchworkFragmentMulti {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -58,7 +60,9 @@ contract FragmentMulti is PatchworkFragmentMulti {
 
     // Store Only name
     function storeName(uint256 tokenId, string memory name) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
     }
 }

@@ -29,7 +29,9 @@ contract Basic1ComplexName is Patchwork721 {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -75,7 +77,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only name
     function storeName(uint256 tokenId, string memory name) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(name) >> 128 & mask);
@@ -89,7 +93,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only fieldu128a
     function storeFieldu128a(uint256 tokenId, uint128 fieldu128a) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 128);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask) << 128;
@@ -103,7 +109,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only fieldu128b
     function storeFieldu128b(uint256 tokenId, uint128 fieldu128b) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu128b) & mask);
@@ -117,7 +125,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only c8
     function storeC8(uint256 tokenId, string memory c8) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 64) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 128);
         _metadataStorage[tokenId][1] = cleared | (PatchworkUtils.strToUint256(c8) >> 192 & mask) << 128;
@@ -131,7 +141,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only fieldu32
     function storeFieldu32(uint256 tokenId, uint32 fieldu32) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 32) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 192);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu32) & mask) << 192;
@@ -145,7 +157,9 @@ contract Basic1ComplexName is Patchwork721 {
 
     // Store Only fieldu16
     function storeFieldu16(uint256 tokenId, uint16 fieldu16) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 16) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 224);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu16) & mask) << 224;

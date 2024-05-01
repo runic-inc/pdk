@@ -40,14 +40,16 @@ export class StaticRefFuncGen implements Generator {
                     let lines = addReferenceLines.join(" else ");
                     let retBlock = `` +
                     `function addReference(uint256 tokenId, uint64 liteRef) public override {\n` +
-                    `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
+                    `    if (!_checkTokenWriteAuth(tokenId)) {\n` +
+                    `        revert IPatchworkProtocol.NotAuthorized(msg.sender);\n` +
+                    `    }\n` +
                     `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n` +
                     `    uint256 slot = mdStorage[${entry.slot}];\n` +
                     `    ${lines} else {\n`;
                     if (indent == 0) {
-                        retBlock +=  `        revert("No reference slots available");\n`;
+                        retBlock +=  `        revert NoReferenceSlotsAvailable();\n`;
                     } else {
-                        retBlock +=  `            revert("No reference slots available");\n` +
+                        retBlock +=  `            revert NoReferenceSlotsAvailable();\n` +
                         `        }\n`;
                     }
                     retBlock += `` +
@@ -64,14 +66,20 @@ export class StaticRefFuncGen implements Generator {
                 let out = `` +
                 `function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {\n` +
                 `    // This will overwrite all ref values starting at slot 0 idx 0\n` +
-                `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
-                `    require(liteRefs.length <= ${schema.liteRefArrayLength(0)}, "too many references");\n`;
+                `    if (!_checkTokenWriteAuth(tokenId)) {\n` +
+                `        revert IPatchworkProtocol.NotAuthorized(msg.sender);\n` +
+                `    }\n` +
+                `    if (liteRefs.length > ${schema.liteRefArrayLength(0)}) {\n` +
+                `        revert TooManyReferences();\n` +
+                `    }\n`;
                 if (schema.liteRefArrayLength(0) == 1) {
                     out += `    addReference(tokenId, liteRefs[0]);\n`;
                 } else {
                     out += `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n`;
                     out += `    for (uint256 slotIdx = ${startSlot(0)}; slotIdx < ${endSlot(0)}; slotIdx++) {\n` +
-                    `        require(mdStorage[slotIdx] == 0, "already have references");\n` +
+                    `        if (mdStorage[slotIdx] != 0) {\n` +
+                    `            revert AlreadyHaveReferences();\n` +
+                    `        }\n` +
                     `        uint256 slot = 0;\n` +
                     `        for (uint256 refPos = 0; refPos < 4; refPos++) {\n` +
                     `            uint256 refIdx = slotIdx * 4 + refPos;\n` +
@@ -98,7 +106,7 @@ export class StaticRefFuncGen implements Generator {
         const addReferenceDirectFunction = schema.hasLiteRef() ? 
         `function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) external {\n` +
         `    if (targetMetadataId != 0) {\n` +
-        `        revert("unsupported metadata Id");\n` +
+        `        revert UnsupportedMetadataId();\n` +
         `    }\n` +
         `    addReference(tokenId, liteRef);\n` +
         `}\n` : "";
@@ -108,7 +116,7 @@ export class StaticRefFuncGen implements Generator {
         const addReferenceBatchDirectFunction =
         `function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs, uint256 targetMetadataId) external {\n` +
         `    if (targetMetadataId != 0) {\n` +
-        `        revert("unsupported metadata Id");\n` +
+        `        revert UnsupportedMetadataId();\n` +
         `    }\n` +
         `    addReferenceBatch(tokenId, liteRefs);\n` +
         `}\n`;
@@ -118,7 +126,9 @@ export class StaticRefFuncGen implements Generator {
             if (schema.hasLiteRef()) {
                 out += `` +
                 `function removeReference(uint256 tokenId, uint64 liteRef) public {\n` +
-                `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
+                `    if (!_checkTokenWriteAuth(tokenId)) {\n` +
+                `        revert IPatchworkProtocol.NotAuthorized(msg.sender);\n` +
+                `    }\n` +
                 `    uint256[] storage mdStorage = _metadataStorage[tokenId];\n`;
                 if (schema.liteRefArrayLength(0) == 1) {
                     let slot = schema.liteRefField(0).slot;
@@ -162,7 +172,7 @@ export class StaticRefFuncGen implements Generator {
                     `        }\n` +
                     `    }\n`;
                 }
-                out +=  `    revert("no reference");\n`;
+                out +=  `    revert NoReference();\n`;
                 out += `}\n`;
             }
             return out;
@@ -173,7 +183,7 @@ export class StaticRefFuncGen implements Generator {
         const removeReferenceDirectFunction = schema.hasLiteRef() ? `` +
         `function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) external {\n` +
         `    if (targetMetadataId != 0) {\n` +
-        `        revert("unsupported metadata Id");\n` +
+        `        revert UnsupportedMetadataId();\n` +
         `    }\n` +
         `    removeReference(tokenId, liteRef);\n` +
         `}\n` : "";

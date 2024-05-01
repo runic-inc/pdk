@@ -6,7 +6,9 @@ export class DynamicRefFuncGen implements Generator {
         if (schema.hasLiteRef() && schema.liteRefArrayLength(0) === 0) {
         return ind(4, `
 function addReference(uint256 ourTokenId, uint64 liteRef) public override {
-    require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
     // to append: find last slot, if it's not full, add, otherwise start a new slot.
     DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
     uint256 slotsLen = store.slots.length;
@@ -34,12 +36,14 @@ function addReference(uint256 ourTokenId, uint64 liteRef) public override {
 }
 
 function addReferenceBatch(uint256 ourTokenId, uint64[] calldata liteRefs) public override {
-    require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
     // do in batches of 4 with 1 remainder pass
     DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
     uint256 slotsLen = store.slots.length;
     if (slotsLen > 0) {
-        revert("already loaded");
+        revert AlreadyLoaded();
     }
     uint256 fullBatchCount = liteRefs.length / 4;
     uint256 remainder = liteRefs.length % 4;
@@ -61,11 +65,13 @@ function addReferenceBatch(uint256 ourTokenId, uint64[] calldata liteRefs) publi
 }
 
 function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
-    require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
     DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
     uint256 slotsLen = store.slots.length;
     if (slotsLen == 0) {
-        revert("not found");
+        revert NotFound();
     }
 
     uint256 count = getDynamicReferenceCount(ourTokenId);
@@ -74,7 +80,7 @@ function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
             store.slots.pop();
             delete store.idx[liteRef];
         } else {
-            revert("not found");
+            revert NotFound();
         }
     } else {
         // remember and remove the last ref
@@ -115,7 +121,7 @@ function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
                 }
             }
             if (oldSlot == slot) {
-                revert("storage integrity error");
+                revert StorageIntegrityError();
             }
             store.slots[refSlotIdx] = slot;
             store.idx[lastRef] = refSlotIdx;
@@ -126,7 +132,7 @@ function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
 
 function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
     if (targetMetadataId != 0) {
-        revert("Unsupported metadata ID");
+        revert UnsupportedMetadataId();
     }
     addReference(tokenId, liteRef);
 }
@@ -134,14 +140,14 @@ function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId)
 
 function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
     if (targetMetadataId != 0) {
-        revert("Unsupported metadata ID");
+        revert UnsupportedMetadataId();
     }
     removeReference(tokenId, liteRef);
 }
 
 function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs, uint256 targetMetadataId) public override {
     if (targetMetadataId != 0) {
-        revert("Unsupported metadata ID");
+        revert UnsupportedMetadataId();
     }
     addReferenceBatch(tokenId, liteRefs);
 }

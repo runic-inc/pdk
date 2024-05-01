@@ -29,7 +29,9 @@ contract Arrays is Patchwork721 {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -117,7 +119,9 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu128a
     function storeFieldu128a(uint256 tokenId, uint128 fieldu128a) public {
-        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0, "not authorized");
+        if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask);
@@ -131,7 +135,9 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu128b
     function storeFieldu128b(uint256 tokenId, uint128 fieldu128b) public {
-        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x2 > 0, "not authorized");
+        if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x2 > 0)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 128);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128b) & mask) << 128;
@@ -145,7 +151,9 @@ contract Arrays is Patchwork721 {
 
     // Store Only c8
     function storeC8(uint256 tokenId, string memory c8) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 64) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
         _metadataStorage[tokenId][1] = cleared | (PatchworkUtils.strToUint256(c8) >> 192 & mask);
@@ -159,7 +167,9 @@ contract Arrays is Patchwork721 {
 
     // Store Only fieldu32
     function storeFieldu32(uint256 tokenId, uint32 fieldu32) public {
-        require(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x4 > 0, "not authorized");
+        if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x4 > 0)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 32) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 64);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu32) & mask) << 64;
@@ -178,8 +188,12 @@ contract Arrays is Patchwork721 {
 
     // Store Array for names
     function storeNames(uint256 tokenId, string[] memory names) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
-        require(names.length == 4, "Invalid array length");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
+        if (names.length != 4) {
+            revert IPatchworkProtocol.BadInputLengths();
+        }
         uint256 slot = 0;
         slot = slot | PatchworkUtils.strToUint256(names[0]) >> 192 << 0;
         slot = slot | PatchworkUtils.strToUint256(names[1]) >> 192 << 64;
@@ -230,8 +244,12 @@ contract Arrays is Patchwork721 {
 
     // Store Array for u16array
     function storeU16array(uint256 tokenId, uint16[] memory u16array) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
-        require(u16array.length == 32, "Invalid array length");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
+        if (u16array.length != 32) {
+            revert IPatchworkProtocol.BadInputLengths();
+        }
         uint256 slot = 0;
         slot = slot | uint256(u16array[0]) << 0;
         slot = slot | uint256(u16array[1]) << 16;
