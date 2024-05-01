@@ -32,7 +32,9 @@ contract Mintable is Patchwork721, IPatchworkMintable {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -91,7 +93,9 @@ contract Mintable is Patchwork721, IPatchworkMintable {
 
     // Store Only name
     function storeName(uint256 tokenId, string memory name) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(name) >> 128 & mask);

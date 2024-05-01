@@ -26,7 +26,9 @@ contract My1155Patch is Patchwork1155Patch {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -71,7 +73,9 @@ contract My1155Patch is Patchwork1155Patch {
 
     // Store Only name
     function storeName(uint256 tokenId, string memory name) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
     }
 }

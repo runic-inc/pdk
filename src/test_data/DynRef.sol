@@ -8,6 +8,11 @@ import "@patchwork/PatchworkUtils.sol";
 
 contract DynRef is Patchwork721, PatchworkLiteRef {
 
+    error AlreadyLoaded();
+    error NotFound();
+    error StorageIntegrityError();
+    error UnsupportedMetadataId();
+
     struct Metadata {
         string name;
     }
@@ -38,7 +43,9 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId] = packMetadata(data);
     }
 
@@ -73,12 +80,16 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
 
     // Store Only name
     function storeName(uint256 tokenId, string memory name) public {
-        require(_checkTokenWriteAuth(tokenId), "not authorized");
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
     }
 
     function addReference(uint256 ourTokenId, uint64 liteRef) public override {
-        require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+        if (!_checkTokenWriteAuth(ourTokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         // to append: find last slot, if it's not full, add, otherwise start a new slot.
         DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
         uint256 slotsLen = store.slots.length;
@@ -106,12 +117,14 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
     }
 
     function addReferenceBatch(uint256 ourTokenId, uint64[] calldata liteRefs) public override {
-        require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+        if (!_checkTokenWriteAuth(ourTokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         // do in batches of 4 with 1 remainder pass
         DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
         uint256 slotsLen = store.slots.length;
         if (slotsLen > 0) {
-            revert("already loaded");
+            revert AlreadyLoaded();
         }
         uint256 fullBatchCount = liteRefs.length / 4;
         uint256 remainder = liteRefs.length % 4;
@@ -133,11 +146,13 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
     }
 
     function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
-        require(_checkTokenWriteAuth(ourTokenId), "not authorized");
+        if (!_checkTokenWriteAuth(ourTokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
         DynamicLiteRefs storage store = _dynamicLiterefStorage[ourTokenId];
         uint256 slotsLen = store.slots.length;
         if (slotsLen == 0) {
-            revert("not found");
+            revert NotFound();
         }
 
         uint256 count = getDynamicReferenceCount(ourTokenId);
@@ -146,7 +161,7 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
                 store.slots.pop();
                 delete store.idx[liteRef];
             } else {
-                revert("not found");
+                revert NotFound();
             }
         } else {
             // remember and remove the last ref
@@ -187,7 +202,7 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
                     }
                 }
                 if (oldSlot == slot) {
-                    revert("storage integrity error");
+                    revert StorageIntegrityError();
                 }
                 store.slots[refSlotIdx] = slot;
                 store.idx[lastRef] = refSlotIdx;
@@ -198,7 +213,7 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
 
     function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
         if (targetMetadataId != 0) {
-            revert("Unsupported metadata ID");
+            revert UnsupportedMetadataId();
         }
         addReference(tokenId, liteRef);
     }
@@ -206,14 +221,14 @@ contract DynRef is Patchwork721, PatchworkLiteRef {
 
     function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
         if (targetMetadataId != 0) {
-            revert("Unsupported metadata ID");
+            revert UnsupportedMetadataId();
         }
         removeReference(tokenId, liteRef);
     }
 
     function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs, uint256 targetMetadataId) public override {
         if (targetMetadataId != 0) {
-            revert("Unsupported metadata ID");
+            revert UnsupportedMetadataId();
         }
         addReferenceBatch(tokenId, liteRefs);
     }

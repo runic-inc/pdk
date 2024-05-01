@@ -21,7 +21,9 @@ export class GeneralFuncGen implements Generator {
     
         const storeMetadataFunction = `` +
         `function storeMetadata(uint256 tokenId, ${schema.getMetadataStructName()} memory data) public {\n` +
-        `    require(_checkTokenWriteAuth(tokenId), "not authorized");\n` +
+        `    if (!_checkTokenWriteAuth(tokenId)) {\n` +
+        `        revert IPatchworkProtocol.NotAuthorized(msg.sender);\n` +
+        `    }\n` +
         `    _metadataStorage[tokenId] = packMetadata(data);\n` +
         `}\n`;
     

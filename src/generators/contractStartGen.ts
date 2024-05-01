@@ -1,5 +1,5 @@
 import { ContractSchema, Feature } from "../contractSchema";
-import { Generator } from "../generator";
+import { Generator, ind } from "../generator";
 import { cleanAndCapitalizeFirstLetter } from "../utils";
 
 export class ContractStartGen implements Generator {
@@ -11,7 +11,18 @@ export class ContractStartGen implements Generator {
         if (schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
             inheritance.push("IPatchworkMintable");
         }
-        return `contract ${cleanAndCapitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
+        let out = `contract ${cleanAndCapitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
+        if (schema.hasLiteRef()) {
+            out += `\n`;
+            if (schema.liteRefArrayLength(0) == 0) {
+                out += ind(4, `error AlreadyLoaded();\nerror NotFound();\nerror StorageIntegrityError();\nerror UnsupportedMetadataId();\n`);
+            } else if (schema.liteRefArrayLength(0) == 1) {
+                out += ind(4, `error NoReferenceSlotsAvailable();\nerror TooManyReferences();\nerror NoReference();\nerror UnsupportedMetadataId();\n`);
+            } else {
+                out += ind(4, `error NoReferenceSlotsAvailable();\nerror TooManyReferences();\nerror NoReference();\nerror UnsupportedMetadataId();\nerror AlreadyHaveReferences();\n`);
+            }
+        }
+        return out;
     }
 
     getBaseInheritance(features: Feature[]): string[] {
