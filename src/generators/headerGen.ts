@@ -20,6 +20,9 @@ export class HeaderGen implements Generator {
         if (schema.storage.fields.some((field: ContractStorageField) => field.isString)) {
             header += `import "@patchwork/PatchworkUtils.sol";\n`;
         }
+        if (schema.hasLiteRef() && schema.features.includes(Feature.DYNAMICREFLIBRARY)) {
+            header += `import "@patchwork/libraries/PatchworkDynamicRefs.sol";\n`;
+        }
         return header;
     }
 

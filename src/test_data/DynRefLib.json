@@ -1,0 +1,23 @@
+{
+  "scopeName": "test",
+  "name": "DynRefLib",
+  "symbol": "DR",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "features": ["dynamicreflibrary"],
+  "fields": [
+      {
+          "id": 1,
+          "key": "attributeIDs",
+          "type": "literef",
+          "arrayLength": 0,
+          "description": "Dynamic attributes"
+      },
+      {
+          "id": 2,
+          "key": "name",
+          "type": "char32",
+          "description": "Name"
+      }
+  ]
+}

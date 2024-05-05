@@ -7,7 +7,8 @@ export enum Feature {
     PATCH1155 = "1155PATCH",
     MINTABLE = "MINTABLE",
     REVERSIBLE = "REVERSIBLE",
-    WEAKREF = "WEAKREF"
+    WEAKREF = "WEAKREF",
+    DYNAMICREFLIBRARY = "DYNAMICREFLIBRARY"
 }
 
 export type FieldType = {
@@ -238,6 +239,11 @@ export class ContractSchemaImpl implements ContractSchema {
         const hasWeakRef = this.features.includes(Feature.WEAKREF);
         if (hasWeakRef && !this.features.includes(Feature.FRAGMENTSINGLE)) {
             throw new Error('WEAKREF feature requires FRAGMENTSINGLE feature');
+        }
+        if (this.features.includes(Feature.DYNAMICREFLIBRARY)) {
+            if (!(this.hasLiteRef() && this.liteRefArrayLength(0) === 0)) {
+                throw new Error('DYNAMICREFLIBRARY feature requires a dynamic array length literef field');
+            }
         }
     }
 

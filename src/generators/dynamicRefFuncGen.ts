@@ -1,10 +1,75 @@
-import { ContractSchema } from "../contractSchema";
+import { ContractSchema, Feature } from "../contractSchema";
 import { Generator, ind } from "../generator";
 
 export class DynamicRefFuncGen implements Generator {
     gen(schema: ContractSchema): string {
         if (schema.hasLiteRef() && schema.liteRefArrayLength(0) === 0) {
-        return ind(4, `
+            if (schema.features.includes(Feature.DYNAMICREFLIBRARY)) {
+                return ind(4, `
+function addReference(uint256 ourTokenId, uint64 liteRef) public override {
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
+    PatchworkDynamicRefs.addReference(liteRef, _dynamicLiterefStorage[ourTokenId]);
+}
+
+function addReferenceBatch(uint256 ourTokenId, uint64[] calldata liteRefs) public override {
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
+    PatchworkDynamicRefs.addReferenceBatch(liteRefs,  _dynamicLiterefStorage[ourTokenId]);
+}
+
+function removeReference(uint256 ourTokenId, uint64 liteRef) public override {
+    if (!_checkTokenWriteAuth(ourTokenId)) {
+        revert IPatchworkProtocol.NotAuthorized(msg.sender);
+    }
+    PatchworkDynamicRefs.removeReference(liteRef, _dynamicLiterefStorage[ourTokenId]);
+}
+
+function addReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
+    if (targetMetadataId != 0) {
+        revert UnsupportedMetadataId();
+    }
+    addReference(tokenId, liteRef);
+}
+
+
+function removeReference(uint256 tokenId, uint64 liteRef, uint256 targetMetadataId) public override {
+    if (targetMetadataId != 0) {
+        revert UnsupportedMetadataId();
+    }
+    removeReference(tokenId, liteRef);
+}
+
+function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs, uint256 targetMetadataId) public override {
+    if (targetMetadataId != 0) {
+        revert UnsupportedMetadataId();
+    }
+    addReferenceBatch(tokenId, liteRefs);
+}
+
+function loadReferenceAddressAndTokenId(uint256 ourTokenId, uint256 idx) public view returns (address addr, uint256 tokenId) {
+    uint64 ref = PatchworkDynamicRefs.loadRef(idx, _dynamicLiterefStorage[ourTokenId]);
+    (addr, tokenId) = getReferenceAddressAndTokenId(ref);
+}
+
+function getDynamicReferenceCount(uint256 tokenId) public view override returns (uint256 count) {
+    count = PatchworkDynamicRefs.getDynamicReferenceCount(_dynamicLiterefStorage[tokenId]);
+}
+
+function loadDynamicReferencePage(uint256 tokenId, uint256 offset, uint256 count) public view override returns (address[] memory addresses, uint256[] memory tokenIds) {
+    uint64[] memory refs = PatchworkDynamicRefs.loadRefPage(offset, count, _dynamicLiterefStorage[tokenId]);
+    addresses = new address[](refs.length);
+    tokenIds = new uint256[](refs.length);
+    for (uint256 i = 0; i < refs.length; i++) {
+        (address attributeAddress, uint256 attributeTokenId) = getReferenceAddressAndTokenId(refs[i]);
+        addresses[i] = attributeAddress;
+        tokenIds[i] = attributeTokenId;
+    }
+}\n\n`);
+            } else {
+                return ind(4, `
 function addReference(uint256 ourTokenId, uint64 liteRef) public override {
     if (!_checkTokenWriteAuth(ourTokenId)) {
         revert IPatchworkProtocol.NotAuthorized(msg.sender);
@@ -200,7 +265,8 @@ function loadDynamicReferencePage(uint256 tokenId, uint256 offset, uint256 count
         tokenIds[i] = attributeTokenId;
     }
 }\n\n`);
-    };
+        };
+    }
         return "";
     }
 }
