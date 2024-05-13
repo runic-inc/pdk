@@ -101,7 +101,48 @@ export class ContractSchemaImpl implements ContractSchema {
         this.storage = this.buildStorage(config.fields);
     }
     
-   buildStorage(entries: Entry[]): ContractStorage {
+    orderFieldsPacked(origFields: ContractStorageField[]): ContractStorageField[] {
+        let fields = origFields.map(x => x);
+        fields.sort((a: ContractStorageField, b: ContractStorageField) => {
+            // sort static arrays to the end so that other fields can pack easily before we start needing 0 offsets
+            if (a.arrayLength > 1 && b.arrayLength == 1) {
+                return 1;
+            }
+            if (a.arrayLength == 1 && b.arrayLength > 1) {
+                return -1;
+            }
+            if (a.totalBits >= 256 && b.totalBits >= 256) {
+                return 0;
+            }
+            return b.totalBits - a.totalBits;
+        });
+        let newFields: ContractStorageField[] = [];
+        while (fields.length > 0) {
+            let curSlotRemainder = 256;
+            let spliceList = [];
+            for (let i = 0; i < fields.length; i++) {
+                const field = fields[i];
+                if (curSlotRemainder >= field.totalBits || field.totalBits > 256 && curSlotRemainder == 256) {
+                    newFields.push(field);
+                    // mark for removal
+                    spliceList.push(i);
+                    curSlotRemainder -= field.totalBits;
+                    if (curSlotRemainder == 0) {
+                        // this slot is fully packed.
+                        // stop here so we start back at the largest fields for the next iteration.
+                        break;
+                    }
+                }
+            }
+            spliceList.reverse();
+            for (let idx of spliceList) {
+                fields.splice(idx, 1);
+            }
+        }
+        return newFields;
+    }
+
+    buildStorage(entries: Entry[]): ContractStorage {
         let fields: ContractStorageField[] = entries.map((entry: Entry, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.fieldType);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;
@@ -126,19 +167,7 @@ export class ContractSchemaImpl implements ContractSchema {
             return field;
         });
         
-        fields.sort((a: ContractStorageField, b: ContractStorageField) => {
-            // sort static arrays to the end so that other fields can pack easily before we start needing 0 offsets
-            if (a.arrayLength > 1 && b.arrayLength == 1) {
-                return 1;
-            }
-            if (a.arrayLength == 1 && b.arrayLength > 1) {
-                return -1;
-            }
-            if (a.totalBits >= 256 && b.totalBits >= 256) {
-                return 0;
-            }
-            return b.totalBits - a.totalBits;
-        });
+        fields = this.orderFieldsPacked(fields);
         
         let slots: ContractStorageSlot[] = [];
         let slot = new ContractStorageSlot();
@@ -164,6 +193,12 @@ export class ContractSchemaImpl implements ContractSchema {
                 field.slot = slotNumber;
                 field.offset = 0;
             } else {
+                if (offset > 0 && offset + field.totalBits > 256) {
+                    // This field would span starting at a non-0 offset over another slot which is unsupported
+                    // leave the rest of the slot empty and move on to the next.
+                    offset = 256;
+                    nextSlot();
+                }
                 field.slot = slotNumber;
                 field.offset = offset;
             }
@@ -280,6 +315,7 @@ export class ContractSchemaImpl implements ContractSchema {
             char32: { solidityType: "string", name: "CHAR32", bits: 256, isString: true },
             char64: { solidityType: "string", name: "CHAR64", bits: 512, isString: true },
             literef: { solidityType: "uint64", name: "LITEREF", bits: 64, isString: false },
+            address: { solidityType: "address", name: "ADDRESS", bits: 160, isString: false },
         };
 
         const fieldType = fieldTypeMap[name];

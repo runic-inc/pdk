@@ -1,0 +1,29 @@
+{
+  "scopeName": "test",
+  "name": "Basic2: Slot overflow",
+  "symbol": "BASIC",
+  "schemaURI": "https://basic.xyz/schema/basic.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+      "id": 2,
+      "key": "addr",
+      "type": "address",
+      "arrayLength": 1,
+      "description": "address",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    },
+    {
+      "id": 1,
+      "key": "fieldu128a",
+      "type": "uint128",
+      "arrayLength": 1,
+      "description": "Some Uint128",
+      "visibility": "public",
+      "slot": 1,
+      "offset": 0
+    }
+  ]
+}

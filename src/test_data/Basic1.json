@@ -40,6 +40,12 @@
         "key": "c8",
         "type": "char8",
         "description": "c8"
+    },
+    {
+        "id": 7,
+        "key": "addr",
+        "type": "address",
+        "description": "address"
     }
   ]
 }
