@@ -81,6 +81,8 @@ export class FieldFuncGen implements Generator {
                             value = `uint${field.elementBits}(${value})`;
                         }
                         loadFunction += `    return PatchworkUtils.toString${field.elementBits / 8}(${value});\n`;
+                    } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                        loadFunction += `    return address(uint160(value));\n`;
                     } else {
                         loadFunction += `    return ${field.solidityType}(value);\n`;
                     }
@@ -95,6 +97,8 @@ export class FieldFuncGen implements Generator {
                         storeFunction += `    uint256 cleared = uint256(_metadataStorage[tokenId][${field.slot}]) & ~(mask${shift});\n`;
                         if (field.isString) {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (PatchworkUtils.strToUint256(${field.key}) >> ${256 - field.elementBits} & mask)${shift};\n`;
+                        } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                            storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(uint160(${field.key})) & mask)${shift};\n`;
                         } else {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key}) & mask)${shift};\n`;
                         }                    
