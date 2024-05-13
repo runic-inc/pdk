@@ -54,7 +54,7 @@ contract Basic1ComplexName is Patchwork721 {
 
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {
         slots = new uint256[](3);
-        slots[0] = uint256(data.addr) | PatchworkUtils.strToUint256(data.c8) >> 192 << 160 | uint256(data.fieldu32) << 224;
+        slots[0] = uint256(uint160(data.addr)) | PatchworkUtils.strToUint256(data.c8) >> 192 << 160 | uint256(data.fieldu32) << 224;
         slots[1] = PatchworkUtils.strToUint256(data.name) >> 128 | uint256(data.fieldu128a) << 128;
         slots[2] = uint256(data.fieldu128b) | uint256(data.fieldu16) << 128;
         return slots;
@@ -62,7 +62,7 @@ contract Basic1ComplexName is Patchwork721 {
 
     function unpackMetadata(uint256[] memory slots) public pure returns (Metadata memory data) {
         uint256 slot = slots[0];
-        data.addr = address(slot);
+        data.addr = address(uint160(slot));
         data.c8 = PatchworkUtils.toString8(uint64(slot >> 160));
         data.fieldu32 = uint32(slot >> 224);
         slot = slots[1];
@@ -77,7 +77,7 @@ contract Basic1ComplexName is Patchwork721 {
     // Load Only addr
     function loadAddr(uint256 tokenId) public view returns (address) {
         uint256 value = uint256(_metadataStorage[tokenId][0]);
-        return address(value);
+        return address(uint160(value));
     }
 
     // Store Only addr
@@ -87,7 +87,7 @@ contract Basic1ComplexName is Patchwork721 {
         }
         uint256 mask = (1 << 160) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
-        _metadataStorage[tokenId][0] = cleared | (uint256(addr) & mask);
+        _metadataStorage[tokenId][0] = cleared | (uint256(uint160(addr)) & mask);
     }
 
     // Load Only c8

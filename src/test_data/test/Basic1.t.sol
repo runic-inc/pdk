@@ -17,7 +17,7 @@ contract MyBasic1 is Basic1ComplexName {
     function mint(address to) public returns (uint256 tokenId) {
         tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
-        _metadataStorage[tokenId] = new uint256[](2);
+        _metadataStorage[tokenId] = new uint256[](3);
     }
 }
 
@@ -69,60 +69,69 @@ contract Basic1Test is Test {
 
     function testSchema() public {
         IPatchworkMetadata.MetadataSchema memory schema = _myContract.schema();
-        assertEq(6, schema.entries.length);
+        assertEq(7, schema.entries.length);
         IPatchworkMetadata.MetadataSchemaEntry memory entry = schema.entries[0];
-        assertEq(entry.id, 1);
+        assertEq(entry.id, 7);
         assertEq(entry.permissionId, 0);
-        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.CHAR16));
+        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.ADDRESS));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
         assertEq(entry.slot, 0);
         assertEq(entry.offset, 0);
-        assertEq(entry.key, "name");
+        assertEq(entry.key, "addr");
         entry = schema.entries[1];
-        assertEq(entry.id, 3);
-        assertEq(entry.permissionId, 0);
-        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
-        assertEq(entry.fieldCount, 1);
-        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 0);
-        assertEq(entry.offset, 128);
-        assertEq(entry.key, "fieldu128a");
-        entry = schema.entries[2];
-        assertEq(entry.id, 4);
-        assertEq(entry.permissionId, 0);
-        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
-        assertEq(entry.fieldCount, 1);
-        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 1);
-        assertEq(entry.offset, 0);
-        assertEq(entry.key, "fieldu128b");
-        entry = schema.entries[3];
         assertEq(entry.id, 6);
         assertEq(entry.permissionId, 0);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.CHAR8));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 1);
-        assertEq(entry.offset, 128);
+        assertEq(entry.slot, 0);
+        assertEq(entry.offset, 160);
         assertEq(entry.key, "c8");
-        entry = schema.entries[4];
+        entry = schema.entries[2];
         assertEq(entry.id, 5);
         assertEq(entry.permissionId, 0);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT32));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 1);
-        assertEq(entry.offset, 192);
+        assertEq(entry.slot, 0);
+        assertEq(entry.offset, 224);
         assertEq(entry.key, "fieldu32");
+        entry = schema.entries[3];
+        assertEq(entry.id, 1);
+        assertEq(entry.permissionId, 0);
+        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.CHAR16));
+        assertEq(entry.fieldCount, 1);
+        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
+        assertEq(entry.slot, 1);
+        assertEq(entry.offset, 0);
+        assertEq(entry.key, "name");
+        entry = schema.entries[4];
+        assertEq(entry.id, 3);
+        assertEq(entry.permissionId, 0);
+        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
+        assertEq(entry.fieldCount, 1);
+        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
+        assertEq(entry.slot, 1);
+        assertEq(entry.offset, 128);
+        assertEq(entry.key, "fieldu128a");
         entry = schema.entries[5];
+        assertEq(entry.id, 4);
+        assertEq(entry.permissionId, 0);
+        assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT128));
+        assertEq(entry.fieldCount, 1);
+        assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
+        assertEq(entry.slot, 2);
+        assertEq(entry.offset, 0);
+        assertEq(entry.key, "fieldu128b");
+        entry = schema.entries[6];
         assertEq(entry.id, 2);
         assertEq(entry.permissionId, 0);
         assertEq(uint(entry.fieldType), uint(IPatchworkMetadata.FieldType.UINT16));
         assertEq(entry.fieldCount, 1);
         assertEq(uint(entry.visibility), uint(IPatchworkMetadata.FieldVisibility.PUBLIC));
-        assertEq(entry.slot, 1);
-        assertEq(entry.offset, 224);
+        assertEq(entry.slot, 2);
+        assertEq(entry.offset, 128);
         assertEq(entry.key, "fieldu16");
     }
 
@@ -148,6 +157,8 @@ contract Basic1Test is Test {
         assertEq(unpackedData.fieldu32, originalData.fieldu32, "fieldu32s do not match");
     }
 
+    // TODO update adjacency tests - slots have changed since this was written
+    
     // adjacency
     function testSlot0() public {
         vm.startPrank(_scopeOwner);
