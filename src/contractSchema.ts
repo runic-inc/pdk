@@ -193,6 +193,12 @@ export class ContractSchemaImpl implements ContractSchema {
                 field.slot = slotNumber;
                 field.offset = 0;
             } else {
+                if (offset > 0 && offset + field.totalBits > 256) {
+                    // This field would span starting at a non-0 offset over another slot which is unsupported
+                    // leave the rest of the slot empty and move on to the next.
+                    offset = 256;
+                    nextSlot();
+                }
                 field.slot = slotNumber;
                 field.offset = offset;
             }

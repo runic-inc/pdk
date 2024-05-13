@@ -138,6 +138,7 @@ contract Basic1Test is Test {
     function testPackUnpackMetadata() public {
         Basic1ComplexName.Metadata memory originalData;
         // Fill in the originalData with test values
+        originalData.addr = address(0x707);
         originalData.name = "testname"; 
         originalData.c8 = "shorty";
         originalData.fieldu128a = 1293123;
@@ -149,6 +150,7 @@ contract Basic1Test is Test {
         Basic1ComplexName.Metadata memory unpackedData = _myContract.unpackMetadata(packed);
 
         // Assertions to verify that original and unpacked data match
+        assertEq(unpackedData.addr, originalData.addr, "Addrs do not match");
         assertEq(unpackedData.name, originalData.name, "Names do not match");
         assertEq(unpackedData.c8, originalData.c8, "c8s do not match");
         assertEq(unpackedData.fieldu128a, originalData.fieldu128a, "fieldu128as do not match");
@@ -187,6 +189,13 @@ contract Basic1Test is Test {
         assertEq("somec8", _myContract.loadC8(tokenId));
         assertEq(912093, _myContract.loadFieldu32(tokenId));
         assertEq(993, _myContract.loadFieldu16(tokenId));
+    }
+
+    function testFieldAddr() public {
+        vm.startPrank(_scopeOwner);
+        uint256 tokenId = _myContract.mint(_userAddress);
+        _myContract.storeAddr(tokenId, address(0x707));
+        assertEq(address(0x707), _myContract.loadAddr(tokenId));
     }
 
     function testName() public {
