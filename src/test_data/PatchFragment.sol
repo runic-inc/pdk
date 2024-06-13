@@ -26,6 +26,10 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
         return string.concat("https://mything/my/", Strings.toString(tokenId), ".png");
     }
 
+    function _baseURI() internal pure virtual override returns (string memory) {
+        return "https://mything/my/";
+    }
+
     function supportsInterface(bytes4 interfaceID) public view virtual override(PatchworkFragmentSingle, PatchworkPatch) returns (bool) {
         return PatchworkFragmentSingle.supportsInterface(interfaceID) ||
             PatchworkPatch.supportsInterface(interfaceID);

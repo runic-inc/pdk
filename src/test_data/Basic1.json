@@ -2,6 +2,7 @@
   "scopeName": "test",
   "name": "Basic1: Complex Name",
   "symbol": "BASIC",
+  "baseURI": "https://mything/my/",
   "schemaURI": "https://basic.xyz/schema/basic.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "fields": [

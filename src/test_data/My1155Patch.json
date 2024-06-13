@@ -2,6 +2,7 @@
   "scopeName": "test",
   "name": "My1155Patch",
   "symbol": "AP",
+  "baseURI": "https://mything/my/",
   "schemaURI": "https://mything/my-metadata.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "features": ["1155patch"],

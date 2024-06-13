@@ -6,6 +6,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [],
@@ -24,6 +25,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
@@ -48,6 +50,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
@@ -74,6 +77,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
@@ -108,6 +112,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [
@@ -132,6 +137,7 @@ describe('contractSchemas', () => {
             scopeName: "test",
             name: "aname",
             symbol: "SYM",
+            baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [

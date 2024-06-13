@@ -31,6 +31,10 @@ contract LiteRef8 is Patchwork721, PatchworkLiteRef {
         return string.concat("https://mything/my/", Strings.toString(tokenId), ".png");
     }
 
+    function _baseURI() internal pure virtual override returns (string memory) {
+        return "https://mything/my/";
+    }
+
     function supportsInterface(bytes4 interfaceID) public view virtual override(Patchwork721, PatchworkLiteRef) returns (bool) {
         return Patchwork721.supportsInterface(interfaceID) ||
             PatchworkLiteRef.supportsInterface(interfaceID);

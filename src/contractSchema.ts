@@ -32,6 +32,7 @@ export interface ContractConfig {
     scopeName: string;
     name: string;
     symbol: string;
+    baseURI: string;
     schemaURI: string;
     imageURI: string;
     fields: Entry[];
@@ -84,6 +85,7 @@ export class ContractSchemaImpl implements ContractSchema {
     scopeName!: string;
     name!: string;
     symbol!: string;
+    baseURI!: string;
     schemaURI!: string;
     imageURI!: string;
     fields!: Entry[];
@@ -94,6 +96,7 @@ export class ContractSchemaImpl implements ContractSchema {
         this.scopeName = config.scopeName;
         this.name = config.name;
         this.symbol = config.symbol;
+        this.baseURI = config.baseURI;
         this.schemaURI = config.schemaURI;
         this.imageURI = config.imageURI;
         this.fields = config.fields;

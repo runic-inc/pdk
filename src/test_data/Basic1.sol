@@ -29,6 +29,10 @@ contract Basic1ComplexName is Patchwork721 {
         return string.concat("https://mything/my/", Strings.toString(tokenId), ".png");
     }
 
+    function _baseURI() internal pure virtual override returns (string memory) {
+        return "https://mything/my/";
+    }
+
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
         if (!_checkTokenWriteAuth(tokenId)) {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
