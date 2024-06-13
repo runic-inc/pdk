@@ -17,6 +17,12 @@ export class GeneralFuncGen implements Generator {
         `    return ${imageURI};\n` +
         `}\n`;
     
+        const baseURI = schema.baseURI ? schema.baseURI : "";
+        const baseURIFunction = `` +
+        `function _baseURI() internal pure virtual override returns (string memory) {\n` +
+        `    return "${baseURI}";\n` +
+        `}\n`;
+
         const interfaceFunction = this.getSupportsInterfaceFunc(schema);
     
         const storeMetadataFunction = `` +
@@ -35,6 +41,7 @@ export class GeneralFuncGen implements Generator {
         return ind(4, `` +
         `${schemaURIFunction}\n` +
         `${imageURIFunction}\n` +
+        `${baseURIFunction}\n` +
         `${interfaceFunction}` +
         `${storeMetadataFunction}\n` +
         `${loadMetadataFunction}\n`);

@@ -2,6 +2,7 @@
   "scopeName": "test",
   "name": "WeakRef",
   "symbol": "WEAK",
+  "baseURI": "https://mything/my/",
   "schemaURI": "https://mything/my-metadata.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "features": ["fragmentsingle", "weakref"],

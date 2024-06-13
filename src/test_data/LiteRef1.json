@@ -2,6 +2,7 @@
   "scopeName": "test",
   "name": "LiteRef1",
   "symbol": "LR1",
+  "baseURI": "https://mything/my/",
   "schemaURI": "https://mything/my-metadata.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "fields": [

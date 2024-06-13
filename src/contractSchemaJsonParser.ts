@@ -5,6 +5,7 @@ export function parseJson(jsonData: any): ContractSchema {
         scopeName: jsonData.scopeName,
         name: jsonData.name,
         symbol: jsonData.symbol,
+        baseURI: jsonData.baseURI,
         schemaURI: jsonData.schemaURI,
         imageURI: jsonData.imageURI,
         fields: parseFieldEntries(jsonData),
