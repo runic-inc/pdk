@@ -15,6 +15,9 @@ export class PackFuncGen implements Generator {
                     if (field.arrayLength === 0) {
                         continue;
                     }
+                    if (field.totalBits === 0) {
+                        continue;
+                    }
                     let arrayElementsPerSlot = 256 / field.elementBits;
                     let arrayIdxStartInSlot = field.arrayLength == 1 ? 0 : (slotIdx - field.slot) * arrayElementsPerSlot;
                     let arrayIdxEndInSlot = field.arrayLength == 1 ? 1 : arrayIdxStartInSlot + arrayElementsPerSlot;
@@ -74,6 +77,9 @@ export class PackFuncGen implements Generator {
     
             function unpackField(field: ContractStorageField, arrayIdx: number) {
                 if (field.arrayLength === 0) {
+                    return;
+                }
+                if (field.totalBits === 0) {
                     return;
                 }
                 const naiveOffset = field.offset + (field.elementBits * arrayIdx);

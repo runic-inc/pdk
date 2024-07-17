@@ -1,0 +1,22 @@
+{
+  "scopeName": "test",
+  "name": "DynString",
+  "symbol": "DYNSTR",
+  "baseURI": "https://mything/my/",
+  "schemaURI": "https://basic.xyz/schema/dynstring.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+        "id": 1,
+        "key": "fieldu128a",
+        "type": "uint128",
+        "description": "Some Uint128"
+    },
+    {
+        "id": 2,
+        "key": "str",
+        "type": "string",
+        "description": "dynamic string"
+    }
+  ]
+}

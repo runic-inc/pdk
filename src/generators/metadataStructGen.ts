@@ -5,7 +5,7 @@ export class MetadataStructGen implements Generator {
     gen(schema: ContractSchema): string {
         const structDef = `struct ${schema.getMetadataStructName()} {`;
         const structFields = schema.storage.fields
-            .filter((field: any) => field.arrayLength !== 0)
+            .filter((field: any) => field.arrayLength !== 0 && field.totalBits !== 0)
             .map((field: any) => {
                 let fieldType = field.fieldType;
                 if (fieldType == "literef") {

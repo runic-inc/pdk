@@ -16,7 +16,27 @@ export class FieldFuncGen implements Generator {
                 const permissionLine = field.permissionId ?
                 `if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}` :
                 `if (!_checkTokenWriteAuth(tokenId)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}`;
-                if (field.arrayLength > 1) {
+                if (field.fieldType === "string") {
+                    if (field.arrayLength > 1) {
+                        throw new Error("String arrays are not supported in PDK");
+                    }
+                    const loadFunction = `` +
+                    `// Load Only ${field.key}\n` +
+                    `function load${capName}(uint256 tokenId) public view returns (string memory) {\n` +
+                    `    return _dynamicStringStorage[tokenId];\n` +
+                    `}\n`;
+        
+                    const storeFunction = `` +
+                    `// Store Only ${field.key}\n` +
+                    `function store${capName}(uint256 tokenId, string memory ${field.key}) public {\n` +
+                    `${ind(4, permissionLine)}\n` +
+                    `    _dynamicStringStorage[tokenId] = ${field.key};\n` +
+                    `}\n`;
+        
+                    loadStoreFunctions.push(loadFunction);
+                    loadStoreFunctions.push(storeFunction);
+
+                } else if (field.arrayLength > 1) {
                     let loadArrayLines = [];
                     let storeArrayLines = [];
                     let slot = field.slot;
