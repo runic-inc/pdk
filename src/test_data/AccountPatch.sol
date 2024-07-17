@@ -50,10 +50,6 @@ contract AccountPatch is PatchworkAccountPatch {
         if (msg.sender != _manager) {
             return IPatchworkProtocol(_manager).patchAccount{value: msg.value}(owner, target, address(this));
         }
-        // require inherited ownership
-        if (owner != target) {
-            revert IPatchworkProtocol.MintNotAllowed(owner);
-        }
         tokenId = _nextTokenId++;
         _storePatch(tokenId, target);
         _safeMint(owner, tokenId);
