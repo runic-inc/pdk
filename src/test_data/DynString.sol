@@ -2,23 +2,23 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkAccountPatch.sol";
+import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract AccountPatch is PatchworkAccountPatch {
+contract DynString is Patchwork721 {
 
     struct Metadata {
-        string name;
+        uint128 fieldu128a;
     }
 
-    uint256 internal _nextTokenId;
+    mapping(uint256 => string) internal _dynamicStringStorage; // tokenId => string
 
     constructor(address _manager, address _owner)
-        Patchwork721("test", "AccountPatch", "AP", _manager, _owner)
+        Patchwork721("test", "DynString", "DYNSTR", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
-        return "https://mything/my-metadata.json";
+        return "https://basic.xyz/schema/dynstring.json";
     }
 
     function imageURI(uint256 tokenId) pure external override returns (string memory) {
@@ -41,45 +41,50 @@ contract AccountPatch is PatchworkAccountPatch {
     }
 
     function schema() pure external override returns (MetadataSchema memory) {
-        MetadataSchemaEntry[] memory entries = new MetadataSchemaEntry[](1);
-        entries[0] = MetadataSchemaEntry(1, 0, FieldType.CHAR32, 1, FieldVisibility.PUBLIC, 0, 0, "name");
+        MetadataSchemaEntry[] memory entries = new MetadataSchemaEntry[](2);
+        entries[0] = MetadataSchemaEntry(1, 0, FieldType.UINT128, 1, FieldVisibility.PUBLIC, 0, 0, "fieldu128a");
+        entries[1] = MetadataSchemaEntry(2, 0, FieldType.STRING, 1, FieldVisibility.PUBLIC, 0, 0, "str");
         return MetadataSchema(1, entries);
-    }
-
-    function mintPatch(address owner, address target) external payable returns (uint256 tokenId) {
-        if (msg.sender != _manager) {
-            return IPatchworkProtocol(_manager).patchAccount{value: msg.value}(owner, target, address(this));
-        }
-        tokenId = _nextTokenId++;
-        _storePatch(tokenId, target);
-        _safeMint(owner, tokenId);
-        _metadataStorage[tokenId] = new uint256[](1);
-        return tokenId;
     }
 
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {
         slots = new uint256[](1);
-        slots[0] = PatchworkUtils.strToUint256(data.name);
+        slots[0] = uint256(data.fieldu128a);
         return slots;
     }
 
     function unpackMetadata(uint256[] memory slots) public pure returns (Metadata memory data) {
         uint256 slot = slots[0];
-        data.name = PatchworkUtils.toString32(slot);
+        data.fieldu128a = uint128(slot);
         return data;
     }
 
-    // Load Only name
-    function loadName(uint256 tokenId) public view returns (string memory) {
+    // Load Only fieldu128a
+    function loadFieldu128a(uint256 tokenId) public view returns (uint128) {
         uint256 value = uint256(_metadataStorage[tokenId][0]);
-        return PatchworkUtils.toString32(value);
+        return uint128(value);
     }
 
-    // Store Only name
-    function storeName(uint256 tokenId, string memory name) public {
+    // Store Only fieldu128a
+    function storeFieldu128a(uint256 tokenId, uint128 fieldu128a) public {
         if (!_checkTokenWriteAuth(tokenId)) {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
-        _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
+        uint256 mask = (1 << 128) - 1;
+        uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
+        _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask);
+    }
+
+    // Load Only str
+    function loadStr(uint256 tokenId) public view returns (string memory) {
+        return _dynamicStringStorage[tokenId];
+    }
+
+    // Store Only str
+    function storeStr(uint256 tokenId, string memory str) public {
+        if (!_checkTokenWriteAuth(tokenId)) {
+            revert IPatchworkProtocol.NotAuthorized(msg.sender);
+        }
+        _dynamicStringStorage[tokenId] = str;
     }
 }

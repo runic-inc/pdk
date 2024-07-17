@@ -170,6 +170,24 @@ export class ContractSchemaImpl implements ContractSchema {
             return field;
         });
         
+        let hasDynString = false;
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i].fieldType === "string") {
+                if (hasDynString) {
+                    throw new Error("Only one dynamic string field is currently supported in PDK.");
+                }
+                hasDynString = true;
+            }
+        }
+        let hasLiteRef = false;
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i].fieldType === "literef") {
+                if (hasLiteRef) {
+                    throw new Error("Only one field of literefs is currently supported in PDK.");
+                }
+                hasLiteRef = true;
+            }
+        }
         fields = this.orderFieldsPacked(fields);
         
         let slots: ContractStorageSlot[] = [];
@@ -319,12 +337,16 @@ export class ContractSchemaImpl implements ContractSchema {
             char64: { solidityType: "string", name: "CHAR64", bits: 512, isString: true },
             literef: { solidityType: "uint64", name: "LITEREF", bits: 64, isString: false },
             address: { solidityType: "address", name: "ADDRESS", bits: 160, isString: false },
+            string: { solidityType: "string", name: "STRING", bits: 0, isString: true },
         };
 
         const fieldType = fieldTypeMap[name];
 
         if (!fieldType) {
             throw new Error(`Unknown field type: ${name}`);
+        }
+        if (fieldType.name === "CHAR64") {
+            throw new Error("CHAR64 is not currently supported in the pdk. Consider using the dynamic type string instead.");
         }
 
         return fieldType;

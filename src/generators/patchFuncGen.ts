@@ -39,10 +39,6 @@ export class PatchFuncGen implements Generator {
             `    if (msg.sender != _manager) {\n` +
             `        return IPatchworkProtocol(_manager).patchAccount{value: msg.value}(owner, target, address(this));\n` +
             `    }\n` +
-            `    // require inherited ownership\n` +
-            `    if (owner != target) {\n` +
-            `        revert IPatchworkProtocol.MintNotAllowed(owner);\n` +
-            `    }\n` +
             `    tokenId = _nextTokenId++;\n` +
             `    _storePatch(tokenId, target);\n` +
             `    _safeMint(owner, tokenId);\n` +
