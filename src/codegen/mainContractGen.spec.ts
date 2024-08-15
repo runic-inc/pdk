@@ -4,7 +4,7 @@ import { parseJson } from "./contractSchemaJsonParser";
 import { MainContractGen } from './mainContractGen';
 
 describe('generateSolidityCode', () => {
-  const testDirectory = './src/test_data';
+  const testDirectory = './src/codegen/test_data';
   const files = fs.readdirSync(testDirectory);
 
   const jsonFiles = files.filter((file) => file.endsWith('.json'));
