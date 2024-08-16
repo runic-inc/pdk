@@ -8,6 +8,9 @@ import yargs from "yargs/yargs";
 import { parseJson } from './codegen/contractSchemaJsonParser';
 import { MainContractGen } from './codegen/mainContractGen';
 import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
+import { config } from "yargs";
+import { ContractSchemaImpl } from "./codegen/contractSchema";
+import { execSync } from "child_process";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -22,12 +25,12 @@ const argv = yargs(hideBin(process.argv))
         validateJson
     )
     .command(
-        "generate <jsonFile>",
-        "Generate NFT source",
+        "generate <configFile>",
+        "Generate a patchwork contract",
         (yargs) => {
             yargs
-                .positional("jsonFile", {
-                    describe: "Path to the JSON file",
+                .positional("configFile", {
+                    describe: "Path to the JSON or TS file",
                     type: "string",
                 })
                 .option("output", {
@@ -73,29 +76,53 @@ function validateJson(argv: any): void {
 }
 
 function generateSolidity(argv: any) {
-    const jsonFile = argv.jsonFile;
+    const configFile = argv.configFile;
     const outputDir = argv.output || process.cwd();
   
     try {
-      const jsonData = require(path.resolve(jsonFile));
-      const schema = parseJson(jsonData);
-      schema.validate();
-      const solidityCode = new MainContractGen().gen(schema);
-  
-      const solidityFilename = path.basename(jsonFile, ".json") + ".sol";
-      let outputPath = path.join(outputDir, solidityFilename);
-  
-      fs.writeFileSync(outputPath, solidityCode);
-      console.log(`Solidity file generated at ${outputPath}`);
+        let schema;
+        let solidityFilename;
+        let jsonFilename;
+        if (configFile.endsWith(".ts")) {
+            try {
+                const result = execSync(`tsc ${configFile}`);
+                console.log("TSC compile success")
+                console.log(result.toString())
+            } catch (err: any) { 
+                console.log("output", err)
+                console.log("sdterr", err.stderr.toString())
+            }
+            const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
+            const t = require(path.resolve(jsConfigFile)).default;
+            schema = new ContractSchemaImpl(t);
+            fs.unlinkSync(path.resolve(jsConfigFile));
+            solidityFilename = path.basename(configFile, ".ts") + ".sol";
+            jsonFilename = path.basename(configFile, ".ts") + "-schema.json";
+        } else {
+            if (!configFile.endsWith(".json")) {
+            throw new Error("Invalid file type. Please provide a JSON or TS file.");
+            }
+            const jsonData = require(path.resolve(configFile));
+            schema = parseJson(jsonData);
+            solidityFilename = path.basename(configFile, ".json") + ".sol";
+            jsonFilename = path.basename(configFile, ".json") + "-schema.json";
+        }
 
-      const jsonSchema = new JSONSchemaGen().gen(schema);
+        schema.validate();
+        const solidityCode = new MainContractGen().gen(schema);
+    
+        let outputPath = path.join(outputDir, solidityFilename);
+    
+        fs.writeFileSync(outputPath, solidityCode);
+        console.log(`Solidity file generated at ${outputPath}`);
 
-      const jsonFilename = path.basename(jsonFile, ".json") + "-schema.json";
-      outputPath = path.join(outputDir, jsonFilename);
-  
-      fs.writeFileSync(outputPath, jsonSchema);
-      console.log(`JSON Schema file generated at ${outputPath}`);
+        const jsonSchema = new JSONSchemaGen().gen(schema);
+
+        outputPath = path.join(outputDir, jsonFilename);
+    
+        fs.writeFileSync(outputPath, jsonSchema);
+        console.log(`JSON Schema file generated at ${outputPath}`);
     } catch (error: any) {
-      console.error("Error generating Solidity file:", error.message);
+        console.error("Error generating Solidity file:", error.message);
     }
 }
