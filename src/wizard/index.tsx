@@ -1,19 +1,28 @@
 import { Hono } from 'hono';
-import { serve } from '@hono/node-server';
+import { jsxRenderer } from 'hono/jsx-renderer';
 import { FC } from 'hono/jsx';
 import Layout from './components/Layout';
+
+const app = new Hono();
 
 const Home: FC = () => {
   return (
     <Layout>
-      {/* The content for the layout will be filled by the tabs and input fields */}
     </Layout>
   );
 };
 
-export const launchWizardApp = () => {
-  const app = new Hono();
-  app.get('/', (c) => c.html(<Home />));
-  serve({ fetch: app.fetch, port: 3333 });
-  console.log('Patchwork Wizard is running on http://localhost:3333');
-};
+app.get('/', jsxRenderer(({ children }) => (
+  <html>
+    <head>
+      <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+      {children}
+      <script type="module" src="/client.js"></script>
+    </body>
+  </html>
+)), (c) => c.render(<Home />));
+
+
+export default app;

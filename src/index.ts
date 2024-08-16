@@ -9,7 +9,7 @@ import { parseJson } from './codegen/contractSchemaJsonParser';
 import { MainContractGen } from './codegen/mainContractGen';
 import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
 
-import { launchWizardApp } from "./wizard";
+import { launchWizardApp } from "./wizardServer";
 
 const argv = yargs(hideBin(process.argv))
     .command(
