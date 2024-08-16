@@ -9,6 +9,8 @@ import { parseJson } from './contractSchemaJsonParser';
 import { MainContractGen } from './mainContractGen';
 import { JSONSchemaGen } from "./jsonSchemaGen";
 
+import { launchWizardApp } from "./wizard";
+
 const argv = yargs(hideBin(process.argv))
     .command(
         "validate <jsonFile>",
@@ -37,6 +39,14 @@ const argv = yargs(hideBin(process.argv))
                 });
         },
         generateSolidity
+    )
+    .command(
+        "wizard",
+        "Launch the Patchwork Wizard",
+        {},
+        () => {
+            launchWizardApp();
+        }
     )
     .demandCommand(1, "You must provide a valid command")
     .help("h")
