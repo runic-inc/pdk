@@ -86,11 +86,12 @@ function generateSolidity(argv: any) {
         if (configFile.endsWith(".ts")) {
             try {
                 const result = execSync(`tsc ${configFile}`);
-                console.log("TSC compile success")
-                console.log(result.toString())
+                console.log("TSC compile success");
+                console.log(result.toString());
             } catch (err: any) { 
-                console.log("output", err)
-                console.log("sdterr", err.stderr.toString())
+                console.log("Error", err.message);
+                console.log("output", err.stdout.toString());
+                console.log("stderr", err.stderr.toString());
             }
             const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
             const t = require(path.resolve(jsConfigFile)).default;
