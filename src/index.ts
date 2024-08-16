@@ -12,6 +12,8 @@ import { config } from "yargs";
 import { ContractSchemaImpl } from "./codegen/contractSchema";
 import { execSync } from "child_process";
 
+import { launchWizardApp } from "./wizardServer";
+
 const argv = yargs(hideBin(process.argv))
     .command(
         "validate <jsonFile>",
@@ -40,6 +42,14 @@ const argv = yargs(hideBin(process.argv))
                 });
         },
         generateSolidity
+    )
+    .command(
+        "wizard",
+        "Launch the Patchwork Wizard",
+        {},
+        () => {
+            launchWizardApp();
+        }
     )
     .demandCommand(1, "You must provide a valid command")
     .help("h")
