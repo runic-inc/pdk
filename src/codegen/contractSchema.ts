@@ -36,6 +36,7 @@ export class ContractStorage {
 }
 
 export interface ContractSchema extends ContractConfig {
+    features: Feature[];
     storage: ContractStorage;
     hasLiteRef(): boolean;
     getMetadataStructName(): string;
@@ -68,7 +69,7 @@ export class ContractSchemaImpl implements ContractSchema {
         this.schemaURI = config.schemaURI;
         this.imageURI = config.imageURI;
         this.fields = config.fields;
-        this.features = config.features;
+        this.features = config.features || [];
         this.storage = this.buildStorage(config.fields);
     }
     
