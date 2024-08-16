@@ -5,9 +5,9 @@ import fs from "fs";
 import path from "path";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { parseJson } from './contractSchemaJsonParser';
-import { MainContractGen } from './mainContractGen';
-import { JSONSchemaGen } from "./jsonSchemaGen";
+import { parseJson } from './codegen/contractSchemaJsonParser';
+import { MainContractGen } from './codegen/mainContractGen';
+import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
 
 import { launchWizardApp } from "./wizard";
 

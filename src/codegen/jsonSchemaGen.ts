@@ -1,20 +1,5 @@
 import { ContractSchema } from "./contractSchema";
 import { Generator } from "./generator";
-import { ConstructorGen } from "./generators/constructorGen";
-import { ContractEndGen } from "./generators/contractEndGen";
-import { ContractStartGen } from "./generators/contractStartGen";
-import { DynamicRefFuncGen } from "./generators/dynamicRefFuncGen";
-import { FieldFuncGen } from "./generators/fieldFuncGen";
-import { GeneralFuncGen } from "./generators/generalFuncGen";
-import { HeaderGen } from "./generators/headerGen";
-import { MemberVarsGen } from "./generators/memberVars";
-import { MetadataStructGen } from "./generators/metadataStructGen";
-import { MintFuncGen } from "./generators/mintFuncGen";
-import { OverrideFuncGen } from "./generators/overrideFuncGen";
-import { PackFuncGen } from "./generators/packFuncGen";
-import { PatchFuncGen } from "./generators/patchFuncGen";
-import { SchemaFuncGen } from "./generators/schemaFuncGen";
-import { StaticRefFuncGen } from "./generators/staticRefFuncGen";
 
 export class JSONSchemaGen implements Generator {
   gens = new Map<string, Generator>();
