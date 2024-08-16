@@ -1,19 +1,12 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { FC } from 'hono/jsx';
+import Layout from './components/Layout';
 
-const Layout: FC = (props) => {
-  return (
-    <html>
-      <body>{props.children}</body>
-    </html>
-  );
-};
-
-const Home = () => {
+const Home: FC = () => {
   return (
     <Layout>
-      <h1>Welcome to the Patchwork Wizard!</h1>
+      {/* The content for the layout will be filled by the tabs and input fields */}
     </Layout>
   );
 };
