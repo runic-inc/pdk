@@ -1,5 +1,6 @@
-import { ContractSchema, Feature } from "../contractSchema";
+import { ContractSchema } from "../contractSchema";
 import { Generator, ind } from "../generator";
+import { Feature } from "../../types";
 
 export class DynamicRefFuncGen implements Generator {
     gen(schema: ContractSchema): string {

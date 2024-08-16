@@ -1,4 +1,6 @@
-import { ContractConfig, ContractSchema, ContractSchemaImpl } from "./contractSchema";
+import { ContractConfig } from "../types";
+import { ContractSchema, ContractSchemaImpl } from "./contractSchema";
+
 
 describe('contractSchemas', () => {
     it(`should do defaults with no fields or features`, () => {
