@@ -1,4 +1,5 @@
-import { ContractConfig, ContractSchemaImpl, Feature, type ContractSchema, type Entry, type FieldType } from "./contractSchema";
+import { ContractSchemaImpl, type ContractSchema, type FieldType } from "./contractSchema";
+import { ContractConfig, Feature, FieldConfig } from "../types";
 
 export function parseJson(jsonData: any): ContractSchema {
     let contractConfig: ContractConfig = {
@@ -33,11 +34,11 @@ function parseFeatures(jsonData: any): Feature[] {
     return features;
 }
 
-function parseFieldEntries(jsonData: any): Entry[] {
+function parseFieldEntries(jsonData: any): FieldConfig[] {
     return jsonData.fields.map((field: any, index: number) => {
         const fieldArrayLength = field.arrayLength === undefined ? 1 : field.arrayLength;
 
-        const entry: Entry = {
+        const entry: FieldConfig = {
             id: field.id,
             permissionId: field.permissionId,
             fieldType: field.type,

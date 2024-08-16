@@ -1,15 +1,4 @@
-
-export enum Feature {
-    FRAGMENTMULTI = "FRAGMENTMULTI",
-    FRAGMENTSINGLE = "FRAGMENTSINGLE",
-    PATCH = "PATCH",
-    PATCHACCOUNT = "ACCOUNTPATCH",
-    PATCH1155 = "1155PATCH",
-    MINTABLE = "MINTABLE",
-    REVERSIBLE = "REVERSIBLE",
-    WEAKREF = "WEAKREF",
-    DYNAMICREFLIBRARY = "DYNAMICREFLIBRARY"
-}
+import { FieldConfig, ContractConfig, Feature } from '../types';
 
 export type FieldType = {
     solidityType: string;
@@ -18,28 +7,7 @@ export type FieldType = {
     isString: boolean;
 };
 
-export interface Entry {
-    id: number;
-    permissionId: number;
-    fieldType: string;
-    arrayLength: number;
-    visibility: string;
-    key: string;
-    description: string;
-}
-
-export interface ContractConfig {
-    scopeName: string;
-    name: string;
-    symbol: string;
-    baseURI: string;
-    schemaURI: string;
-    imageURI: string;
-    fields: Entry[];
-    features: Feature[];
-}
-
-export class ContractStorageField implements Entry {
+export class ContractStorageField implements FieldConfig {
     // from Entry
     id!: number;
     permissionId!: number;
@@ -68,6 +36,7 @@ export class ContractStorage {
 }
 
 export interface ContractSchema extends ContractConfig {
+    features: Feature[];
     storage: ContractStorage;
     hasLiteRef(): boolean;
     getMetadataStructName(): string;
@@ -88,7 +57,7 @@ export class ContractSchemaImpl implements ContractSchema {
     baseURI!: string;
     schemaURI!: string;
     imageURI!: string;
-    fields!: Entry[];
+    fields!: FieldConfig[];
     features!: Feature[];
     storage: ContractStorage;
     
@@ -100,7 +69,7 @@ export class ContractSchemaImpl implements ContractSchema {
         this.schemaURI = config.schemaURI;
         this.imageURI = config.imageURI;
         this.fields = config.fields;
-        this.features = config.features;
+        this.features = config.features || [];
         this.storage = this.buildStorage(config.fields);
     }
     
@@ -145,15 +114,15 @@ export class ContractSchemaImpl implements ContractSchema {
         return newFields;
     }
 
-    buildStorage(entries: Entry[]): ContractStorage {
-        let fields: ContractStorageField[] = entries.map((entry: Entry, index: number) => {
+    buildStorage(entries: FieldConfig[]): ContractStorage {
+        let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.fieldType);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;
             const bits = fieldTypeEnum.bits * fieldArrayLength;
 
             const field: ContractStorageField = {
                 id: entry.id,
-                permissionId: entry.permissionId,
+                permissionId: entry.permissionId || 0,
                 solidityType: fieldTypeEnum.solidityType,
                 fieldType: entry.fieldType,
                 fieldTypeSolidityEnum: fieldTypeEnum.name,
@@ -165,7 +134,7 @@ export class ContractSchemaImpl implements ContractSchema {
                 key: entry.key,
                 slot: -1,
                 offset: -1,
-                description: entry.description
+                description: entry.description || ""
             };
             return field;
         });

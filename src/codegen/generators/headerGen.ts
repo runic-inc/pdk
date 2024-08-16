@@ -1,5 +1,6 @@
-import { ContractSchema, ContractStorageField, Feature } from "../contractSchema";
+import { ContractSchema, ContractStorageField } from "../contractSchema";
 import { Generator } from "../generator";
+import { Feature } from "../../types";
 
 export class HeaderGen implements Generator {
     gen(schema: ContractSchema): string {

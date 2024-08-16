@@ -1,5 +1,6 @@
-import { ContractSchema, ContractStorageField, Entry } from "../contractSchema";
+import { ContractSchema, ContractStorageField } from "../contractSchema";
 import { Generator, ind } from "../generator";
+import { FieldConfig } from "../../types";
 
 export class StaticRefFuncGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -61,7 +62,7 @@ export class StaticRefFuncGen implements Generator {
             return "";
         };
         
-        function generateAddReferenceBatchFunction(entries: Entry[]) {
+        function generateAddReferenceBatchFunction(entries: FieldConfig[]) {
             if (schema.hasLiteRef()) {
                 let out = `` +
                 `function addReferenceBatch(uint256 tokenId, uint64[] calldata liteRefs) public override {\n` +

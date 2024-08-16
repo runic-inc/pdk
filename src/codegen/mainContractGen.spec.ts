@@ -2,8 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { parseJson } from "./contractSchemaJsonParser";
 import { MainContractGen } from './mainContractGen';
+import { ContractSchemaImpl } from './contractSchema';
+import { exec, execSync } from 'child_process';
 
-describe('generateSolidityCode', () => {
+describe('generateSolidityCodeFromJSON', () => {
   const testDirectory = './src/codegen/test_data';
   const files = fs.readdirSync(testDirectory);
 
@@ -32,6 +34,49 @@ describe('generateSolidityCode', () => {
 
         const solidityGenerated = gen.gen(parseJson(jsonData));
 
+        expect(solidityGenerated).toEqual(solidityExpected);
+      });
+    }
+  }
+});
+
+describe('generateSolidityCodeFromTS', () => {
+  const testDirectory = './src/codegen/test_data';
+  const files = fs.readdirSync(testDirectory);
+
+  const tsFiles = files.filter((file) => file.endsWith('.ts'));
+  const solFiles = files.filter((file) => file.endsWith('.sol'));
+
+  const gen = new MainContractGen()
+
+  const groupedFiles = tsFiles.reduce<{ [key: string]: { ts: string; js: string; sol: string } }>(
+    (acc, tsFile) => {
+      const baseName = path.basename(tsFile, '.ts');
+      acc[baseName] = {
+        ts: path.join(testDirectory, tsFile),
+        js: path.join(testDirectory, baseName + '.js'),
+        sol: path.join(testDirectory, baseName + '.sol'),
+      };
+      return acc;
+    },
+    {},
+  );
+
+  for (const [baseName, files] of Object.entries(groupedFiles)) {
+    if (solFiles.includes(baseName + '.sol')) {
+      it(`should generate the correct Solidity code for ${baseName}.ts`, () => {
+        const solidityExpected = fs.readFileSync(files.sol, 'utf8');
+        try {
+          const result = execSync(`tsc ${files.ts}`);
+          console.log("TSC compile success")
+          console.log(result.toString())
+        } catch (err: any) { 
+          console.log("output", err)
+          console.log("sdterr", err.stderr.toString())
+        }
+        const t = require(`../../${files.js}`).default;
+        const solidityGenerated = gen.gen(new ContractSchemaImpl(t));
+        fs.unlinkSync(`${files.js}`);
         expect(solidityGenerated).toEqual(solidityExpected);
       });
     }
