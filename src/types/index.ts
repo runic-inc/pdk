@@ -10,6 +10,13 @@ export enum Feature {
     DYNAMICREFLIBRARY = "DYNAMICREFLIBRARY"
 }
 
+export enum FunctionConfig {
+    ALL = "ALL",
+    NONE = "NONE",
+    LOAD = "LOAD",
+    STORE = "STORE"
+}
+
 export type FieldConfig = {
     id: number;
     permissionId?: number;
@@ -18,6 +25,7 @@ export type FieldConfig = {
     visibility?: string;
     key: string;
     description?: string;
+    functionConfig?: FunctionConfig;
 }
 
 export type ContractConfig = {

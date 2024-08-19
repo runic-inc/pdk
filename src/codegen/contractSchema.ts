@@ -1,4 +1,4 @@
-import { FieldConfig, ContractConfig, Feature } from '../types';
+import { FieldConfig, ContractConfig, Feature, FunctionConfig } from '../types';
 
 export type FieldType = {
     solidityType: string;
@@ -16,6 +16,7 @@ export class ContractStorageField implements FieldConfig {
     visibility!: string;
     key!: string;
     description!: string;
+    functionConfig!: FunctionConfig;
     // calculated
     solidityType!: string;
     fieldTypeSolidityEnum!: string;
@@ -134,7 +135,8 @@ export class ContractSchemaImpl implements ContractSchema {
                 key: entry.key,
                 slot: -1,
                 offset: -1,
-                description: entry.description || ""
+                description: entry.description || "",
+                functionConfig: entry.functionConfig || FunctionConfig.ALL,
             };
             return field;
         });

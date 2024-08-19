@@ -1,4 +1,4 @@
-import { ContractConfig, Feature } from '../../types';
+import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
 const config: ContractConfig = {
     "scopeName": "test",
@@ -13,7 +13,8 @@ const config: ContractConfig = {
             "id": 1,
             "key": "name",
             "fieldType": "char32",
-            "description": "Name"
+            "description": "Name",
+            "functionConfig": FunctionConfig.ALL,
         }
     ]
 }

@@ -115,12 +115,6 @@ contract Arrays is Patchwork721 {
         return data;
     }
 
-    // Load Only fieldu128a
-    function loadFieldu128a(uint256 tokenId) public view returns (uint128) {
-        uint256 value = uint256(_metadataStorage[tokenId][0]);
-        return uint128(value);
-    }
-
     // Store Only fieldu128a
     function storeFieldu128a(uint256 tokenId, uint128 fieldu128a) public {
         if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x1 > 0)) {
@@ -151,32 +145,6 @@ contract Arrays is Patchwork721 {
     function loadC8(uint256 tokenId) public view returns (string memory) {
         uint256 value = uint256(_metadataStorage[tokenId][1]);
         return PatchworkUtils.toString8(uint64(value));
-    }
-
-    // Store Only c8
-    function storeC8(uint256 tokenId, string memory c8) public {
-        if (!_checkTokenWriteAuth(tokenId)) {
-            revert IPatchworkProtocol.NotAuthorized(msg.sender);
-        }
-        uint256 mask = (1 << 64) - 1;
-        uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
-        _metadataStorage[tokenId][1] = cleared | (PatchworkUtils.strToUint256(c8) >> 192 & mask);
-    }
-
-    // Load Only fieldu32
-    function loadFieldu32(uint256 tokenId) public view returns (uint32) {
-        uint256 value = uint256(_metadataStorage[tokenId][1]) >> 64;
-        return uint32(value);
-    }
-
-    // Store Only fieldu32
-    function storeFieldu32(uint256 tokenId, uint32 fieldu32) public {
-        if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x4 > 0)) {
-            revert IPatchworkProtocol.NotAuthorized(msg.sender);
-        }
-        uint256 mask = (1 << 32) - 1;
-        uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 64);
-        _metadataStorage[tokenId][1] = cleared | (uint256(fieldu32) & mask) << 64;
     }
 
     // Load Array for names
