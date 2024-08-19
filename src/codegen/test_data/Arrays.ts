@@ -1,5 +1,6 @@
-import { ContractConfig, Feature } from '../../types';
+import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
+// TODO support field functionConfig
 const config: ContractConfig = {
     "scopeName": "test",
     "name": "Arrays",
@@ -27,27 +28,31 @@ const config: ContractConfig = {
             "key": "fieldu128a",
             "fieldType": "uint128",
             "description": "Some Uint128",
-            "permissionId": 1
+            "permissionId": 1,
+            "functionConfig": FunctionConfig.STORE,
         },
         {
             "id": 4,
             "key": "fieldu128b",
             "fieldType": "uint128",
             "description": "Some Uint128",
-            "permissionId": 2
+            "permissionId": 2,
+            "functionConfig": FunctionConfig.ALL,
         },
         {
             "id": 5,
             "key": "fieldu32",
             "fieldType": "uint32",
             "description": "Some Uint32",
-            "permissionId": 3
+            "permissionId": 3,
+            "functionConfig": FunctionConfig.NONE,
         },
         {
             "id": 6,
             "key": "c8",
             "fieldType": "char8",
-            "description": "c8"
+            "description": "c8",
+            "functionConfig": FunctionConfig.LOAD,
         }
     ]
 }

@@ -38,6 +38,7 @@ function parseFieldEntries(jsonData: any): FieldConfig[] {
     return jsonData.fields.map((field: any, index: number) => {
         const fieldArrayLength = field.arrayLength === undefined ? 1 : field.arrayLength;
 
+
         const entry: FieldConfig = {
             id: field.id,
             permissionId: field.permissionId,
@@ -46,6 +47,7 @@ function parseFieldEntries(jsonData: any): FieldConfig[] {
             visibility: "FieldVisibility.PUBLIC",
             key: field.key,
             description: field.description,
+            functionConfig: field.functionConfig ? field.functionConfig.toUpperCase() : undefined,
         };
         return entry;
     });

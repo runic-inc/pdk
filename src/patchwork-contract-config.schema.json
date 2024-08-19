@@ -98,10 +98,20 @@
                     },
                     "visibility": {
                         "type": "string",
-                        "description": "Field visibility",
+                        "description": "Field visibility (default public)",
                         "enum": [
                             "public",
                             "private"
+                        ]
+                    },
+                    "functionConfig": {
+                        "type": "string",
+                        "description": "Function generation (default all)",
+                        "enum": [
+                            "all",
+                            "none",
+                            "load",
+                            "store"
                         ]
                     }
                 }

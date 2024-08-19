@@ -1,3 +1,4 @@
+import { FunctionConfig } from "../../types";
 import { ContractSchema, ContractStorageField } from "../contractSchema";
 import { Generator, ind } from "../generator";
 import { cleanAndCapitalizeFirstLetter } from "../utils";
@@ -33,9 +34,12 @@ export class FieldFuncGen implements Generator {
                     `    _dynamicStringStorage[tokenId] = ${field.key};\n` +
                     `}\n`;
         
-                    loadStoreFunctions.push(loadFunction);
-                    loadStoreFunctions.push(storeFunction);
-
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
+                        loadStoreFunctions.push(loadFunction);
+                    }
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.STORE) {
+                        loadStoreFunctions.push(storeFunction);
+                    }
                 } else if (field.arrayLength > 1) {
                     let loadArrayLines = [];
                     let storeArrayLines = [];
@@ -86,9 +90,12 @@ export class FieldFuncGen implements Generator {
                     `    uint256 slot = 0;\n` +
                     `    ${storeArrayLines.join("\n    ")}\n` +
                     `}\n`;
-        
-                    loadStoreFunctions.push(loadFunction);
-                    loadStoreFunctions.push(storeFunction);
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
+                        loadStoreFunctions.push(loadFunction);
+                    }
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.STORE) {
+                        loadStoreFunctions.push(storeFunction);
+                    }
                 } else {
                     const shift = field.offset > 0 ? ` >> ${field.offset}` : "";
                     let loadFunction = `` +
@@ -131,8 +138,12 @@ export class FieldFuncGen implements Generator {
                     }
 
                     storeFunction += `}\n`;
-                    loadStoreFunctions.push(loadFunction);
-                    loadStoreFunctions.push(storeFunction);
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
+                        loadStoreFunctions.push(loadFunction);
+                    }
+                    if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.STORE) {
+                        loadStoreFunctions.push(storeFunction);
+                    }
                 }
             }
     

@@ -11,7 +11,8 @@
           "id": 1,
           "key": "name",
           "type": "char32",
-          "description": "Name"
+          "description": "Name",
+          "functionConfig": "all"
       }
   ]
 }
