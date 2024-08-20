@@ -115,4 +115,6 @@ contract WeakRef is PatchworkFragmentSingle {
         }
         ERC721.safeTransferFrom(from, to, tokenId, data);
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

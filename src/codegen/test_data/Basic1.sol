@@ -189,4 +189,6 @@ contract Basic1ComplexName is Patchwork721 {
         uint256 cleared = uint256(_metadataStorage[tokenId][2]) & ~(mask << 128);
         _metadataStorage[tokenId][2] = cleared | (uint256(fieldu16) & mask) << 128;
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

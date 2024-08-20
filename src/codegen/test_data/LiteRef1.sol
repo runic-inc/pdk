@@ -172,4 +172,6 @@ contract LiteRef1 is Patchwork721, PatchworkLiteRef {
     function _checkWriteAuth() internal override(Patchwork721, PatchworkLiteRef) view returns (bool allow) {
         return Patchwork721._checkWriteAuth();
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

@@ -259,4 +259,6 @@ contract Arrays is Patchwork721 {
         slot = slot | uint256(u16array[31]) << 240;
         _metadataStorage[tokenId][4] = slot;
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

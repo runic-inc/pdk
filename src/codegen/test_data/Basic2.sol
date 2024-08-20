@@ -91,4 +91,6 @@ contract Basic2Slotoverflow is Patchwork721 {
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu128a) & mask);
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

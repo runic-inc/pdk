@@ -108,4 +108,6 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
     function updateOwnership(uint256 tokenId) public virtual override(PatchworkPatch, PatchworkFragmentSingle) {
         PatchworkPatch.updateOwnership(tokenId);
     }
+
+    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }
