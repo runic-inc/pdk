@@ -17,5 +17,3 @@ export const launchWizardApp = () => {
   });
   console.log('Patchwork Wizard is running on http://localhost:3333');
 };
-
-launchWizardApp();
