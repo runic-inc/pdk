@@ -10,7 +10,6 @@ export const launchWizardApp = () => {
   // Explicitly serve static files
   app.get('/style.css', async (c) => {
     const filePath = path.resolve(__dirname, 'wizard', 'style.css');
-    console.log('Attempting to serve CSS from:', filePath);
     if (fs.existsSync(filePath)) {
       return c.body(fs.readFileSync(filePath), 200, { 'Content-Type': 'text/css' });
     }
@@ -20,7 +19,6 @@ export const launchWizardApp = () => {
 
   app.get('/client.js', async (c) => {
     const filePath = path.resolve(__dirname, 'wizard', 'client.js');
-    console.log('Attempting to serve JS from:', filePath);
     if (fs.existsSync(filePath)) {
       return c.body(fs.readFileSync(filePath), 200, { 'Content-Type': 'application/javascript' });
     }
@@ -35,7 +33,5 @@ export const launchWizardApp = () => {
     fetch: app.fetch,
     port: 3333
   });
-
   console.log('Patchwork Wizard is running on http://localhost:3333');
-  console.log('Static files should be in:', path.resolve(__dirname, 'wizard'));
 };
