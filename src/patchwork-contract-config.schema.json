@@ -35,7 +35,9 @@
                     "fragmentsingle",
                     "mintable",
                     "patch",
-                    "reversible"
+                    "reversible",
+                    "weakref",
+                    "dynamicreflibrary"
                 ]
             },
             "description": "list of features to generate"

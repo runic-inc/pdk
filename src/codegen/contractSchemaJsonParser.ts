@@ -37,8 +37,6 @@ function parseFeatures(jsonData: any): Feature[] {
 function parseFieldEntries(jsonData: any): FieldConfig[] {
     return jsonData.fields.map((field: any, index: number) => {
         const fieldArrayLength = field.arrayLength === undefined ? 1 : field.arrayLength;
-
-
         const entry: FieldConfig = {
             id: field.id,
             permissionId: field.permissionId,

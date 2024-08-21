@@ -1,7 +1,7 @@
 {
   "scopeName": "test",
-  "name": "WeakRef",
-  "symbol": "WEAK",
+  "name": "FragmentMulti",
+  "symbol": "FM",
   "schemaURI": "https://mything/my-metadata.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "fields": [

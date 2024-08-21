@@ -4,7 +4,7 @@ pragma solidity ^0.8.23;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 
-import "../Basic1.sol";
+import "../Basic1ComplexName.sol";
 import "@patchwork/PatchworkProtocol.sol";
 import "@patchwork/PatchworkProtocolAssigner.sol";
 

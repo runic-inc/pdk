@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract Basic1ComplexName is Patchwork721 {
+abstract contract Basic1ComplexNameGenerated is Patchwork721 {
 
     struct Metadata {
         address addr;
