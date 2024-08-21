@@ -113,7 +113,12 @@ function generateSolidity(argv: any) {
                 fs.unlinkSync(path.resolve(jsConfigFile));
             } else {
                 if (!configFile.endsWith(".json")) {
-                throw new Error("Invalid file type. Please provide a JSON or TS file.");
+                    throw new Error("Invalid file type. Please provide a JSON or TS file.");
+                }
+                const validated = tryValidate(configFile, "../src/patchwork-contract-config.schema.json");
+                if (validated !== true) {
+                    console.log(`${configFile} did not validate`, validated);
+                    process.exit(1);
                 }
                 const jsonData = require(path.resolve(configFile));
                 schema = parseJson(jsonData);
@@ -131,8 +136,12 @@ function generateSolidity(argv: any) {
     
             const solidityUserCode = new UserContractGen().gen(schema);
             outputPath = path.join(outputDir, solidityUserFilename);
-            fs.writeFileSync(outputPath, solidityUserCode);
-            console.log(`Solidity user file generated at ${outputPath}`);
+            if (fs.existsSync(outputPath)) {
+                console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
+            } else {
+                fs.writeFileSync(outputPath, solidityUserCode);
+                console.log(`Solidity user file generated at ${outputPath}`);
+            }
 
             const jsonSchema = new JSONSchemaGen().gen(schema);
             outputPath = path.join(outputDir, jsonFilename);
