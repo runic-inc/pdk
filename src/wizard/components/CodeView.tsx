@@ -1,44 +1,44 @@
 import { useState, useEffect, FC } from 'hono/jsx'
 import { parseJson } from "../../codegen/contractSchemaJsonParser";
 import { MainContractGen } from "../../codegen/mainContractGen";
+import { UserContractGen } from '../../codegen/userContractGen';
+import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
+import { ContractConfig } from '../../types';
+import { ContractSchemaImpl } from '../../codegen/contractSchema';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/vs2015.css';
 
-const CodeView: FC = () => {
+interface CodeViewProps {
+  viewType: string;
+  contractConfig: ContractConfig;
+}
+
+const CodeView: FC<CodeViewProps> = ({ viewType, contractConfig }) => {
   const [solidityCode, setSolidityCode] = useState("");
-  const [accountJson] = useState({
-    "scopeName": "test",
-    "name": "AccountPatch",
-    "symbol": "AP",
-    "baseURI": "https://mything/my/",
-    "schemaURI": "https://mything/my-metadata.json",
-    "imageURI": "https://mything/my/{tokenID}.png",
-    "features": ["accountpatch"],
-    "fields": [
-      {
-        "id": 1,
-        "key": "name",
-        "type": "char32",
-        "description": "Name",
-        "functionConfig": "all"
-      }
-    ]
-  });
 
-  console.log("Account JSON:", accountJson);
   useEffect(() => {
+    console.log("contract config", contractConfig);
     try {
-      const schema = parseJson(accountJson);
-      const generatedCode = new MainContractGen().gen(schema);
-      setSolidityCode(generatedCode);
+      if (viewType === "userContract") {
+        const highlighted = hljs.highlight(new UserContractGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'java'});
+        setSolidityCode(highlighted.value);
+      } else if (viewType === "genContract") {
+        const highlighted = hljs.highlight(new MainContractGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'java'});
+        setSolidityCode(highlighted.value);
+      } else if (viewType === "schema") {
+        const highlighted = hljs.highlight(new JSONSchemaGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'json'});
+        setSolidityCode(highlighted.value);
+      }
     } catch (error) {
       console.error("Error generating code:", error);
       setSolidityCode("Error generating code");
     }
-  }, [accountJson]);
-
+  }, [contractConfig, viewType]);
+  const a = {__html: solidityCode}
   return (
-    <pre className="bg-gray-900 text-white p-4 rounded">
-      <code>{solidityCode}</code>
-    </pre>
+    <div className="bg-gray-900 text-white p-4 rounded">
+      <pre><code dangerouslySetInnerHTML={a}></code></pre>
+    </div>
   );
 };
 

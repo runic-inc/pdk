@@ -1,27 +1,38 @@
 import { FC, useState } from 'hono/jsx';
 import CodeView from './CodeView';
+import { ContractConfig } from '../../types';
 
-const Tabs: FC = () => {
-  const [activeTab, setActiveTab] = useState('solidity');
+interface TabsProps {
+  contractConfig: ContractConfig;
+}
+
+const Tabs: FC<TabsProps> = ({ contractConfig }) => {
+  const [activeTab, setActiveTab] = useState('userContract');
 
   return (
     <div>
       <div className="flex space-x-4">
         <button
-          className={`py-2 px-4 ${activeTab === 'solidity' ? 'border-b-2 border-blue-500' : ''}`}
-          onClick={() => setActiveTab('solidity')}
+          className={`py-2 px-4 ${activeTab === 'userContract' ? 'border-b-2 border-blue-500' : ''}`}
+          onClick={() => setActiveTab('userContract')}
         >
-          Solidity
+          User Contract
+        </button>
+        <button
+          className={`py-2 px-4 ${activeTab === 'genContract' ? 'border-b-2 border-blue-500' : ''}`}
+          onClick={() => setActiveTab('genContract')}
+        >
+          Generated Contract
         </button>
         <button
           className={`py-2 px-4 ${activeTab === 'schema' ? 'border-b-2 border-blue-500' : ''}`}
           onClick={() => setActiveTab('schema')}
         >
-          Schema
+          Schema JSON
         </button>
       </div>
       <div className="mt-4">
-        {activeTab === 'solidity' ? <CodeView /> : <CodeView/>}
+        <CodeView viewType={activeTab} contractConfig={contractConfig} />
       </div>
     </div>
   );
