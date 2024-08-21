@@ -2,17 +2,12 @@ import { FC, useState } from 'hono/jsx';
 import CodeView from './CodeView';
 import { ContractConfig } from '../../types';
 
-const Tabs: FC = (contractConfig) => {
-  const [activeTab, setActiveTab] = useState('userContract');
+interface TabsProps {
+  contractConfig: ContractConfig;
+}
 
-  let currentTabComponent = null;
-  if (activeTab === 'userContract') { 
-    currentTabComponent = <CodeView viewType="userCode" contractConfig />;
-  } else if (activeTab === 'genContract') {
-    currentTabComponent = <CodeView viewType="genCode" contractConfig/>;
-  } else if (activeTab === 'schema') {
-    currentTabComponent = <CodeView viewType="schema" contractConfig/>;
-  }
+const Tabs: FC<TabsProps> = ({ contractConfig }) => {
+  const [activeTab, setActiveTab] = useState('userContract');
 
   return (
     <div>
@@ -37,7 +32,7 @@ const Tabs: FC = (contractConfig) => {
         </button>
       </div>
       <div className="mt-4">
-        {currentTabComponent}
+        <CodeView viewType={activeTab} contractConfig={contractConfig} />
       </div>
     </div>
   );

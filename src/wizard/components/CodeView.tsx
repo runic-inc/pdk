@@ -3,23 +3,27 @@ import { parseJson } from "../../codegen/contractSchemaJsonParser";
 import { MainContractGen } from "../../codegen/mainContractGen";
 import { UserContractGen } from '../../codegen/userContractGen';
 import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
+import { ContractConfig } from '../../types';
+import { ContractSchemaImpl } from '../../codegen/contractSchema';
 
-const CodeView: FC = ({viewType, contractConfig}) => {
+interface CodeViewProps {
+  viewType: string;
+  contractConfig: ContractConfig;
+}
+
+const CodeView: FC<CodeViewProps> = ({ viewType, contractConfig }) => {
   const [solidityCode, setSolidityCode] = useState("");
 
   useEffect(() => {
+    console.log("contract config", contractConfig);
     try {
-      if (viewType === "userCode") {
-        setSolidityCode(new UserContractGen().gen(contractConfig));
-        return;
-      } else if (viewType === "genCode") {
-        setSolidityCode(new MainContractGen().gen(contractConfig));
-        return;
+      if (viewType === "userContract") {
+        setSolidityCode(new UserContractGen().gen(new ContractSchemaImpl(contractConfig)));
+      } else if (viewType === "genContract") {
+        setSolidityCode(new MainContractGen().gen(new ContractSchemaImpl(contractConfig)));
       } else if (viewType === "schema") {
-        setSolidityCode(new JSONSchemaGen().gen(contractConfig));
-        return;
+        setSolidityCode(new JSONSchemaGen().gen(new ContractSchemaImpl(contractConfig)));
       }
-      // TODO generate contract configuration json / ts (file)
     } catch (error) {
       console.error("Error generating code:", error);
       setSolidityCode("Error generating code");
