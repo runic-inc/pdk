@@ -1,6 +1,6 @@
 import { FC } from "hono/jsx";
 
-const InputFields: FC = () => {
+const InputFields: FC = (setContractConfig) => {
     return (
       <div>
         <label className="block mb-2">

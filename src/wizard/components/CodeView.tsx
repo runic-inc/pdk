@@ -1,39 +1,30 @@
 import { useState, useEffect, FC } from 'hono/jsx'
 import { parseJson } from "../../codegen/contractSchemaJsonParser";
 import { MainContractGen } from "../../codegen/mainContractGen";
+import { UserContractGen } from '../../codegen/userContractGen';
+import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
 
-const CodeView: FC = () => {
+const CodeView: FC = ({viewType, contractConfig}) => {
   const [solidityCode, setSolidityCode] = useState("");
-  const [accountJson] = useState({
-    "scopeName": "test",
-    "name": "AccountPatch",
-    "symbol": "AP",
-    "baseURI": "https://mything/my/",
-    "schemaURI": "https://mything/my-metadata.json",
-    "imageURI": "https://mything/my/{tokenID}.png",
-    "features": ["accountpatch"],
-    "fields": [
-      {
-        "id": 1,
-        "key": "name",
-        "type": "char32",
-        "description": "Name",
-        "functionConfig": "all"
-      }
-    ]
-  });
 
-  console.log("Account JSON:", accountJson);
   useEffect(() => {
     try {
-      const schema = parseJson(accountJson);
-      const generatedCode = new MainContractGen().gen(schema);
-      setSolidityCode(generatedCode);
+      if (viewType === "userCode") {
+        setSolidityCode(new UserContractGen().gen(contractConfig));
+        return;
+      } else if (viewType === "genCode") {
+        setSolidityCode(new MainContractGen().gen(contractConfig));
+        return;
+      } else if (viewType === "schema") {
+        setSolidityCode(new JSONSchemaGen().gen(contractConfig));
+        return;
+      }
+      // TODO generate contract configuration json / ts (file)
     } catch (error) {
       console.error("Error generating code:", error);
       setSolidityCode("Error generating code");
     }
-  }, [accountJson]);
+  }, [contractConfig, viewType]);
 
   return (
     <pre className="bg-gray-900 text-white p-4 rounded">
