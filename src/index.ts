@@ -27,18 +27,18 @@ const argv = yargs(hideBin(process.argv))
         validateJson
     )
     .command(
-        "generate <configFile>",
-        "Generate a patchwork contract",
+        "generate <configFiles..>",
+        "Generate patchwork contracts",
         (yargs) => {
             yargs
-                .positional("configFile", {
-                    describe: "Path to the JSON or TS file",
+                .positional("configFiles", {
+                    describe: "Path to the JSON or TS files",
                     type: "string",
                 })
                 .option("output", {
                     alias: "o",
                     type: "string",
-                    description: "Output directory for the generated Solidity file",
+                    description: "Output directory for the generated Solidity files",
                 });
         },
         generateSolidity
@@ -86,54 +86,57 @@ function validateJson(argv: any): void {
 }
 
 function generateSolidity(argv: any) {
-    const configFile = argv.configFile;
+    const configFiles = argv.configFiles;
     const outputDir = argv.output || process.cwd();
   
-    try {
-        let schema;
-        let solidityFilename;
-        let jsonFilename;
-        if (configFile.endsWith(".ts")) {
-            try {
-                const result = execSync(`tsc ${configFile}`);
-                console.log("TSC compile success");
-                console.log(result.toString());
-            } catch (err: any) { 
-                console.log("Error", err.message);
-                console.log("output", err.stdout.toString());
-                console.log("stderr", err.stderr.toString());
+    for (const configFile of configFiles) {
+        try {
+            let schema;
+            let solidityFilename;
+            let jsonFilename;
+            if (configFile.endsWith(".ts")) {
+                try {
+                    const result = execSync(`tsc ${configFile}`);
+                    console.log("TSC compile success");
+                    console.log(result.toString());
+                } catch (err: any) { 
+                    console.log("Error", err.message);
+                    console.log("output", err.stdout.toString());
+                    console.log("stderr", err.stderr.toString());
+                }
+                const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
+                const t = require(path.resolve(jsConfigFile)).default;
+                schema = new ContractSchemaImpl(t);
+                fs.unlinkSync(path.resolve(jsConfigFile));
+                solidityFilename = path.basename(configFile, ".ts") + "Generated.sol";
+                jsonFilename = path.basename(configFile, ".ts") + "-schema.json";
+            } else {
+                if (!configFile.endsWith(".json")) {
+                throw new Error("Invalid file type. Please provide a JSON or TS file.");
+                }
+                const jsonData = require(path.resolve(configFile));
+                schema = parseJson(jsonData);
+                solidityFilename = path.basename(configFile, ".json") + "Generated.sol";
+                jsonFilename = path.basename(configFile, ".json") + "-schema.json";
             }
-            const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
-            const t = require(path.resolve(jsConfigFile)).default;
-            schema = new ContractSchemaImpl(t);
-            fs.unlinkSync(path.resolve(jsConfigFile));
-            solidityFilename = path.basename(configFile, ".ts") + "Generated.sol";
-            jsonFilename = path.basename(configFile, ".ts") + "-schema.json";
-        } else {
-            if (!configFile.endsWith(".json")) {
-            throw new Error("Invalid file type. Please provide a JSON or TS file.");
-            }
-            const jsonData = require(path.resolve(configFile));
-            schema = parseJson(jsonData);
-            solidityFilename = path.basename(configFile, ".json") + "Generated.sol";
-            jsonFilename = path.basename(configFile, ".json") + "-schema.json";
+    
+            schema.validate();
+            const solidityCode = new MainContractGen().gen(schema);
+        
+            let outputPath = path.join(outputDir, solidityFilename);
+        
+            fs.writeFileSync(outputPath, solidityCode);
+            console.log(`Solidity file generated at ${outputPath}`);
+    
+            const jsonSchema = new JSONSchemaGen().gen(schema);
+    
+            outputPath = path.join(outputDir, jsonFilename);
+        
+            fs.writeFileSync(outputPath, jsonSchema);
+            console.log(`JSON Schema file generated at ${outputPath}`);
+        } catch (error: any) {
+            console.error("Error generating Solidity file:", error.message);
         }
-
-        schema.validate();
-        const solidityCode = new MainContractGen().gen(schema);
-    
-        let outputPath = path.join(outputDir, solidityFilename);
-    
-        fs.writeFileSync(outputPath, solidityCode);
-        console.log(`Solidity file generated at ${outputPath}`);
-
-        const jsonSchema = new JSONSchemaGen().gen(schema);
-
-        outputPath = path.join(outputDir, jsonFilename);
-    
-        fs.writeFileSync(outputPath, jsonSchema);
-        console.log(`JSON Schema file generated at ${outputPath}`);
-    } catch (error: any) {
-        console.error("Error generating Solidity file:", error.message);
     }
+    
 }
