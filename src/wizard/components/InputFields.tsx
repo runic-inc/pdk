@@ -1,4 +1,6 @@
-const InputFields = () => {
+import { FC } from "hono/jsx";
+
+const InputFields: FC = () => {
     return (
       <div>
         <label className="block mb-2">
