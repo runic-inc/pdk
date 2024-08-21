@@ -4,5 +4,5 @@ pragma solidity ^0.8.23;
 import "./DynRefGenerated.sol";
 
 contract DynRef is DynRefGenerated {
-  constructor() DynRefGenerated() {}
+  constructor(address _manager, address _owner) DynRefGenerated(_manager, _owner) {}
 }

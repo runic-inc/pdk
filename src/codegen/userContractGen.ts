@@ -15,7 +15,7 @@ export class UserContractGen implements Generator {
         `import "./${generatedContractName}.sol";\n` +
         `\n` +
         `contract ${contractName} is ${generatedContractName} {\n` +
-        `  constructor() ${generatedContractName}() {}\n` +
+        `  constructor(address _manager, address _owner) ${generatedContractName}(_manager, _owner) {}\n` +
         `}\n`;
     }
 }
