@@ -14,6 +14,9 @@ dependencies:
   ajv:
     specifier: ^8.12.0
     version: 8.17.1
+  highlight.js:
+    specifier: ^11.10.0
+    version: 11.10.0
   hono:
     specifier: ^4.5.5
     version: 4.5.5
@@ -1797,6 +1800,11 @@ packages:
     dependencies:
       function-bind: 1.1.2
     dev: true
+
+  /highlight.js@11.10.0:
+    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /hono@4.5.5:
     resolution: {integrity: sha512-fXBXHqaVfimWofbelLXci8pZyIwBMkDIwCa4OwZvK+xVbEyYLELVP4DfbGaj1aEM6ZY3hHgs4qLvCO2ChkhgQw==}
