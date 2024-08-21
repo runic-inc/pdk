@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract DynString is Patchwork721 {
+abstract contract DynStringGenerated is Patchwork721 {
 
     struct Metadata {
         uint128 fieldu128a;

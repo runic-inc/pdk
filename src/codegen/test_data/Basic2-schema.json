@@ -2,7 +2,6 @@
   "scopeName": "test",
   "name": "Basic2: Slot overflow",
   "symbol": "BASIC",
-  "baseURI": "https://mything/my/",
   "schemaURI": "https://basic.xyz/schema/basic.json",
   "imageURI": "https://mything/my/{tokenID}.png",
   "fields": [

@@ -2,17 +2,17 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkFragmentMulti.sol";
+import "@patchwork/PatchworkFragmentSingle.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract FragmentMulti is PatchworkFragmentMulti {
+abstract contract WeakRefGenerated is PatchworkFragmentSingle {
 
     struct Metadata {
         string name;
     }
 
     constructor(address _manager, address _owner)
-        Patchwork721("test", "FragmentMulti", "FM", _manager, _owner)
+        Patchwork721("test", "WeakRef", "WEAK", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
@@ -68,5 +68,51 @@ contract FragmentMulti is PatchworkFragmentMulti {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
+    }
+
+    /**
+    @dev See {IERC721-ownerOf}
+    */
+    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+        // Weak assignment uses normal ownership
+        return ERC721.ownerOf(tokenId);
+    }
+
+    /**
+    @dev See {IPatchwork721-locked}
+    */
+    function locked(uint256 tokenId) public view virtual override returns (bool) {
+        // Weak assignment uses base 721 locking behavior
+        return Patchwork721.locked(tokenId);
+    }
+
+    /**
+    @dev See {IPatchwork721-setLocked}
+    */
+    function setLocked(uint256 tokenId, bool locked_) public virtual override {
+        // Weak assignment uses base 721 locking behavior
+        Patchwork721.setLocked(tokenId, locked_);
+    }
+
+    /**
+    @dev See {IERC721-transferFrom}.
+    */
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
+        if (locked(tokenId)) {
+            revert IPatchworkProtocol.Locked(address(this), tokenId);
+        }
+        ERC721.transferFrom(from, to, tokenId);
+    }
+
+    /**
+    @dev See {IERC721-safeTransferFrom}.
+    */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
+        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
+        if (locked(tokenId)) {
+            revert IPatchworkProtocol.Locked(address(this), tokenId);
+        }
+        ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 }

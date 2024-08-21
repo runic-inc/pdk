@@ -2,17 +2,19 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkFragmentSingle.sol";
+import "@patchwork/PatchworkPatch.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract WeakRef is PatchworkFragmentSingle {
+abstract contract PatchGenerated is PatchworkPatch {
 
     struct Metadata {
         string name;
     }
 
+    uint256 internal _nextTokenId;
+
     constructor(address _manager, address _owner)
-        Patchwork721("test", "WeakRef", "WEAK", _manager, _owner)
+        Patchwork721("test", "Patch", "PATCH", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
@@ -44,6 +46,21 @@ contract WeakRef is PatchworkFragmentSingle {
         return MetadataSchema(1, entries);
     }
 
+    function mintPatch(address owner, PatchTarget memory target) external payable returns (uint256 tokenId) {
+        if (msg.sender != _manager) {
+            return IPatchworkProtocol(_manager).patch{value: msg.value}(owner, target.addr, target.tokenId, address(this));
+        }
+        // require inherited ownership
+        if (IERC721(target.addr).ownerOf(target.tokenId) != owner) {
+            revert IPatchworkProtocol.NotAuthorized(owner);
+        }
+        tokenId = _nextTokenId++;
+        _storePatch(tokenId, target);
+        _safeMint(owner, tokenId);
+        _metadataStorage[tokenId] = new uint256[](1);
+        return tokenId;
+    }
+
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {
         slots = new uint256[](1);
         slots[0] = PatchworkUtils.strToUint256(data.name);
@@ -68,51 +85,5 @@ contract WeakRef is PatchworkFragmentSingle {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
-    }
-
-    /**
-    @dev See {IERC721-ownerOf}
-    */
-    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        // Weak assignment uses normal ownership
-        return ERC721.ownerOf(tokenId);
-    }
-
-    /**
-    @dev See {IPatchwork721-locked}
-    */
-    function locked(uint256 tokenId) public view virtual override returns (bool) {
-        // Weak assignment uses base 721 locking behavior
-        return Patchwork721.locked(tokenId);
-    }
-
-    /**
-    @dev See {IPatchwork721-setLocked}
-    */
-    function setLocked(uint256 tokenId, bool locked_) public virtual override {
-        // Weak assignment uses base 721 locking behavior
-        Patchwork721.setLocked(tokenId, locked_);
-    }
-
-    /**
-    @dev See {IERC721-transferFrom}.
-    */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
-        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
-        if (locked(tokenId)) {
-            revert IPatchworkProtocol.Locked(address(this), tokenId);
-        }
-        ERC721.transferFrom(from, to, tokenId);
-    }
-
-    /**
-    @dev See {IERC721-safeTransferFrom}.
-    */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
-        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
-        if (locked(tokenId)) {
-            revert IPatchworkProtocol.Locked(address(this), tokenId);
-        }
-        ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 }

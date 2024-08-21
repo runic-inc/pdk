@@ -4,7 +4,7 @@ pragma solidity ^0.8.23;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 
-contract Basic2Slotoverflow is Patchwork721 {
+abstract contract Basic2SlotoverflowGenerated is Patchwork721 {
 
     struct Metadata {
         address addr;

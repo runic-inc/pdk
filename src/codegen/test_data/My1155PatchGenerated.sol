@@ -2,11 +2,10 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkFragmentSingle.sol";
-import "@patchwork/PatchworkPatch.sol";
+import "@patchwork/Patchwork1155Patch.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
+abstract contract My1155PatchGenerated is Patchwork1155Patch {
 
     struct Metadata {
         string name;
@@ -15,7 +14,7 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
     uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
-        Patchwork721("test", "PatchFragment", "PFRAG", _manager, _owner)
+        Patchwork721("test", "My1155Patch", "AP", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
@@ -28,11 +27,6 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
 
     function _baseURI() internal pure virtual override returns (string memory) {
         return "https://mything/my/";
-    }
-
-    function supportsInterface(bytes4 interfaceID) public view virtual override(PatchworkFragmentSingle, PatchworkPatch) returns (bool) {
-        return PatchworkFragmentSingle.supportsInterface(interfaceID) ||
-            PatchworkPatch.supportsInterface(interfaceID);
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
@@ -54,11 +48,7 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
 
     function mintPatch(address owner, PatchTarget memory target) external payable returns (uint256 tokenId) {
         if (msg.sender != _manager) {
-            return IPatchworkProtocol(_manager).patch{value: msg.value}(owner, target.addr, target.tokenId, address(this));
-        }
-        // require inherited ownership
-        if (IERC721(target.addr).ownerOf(target.tokenId) != owner) {
-            revert IPatchworkProtocol.NotAuthorized(owner);
+            return IPatchworkProtocol(_manager).patch1155{value: msg.value}(owner, target.addr, target.tokenId, target.account, address(this));
         }
         tokenId = _nextTokenId++;
         _storePatch(tokenId, target);
@@ -91,21 +81,5 @@ contract PatchFragment is PatchworkPatch, PatchworkFragmentSingle {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
-    }
-
-    function setLocked(uint256 tokenId, bool locked_) public view virtual override(PatchworkPatch, PatchworkFragmentSingle) {
-        return PatchworkPatch.setLocked(tokenId, locked_);
-    }
-
-    function locked(uint256 /* tokenId */) public pure virtual override(PatchworkPatch, PatchworkFragmentSingle) returns (bool) {
-        return false;
-    }
-
-    function ownerOf(uint256 tokenId) public view virtual override(PatchworkPatch, PatchworkFragmentSingle) returns (address) {
-        return PatchworkPatch.ownerOf(tokenId);
-    }
-
-    function updateOwnership(uint256 tokenId) public virtual override(PatchworkPatch, PatchworkFragmentSingle) {
-        PatchworkPatch.updateOwnership(tokenId);
     }
 }

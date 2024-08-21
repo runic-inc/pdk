@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkLiteRef.sol";
 
-contract LiteRef1 is Patchwork721, PatchworkLiteRef {
+abstract contract LiteRef1Generated is Patchwork721, PatchworkLiteRef {
 
     error NoReferenceSlotsAvailable();
     error TooManyReferences();

@@ -2,19 +2,17 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkPatch.sol";
+import "@patchwork/PatchworkFragmentMulti.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract Patch is PatchworkPatch {
+abstract contract FragmentMultiGenerated is PatchworkFragmentMulti {
 
     struct Metadata {
         string name;
     }
 
-    uint256 internal _nextTokenId;
-
     constructor(address _manager, address _owner)
-        Patchwork721("test", "Patch", "PATCH", _manager, _owner)
+        Patchwork721("test", "FragmentMulti", "FM", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
@@ -44,21 +42,6 @@ contract Patch is PatchworkPatch {
         MetadataSchemaEntry[] memory entries = new MetadataSchemaEntry[](1);
         entries[0] = MetadataSchemaEntry(1, 0, FieldType.CHAR32, 1, FieldVisibility.PUBLIC, 0, 0, "name");
         return MetadataSchema(1, entries);
-    }
-
-    function mintPatch(address owner, PatchTarget memory target) external payable returns (uint256 tokenId) {
-        if (msg.sender != _manager) {
-            return IPatchworkProtocol(_manager).patch{value: msg.value}(owner, target.addr, target.tokenId, address(this));
-        }
-        // require inherited ownership
-        if (IERC721(target.addr).ownerOf(target.tokenId) != owner) {
-            revert IPatchworkProtocol.NotAuthorized(owner);
-        }
-        tokenId = _nextTokenId++;
-        _storePatch(tokenId, target);
-        _safeMint(owner, tokenId);
-        _metadataStorage[tokenId] = new uint256[](1);
-        return tokenId;
     }
 
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {

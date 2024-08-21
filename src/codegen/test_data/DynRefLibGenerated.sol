@@ -7,7 +7,7 @@ import "@patchwork/PatchworkLiteRef.sol";
 import "@patchwork/PatchworkUtils.sol";
 import "@patchwork/libraries/PatchworkDynamicRefs.sol";
 
-contract DynRefLib is Patchwork721, PatchworkLiteRef {
+abstract contract DynRefLibGenerated is Patchwork721, PatchworkLiteRef {
 
     error AlreadyLoaded();
     error NotFound();
