@@ -13,6 +13,7 @@ import { ContractSchemaImpl } from "./codegen/contractSchema";
 import { execSync } from "child_process";
 
 import { launchWizardApp } from "./wizardServer";
+import { UserContractGen } from "./codegen/userContractGen";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -92,7 +93,8 @@ function generateSolidity(argv: any) {
     for (const configFile of configFiles) {
         try {
             let schema;
-            let solidityFilename;
+            let solidityGenFilename;
+            let solidityUserFilename;
             let jsonFilename;
             if (configFile.endsWith(".ts")) {
                 try {
@@ -108,7 +110,8 @@ function generateSolidity(argv: any) {
                 const t = require(path.resolve(jsConfigFile)).default;
                 schema = new ContractSchemaImpl(t);
                 fs.unlinkSync(path.resolve(jsConfigFile));
-                solidityFilename = path.basename(configFile, ".ts") + "Generated.sol";
+                solidityGenFilename = path.basename(configFile, ".ts") + "Generated.sol";
+                solidityUserFilename = path.basename(configFile, ".ts") + ".sol";
                 jsonFilename = path.basename(configFile, ".ts") + "-schema.json";
             } else {
                 if (!configFile.endsWith(".json")) {
@@ -116,22 +119,25 @@ function generateSolidity(argv: any) {
                 }
                 const jsonData = require(path.resolve(configFile));
                 schema = parseJson(jsonData);
-                solidityFilename = path.basename(configFile, ".json") + "Generated.sol";
+                solidityGenFilename = path.basename(configFile, ".json") + "Generated.sol";
+                solidityUserFilename = path.basename(configFile, ".json") + ".sol";
                 jsonFilename = path.basename(configFile, ".json") + "-schema.json";
             }
     
             schema.validate();
+            
             const solidityCode = new MainContractGen().gen(schema);
-        
-            let outputPath = path.join(outputDir, solidityFilename);
-        
+            let outputPath = path.join(outputDir, solidityGenFilename);
             fs.writeFileSync(outputPath, solidityCode);
             console.log(`Solidity file generated at ${outputPath}`);
     
+            const solidityUserCode = new UserContractGen().gen(schema);
+            outputPath = path.join(outputDir, solidityUserFilename);
+            fs.writeFileSync(outputPath, solidityUserCode);
+            console.log(`Solidity file generated at ${outputPath}`);
+
             const jsonSchema = new JSONSchemaGen().gen(schema);
-    
             outputPath = path.join(outputDir, jsonFilename);
-        
             fs.writeFileSync(outputPath, jsonSchema);
             console.log(`JSON Schema file generated at ${outputPath}`);
         } catch (error: any) {
