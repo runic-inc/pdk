@@ -20,7 +20,7 @@ const InputFields: FC<{ setContractConfig: (config: ContractConfig) => void }> =
         id: 1,
         key: 'name',
         fieldType: 'char32',
-        description: 'Name',
+        description: 'description',
         functionConfig: FunctionConfig.ALL
       }
     ],
@@ -52,7 +52,7 @@ const InputFields: FC<{ setContractConfig: (config: ContractConfig) => void }> =
         id: prev.fields.length + 1,
         fieldType: 'string',
         key: '',
-        description: '',
+        description: 'description',
         functionConfig: FunctionConfig.ALL
       }]
     }))
@@ -145,7 +145,7 @@ const InputFields: FC<{ setContractConfig: (config: ContractConfig) => void }> =
               ))}
             </select>
             <input
-              value={field.description || ''}
+              value={field.description}
               onChange={(e) => handleFieldChange(index, { description: (e.target as HTMLInputElement).value })}
               placeholder="Description"
               className="w-full p-2 border rounded"
