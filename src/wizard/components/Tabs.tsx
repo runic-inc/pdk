@@ -21,7 +21,7 @@ const Tabs: FC = () => {
         </button>
       </div>
       <div className="mt-4">
-        {activeTab === 'solidity' ? <CodeView /> : <CodeView content="Schema Hello World!" />}
+        {activeTab === 'solidity' ? <CodeView /> : <CodeView/>}
       </div>
     </div>
   );

@@ -28,7 +28,6 @@ const CodeView: FC = () => {
     try {
       const schema = parseJson(accountJson);
       const generatedCode = new MainContractGen().gen(schema);
-      console.log("Generated code:", generatedCode);  // This will now log in the browser console
       setSolidityCode(generatedCode);
     } catch (error) {
       console.error("Error generating code:", error);
