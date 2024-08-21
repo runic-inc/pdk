@@ -104,6 +104,4 @@ contract Mintable is Patchwork721, IPatchworkMintable {
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(name) >> 128 & mask);
     }
-
-    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

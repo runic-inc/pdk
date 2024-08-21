@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/Patchwork721.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-contract Arrays is Patchwork721 {
+abstract contract ArraysGenerated is Patchwork721 {
 
     struct Metadata {
         uint128 fieldu128a;
@@ -259,6 +259,4 @@ contract Arrays is Patchwork721 {
         slot = slot | uint256(u16array[31]) << 240;
         _metadataStorage[tokenId][4] = slot;
     }
-
-    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

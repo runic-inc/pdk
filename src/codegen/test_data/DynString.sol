@@ -87,6 +87,4 @@ contract DynString is Patchwork721 {
         }
         _dynamicStringStorage[tokenId] = str;
     }
-
-    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }

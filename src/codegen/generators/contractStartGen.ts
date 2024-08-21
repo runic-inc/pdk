@@ -12,7 +12,7 @@ export class ContractStartGen implements Generator {
         if (schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
             inheritance.push("IPatchworkMintable");
         }
-        let out = `contract ${cleanAndCapitalizeFirstLetter(schema.name)} is ${inheritance.join(", ")} {\n`;
+        let out = `abstract contract ${cleanAndCapitalizeFirstLetter(schema.name)}Generated is ${inheritance.join(", ")} {\n`;
         if (schema.hasLiteRef()) {
             out += `\n`;
             if (schema.liteRefArrayLength(0) == 0) {

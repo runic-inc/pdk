@@ -107,7 +107,7 @@ function generateSolidity(argv: any) {
             const t = require(path.resolve(jsConfigFile)).default;
             schema = new ContractSchemaImpl(t);
             fs.unlinkSync(path.resolve(jsConfigFile));
-            solidityFilename = path.basename(configFile, ".ts") + ".sol";
+            solidityFilename = path.basename(configFile, ".ts") + "Generated.sol";
             jsonFilename = path.basename(configFile, ".ts") + "-schema.json";
         } else {
             if (!configFile.endsWith(".json")) {
@@ -115,7 +115,7 @@ function generateSolidity(argv: any) {
             }
             const jsonData = require(path.resolve(configFile));
             schema = parseJson(jsonData);
-            solidityFilename = path.basename(configFile, ".json") + ".sol";
+            solidityFilename = path.basename(configFile, ".json") + "Generated.sol";
             jsonFilename = path.basename(configFile, ".json") + "-schema.json";
         }
 

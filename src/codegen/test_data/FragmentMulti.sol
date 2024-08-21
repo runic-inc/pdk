@@ -69,6 +69,4 @@ contract FragmentMulti is PatchworkFragmentMulti {
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
     }
-
-    /// Code after this marker will not be overwritten by the PDK code generator #PDK-USER-CODE#
 }
