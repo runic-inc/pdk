@@ -67,16 +67,18 @@ describe('generateSolidityCodeFromTS', () => {
       it(`should generate the correct Solidity code for ${baseName}.ts`, () => {
         const solidityExpected = fs.readFileSync(files.sol, 'utf8');
         try {
-          const result = execSync(`tsc ${files.ts}`);
+          const result = execSync(`tsc --outdir tmpout ${files.ts}`);
           console.log("TSC compile success")
           console.log(result.toString())
         } catch (err: any) { 
           console.log("output", err)
           console.log("sdterr", err.stderr.toString())
         }
-        const t = require(`../../${files.js}`).default;
+        const t2 = files.js.replace('src', 'tmpout');
+        console.log("requiring ", t2)
+        const t = require("../../" + t2).default;
         const solidityGenerated = gen.gen(new ContractSchemaImpl(t));
-        fs.unlinkSync(`${files.js}`);
+        fs.rmSync("tmpout", { recursive: true });
         expect(solidityGenerated).toEqual(solidityExpected);
       });
     }
