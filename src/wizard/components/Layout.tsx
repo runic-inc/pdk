@@ -23,7 +23,7 @@ const Layout = ({ children }: { children?: ReactNode }) => {
                     <InputFields setContractConfig={setContractConfig} />
                 </div>
             </div>
-            <div className='col-span-3 bg-stone-50 px-4 overflow-scroll'>
+            <div className='col-span-3 bg-background px-4 overflow-scroll'>
                 <CodeView contractConfig={contractConfig} />
                 <div className='mt-4'>{children}</div>
             </div>
