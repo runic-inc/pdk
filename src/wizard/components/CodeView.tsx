@@ -1,4 +1,3 @@
-import { useState, useEffect, FC } from 'hono/jsx'
 import { parseJson } from "../../codegen/contractSchemaJsonParser";
 import { MainContractGen } from "../../codegen/mainContractGen";
 import { UserContractGen } from '../../codegen/userContractGen';
@@ -7,13 +6,14 @@ import { ContractConfig } from '../../types';
 import { ContractSchemaImpl } from '../../codegen/contractSchema';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs2015.css';
+import { useEffect, useState } from "react";
 
 interface CodeViewProps {
   viewType: string;
   contractConfig: ContractConfig;
 }
 
-const CodeView: FC<CodeViewProps> = ({ viewType, contractConfig }) => {
+const CodeView = ({ viewType, contractConfig }: CodeViewProps) => {
   const [solidityCode, setSolidityCode] = useState("");
 
   useEffect(() => {

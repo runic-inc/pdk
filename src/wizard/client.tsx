@@ -1,5 +1,7 @@
 import './styles/tailwind.css';
-import { render } from "hono/jsx/dom";
+import { createRoot } from 'react-dom/client';
 import App from "./App";
 
-render(<App />, document.getElementById("app")!);
+const domNode = document.getElementById("app");
+const root = createRoot(domNode!);
+root.render(<App />);

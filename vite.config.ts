@@ -9,8 +9,7 @@ export default {
   },
   resolve: {
     alias: {
-      react: "hono/jsx/dom",
-      "react-dom": "hono/jsx/dom"
+      "@wizard": path.resolve(__dirname, "./src/wizard"),
     }
   },
 } satisfies UserConfig;

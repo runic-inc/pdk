@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'hono/jsx'
+import { useEffect, useState } from 'react';
 import { ContractConfig, Feature, FieldConfig, FunctionConfig } from '../../types'
 
 const fieldTypes = [
@@ -7,7 +7,7 @@ const fieldTypes = [
   "char8", "char16", "char32", "char64", "literef", "address", "string"
 ];
 
-const InputFields: FC<{ setContractConfig: (config: ContractConfig) => void }> = ({ setContractConfig }) => {
+const InputFields = ({ setContractConfig }: { setContractConfig: (config: ContractConfig) => void }) => {
   const [config, setConfig] = useState<ContractConfig>({
     scopeName: 'test',
     name: 'AccountPatch',
@@ -31,7 +31,7 @@ const InputFields: FC<{ setContractConfig: (config: ContractConfig) => void }> =
     setContractConfig(config)
   }, [config])
 
-  const handleInputChange = (e: Event) => {
+  const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement
     setConfig(prev => ({ ...prev, [target.name]: target.value }))
   }

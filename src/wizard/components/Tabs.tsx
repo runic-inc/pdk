@@ -6,7 +6,7 @@ interface TabsProps {
   contractConfig: ContractConfig;
 }
 
-const Tabs: FC<TabsProps> = ({ contractConfig }) => {
+const Tabs = ({ contractConfig }: TabsProps) => {
   const [activeTab, setActiveTab] = useState('userContract');
 
   return (
