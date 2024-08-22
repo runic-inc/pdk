@@ -1,6 +1,6 @@
-import { FC, useState } from 'hono/jsx';
 import CodeView from './CodeView';
 import { ContractConfig } from '../../types';
+import { useEffect, useState } from 'react';
 
 interface TabsProps {
   contractConfig: ContractConfig;
