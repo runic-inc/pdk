@@ -88,15 +88,41 @@ const InputFields = ({ setContractConfig }: { setContractConfig: (config: Contra
     return (
         <div className='space-y-4'>
             <div>
-                <Label htmlFor='scopeName'>Scope Name</Label>
-                <Input name='scopeName' defaultValue={config.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
+                <Label htmlFor='scopeName'>Scope name</Label>
+                <Input name='scopeName' id='scopeName' defaultValue={config.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
             </div>
 
-            <input name='name' defaultValue={config.name} onChange={handleInputChange} placeholder='Name' className='w-full p-2 border rounded' />
-            <input name='symbol' value={config.symbol} onChange={handleInputChange} placeholder='Symbol' className='w-full p-2 border rounded' />
-            <input name='baseURI' value={config.baseURI} onChange={handleInputChange} placeholder='Base URI' className='w-full p-2 border rounded' />
-            <input name='schemaURI' value={config.schemaURI} onChange={handleInputChange} placeholder='Schema URI' className='w-full p-2 border rounded' />
-            <input name='imageURI' value={config.imageURI} onChange={handleInputChange} placeholder='Image URI' className='w-full p-2 border rounded' />
+            <div>
+                <Label htmlFor='name'>Contract name</Label>
+                <Input name='name' id='name' defaultValue={config.name} onChange={handleInputChange} placeholder='Contract name' />
+            </div>
+
+            <div>
+                <Label htmlFor='symbol'>Contract symbol</Label>
+                <Input name='symbol' id='symbol' defaultValue={config.symbol} onChange={handleInputChange} placeholder='Contract symbol' />
+            </div>
+
+            <div className='space-y-2'>
+                <Label>Contract URIs</Label>
+                <div className='flex items-center'>
+                    <Label htmlFor='baseURI' className='w-28 text-xs'>
+                        Base URI
+                    </Label>
+                    <Input name='baseURI' id='baseURI' value={config.baseURI} onChange={handleInputChange} placeholder='Base URI' className='text-xs' />
+                </div>
+                <div className='flex items-center'>
+                    <Label htmlFor='baseURI' className='w-28 text-xs'>
+                        Schema URI
+                    </Label>
+                    <Input name='schemaURI' id='schemaURI' value={config.schemaURI} onChange={handleInputChange} placeholder='Schema URI' className='text-xs' />
+                </div>
+                <div className='flex items-center'>
+                    <Label htmlFor='baseURI' className='w-28 text-xs'>
+                        Image URI
+                    </Label>
+                    <Input name='imageURI' id='imageURI' value={config.imageURI} onChange={handleInputChange} placeholder='Image URI' className='text-xs' />
+                </div>
+            </div>
 
             <div>
                 <h3 className='font-bold'>Features</h3>

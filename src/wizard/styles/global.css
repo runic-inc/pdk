@@ -21,9 +21,9 @@
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 210 20% 98%;
         --border: 220 13% 91%;
-        --input: 220 13% 91%;
+        --input: 220 8% 80%;
         --ring: 224 71.4% 4.1%;
-        --radius: 0.5rem;
+        --radius: 5px;
         --chart-1: 12 76% 61%;
         --chart-2: 173 58% 39%;
         --chart-3: 197 37% 24%;
@@ -64,6 +64,26 @@
         @apply border-border;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-neutral-50 text-foreground;
     }
+    .shiki {
+        @apply !bg-white/0;
+        code {
+            counter-reset: step;
+            counter-increment: step 0;
+        }
+
+        code .line::before {
+            content: counter(step);
+            counter-increment: step;
+            width: 1rem;
+            margin-right: 1.5rem;
+            display: inline-block;
+            text-align: right;
+            color: rgba(115, 138, 148, 0.4);
+        }
+    }
+}
+
+@layer components {
 }
