@@ -41,6 +41,11 @@ const argv = yargs(hideBin(process.argv))
                     alias: "o",
                     type: "string",
                     description: "Output directory for the generated Solidity files",
+                })
+                .option("rootdir", {
+                    alias: "r",
+                    type: "string",
+                    description: "Root directory for the TS files (defaults to 'src')",
                 });
         },
         generateSolidity
@@ -90,6 +95,8 @@ function validateJson(argv: any): void {
 function generateSolidity(argv: any) {
     const configFiles = argv.configFiles;
     const outputDir = argv.output || process.cwd();
+    const rootDir = argv.rootdir || "src";
+    const tmpout = "tmpout";
   
     for (const configFile of configFiles) {
         try {
@@ -99,7 +106,7 @@ function generateSolidity(argv: any) {
             let jsonFilename;
             if (configFile.endsWith(".ts")) {
                 try {
-                    const result = execSync(`tsc ${configFile}`);
+                    const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
                     console.log("TSC compile success");
                     console.log(result.toString());
                 } catch (err: any) { 
@@ -107,10 +114,10 @@ function generateSolidity(argv: any) {
                     console.log("output", err.stdout.toString());
                     console.log("stderr", err.stderr.toString());
                 }
-                const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
+                const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
                 const t = require(path.resolve(jsConfigFile)).default;
                 schema = new ContractSchemaImpl(t);
-                fs.unlinkSync(path.resolve(jsConfigFile));
+                fs.rmSync(tmpout, { recursive: true });
             } else {
                 if (!configFile.endsWith(".json")) {
                     throw new Error("Invalid file type. Please provide a JSON or TS file.");
