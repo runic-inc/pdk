@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-
-import Ajv2019 from "ajv/dist/2019";
 import fs from "fs";
 import path from "path";
 import { hideBin } from "yargs/helpers";
@@ -8,13 +6,11 @@ import yargs from "yargs/yargs";
 import { parseJson } from './codegen/contractSchemaJsonParser';
 import { MainContractGen } from './codegen/mainContractGen';
 import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
-import { config } from "yargs";
 import { ContractSchemaImpl } from "./codegen/contractSchema";
 import { execSync } from "child_process";
-
 import { launchWizardApp } from "./wizardServer";
 import { UserContractGen } from "./codegen/userContractGen";
-import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
+import { cleanAndCapitalizeFirstLetter, tryValidate } from "./codegen/utils";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -58,24 +54,10 @@ const argv = yargs(hideBin(process.argv))
     .alias("h", "help")
     .argv;
 
-function tryValidate(jsonFile: string, schemaFile: string): any {
-    try {
-        const jsonData = require(path.resolve(jsonFile));
-        const schemaData = require(schemaFile);
-        const ajv = new Ajv2019()
-        const validate = ajv.compile(schemaData);
-        if (validate(jsonData)) {
-            return true;
-        }
-        return validate.errors;
-    }catch (error: any) {
-        console.error("Error reading JSON or schema file:", error.message);
-    }
-}
-
 function validateJson(argv: any): void {
     const jsonFile = argv.jsonFile;
-    const t1 = tryValidate(jsonFile, "../src/patchwork-contract-config.schema.json");
+    const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+    const t1 = tryValidate(jsonData, "../src/patchwork-contract-config.schema.json");
     // TODO need separate commands to validate metadata schemas as one can bury errors in the other
     //const t2 = tryValidate(jsonFile, "../src/patchwork-metadata.schema.json")
     if (t1 === true) {

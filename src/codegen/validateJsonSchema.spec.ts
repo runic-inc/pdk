@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import Ajv2019 from "ajv/dist/2019";
-import { ErrorObject, ValidateFunction } from "ajv";
+import { ErrorObject } from "ajv";
+import { tryValidate } from './utils';
 
 type GroupedFiles = {
   [key: string]: {
@@ -29,27 +29,11 @@ describe('validateJsonSchema', () => {
     {},
   );
 
-  function tryValidate(jsonFile: string, schemaFile: string): boolean | ErrorObject[] {
-    try {
-      const jsonData: unknown = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
-      const schemaData: object = JSON.parse(fs.readFileSync(schemaFile, 'utf8'));
-      const ajv: Ajv2019 = new Ajv2019();
-      const validate: ValidateFunction = ajv.compile(schemaData);
-      const valid: boolean = validate(jsonData);
-      if (valid) {
-        return true;
-      }
-      return validate.errors || [];
-    } catch (error: unknown) {
-      console.error("Error reading JSON or schema file:", (error as Error).message);
-      return [{ message: (error as Error).message } as ErrorObject];
-    }
-  }
-
   for (const [baseName, files] of Object.entries(groupedFiles)) {
     if (solFiles.includes(baseName + '.sol')) {
       it(`should validate ${baseName}.json successfully`, () => {
-        const result: boolean | ErrorObject[] = tryValidate(files.json, schemaFile);
+        const jsonData: unknown = JSON.parse(fs.readFileSync(files.json, 'utf8'));
+        const result: true | ErrorObject[] = tryValidate(jsonData, schemaFile);
         
         if (result !== true) {
           console.error(`Validation errors for ${baseName}.json:`, result);
@@ -59,4 +43,36 @@ describe('validateJsonSchema', () => {
       });
     }
   }
+
+  it('should fail validation for JSON without $schema', () => {
+    const invalidJson = {
+      "scopeName": "test",
+      "name": "AccountPatch",
+      "symbol": "AP",
+      "baseURI": "https://mything/my/",
+      "schemaURI": "https://mything/my-metadata.json",
+      "imageURI": "https://mything/my/{tokenID}.png",
+      "features": ["accountpatch"],
+      "fields": [
+        {
+          "id": 1,
+          "key": "name",
+          "type": "char32",
+          "description": "Name",
+          "functionConfig": "all"
+        }
+      ]
+    };
+
+    const result: true | ErrorObject[] = tryValidate(invalidJson, schemaFile);
+    
+    expect(result).not.toBe(true);
+    if (Array.isArray(result)) {
+      expect(result.some((error: ErrorObject) => 
+        error.keyword === 'required' && error.params.missingProperty === '$schema'
+      )).toBe(true);
+    } else {
+      fail('Expected validation to fail with an array of errors');
+    }
+  });
 });
