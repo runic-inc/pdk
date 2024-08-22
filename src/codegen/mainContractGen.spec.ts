@@ -19,7 +19,7 @@ describe('generateSolidityCodeFromJSON', () => {
       const baseName = path.basename(jsonFile, '.json');
       acc[baseName] = {
         json: path.join(testDirectory, jsonFile),
-        sol: path.join(testDirectory, baseName + '.sol'),
+        sol: path.join(testDirectory, baseName + 'Generated.sol'),
       };
       return acc;
     },
@@ -55,7 +55,7 @@ describe('generateSolidityCodeFromTS', () => {
       acc[baseName] = {
         ts: path.join(testDirectory, tsFile),
         js: path.join(testDirectory, baseName + '.js'),
-        sol: path.join(testDirectory, baseName + '.sol'),
+        sol: path.join(testDirectory, baseName + 'Generated.sol'),
       };
       return acc;
     },
