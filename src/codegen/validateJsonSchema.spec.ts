@@ -15,9 +15,11 @@ describe("validateJsonSchema", () => {
   const jsonFiles: string[] = files.filter((file: string) =>
     file.endsWith(".json")
   );
+
   const solFiles: string[] = files.filter((file: string) =>
     file.endsWith(".sol")
   );
+
   const groupedFiles: GroupedFiles = jsonFiles.reduce<GroupedFiles>(
     (acc: GroupedFiles, jsonFile: string) => {
       const baseName: string = path.basename(jsonFile, ".json");
@@ -29,6 +31,7 @@ describe("validateJsonSchema", () => {
     },
     {}
   );
+
   for (const [baseName, files] of Object.entries(groupedFiles)) {
     if (solFiles.includes(baseName + ".sol")) {
       it("should validate ${baseName}.json successfully", () => {
@@ -45,6 +48,7 @@ describe("validateJsonSchema", () => {
       });
     }
   }
+
   it("should fail validation for JSON without $schema", () => {
     const invalidJson = {
       scopeName: "test",
@@ -79,6 +83,7 @@ describe("validateJsonSchema", () => {
       fail("Expected validation to fail with an array of errors");
     }
   });
+
   it("should fail validation for JSON with incorrect $schema value", () => {
     const invalidJson = {
       $schema: "https://wrong-url.com/schema.json",
