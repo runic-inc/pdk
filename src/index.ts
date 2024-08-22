@@ -62,7 +62,6 @@ const argv = yargs(hideBin(process.argv))
 function validateJson(argv: any): void {
     const jsonFile = argv.jsonFile;
     const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
-    console.log(jsonData);
     const t1 = tryValidate(jsonData, "./src/patchwork-contract-config.schema.json");
     // TODO need separate commands to validate metadata schemas as one can bury errors in the other
     //const t2 = tryValidate(jsonFile, "../src/patchwork-metadata.schema.json")

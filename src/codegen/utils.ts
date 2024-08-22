@@ -4,6 +4,8 @@ import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject, ValidateFunction } from "ajv";
 import { ContractSchemaImpl } from './contractSchema';
 import { ContractConfig } from '../types';
+import { parseJson } from '../codegen/contractSchemaJsonParser';
+
 export function cleanAndCapitalizeFirstLetter(string: string) {
      // Remove non-alphanumeric characters and whitespace
      const cleanedString = string.replace(/[^a-zA-Z0-9]/g, '');
@@ -34,10 +36,9 @@ export function tryValidate(jsonData: unknown, schemaFile: string): true | Error
          if (!valid) {
              return validate.errors || [];
          }
- 
          // If JSON schema validation passes, create ContractSchemaImpl and validate
          try {
-             const contractSchema = new ContractSchemaImpl(jsonData as ContractConfig);
+             const contractSchema = parseJson(jsonData);
              contractSchema.validate();
              return true;
          } catch (error) {

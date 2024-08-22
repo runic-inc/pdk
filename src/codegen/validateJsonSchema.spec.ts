@@ -55,7 +55,6 @@ describe("validateJsonSchema", () => {
 });
 
 
-/*
 describe("tryValidate", () => {
   it("should fail validation for JSON without $schema", () => {
     const invalidJson = {
@@ -128,27 +127,24 @@ describe("tryValidate", () => {
     }
   });
 
-  it("should fail validation when multiple patch types are present", () => {
+  it('should fail validation when multiple patch types are present', () => {
     const invalidJson = {
-      $schema:
-        "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
-      scopeName: "test",
-      name: "Test",
-      symbol: "TST",
-      baseURI: "https://test.com/",
-      schemaURI: "https://test.com/schema.json",
-      imageURI: "https://test.com/image.png",
-      fields: [],
-      features: [Feature.PATCH, Feature.PATCH1155],
+      "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+      "scopeName": "test",
+      "name": "Test",
+      "symbol": "TST",
+      "baseURI": "https://test.com/",
+      "schemaURI": "https://test.com/schema.json",
+      "imageURI": "https://test.com/image.png",
+      "fields": [],
+      "features": ["patch", "1155patch"]
     };
     const result = tryValidate(invalidJson, schemaFile);
     expect(result).not.toBe(true);
     if (Array.isArray(result)) {
-      expect(result[0].message).toBe(
-        "PATCH, 1155PATCH, and ACCOUNTPATCH are mutually exclusive."
-      );
+      expect(result[0].message).toBe('PATCH, 1155PATCH, and ACCOUNTPATCH are mutually exclusive.');
     } else {
-      fail("Expected validation to fail with an array of errors");
+      fail('Expected validation to fail with an array of errors');
     }
   });
 
@@ -163,7 +159,7 @@ describe("tryValidate", () => {
       schemaURI: "https://test.com/schema.json",
       imageURI: "https://test.com/image.png",
       fields: [],
-      features: [Feature.FRAGMENTMULTI, Feature.FRAGMENTSINGLE],
+      features: ["fragmentmulti", "fragmentsingle"],
     };
     const result = tryValidate(invalidJson, schemaFile);
     expect(result).not.toBe(true);
@@ -187,7 +183,7 @@ describe("tryValidate", () => {
       schemaURI: "https://test.com/schema.json",
       imageURI: "https://test.com/image.png",
       fields: [],
-      features: [Feature.REVERSIBLE],
+      features: ["reversible"],
     };
     const result = tryValidate(invalidJson, schemaFile);
     expect(result).not.toBe(true);
@@ -211,7 +207,7 @@ describe("tryValidate", () => {
       schemaURI: "https://test.com/schema.json",
       imageURI: "https://test.com/image.png",
       fields: [],
-      features: [Feature.WEAKREF],
+      features: ["weakref"],
     };
     const result = tryValidate(invalidJson, schemaFile);
     expect(result).not.toBe(true);
@@ -235,7 +231,7 @@ describe("tryValidate", () => {
       schemaURI: "https://test.com/schema.json",
       imageURI: "https://test.com/image.png",
       fields: [],
-      features: [Feature.DYNAMICREFLIBRARY],
+      features: ["dynamicreflibrary"],
     };
     const result = tryValidate(invalidJson, schemaFile);
     expect(result).not.toBe(true);
@@ -259,10 +255,10 @@ describe("tryValidate", () => {
       schemaURI: "https://test.com/schema.json",
       imageURI: "https://test.com/image.png",
       fields: [],
-      features: [Feature.PATCH, Feature.FRAGMENTSINGLE],
+      features: ["patch", "fragmentsingle"],
     };
     const result = tryValidate(validJson, schemaFile);
     expect(result).toBe(true);
   });
 });
-*/
+
