@@ -3,6 +3,7 @@ module.exports = {
   darkMode: ["class"],
   content: [
     './src/wizard/**/*.{ts,tsx}',
+    '@wizard/**/*.{ts,tsx}',
   ],
   prefix: "",
   theme: {
