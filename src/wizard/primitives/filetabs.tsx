@@ -9,7 +9,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, R
     ({ className, ...props }, ref) => (
         <TabsPrimitive.List
             ref={ref}
-            className={cn('flex sticky top-0 pt-4 w-full items-stretch justify-start bg-neutral-50 text-muted-foreground', className)}
+            className={cn('flex sticky top-0 -mb-[1px] w-full items-stretch justify-start text-muted-foreground', className)}
             {...props}
         />
     ),
@@ -21,7 +21,7 @@ const TabsTrigger = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Trigg
         <TabsPrimitive.Trigger
             ref={ref}
             className={cn(
-                'inline-flex items-center justify-center rounded-t whitespace-nowrap px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground border data-[state=active]:!border-b-transparent -mr-[1px] data-[state=active]:border-foreground data-[state=active]:shadow-[inset_0_16px_16px_var(--tw-shadow-color)] bg-muted data-[state=active]:bg-transparent shadow-white z-0 data-[state=active]:z-10 border-muted-foreground',
+                'inline-flex items-center dotted justify-center rounded-t whitespace-nowrap px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground border data-[state=active]:!border-b-transparent mr-1 data-[state=active]:border-foreground bg-muted data-[state=active]:bg-white data-[state=active]:bg-none border-muted-foreground',
                 className,
             )}
             {...props}
@@ -35,7 +35,7 @@ const TabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Conte
         <TabsPrimitive.Content
             ref={ref}
             className={cn(
-                'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'grow ring-offset-background focus-visible:outline-none shadow-lg focus-visible:ring-2 overflow-scroll rounded border-foreground bg-white border focus-visible:ring-ring focus-visible:ring-offset-2',
                 className,
             )}
             {...props}

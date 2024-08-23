@@ -1,3 +1,4 @@
+
 export enum Feature {
     FRAGMENTMULTI = "FRAGMENTMULTI",
     FRAGMENTSINGLE = "FRAGMENTSINGLE",
@@ -18,13 +19,28 @@ export enum FunctionConfig {
 }
 
 export type FieldConfig = {
+    _uid?: string;
     id: number;
-    permissionId?: number;
-    fieldType: string;
-    arrayLength?: number;
-    visibility?: string;
     key: string;
     description?: string;
+    fieldType: string;
+    arrayLength?: number;
+    values?: PatchworkEnum[];
+    permissionId?: number;
+    visibility?: string;
+    functionConfig?: FunctionConfig;
+}
+
+export interface Patchwork721Field {
+    _uid: string;
+    id: number;
+    key: string;
+    description: string;
+    fieldType: string;
+    arrayLength: string;
+    values?: PatchworkEnum[];
+    permissionId?: number;
+    visibility?: string;
     functionConfig?: FunctionConfig;
 }
 
@@ -38,3 +54,67 @@ export type ContractConfig = {
     fields: FieldConfig[];
     features?: Feature[];
 }
+
+export enum Patchwork721Interface {
+    Assignee = 1,
+    Assignable,
+    Patch,
+}
+
+export interface PatchworkEnum {
+    uid: string;
+    value: string;
+}
+
+export interface Patchwork721Data {
+    name: string;
+    features: Patchwork721Interface[];
+    fields: Patchwork721Field[];
+}
+
+export type AssignmentNodeData = {
+    name: string;
+};
+
+export type Patchwork721InterfaceDecorators = {
+    [key in Patchwork721Interface]: {
+        icon: `fa-${string}`;
+    };
+};
+
+export enum FieldType {
+    empty,
+    BOOLEAN,
+    INT8,
+    INT16,
+    INT32,
+    INT64,
+    INT128,
+    INT256,
+    UINT8,
+    UINT16,
+    UINT32,
+    UINT64,
+    UINT128,
+    UINT256,
+    CHAR8,
+    CHAR16,
+    CHAR32,
+    CHAR64,
+    LITEREF,
+    ADDRESS,
+    STRING,
+    ENUM,
+}
+
+export const InterfaceDecorators: Patchwork721InterfaceDecorators = {
+    [Patchwork721Interface.Assignee]: {
+        icon: 'fa-frame',
+    },
+    [Patchwork721Interface.Assignable]: {
+        icon: 'fa-frame',
+    },
+    [Patchwork721Interface.Patch]: {
+        icon: 'fa-frame',
+    },
+};

@@ -1,4 +1,4 @@
-import { Patchwork721InterfaceDecorators } from './types';
+/*import { Patchwork721InterfaceDecorators } from './types';
 import { FrameIcon, MarginIcon, PaddingIcon } from '@radix-ui/react-icons';
 
 export enum Patchwork721Interface {
@@ -34,12 +34,13 @@ export enum FieldType {
 
 export const InterfaceDecorators: Patchwork721InterfaceDecorators = {
     [Patchwork721Interface.Assignee]: {
-        icon: PaddingIcon,
+        icon: 'fa-frame',
     },
     [Patchwork721Interface.Assignable]: {
-        icon: MarginIcon,
+        icon: 'fa-frame',
     },
     [Patchwork721Interface.Patch]: {
-        icon: FrameIcon,
+        icon: 'fa-frame',
     },
 };
+*/

@@ -4,8 +4,8 @@
 
 @layer base {
     :root {
-        --background: theme(colors.gray.50);
-        --foreground: 224 71.4% 4.1%;
+        --background: 0 0% 100%;
+        --foreground: black;
         --card: 0 0% 100%;
         --card-foreground: 224 71.4% 4.1%;
         --popover: 0 0% 100%;
@@ -15,13 +15,13 @@
         --secondary: 220 14.3% 95.9%;
         --secondary-foreground: 220.9 39.3% 11%;
         --muted: 220 14.3% 95.9%;
-        --muted-foreground: 220 8.9% 46.1%;
+        --muted-foreground: 220 8.9% 55.1%;
         --accent: 220 14.3% 95.9%;
         --accent-foreground: 220.9 39.3% 11%;
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 210 20% 98%;
-        --border: 220 13% 91%;
-        --input: 220 8% 80%;
+        --border: 220 13% 0%;
+        --input: 220 5% 0%;
         --ring: 224 71.4% 4.1%;
         --radius: 5px;
         --chart-1: 12 76% 61%;
@@ -29,6 +29,7 @@
         --chart-3: 197 37% 24%;
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
+        --input-padding: 0.5rem;
     }
 
     .dark {
@@ -97,4 +98,20 @@
 }
 
 @layer components {
+    .form-label {
+        @apply text-[12px] text-black font-medium;
+    }
+    .form-input {
+        @apply placeholder:font-normal focus:outline-black p-[var(--input-padding)] text-[12px] transition-all shadow font-medium leading-none rounded bg-white border border-black w-full z-[1] text-left flex items-center justify-stretch gap-1;
+    }
+    .shadow--hover {
+        @apply hover:shadow-lg hover:shadow-gray-700/20 hover:-translate-y-0.5;
+    }
+
+    .dotted {
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGNpcmNsZSBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiIGZpbGw9IiM5MTkxOWEiIC8+Cgk8Y2lyY2xlIGN4PSIyLjUiIGN5PSIyLjUiIHI9IjAuNSIgZmlsbD0iIzkxOTE5YSIgLz4KPC9zdmc+');
+        background-position: bottom center;
+        background-size: 4px;
+        background-repeat: repeat-x;
+    }
 }

@@ -1,4 +1,4 @@
-import { parseJson } from '../../codegen/contractSchemaJsonParser';
+//import { parseJson } from '../../codegen/contractSchemaJsonParser';
 import { MainContractGen } from '../../codegen/mainContractGen';
 import { UserContractGen } from '../../codegen/userContractGen';
 import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
@@ -11,9 +11,13 @@ interface CodeBlockProps {
     viewType: string;
     contractConfig: ContractConfig;
 }
+const themes = {
+    light: 'github-light',
+    dark: 'aurora-x',
+};
 
 const CodeBlock = ({ viewType, contractConfig }: CodeBlockProps) => {
-    const [solidityCode, setSolidityCode] = useState('');
+    const [code, setCode] = useState('');
 
     useEffect(() => {
         console.log('contract config', contractConfig);
@@ -21,42 +25,33 @@ const CodeBlock = ({ viewType, contractConfig }: CodeBlockProps) => {
             if (viewType === 'userContract') {
                 codeToHtml(new UserContractGen().gen(new ContractSchemaImpl(contractConfig)), {
                     lang: 'solidity',
-                    themes: {
-                        light: 'github-light',
-                        dark: 'aurora-x',
-                    },
+                    themes,
                 }).then((html) => {
-                    setSolidityCode(html);
+                    setCode(html);
                 });
             } else if (viewType === 'genContract') {
                 codeToHtml(new MainContractGen().gen(new ContractSchemaImpl(contractConfig)), {
                     lang: 'solidity',
-                    themes: {
-                        light: 'github-light',
-                        dark: 'aurora-x',
-                    },
+                    themes,
                 }).then((html) => {
-                    setSolidityCode(html);
+                    setCode(html);
                 });
             } else if (viewType === 'schema') {
                 codeToHtml(new JSONSchemaGen().gen(new ContractSchemaImpl(contractConfig)), {
                     lang: 'json',
-                    themes: {
-                        light: 'github-light',
-                        dark: 'aurora-x',
-                    },
+                    themes,
                 }).then((html) => {
-                    setSolidityCode(html);
+                    setCode(html);
                 });
             }
         } catch (error) {
             console.error('Error generating code:', error);
-            setSolidityCode('Error generating code');
+            setCode('Error generating code');
         }
     }, [contractConfig, viewType]);
-    const a = { __html: solidityCode };
+    const a = { __html: code };
     return (
-        <div className='bg-neutral-50 text-white p-4 text-[13px] antialiased rounded'>
+        <div className='p-4 text-[13px] antialiased'>
             <pre>
                 <code dangerouslySetInnerHTML={a}></code>
             </pre>

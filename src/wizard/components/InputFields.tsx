@@ -2,29 +2,9 @@ import { useEffect, useState } from 'react';
 import { ContractConfig, Feature, FieldConfig, FunctionConfig } from '../../types';
 import { Label } from '@wizard/primitives/label';
 import { Input } from '@wizard/primitives/input';
-
-const fieldTypes = [
-    'boolean',
-    'int8',
-    'int16',
-    'int32',
-    'int64',
-    'int128',
-    'int256',
-    'uint8',
-    'uint16',
-    'uint32',
-    'uint64',
-    'uint128',
-    'uint256',
-    'char8',
-    'char16',
-    'char32',
-    'char64',
-    'literef',
-    'address',
-    'string',
-];
+import { Reorder } from 'framer-motion';
+import { Field } from './Field';
+import { nanoid } from 'nanoid';
 
 const InputFields = ({ setContractConfig }: { setContractConfig: (config: ContractConfig) => void }) => {
     const [config, setConfig] = useState<ContractConfig>({
@@ -34,16 +14,8 @@ const InputFields = ({ setContractConfig }: { setContractConfig: (config: Contra
         baseURI: 'https://mything/my/',
         schemaURI: 'https://mything/my-metadata.json',
         imageURI: 'https://mything/my/{tokenID}.png',
-        fields: [
-            {
-                id: 1,
-                key: 'name',
-                fieldType: 'char32',
-                description: 'description',
-                functionConfig: FunctionConfig.ALL,
-            },
-        ],
-        features: [Feature.PATCHACCOUNT],
+        fields: [],
+        features: [],
     });
 
     useEffect(() => {
@@ -63,27 +35,35 @@ const InputFields = ({ setContractConfig }: { setContractConfig: (config: Contra
     };
 
     const handleAddField = () => {
-        setConfig((prev) => ({
-            ...prev,
-            fields: [
-                ...prev.fields,
-                {
-                    id: prev.fields.length + 1,
-                    fieldType: 'string',
-                    key: '',
-                    description: 'description',
-                    functionConfig: FunctionConfig.ALL,
+        setConfig(
+            (prevData) =>
+                prevData && {
+                    ...prevData,
+                    fields: [
+                        ...prevData.fields,
+                        {
+                            _uid: 'field_' + nanoid(),
+                            id: prevData.fields.length + 1,
+                            key: '',
+                            description: '',
+                            fieldType: 'char32',
+                            arrayLength: 1,
+                            functionConfig: FunctionConfig.ALL,
+                        },
+                    ],
                 },
-            ],
-        }));
+        );
     };
 
-    const handleFieldChange = (index: number, field: Partial<Pick<FieldConfig, 'key' | 'fieldType' | 'description' | 'functionConfig'>>) => {
-        setConfig((prev) => ({
-            ...prev,
-            fields: prev.fields.map((f, i) => (i === index ? { ...f, ...field } : f)),
-        }));
+    // Field change handler
+    const handleFieldSort = (fields: FieldConfig[]) => {
+        fields = fields.map((field, index) => ({ ...field, id: index + 1 }));
+        setConfig((prevData) => prevData && { ...prevData, fields });
     };
+
+    useEffect(() => {
+        handleAddField();
+    }, []);
 
     return (
         <div className='space-y-4'>
@@ -134,9 +114,29 @@ const InputFields = ({ setContractConfig }: { setContractConfig: (config: Contra
                 ))}
             </div>
 
+            <div className='flex flex-col gap-2.5 items-stretch justify-stretch'>
+                <span className='form-label'>Data fields</span>
+                <Reorder.Group
+                    axis='y'
+                    values={config?.fields || []}
+                    onReorder={(newOrder: FieldConfig[]) => handleFieldSort(newOrder)}
+                    className='flex flex-col gap-2'
+                >
+                    {config?.fields?.map((field) => (
+                        <Field key={field._uid} field={field} setter={setConfig} />
+                    ))}
+                </Reorder.Group>
+                <button
+                    onClick={handleAddField}
+                    className='p-3 text-sm transition-all border border-dashed border-gray-300 text-gray-400 font-medium rounded-md leading-none w-full'
+                >
+                    Add a new field
+                </button>
+            </div>
+
             <div>
                 <h3 className='font-bold'>Fields</h3>
-                {config.fields.map((field, index) => (
+                {/*config.fields.map((field, index) => (
                     <div key={index} className='space-y-2 mt-2'>
                         <input
                             value={field.key}
@@ -173,7 +173,7 @@ const InputFields = ({ setContractConfig }: { setContractConfig: (config: Contra
                             ))}
                         </select>
                     </div>
-                ))}
+                ))*/}
                 <button onClick={handleAddField} className='mt-2 p-2 bg-blue-500 text-white rounded'>
                     Add Field
                 </button>

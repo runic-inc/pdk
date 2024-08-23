@@ -1,9 +1,9 @@
-import { IconProps } from '@radix-ui/react-icons/dist/types';
-import { FieldType, Patchwork721Interface } from './constants';
+/*import { FieldType, Patchwork721Interface } from './constants';
 
 export interface Patchwork721Field {
     id: string;
     name: string;
+    description: string;
     type: FieldType;
     cardinality: number | '';
     values?: PatchworkEnum[];
@@ -26,6 +26,7 @@ export type AssignmentNodeData = {
 
 export type Patchwork721InterfaceDecorators = {
     [key in Patchwork721Interface]: {
-        icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>;
+        icon: `fa-${string}`;
     };
 };
+*/

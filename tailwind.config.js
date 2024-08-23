@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+
+import colors from 'tailwindcss/colors';
+const alphaColor = (color, alpha) => {
+    const hexAlpha = Math.round((alpha / 100) * 255)
+        .toString(16)
+        .padStart(2, '0');
+    return color + hexAlpha;
+};
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -54,6 +63,10 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontSize: {
+        xs: ['0.625rem', { lineHeight: '1rem' }],
+        sm: ['0.75rem', { lineHeight: '1rem' }],
       },
       keyframes: {
         "accordion-down": {
