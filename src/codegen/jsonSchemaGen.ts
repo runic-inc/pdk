@@ -10,6 +10,7 @@ export class JSONSchemaGen implements Generator {
   gen(schema: ContractSchema): string {
     let out = "";
     out += `{\n`;
+    out += `  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",\n`;
     out += `  "scopeName": "${schema.scopeName}",\n`;
     out += `  "name": "${schema.name}",\n`;
     out += `  "symbol": "${schema.symbol}",\n`;
