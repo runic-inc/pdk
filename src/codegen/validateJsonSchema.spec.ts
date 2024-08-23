@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ErrorObject } from "ajv";
-import { tryValidate } from "./utils";
-import { Feature } from "../types";
+import { tryValidate } from "./configValidator";
 
 const schemaFile: string = "./src/patchwork-contract-config.schema.json";
 

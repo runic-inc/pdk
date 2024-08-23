@@ -10,7 +10,8 @@ import { ContractSchemaImpl } from "./codegen/contractSchema";
 import { execSync } from "child_process";
 import { launchWizardApp } from "./wizardServer";
 import { UserContractGen } from "./codegen/userContractGen";
-import { cleanAndCapitalizeFirstLetter, tryValidate } from "./codegen/utils";
+import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
+import { tryValidate } from "./codegen/configValidator";
 
 const argv = yargs(hideBin(process.argv))
     .command(
