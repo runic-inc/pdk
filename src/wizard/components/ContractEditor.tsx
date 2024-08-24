@@ -89,6 +89,11 @@ const ContractEditor = memo(() => {
                     </div>
                 </div>
 
+                <div>
+                    <Label htmlFor='scopeName'>Scope name</Label>
+                    <Input name='scopeName' id='scopeName' defaultValue={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope name' />
+                </div>
+
                 <div className=''>
                     <Label>Contract URIs</Label>
                     <div className='space-y-1.5 rounded bg-muted/50 border p-3 dotted shadow'>
