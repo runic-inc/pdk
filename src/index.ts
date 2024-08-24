@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-
-import Ajv2019 from "ajv/dist/2019";
 import fs from "fs";
 import path from "path";
 import { hideBin } from "yargs/helpers";
@@ -8,13 +6,12 @@ import yargs from "yargs/yargs";
 import { parseJson } from './codegen/contractSchemaJsonParser';
 import { MainContractGen } from './codegen/mainContractGen';
 import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
-import { config } from "yargs";
 import { ContractSchemaImpl } from "./codegen/contractSchema";
 import { execSync } from "child_process";
-
 import { launchWizardApp } from "./wizardServer";
 import { UserContractGen } from "./codegen/userContractGen";
 import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
+import { tryValidate } from "./codegen/configValidator";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -41,6 +38,11 @@ const argv = yargs(hideBin(process.argv))
                     alias: "o",
                     type: "string",
                     description: "Output directory for the generated Solidity files",
+                })
+                .option("rootdir", {
+                    alias: "r",
+                    type: "string",
+                    description: "Root directory for the TS files (defaults to 'src')",
                 });
         },
         generateSolidity
@@ -58,24 +60,10 @@ const argv = yargs(hideBin(process.argv))
     .alias("h", "help")
     .argv;
 
-function tryValidate(jsonFile: string, schemaFile: string): any {
-    try {
-        const jsonData = require(path.resolve(jsonFile));
-        const schemaData = require(schemaFile);
-        const ajv = new Ajv2019()
-        const validate = ajv.compile(schemaData);
-        if (validate(jsonData)) {
-            return true;
-        }
-        return validate.errors;
-    }catch (error: any) {
-        console.error("Error reading JSON or schema file:", error.message);
-    }
-}
-
 function validateJson(argv: any): void {
     const jsonFile = argv.jsonFile;
-    const t1 = tryValidate(jsonFile, "../src/patchwork-contract-config.schema.json");
+    const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+    const t1 = tryValidate(jsonData, "./src/patchwork-contract-config.schema.json");
     // TODO need separate commands to validate metadata schemas as one can bury errors in the other
     //const t2 = tryValidate(jsonFile, "../src/patchwork-metadata.schema.json")
     if (t1 === true) {
@@ -90,6 +78,8 @@ function validateJson(argv: any): void {
 function generateSolidity(argv: any) {
     const configFiles = argv.configFiles;
     const outputDir = argv.output || process.cwd();
+    const rootDir = argv.rootdir || "src";
+    const tmpout = "tmpout";
   
     for (const configFile of configFiles) {
         try {
@@ -99,7 +89,7 @@ function generateSolidity(argv: any) {
             let jsonFilename;
             if (configFile.endsWith(".ts")) {
                 try {
-                    const result = execSync(`tsc ${configFile}`);
+                    const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
                     console.log("TSC compile success");
                     console.log(result.toString());
                 } catch (err: any) { 
@@ -107,10 +97,10 @@ function generateSolidity(argv: any) {
                     console.log("output", err.stdout.toString());
                     console.log("stderr", err.stderr.toString());
                 }
-                const jsConfigFile = path.dirname(configFile) + path.sep + path.basename(configFile, ".ts") + ".js";
+                const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
                 const t = require(path.resolve(jsConfigFile)).default;
                 schema = new ContractSchemaImpl(t);
-                fs.unlinkSync(path.resolve(jsConfigFile));
+                fs.rmSync(tmpout, { recursive: true });
             } else {
                 if (!configFile.endsWith(".json")) {
                     throw new Error("Invalid file type. Please provide a JSON or TS file.");
