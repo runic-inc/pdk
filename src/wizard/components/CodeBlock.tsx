@@ -6,21 +6,18 @@ import { ContractConfig } from '../../types';
 import { ContractSchemaImpl } from '../../codegen/contractSchema';
 import { useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
+import useStore from '@wizard/store';
 
-interface CodeBlockProps {
-    viewType: string;
-    contractConfig: ContractConfig;
-}
 const themes = {
     light: 'github-light',
     dark: 'aurora-x',
 };
 
-const CodeBlock = ({ viewType, contractConfig }: CodeBlockProps) => {
+const CodeBlock = ({ viewType }: { viewType: 'userContract' | 'genContract' | 'schema' }) => {
     const [code, setCode] = useState('');
+    const { contractConfig } = useStore();
 
     useEffect(() => {
-        console.log('contract config', contractConfig);
         try {
             if (viewType === 'userContract') {
                 codeToHtml(new UserContractGen().gen(new ContractSchemaImpl(contractConfig)), {

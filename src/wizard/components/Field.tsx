@@ -1,6 +1,6 @@
 import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
 import { Patchwork721Data, FunctionConfig, FieldConfig, ContractConfig } from '../../types';
 import Icon from '@wizard/primitives/icon';
@@ -8,52 +8,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@wizard/primitives/input';
 import FieldTypeSelector from './Field.TypeSelector';
 import EnumList from './Field.EnumList';
+import useStore from '@wizard/store';
 
-export function Field({
-    field,
-    setter,
-    nodeData,
-}: {
-    field: FieldConfig;
-    setter: React.Dispatch<React.SetStateAction<ContractConfig>>;
-    nodeData?: Patchwork721Data;
-}) {
+const Field = memo(({ field }: { field: FieldConfig }) => {
+    const { contractConfig, updateContractConfig } = useStore();
     const fieldDrag = useDragControls();
 
     const handleFieldInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const { name, value } = e.currentTarget;
-        setter(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, [name]: name === 'arrayLength' ? parseInt(value) : value } : _f)),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, [name]: name === 'arrayLength' ? parseInt(value) : value } : _f)),
+        });
     };
 
     const handleRemoveField = () => {
-        setter(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.filter((_f) => _f._uid !== field._uid),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.filter((_f) => _f._uid !== field._uid),
+        });
     };
 
     const handleFunctionChange = (value: FunctionConfig) => {
-        setter((prevData) => ({
-            ...prevData,
-            fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, functionConfig: value } : _f)),
-        }));
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, functionConfig: value } : _f)),
+        });
     };
-
-    useEffect(() => {
-        /*if (!nodeData.interfaces.includes(Patchwork721Interface.Assignee) && field.fieldType === FieldType.LITEREF) {
-            handleRemoveField();
-        }*/
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nodeData]);
 
     return (
         <Reorder.Item value={field} dragListener={false} whileDrag={{ scale: 1.075, boxShadow: boxShadow.lg }} dragControls={fieldDrag}>
@@ -79,7 +60,7 @@ export function Field({
 
                         <Disclosure.Panel
                             static={!filled}
-                            className='dotted relative rounded-b p-3 border-t border-black bg-neutral-50 cursor-auto flex flex-col gap-2'
+                            className='dotted relative rounded-b p-3 border-t border-muted-foreground/50 bg-muted/50 cursor-auto flex flex-col gap-2'
                         >
                             <label className='grid grid-cols-[1fr_2.5fr] gap-1 items-center'>
                                 <span className='form-label'>Name</span>
@@ -109,7 +90,7 @@ export function Field({
 
                             <label className='grid grid-cols-[1fr_2.5fr] gap-1 items-center'>
                                 <span className='form-label'>Type</span>
-                                <FieldTypeSelector field={field} setField={setter} />
+                                <FieldTypeSelector field={field} />
                             </label>
 
                             <label className='grid grid-cols-[1fr_2.5fr] gap-1 items-center'>
@@ -173,11 +154,13 @@ export function Field({
                                 </button>
                             </div>
 
-                            {field.fieldType === 'enum' && <EnumList field={field} setField={setter} />}
+                            {field.fieldType === 'enum' && <EnumList field={field} />}
                         </Disclosure.Panel>
                     </div>
                 )}
             </Disclosure>
         </Reorder.Item>
     );
-}
+});
+
+export default Field;

@@ -2,50 +2,39 @@ import Icon from '@wizard/primitives/icon';
 import { ContractConfig, FieldConfig, PatchworkEnum } from '../../types';
 import { Reorder } from 'framer-motion';
 import { EnumEntry } from './Field.EnumEntry';
+import useStore from '@wizard/store';
 
-const EnumList = ({ field, setField }: { field: FieldConfig; setField: React.Dispatch<React.SetStateAction<ContractConfig>> }) => {
+const EnumList = ({ field }: { field: FieldConfig }) => {
+    const { contractConfig, updateContractConfig } = useStore();
     const handleEnumSort = (newOrder: PatchworkEnum[]) => {
-        console.log(newOrder);
-        setField(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: newOrder } : _f)),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: newOrder } : _f)),
+        });
     };
     const handleEnumUpdate = ({ uid, value }: PatchworkEnum) => {
-        setField(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) =>
-                        _f._uid === field._uid ? { ..._f, values: _f.values?.map((_v) => (_v.uid === uid ? { ..._v, value } : _v)) } : _f,
-                    ),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) =>
+                _f._uid === field._uid ? { ..._f, values: _f.values?.map((_v) => (_v.uid === uid ? { ..._v, value } : _v)) } : _f,
+            ),
+        });
     };
     const handleEnumDelete = (uid: string) => {
-        setField(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: _f.values?.filter((_v) => _v.uid !== uid) } : _f)),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: _f.values?.filter((_v) => _v.uid !== uid) } : _f)),
+        });
     };
     const handleAddNewEnum = () => {
         const newEnum = {
             uid: 'enum-' + Math.round(Math.random() * 100000),
             value: '',
         };
-        setField(
-            (prevData) =>
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: _f.values ? [..._f.values, newEnum] : [newEnum] } : _f)),
-                },
-        );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, values: _f.values ? [..._f.values, newEnum] : [newEnum] } : _f)),
+        });
     };
 
     return (

@@ -7,9 +7,35 @@ export enum Feature {
     PATCH1155 = "1155PATCH",
     MINTABLE = "MINTABLE",
     REVERSIBLE = "REVERSIBLE",
+    LITEREF = "LITEREF",
     WEAKREF = "WEAKREF",
     DYNAMICREFLIBRARY = "DYNAMICREFLIBRARY"
 }
+
+export type FeatureInterface = {
+    interface: Feature;
+    label: string;
+    default?: boolean;
+    optional?: boolean;
+    description?: string;
+    validator?: (value: ContractConfig) => boolean;
+};
+
+export type FeatureOption = {
+    label: string;
+    name: string;
+    type: 'input' | 'select' | 'checkbox' | 'toggle';
+    description?: string;
+    placeholder?: string;
+};
+
+export type FeatureConfig = {
+    name: string;
+    description: string;
+    icon: `fa-${string}`;
+    interfaces: [FeatureInterface, ...FeatureInterface[]];
+    options: FeatureOption[];
+};
 
 export enum FunctionConfig {
     ALL = "ALL",

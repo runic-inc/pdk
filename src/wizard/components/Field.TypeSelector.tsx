@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ContractConfig, FieldConfig, FieldType } from '@wizard/../types';
 import Icon from '@wizard/primitives/icon';
 import { cn } from '@wizard/lib/utils';
+import useStore from '@wizard/store';
 
 type FieldTypeInfo = {
     value: FieldType;
@@ -151,17 +152,14 @@ const fieldTypeInfo: FieldTypeInfo[] = [
     },
 ];
 
-const FieldTypeSelector = ({ field, setField }: { field: FieldConfig; setField: React.Dispatch<React.SetStateAction<ContractConfig>> }) => {
+const FieldTypeSelector = ({ field }: { field: FieldConfig }) => {
     const [open, setOpen] = useState(false);
+    const { contractConfig, updateContractConfig } = useStore();
 
     const handleComboboxChange = (value: string) => {
-        setField((prevData) => {
-            return (
-                prevData && {
-                    ...prevData,
-                    fields: prevData.fields.map((_f) => (_f._uid === field._uid ? { ..._f, fieldType: value } : _f)),
-                }
-            );
+        updateContractConfig({
+            ...contractConfig,
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, fieldType: value } : _f)),
         });
     };
 
