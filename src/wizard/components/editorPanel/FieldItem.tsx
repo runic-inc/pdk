@@ -6,8 +6,8 @@ import { FunctionConfig, FieldConfig } from '@/types';
 import Icon from '@/wizard/primitives/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
 import { Input } from '@/wizard/primitives/input';
-import FieldTypeSelector from './Field.TypeSelector';
-import EnumList from './Field.EnumList';
+import FieldTypeSelector from './TypeSelector';
+import EnumList from './EnumList';
 import useStore from '@/wizard/store';
 
 const Field = memo(({ field }: { field: FieldConfig }) => {

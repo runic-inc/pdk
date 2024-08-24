@@ -2,8 +2,9 @@ import { Reorder, useDragControls } from 'framer-motion';
 import { boxShadow } from 'tailwindcss/defaultTheme';
 import { PatchworkEnum } from '@/types';
 import Icon from '@/wizard/primitives/icon';
+import def from 'ajv/dist/vocabularies/discriminator';
 
-export function EnumEntry({
+const EnumItem = ({
     item,
     setter,
     remover,
@@ -13,7 +14,7 @@ export function EnumEntry({
     setter: (item: PatchworkEnum) => void;
     remover: (uid: string) => void;
     number: number | string;
-}) {
+}) => {
     const fieldDrag = useDragControls();
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setter({ ...item, value: e.target.value });
@@ -49,4 +50,6 @@ export function EnumEntry({
             </span>
         </Reorder.Item>
     );
-}
+};
+
+export default EnumItem;

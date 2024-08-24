@@ -9,7 +9,7 @@ import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
 import useStore from '@/wizard/store';
 
-const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
+const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();
     const featureEnums = feature.interfaces.map((iface) => iface.interface);
     const primaryFeatures = feature.interfaces.filter((iface) => !iface.optional);
@@ -144,4 +144,4 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
     );
 });
 
-export default FeatureEntry;
+export default FeatureItem;

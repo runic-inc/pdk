@@ -1,7 +1,7 @@
 import Icon from '@/wizard/primitives/icon';
 import { FieldConfig, PatchworkEnum } from '@/types';
 import { Reorder } from 'framer-motion';
-import { EnumEntry } from './Field.EnumEntry';
+import EnumItem from './EnumItem';
 import useStore from '@/wizard/store';
 
 const EnumList = ({ field }: { field: FieldConfig }) => {
@@ -55,7 +55,7 @@ const EnumList = ({ field }: { field: FieldConfig }) => {
                             {field.values?.map((item, i) => {
                                 const isUnique = field.values?.filter((_v) => _v.value === item.value).length === 1;
                                 return (
-                                    <EnumEntry
+                                    <EnumItem
                                         item={item}
                                         setter={handleEnumUpdate}
                                         number={isUnique ? i : 'MUST BE UNIQUE'}

@@ -3,10 +3,10 @@ import { FieldConfig, FunctionConfig } from '@/types';
 import { Label } from '@/wizard/primitives/label';
 import { Input } from '@/wizard/primitives/input';
 import { Reorder } from 'framer-motion';
-import Field from './editorPanel/Field';
+import Field from './editorPanel/FieldItem';
 import { nanoid } from 'nanoid';
 import features from '@/wizard/lib/features';
-import FeatureEntry from './editorPanel/FeatureEntry';
+import FeatureEntry from './editorPanel/FeatureItem';
 import useStore from '@/wizard/store';
 import { Button } from '@/wizard/primitives/button';
 
