@@ -39,7 +39,7 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
     const handleOptionalInterfaceToggle = (value: string) => {
         const featureToToggle = getInterfaceByValue(value);
         setadditionalFeatures((prev) => {
-            return _.without(prev, featureToToggle);
+            return _.xor(prev, [featureToToggle]);
         });
     };
 
@@ -121,7 +121,7 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
                                             <div className='pt-1'>
                                                 <Checkbox
                                                     id={iface.interface}
-                                                    onCheckedChange={(checked) => handleOptionalInterfaceToggle(iface.interface)}
+                                                    onCheckedChange={() => handleOptionalInterfaceToggle(iface.interface)}
                                                     defaultChecked={additionalFeatures.includes(iface.interface)}
                                                     disabled={iface.autoToggle || (iface.validator ? !iface.validator(contractConfig) : false)}
                                                 />
