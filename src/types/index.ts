@@ -21,6 +21,7 @@ export type FeatureInterface = {
     description?: string;
     autoToggle?: boolean;
     validator?: (value: ContractConfig) => boolean;
+    validatorMessage?: string;
 };
 
 export type FeatureOption = {
@@ -37,6 +38,7 @@ export type FeatureConfig = {
     icon: `fa-${string}`;
     autoToggle?: boolean;
     validator?: (value: ContractConfig) => boolean;
+    validatorMessage?: string;
     interfaces: [FeatureInterface, ...FeatureInterface[]];
     options: FeatureOption[];
 };

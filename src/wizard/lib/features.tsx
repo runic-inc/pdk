@@ -35,12 +35,13 @@ export default [
     },
     {
         name: 'Assignee',
-        description: `Assignee tokens can hold and own Assignable tokens. Add a LiteRef field to enable this feature.`,
+        description: `Assignee tokens can hold and own Assignable tokens.`,
         icon: 'fa-square-dashed',
         autoToggle: true,
         validator: ({ fields }: ContractConfig) => {
             return fields.filter((field) => field.fieldType === 'literef').length >= 1 ? true : false;
         },
+        validatorMessage: 'This feature is automatically enabled when a LiteRef field is added.',
         interfaces: [
             {
                 interface: Feature.LITEREF,
@@ -52,16 +53,17 @@ export default [
                 interface: Feature.DYNAMICREFLIBRARY,
                 label: 'Use dynamic reference library',
                 optional: true,
-                description: `Saves significant code space in your contract at the expense of CALLs to an external library. Requies a LiteRef field with a cardinality of 0.`,
+                description: `Saves significant code space in your contract at the expense of CALLs to an external library.`,
                 validator: ({ fields }: ContractConfig) => {
                     return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
                 },
+                validatorMessage: 'Requires a LiteRef field with a cardinality of 0.',
             },
             {
                 interface: Feature.WEAKREF,
                 label: 'Weak assignments',
                 optional: true,
-                description: `Does not cascade ownership changes to its assigned tokens.`,
+                description: `Does not attempt to cascade ownership changes to its assigned tokens.`,
             },
         ],
         options: [],

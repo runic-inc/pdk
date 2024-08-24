@@ -8,6 +8,8 @@ import { Feature, FeatureConfig } from '@/types';
 import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
 import useStore from '@/wizard/store';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/wizard/primitives/tooltip';
+import { nanoid } from 'nanoid';
 
 const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();
@@ -49,6 +51,8 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
         }
     }, [contractConfig]);
 
+    const _featureUID = nanoid(10);
+
     useEffect(() => {
         const contractFeatures = contractConfig.features ?? [];
         _.pull(contractFeatures, ...featureEnums);
@@ -63,11 +67,15 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     }, [selected, currentPrimaryFeature, additionalFeatures]);
 
     return (
-        <div className={`dotted relative bg-white rounded border border-black shadow text-sm transition-all font-medium leading-none`}>
+        <div
+            data-disabled={feature.validator && !feature.validator(contractConfig)}
+            className={`dotted relative bg-white rounded border border-black data-[disabled=true]:border-muted-foreground data-[disabled=true]:text-muted-foreground shadow text-sm transition-all font-medium leading-none`}
+        >
             <div className={`relative flex w-full items-center`}>
-                <label className='cursor-pointer flex gap-4 grow text-left p-3 pr-4 disabled:cursor-auto'>
+                <label htmlFor={_featureUID} className='cursor-pointer flex gap-4 grow text-left p-3 pr-4 disabled:cursor-auto'>
                     <div className=''>
                         <Checkbox
+                            id={_featureUID}
                             disabled={feature.autoToggle || (feature.validator ? !feature.validator(contractConfig) : false)}
                             checked={selected}
                             onCheckedChange={(checked) => handleFeatureToggle(!!checked)}
@@ -79,7 +87,9 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                             <span>{feature.name}</span>
                         </div>
                         <div>
-                            <p className='text-muted-foreground text-[12px] font-normal leading-4'>{feature.description}</p>
+                            <p className='text-muted-foreground text-[12px] font-normal leading-4'>
+                                {feature.description} <span className='underline decoration-dotted'>{feature.validatorMessage}</span>
+                            </p>
                         </div>
                     </div>
                 </label>
@@ -106,7 +116,9 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                                                 {iface.label}
                                                 {iface.default && <Badge>Default</Badge>}
                                             </Label>
-                                            <p className='font-normal text-sm text-muted-foreground'>{iface.description}</p>
+                                            <p className='font-normal text-sm text-muted-foreground'>
+                                                {iface.description} <span className='underline decoration-dotted'>{iface.validatorMessage}</span>
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -130,7 +142,9 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                                                 <Label htmlFor={iface.interface} className='inline-flex items-center gap-2'>
                                                     {iface.label}
                                                 </Label>
-                                                <p className='font-normal text-sm text-muted-foreground'>{iface.description}</p>
+                                                <p className='font-normal text-sm text-muted-foreground'>
+                                                    {iface.description} <span className='underline decoration-dotted'>{iface.validatorMessage}</span>
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
