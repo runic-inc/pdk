@@ -46,8 +46,12 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     };
 
     useEffect(() => {
-        if (feature.autoToggle && feature.validator && feature.validator(contractConfig)) {
-            setSelected(true);
+        if (feature.autoToggle && feature.validator) {
+            if (feature.validator(contractConfig)) {
+                setSelected(true);
+            } else {
+                setSelected(false);
+            }
         }
     }, [contractConfig]);
 
