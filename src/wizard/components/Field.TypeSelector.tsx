@@ -2,7 +2,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@wizard/primitives/popover';
 import { Button } from '@wizard/primitives/button';
 import { useState } from 'react';
-import { ContractConfig, FieldConfig, FieldType } from '@wizard/../types';
+import { FieldConfig, FieldType } from '@wizard/../types';
 import Icon from '@wizard/primitives/icon';
 import { cn } from '@wizard/lib/utils';
 import useStore from '@wizard/store';

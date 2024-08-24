@@ -1,4 +1,3 @@
-import useStore from '@wizard/store';
 import { ContractConfig, Feature, FeatureConfig } from '../../types';
 
 export default [

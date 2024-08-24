@@ -1,5 +1,5 @@
-import { memo, useEffect, useState } from 'react';
-import { ContractConfig, Feature, FieldConfig, FunctionConfig } from '../../types';
+import { memo, useEffect } from 'react';
+import { FieldConfig, FunctionConfig } from '../../types';
 import { Label } from '@wizard/primitives/label';
 import { Input } from '@wizard/primitives/input';
 import { Reorder } from 'framer-motion';

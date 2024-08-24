@@ -1,5 +1,5 @@
 import Icon from '@wizard/primitives/icon';
-import { ContractConfig, FieldConfig, PatchworkEnum } from '../../types';
+import { FieldConfig, PatchworkEnum } from '../../types';
 import { Reorder } from 'framer-motion';
 import { EnumEntry } from './Field.EnumEntry';
 import useStore from '@wizard/store';

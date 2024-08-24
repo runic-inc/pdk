@@ -1,8 +1,8 @@
 import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
-import { Patchwork721Data, FunctionConfig, FieldConfig, ContractConfig } from '../../types';
+import { FunctionConfig, FieldConfig } from '../../types';
 import Icon from '@wizard/primitives/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@wizard/primitives/select';
 import { Input } from '@wizard/primitives/input';
