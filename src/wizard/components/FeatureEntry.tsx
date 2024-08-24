@@ -11,14 +11,15 @@ import useStore from '@wizard/store';
 
 const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();
-    const interfaceEnums = feature.interfaces.map((iface) => iface.interface);
-    const primaryInterfaces = feature.interfaces.filter((iface) => !iface.optional);
-    const optionalInterfaces = feature.interfaces.filter((iface) => iface.optional);
-    const defaultInterface = primaryInterfaces.find((iface) => iface.default)?.interface ?? feature.interfaces[0].interface;
+    const featureEnums = feature.interfaces.map((iface) => iface.interface);
+    const primaryFeatures = feature.interfaces.filter((iface) => !iface.optional);
+    const optionalFeatures = feature.interfaces.filter((iface) => iface.optional);
 
-    const [selected, setSelected] = useState<boolean>(_.intersection(contractConfig.features ?? [], interfaceEnums).length > 0);
-    const [currentInterface, setCurrentInterface] = useState<Feature>(defaultInterface);
-    const [additionalInterfaces, setAdditionalInterfaces] = useState<Feature[]>([]);
+    const defaultFeature = primaryFeatures.find((iface) => iface.default)?.interface;
+
+    const [selected, setSelected] = useState<boolean>(_.intersection(contractConfig.features ?? [], featureEnums).length > 0);
+    const [currentPrimaryFeature, setcurrentPrimaryFeature] = useState<Feature | undefined>(defaultFeature);
+    const [additionalFeatures, setadditionalFeatures] = useState<Feature[]>([]);
 
     const getInterfaceByValue = (value: string): Feature => {
         const enumEntries = Object.entries(Feature) as [Feature, string][];
@@ -31,35 +32,46 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
     };
 
     const handlePrimaryInterfaceToggle = (value: string) => {
-        const interfaceToToggle = getInterfaceByValue(value);
-        setCurrentInterface(interfaceToToggle);
+        const featureToToggle = getInterfaceByValue(value);
+        setcurrentPrimaryFeature(featureToToggle);
     };
 
     const handleOptionalInterfaceToggle = (value: string) => {
-        const interfaceToToggle = getInterfaceByValue(value);
-        setAdditionalInterfaces((prev) => {
-            return _.without(prev, interfaceToToggle);
+        const featureToToggle = getInterfaceByValue(value);
+        setadditionalFeatures((prev) => {
+            return _.without(prev, featureToToggle);
         });
     };
 
     useEffect(() => {
+        if (feature.autoToggle && feature.validator && feature.validator(contractConfig)) {
+            setSelected(true);
+        }
+    }, [contractConfig]);
+
+    useEffect(() => {
         const contractFeatures = contractConfig.features ?? [];
-        _.pull(contractFeatures, ...interfaceEnums);
+        _.pull(contractFeatures, ...featureEnums);
         if (selected) {
-            contractFeatures.push(...additionalInterfaces, currentInterface);
+            contractFeatures.push(...additionalFeatures);
+            if (currentPrimaryFeature) contractFeatures.push(currentPrimaryFeature);
         }
         updateContractConfig({
             ...contractConfig,
             features: contractFeatures,
         });
-    }, [selected, currentInterface, additionalInterfaces]);
+    }, [selected, currentPrimaryFeature, additionalFeatures]);
 
     return (
         <div className={`dotted relative bg-white rounded border border-black shadow text-sm transition-all font-medium leading-none`}>
             <div className={`relative flex w-full items-center`}>
                 <label className='cursor-pointer flex gap-4 grow text-left p-3 pr-4 disabled:cursor-auto'>
                     <div className=''>
-                        <Checkbox defaultChecked={selected} onCheckedChange={(checked) => handleFeatureToggle(!!checked)} />
+                        <Checkbox
+                            disabled={feature.autoToggle || (feature.validator ? !feature.validator(contractConfig) : false)}
+                            checked={selected}
+                            onCheckedChange={(checked) => handleFeatureToggle(!!checked)}
+                        />
                     </div>
                     <div className='grow flex flex-col gap-1.5'>
                         <div className='flex gap-1.5 pt-[1.5px]'>
@@ -78,12 +90,16 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
                         className='bg-muted/50 rounded-b border-t border-muted-foreground/50 p-3 pb-4 dotted flex flex-col gap-4'
                         key={'feature_' + feature.name}
                     >
-                        {primaryInterfaces.length > 1 && (
-                            <RadioGroup defaultValue={currentInterface} onValueChange={(value) => handlePrimaryInterfaceToggle(value)}>
-                                {primaryInterfaces.map((iface) => (
+                        {primaryFeatures.length > 1 && (
+                            <RadioGroup defaultValue={currentPrimaryFeature} onValueChange={(value) => handlePrimaryInterfaceToggle(value)}>
+                                {primaryFeatures.map((iface) => (
                                     <div className='flex gap-4 items-start' key={iface.interface}>
                                         <div className='pt-1'>
-                                            <RadioGroupItem value={iface.interface} id={iface.interface} />
+                                            <RadioGroupItem
+                                                value={iface.interface}
+                                                id={iface.interface}
+                                                disabled={iface.validator ? !iface.validator(contractConfig) : false}
+                                            />
                                         </div>
                                         <div>
                                             <Label htmlFor={iface.interface} className='inline-flex items-center gap-2'>
@@ -96,17 +112,18 @@ const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
                                 ))}
                             </RadioGroup>
                         )}
-                        {optionalInterfaces.length > 0 && (
+                        {optionalFeatures.length > 0 && (
                             <div>
                                 <p className='text-sm font-medium'>Options</p>
                                 <div className='flex flex-col gap-2 pt-2'>
-                                    {optionalInterfaces.map((iface) => (
+                                    {optionalFeatures.map((iface) => (
                                         <div className='flex gap-4 items-start' key={iface.interface}>
                                             <div className='pt-1'>
                                                 <Checkbox
                                                     id={iface.interface}
                                                     onCheckedChange={(checked) => handleOptionalInterfaceToggle(iface.interface)}
-                                                    defaultChecked={additionalInterfaces.includes(iface.interface)}
+                                                    defaultChecked={additionalFeatures.includes(iface.interface)}
+                                                    disabled={iface.autoToggle || (iface.validator ? !iface.validator(contractConfig) : false)}
                                                 />
                                             </div>
                                             <div>

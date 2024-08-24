@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 
 export enum Feature {
     FRAGMENTMULTI = "FRAGMENTMULTI",
@@ -18,6 +19,7 @@ export type FeatureInterface = {
     default?: boolean;
     optional?: boolean;
     description?: string;
+    autoToggle?: boolean;
     validator?: (value: ContractConfig) => boolean;
 };
 
@@ -31,8 +33,10 @@ export type FeatureOption = {
 
 export type FeatureConfig = {
     name: string;
-    description: string;
+    description: string | ReactNode;
     icon: `fa-${string}`;
+    autoToggle?: boolean;
+    validator?: (value: ContractConfig) => boolean;
     interfaces: [FeatureInterface, ...FeatureInterface[]];
     options: FeatureOption[];
 };

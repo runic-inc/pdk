@@ -1,3 +1,4 @@
+import useStore from '@wizard/store';
 import { ContractConfig, Feature, FeatureConfig } from '../../types';
 
 export default [
@@ -29,27 +30,27 @@ export default [
                 interface: Feature.FRAGMENTMULTI,
                 label: 'Multi-assignable',
                 description: `Multi-assignable tokens can be assigned to multiple Assignees, but cannot have ownership proxied.`,
+                validator: ({ fields }: ContractConfig) => {
+                    return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
+                },
             },
         ],
         options: [],
     },
     {
         name: 'Assignee',
-        description: 'Assignee tokens can hold and own Assignable tokens using LiteRef fields.',
+        description: `Assignee tokens can hold and own Assignable tokens. Add a LiteRef field to enable this feature.`,
         icon: 'fa-square-dashed',
+        autoToggle: true,
+        validator: ({ fields }: ContractConfig) => {
+            return fields.filter((field) => field.fieldType === 'literef').length >= 1 ? true : false;
+        },
         interfaces: [
             {
                 interface: Feature.LITEREF,
                 label: 'Strong assignments',
                 default: true,
                 description: `Single-assignable tokens can only be assigned to one Assignee token at a time, and have the ability to have its ownership proxied through its parent.`,
-                validator: ({ fields }: ContractConfig) => {
-                    if (fields.filter((field) => field.fieldType === 'literef').length >= 1) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                },
             },
             {
                 interface: Feature.DYNAMICREFLIBRARY,
@@ -57,11 +58,7 @@ export default [
                 optional: true,
                 description: `Saves code space in your 721 contract at the expense of CALLs to an external library.`,
                 validator: ({ fields }: ContractConfig) => {
-                    if (fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
                 },
             },
             {
