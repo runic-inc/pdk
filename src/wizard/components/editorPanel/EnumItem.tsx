@@ -2,7 +2,6 @@ import { Reorder, useDragControls } from 'framer-motion';
 import { boxShadow } from 'tailwindcss/defaultTheme';
 import { PatchworkEnum } from '@/types';
 import Icon from '@/wizard/primitives/icon';
-import def from 'ajv/dist/vocabularies/discriminator';
 
 const EnumItem = ({
     item,
