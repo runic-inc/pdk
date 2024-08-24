@@ -10,6 +10,7 @@ export default {
   resolve: {
     alias: {
       "@wizard": path.resolve(__dirname, "./src/wizard"),
+      "@": path.resolve(__dirname, "./src"),
     }
   },
 } satisfies UserConfig;

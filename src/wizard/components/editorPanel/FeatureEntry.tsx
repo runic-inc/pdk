@@ -1,13 +1,13 @@
-import { Checkbox } from '@wizard/primitives/checkbox';
-import Icon from '@wizard/primitives/icon';
-import { Label } from '@wizard/primitives/label';
-import { RadioGroup, RadioGroupItem } from '@wizard/primitives/radio-group';
+import { Checkbox } from '@/wizard/primitives/checkbox';
+import Icon from '@/wizard/primitives/icon';
+import { Label } from '@/wizard/primitives/label';
+import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useEffect, useState } from 'react';
-import { Feature, FeatureConfig } from '../../types';
-import { Badge } from '@wizard/primitives/badge';
+import { Feature, FeatureConfig } from '@/types';
+import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
-import useStore from '@wizard/store';
+import useStore from '@/wizard/store';
 
 const FeatureEntry = memo(({ feature }: { feature: FeatureConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();

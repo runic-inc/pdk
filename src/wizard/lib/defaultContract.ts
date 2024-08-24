@@ -1,4 +1,4 @@
-import { ContractConfig, Feature } from '../../types';
+import { ContractConfig, Feature } from '@/types';
 
 export default {
     scopeName: 'MyScope',

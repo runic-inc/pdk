@@ -2,13 +2,13 @@ import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
-import { FunctionConfig, FieldConfig } from '../../types';
-import Icon from '@wizard/primitives/icon';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@wizard/primitives/select';
-import { Input } from '@wizard/primitives/input';
+import { FunctionConfig, FieldConfig } from '@/types';
+import Icon from '@/wizard/primitives/icon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
+import { Input } from '@/wizard/primitives/input';
 import FieldTypeSelector from './Field.TypeSelector';
 import EnumList from './Field.EnumList';
-import useStore from '@wizard/store';
+import useStore from '@/wizard/store';
 
 const Field = memo(({ field }: { field: FieldConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();

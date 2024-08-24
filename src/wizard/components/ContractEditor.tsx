@@ -1,13 +1,14 @@
 import { memo, useEffect } from 'react';
-import { FieldConfig, FunctionConfig } from '../../types';
-import { Label } from '@wizard/primitives/label';
-import { Input } from '@wizard/primitives/input';
+import { FieldConfig, FunctionConfig } from '@/types';
+import { Label } from '@/wizard/primitives/label';
+import { Input } from '@/wizard/primitives/input';
 import { Reorder } from 'framer-motion';
-import Field from './Field';
+import Field from './editorPanel/Field';
 import { nanoid } from 'nanoid';
-import features from '../lib/features';
-import FeatureEntry from './FeatureEntry';
-import useStore from '@wizard/store';
+import features from '@/wizard/lib/features';
+import FeatureEntry from './editorPanel/FeatureEntry';
+import useStore from '@/wizard/store';
+import { Button } from '@/wizard/primitives/button';
 
 const ContractEditor = memo(() => {
     const { contractConfig, updateContractConfig } = useStore();
@@ -158,12 +159,9 @@ const ContractEditor = memo(() => {
                         <Field key={field._uid} field={field} />
                     ))}
                 </Reorder.Group>
-                <button
-                    onClick={handleAddField}
-                    className='p-3 text-sm transition-all border border-dashed border-gray-300 text-gray-400 font-medium rounded-md leading-none w-full'
-                >
+                <Button onClick={handleAddField} variant={'outline'} className='w-full'>
                     Add a new field
-                </button>
+                </Button>
             </div>
         </div>
     );

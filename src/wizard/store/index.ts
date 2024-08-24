@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { ContractConfig } from '../../types';
-import contractConfig from '../lib/defaultContract';
+import { ContractConfig } from '@/types';
+import contractConfig from '@/wizard/lib/defaultContract';
 
 type EditorState = {
     contractConfig: ContractConfig;

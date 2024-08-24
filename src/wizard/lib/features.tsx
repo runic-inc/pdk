@@ -1,4 +1,4 @@
-import { ContractConfig, Feature, FeatureConfig } from '../../types';
+import { ContractConfig, Feature, FeatureConfig } from '@/types';
 
 export default [
     {
@@ -29,9 +29,6 @@ export default [
                 interface: Feature.FRAGMENTMULTI,
                 label: 'Multi-assignable',
                 description: `Multi-assignable tokens can be assigned to multiple Assignees, but cannot have ownership proxied.`,
-                validator: ({ fields }: ContractConfig) => {
-                    return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
-                },
             },
         ],
         options: [],
@@ -53,9 +50,9 @@ export default [
             },
             {
                 interface: Feature.DYNAMICREFLIBRARY,
-                label: 'Dynamic reference lengths',
+                label: 'Use dynamic reference library',
                 optional: true,
-                description: `Saves code space in your 721 contract at the expense of CALLs to an external library.`,
+                description: `Saves significant code space in your contract at the expense of CALLs to an external library. Requies a LiteRef field with a cardinality of 0.`,
                 validator: ({ fields }: ContractConfig) => {
                     return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
                 },

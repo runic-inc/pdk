@@ -1,8 +1,8 @@
-import Icon from '@wizard/primitives/icon';
-import { FieldConfig, PatchworkEnum } from '../../types';
+import Icon from '@/wizard/primitives/icon';
+import { FieldConfig, PatchworkEnum } from '@/types';
 import { Reorder } from 'framer-motion';
 import { EnumEntry } from './Field.EnumEntry';
-import useStore from '@wizard/store';
+import useStore from '@/wizard/store';
 
 const EnumList = ({ field }: { field: FieldConfig }) => {
     const { contractConfig, updateContractConfig } = useStore();

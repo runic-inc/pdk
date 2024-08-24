@@ -1,12 +1,11 @@
 //import { parseJson } from '../../codegen/contractSchemaJsonParser';
-import { MainContractGen } from '../../codegen/mainContractGen';
-import { UserContractGen } from '../../codegen/userContractGen';
-import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
-import { ContractConfig } from '../../types';
-import { ContractSchemaImpl } from '../../codegen/contractSchema';
+import { MainContractGen } from '@/codegen/mainContractGen';
+import { UserContractGen } from '@/codegen/userContractGen';
+import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
+import { ContractSchemaImpl } from '@/codegen/contractSchema';
 import { useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
-import useStore from '@wizard/store';
+import useStore from '@/wizard/store';
 
 const themes = {
     light: 'github-light',

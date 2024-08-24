@@ -1,7 +1,7 @@
 import CodeBlock from './CodeBlock';
-import { Button } from '@wizard/primitives/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@wizard/primitives/filetabs';
-import { Badge } from '@wizard/primitives/badge';
+import { Button } from '@/wizard/primitives/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/wizard/primitives/filetabs';
+import { Badge } from '@/wizard/primitives/badge';
 
 const CodeView = () => {
     return (
