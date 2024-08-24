@@ -92,6 +92,9 @@ const ContractEditor = memo(() => {
                 <div>
                     <Label htmlFor='scopeName'>Scope name</Label>
                     <Input name='scopeName' id='scopeName' defaultValue={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope name' />
+                    <p data-description className='mt-2 text-sm text-muted-foreground'>
+                        Scopes are application-level Patchwork namespaces for configuring settings and permissions or your app.
+                    </p>
                 </div>
 
                 <div className=''>
