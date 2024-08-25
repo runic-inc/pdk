@@ -3,16 +3,17 @@ import { MainContractGen } from '@/codegen/mainContractGen';
 import { UserContractGen } from '@/codegen/userContractGen';
 import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
 import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
 import useStore from '@/wizard/store';
+import { ScrollArea } from '../primitives/scroll-area';
 
 const themes = {
     light: 'github-light',
     dark: 'aurora-x',
 };
 
-const CodeBlock = ({ viewType }: { viewType: 'userContract' | 'genContract' | 'schema' }) => {
+const CodeBlock = memo(({ viewType }: { viewType: 'userContract' | 'genContract' | 'schema' }) => {
     const [code, setCode] = useState('');
     const { contractConfig } = useStore();
 
@@ -47,12 +48,14 @@ const CodeBlock = ({ viewType }: { viewType: 'userContract' | 'genContract' | 's
     }, [contractConfig, viewType]);
     const a = { __html: code };
     return (
-        <div className='p-4 text-[13px] antialiased'>
-            <pre>
-                <code dangerouslySetInnerHTML={a}></code>
-            </pre>
-        </div>
+        <ScrollArea className='h-full'>
+            <div className='p-4 text-[13px] antialiased'>
+                <pre>
+                    <code dangerouslySetInnerHTML={a}></code>
+                </pre>
+            </div>
+        </ScrollArea>
     );
-};
+});
 
 export default CodeBlock;

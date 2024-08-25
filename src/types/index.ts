@@ -77,6 +77,7 @@ export interface Patchwork721Field {
 }
 
 export type ContractConfig = {
+    _uid: string;
     scopeName: string;
     name: string;
     symbol: string;

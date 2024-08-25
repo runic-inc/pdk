@@ -7,19 +7,19 @@ import { memo, useEffect, useState } from 'react';
 import { Feature, FeatureConfig } from '@/types';
 import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
-import useStore from '@/wizard/store';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/wizard/primitives/tooltip';
+import useStore, { useConfig } from '@/wizard/store';
 import { nanoid } from 'nanoid';
 
 const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
-    const { contractConfig, updateContractConfig } = useStore();
+    const { updateContractConfig } = useStore();
+    const contractConfig = useConfig()!;
+
     const featureEnums = feature.interfaces.map((iface) => iface.interface);
     const primaryFeatures = feature.interfaces.filter((iface) => !iface.optional);
     const optionalFeatures = feature.interfaces.filter((iface) => iface.optional);
-
     const defaultFeature = primaryFeatures.find((iface) => iface.default)?.interface;
 
-    const [selected, setSelected] = useState<boolean>(_.intersection(contractConfig.features ?? [], featureEnums).length > 0);
+    const [selected, setSelected] = useState<boolean>(_.intersection(contractConfig.features, featureEnums).length > 0);
     const [currentPrimaryFeature, setcurrentPrimaryFeature] = useState<Feature | undefined>(defaultFeature);
     const [additionalFeatures, setadditionalFeatures] = useState<Feature[]>([]);
 
@@ -46,6 +46,11 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     };
 
     useEffect(() => {
+        if (!selected && _.intersection(contractConfig.features, featureEnums).length > 0) {
+            setSelected(true);
+        } else if (selected && _.intersection(contractConfig.features, featureEnums).length === 0) {
+            setSelected(false);
+        }
         if (feature.autoToggle && feature.validator) {
             if (feature.validator(contractConfig)) {
                 setSelected(true);
@@ -58,16 +63,19 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     const _featureUID = nanoid(10);
 
     useEffect(() => {
-        const contractFeatures = contractConfig.features ?? [];
+        const contractFeatures = [...(contractConfig.features ?? [])];
         _.pull(contractFeatures, ...featureEnums);
         if (selected) {
             contractFeatures.push(...additionalFeatures);
             if (currentPrimaryFeature) contractFeatures.push(currentPrimaryFeature);
         }
-        updateContractConfig({
-            ...contractConfig,
-            features: contractFeatures,
-        });
+        const matches = _.intersection(contractConfig.features, contractFeatures);
+        if (matches.length !== contractFeatures.length) {
+            updateContractConfig({
+                ...contractConfig,
+                features: contractFeatures,
+            });
+        }
     }, [selected, currentPrimaryFeature, additionalFeatures]);
 
     return (
@@ -138,7 +146,7 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                                                 <Checkbox
                                                     id={iface.interface}
                                                     onCheckedChange={() => handleOptionalInterfaceToggle(iface.interface)}
-                                                    defaultChecked={additionalFeatures.includes(iface.interface)}
+                                                    checked={additionalFeatures.includes(iface.interface)}
                                                     disabled={iface.autoToggle || (iface.validator ? !iface.validator(contractConfig) : false)}
                                                 />
                                             </div>

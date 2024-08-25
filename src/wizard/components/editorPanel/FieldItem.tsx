@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/wizard/primitives/input';
 import FieldTypeSelector from './TypeSelector';
 import EnumList from './EnumList';
-import useStore from '@/wizard/store';
+import useStore, { useConfig } from '@/wizard/store';
 
 const Field = memo(({ field }: { field: FieldConfig }) => {
-    const { contractConfig, updateContractConfig } = useStore();
+    const { updateContractConfig } = useStore();
+    const contractConfig = useConfig()!;
     const fieldDrag = useDragControls();
 
     const handleFieldInputChange = (e: React.FormEvent<HTMLInputElement>) => {

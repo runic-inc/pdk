@@ -1,6 +1,8 @@
 import { ContractConfig, Feature } from '@/types';
+import { nanoid } from 'nanoid';
 
 export default {
+    _uid: nanoid(10),
     scopeName: 'MyScope',
     name: 'My New Contract',
     symbol: 'MINE',

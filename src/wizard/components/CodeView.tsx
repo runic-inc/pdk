@@ -5,7 +5,7 @@ import { Badge } from '@/wizard/primitives/badge';
 
 const CodeView = () => {
     return (
-        <Tabs defaultValue='genContract' className='grid grid-rows-[3rem_1fr] max-h-full h-full'>
+        <Tabs defaultValue='genContract' className='grid grid-rows-[2.75rem_1fr] min-h-0 min-w-0 max-h-full max-w-full'>
             <TabsList>
                 <div className='w-4' />
                 <TabsTrigger value='genContract' className='gap-2'>
@@ -20,10 +20,6 @@ const CodeView = () => {
                     Contract Schema
                     <Badge className='ext'>.json</Badge>
                 </TabsTrigger>
-                <div className='grow flex justify-end items-start gap-2'>
-                    <Button>Open in Remix</Button>
-                    <Button>Save</Button>
-                </div>
             </TabsList>
             <TabsContent value='genContract'>
                 <CodeBlock viewType='genContract' />
