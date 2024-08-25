@@ -35,7 +35,6 @@ const useStore = create<EditorState>()((set, get) => ({
         set({
             contractsConfig: get().contractsConfig.map((config) => {
                 if (config._uid === get().editor) {
-                    console.log('found', get().editor);
                     return newConfig;
                 }
                 return config;
