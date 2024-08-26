@@ -1,6 +1,5 @@
 import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
-// TODO support field functionConfig
 const config: ContractConfig = {
     "scopeName": "test",
     "name": "Arrays",
