@@ -11,7 +11,7 @@ import { execSync } from "child_process";
 import { launchWizardApp } from "./wizardServer";
 import { UserContractGen } from "./codegen/userContractGen";
 import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
-import { tryValidate } from "./codegen/configValidator";
+import { validateSchema } from "./codegen/configValidator";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -63,15 +63,13 @@ const argv = yargs(hideBin(process.argv))
 function validateJson(argv: any): void {
     const jsonFile = argv.jsonFile;
     const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
-    const t1 = tryValidate(jsonData, "./src/patchwork-contract-config.schema.json");
-    // TODO need separate commands to validate metadata schemas as one can bury errors in the other
-    //const t2 = tryValidate(jsonFile, "../src/patchwork-metadata.schema.json")
-    if (t1 === true) {
+    const result = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
+    
+    if (result.isValid) {
         console.log("The JSON file is a valid Patchwork contract configuration.");
     } else {
         console.log("The JSON file is not a valid Patchwork contract config");
-        console.log("Contract Config Validation Errors:", t1);
-        // console.log("Metadata Schema Validation Errors:", t2);
+        console.log("Contract Config Validation Errors:", result.errors);
     }
 }
 
