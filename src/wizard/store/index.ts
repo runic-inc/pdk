@@ -15,6 +15,7 @@ type EditorState = {
     addNewContract: () => string;
     deleteContract: (id: string) => void;
     updateContractConfig: (newConfig: ContractConfig) => void;
+    updateContractsConfig: (newConfigs: ContractConfig[]) => void;
 };
 
 const useStore = create<EditorState>()((set, get) => ({
@@ -65,6 +66,7 @@ const useStore = create<EditorState>()((set, get) => ({
             contractsConfig: get().contractsConfig.filter((config) => config._uid !== id),
         });
     },
+    updateContractsConfig: (newConfigs: ContractConfig[]) => set({ contractsConfig: newConfigs }),
 }));
 
 export default useStore;

@@ -1,28 +1,43 @@
-import { Fragment } from 'react/jsx-runtime';
 import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
 import useStore from '../store';
+import { Reorder } from 'framer-motion';
+import _ from 'lodash';
+import { ContractConfig } from '@/types';
+import { boxShadow } from 'tailwindcss/defaultTheme';
 
 const ContractList = () => {
-    const { contractsConfig, setEditor, editor, addNewContract } = useStore();
+    const { contractsConfig, setEditor, editor, addNewContract, updateContractsConfig } = useStore();
+
+    const handleContractSort = (newOrder: ContractConfig[]) => {
+        updateContractsConfig(newOrder);
+    };
+
     return (
-        <div className='flex gap-0 text-sm border border-muted-foreground rounded [&>:first-child]:rounded-l [&>:last-child]:rounded-r'>
-            {contractsConfig.map((contract, i) => (
-                <Fragment key={contract._uid}>
-                    <div
-                        onClick={() => setEditor(contract._uid)}
-                        className={`px-4 ring-1 flex items-center font-medium cursor-pointer dottedd z-[1] ${
-                            editor == contract._uid ? 'bg-background ring-foreground' : 'bg-muted ring-transparent text-muted-foreground'
-                        }`}
+        <div className='flex gap-[1px] text-sm ring-1 ring-muted-foreground relative rounded [&>:first-child]:!rounded-l [&>:first-child>:first-child>:first-child]:!rounded-l [&>:last-child]:rounded-r'>
+            <Reorder.Group values={contractsConfig} onReorder={(newOrder) => handleContractSort(newOrder)} axis='x' className='flex gap-[1px]'>
+                {contractsConfig.map((contract, i) => (
+                    <Reorder.Item
+                        key={contract._uid}
+                        value={contract}
+                        className={`flex relative ${contract._uid == editor ? '!z-[2]' : 'z-0'}`}
+                        initial={{ boxShadow: 'none', borderRadius: '0', z: contract._uid == editor ? 2 : 1 }}
+                        whileDrag={{ boxShadow: boxShadow.lg, borderRadius: '2px', z: 500 }}
                     >
-                        {contract.name}
-                    </div>
-                    <div key={contract._uid + 'sep'} className='w-[1px] h-full bg-muted-foreground z-[0]' />
-                </Fragment>
-            ))}
+                        <div
+                            onClick={() => setEditor(contract._uid)}
+                            className={`px-4 ring-1 flex items-center font-medium cursor-pointer relative z-[1] ${
+                                editor == contract._uid ? 'bg-background ring-foreground dotted' : 'bg-muted ring-muted-foreground text-muted-foreground'
+                            }`}
+                        >
+                            {contract.name}
+                        </div>
+                    </Reorder.Item>
+                ))}
+            </Reorder.Group>
             <Button
                 variant={'ghost'}
-                className='rounded-none bg-muted gap-2 text-muted-foreground shadow-none px-4'
+                className='rounded-none ring-1 ring-muted-foreground bg-muted gap-2 text-muted-foreground shadow-none px-4'
                 onClick={() => {
                     const newId = addNewContract();
                     setEditor(newId);
