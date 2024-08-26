@@ -1,0 +1,35 @@
+{
+    "name": "My Project",
+    "scopes": {
+        "MyScope": {
+            "whitelist": true,
+            "userAssign": false,
+            "userPatch": false,
+            "bankers": ["0x..", "Contract1"],
+            "operators": ["0x..", "Contract1"],
+            "mintConfigs": {
+                "0x..": {
+                    "flatFee": 0,
+                    "active": true
+                }
+            },
+            "patchFees": {
+                "0x..": 0
+            },
+            "assignFees": {
+                "0x..": 0
+            }
+        }
+    },
+    "contracts": {
+        "Contract1": {
+            "config": "config1.json",
+            "fragments": [
+                "Contract2"
+            ]
+        },
+        "Contract2": {
+            "config": "config2.json"
+        }
+    }
+}
