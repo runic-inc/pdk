@@ -21,9 +21,11 @@ import FeatureEntry from './editorPanel/FeatureItem';
 import useStore, { useConfig } from '@/wizard/store';
 import { Button } from '@/wizard/primitives/button';
 import Icon from '../primitives/icon';
+import _ from 'lodash';
+import NameInput from './editorPanel/NameInput';
 
 const ContractEditor = memo(() => {
-    const { updateContractConfig, deleteContract, setEditor } = useStore();
+    const { updateContractConfig, deleteContract } = useStore();
     const contractConfig = useConfig()!;
 
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -52,7 +54,6 @@ const ContractEditor = memo(() => {
         });
     };
 
-    // Field change handler
     const handleFieldSort = (fields: FieldConfig[]) => {
         fields = fields.map((field, index) => ({ ...field, id: index + 1 }));
         updateContractConfig({
@@ -70,7 +71,7 @@ const ContractEditor = memo(() => {
             <div className='flex flex-col gap-4'>
                 <div className='hidden'>
                     <Label htmlFor='scopeName'>Scope name</Label>
-                    <Input name='scopeName' id='scopeName' defaultValue={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
+                    <Input name='scopeName' id='scopeName' value={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
                 </div>
 
                 <div className='flex flex-col gap-4'>
@@ -78,30 +79,7 @@ const ContractEditor = memo(() => {
                         Contract details
                     </h3>
 
-                    <div>
-                        <div className='grid grid-cols-[2fr_1fr]'>
-                            <Label htmlFor='name'>Contract name</Label>
-                            <Label htmlFor='symbol'>Contract symbol</Label>
-                        </div>
-                        <div className='grid grid-cols-[2fr_1fr]'>
-                            <Input
-                                name='name'
-                                id='name'
-                                value={contractConfig.name}
-                                onChange={handleInputChange}
-                                placeholder='Contract name'
-                                className='rounded-r-none focus:z-10'
-                            />
-                            <Input
-                                name='symbol'
-                                id='symbol'
-                                defaultValue={contractConfig.symbol}
-                                onChange={handleInputChange}
-                                placeholder='Symbol'
-                                className='rounded-l-none -ml-[1px] focus:z-10'
-                            />
-                        </div>
-                    </div>
+                    <NameInput key={contractConfig._uid} />
 
                     <div className='hidden'>
                         <Label htmlFor='scopeName'>Scope name</Label>

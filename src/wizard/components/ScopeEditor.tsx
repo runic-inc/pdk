@@ -28,7 +28,7 @@ const ScopeEditor = () => {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className='h-full space-x-2'>
                 <span>{scopeConfig.name}</span>
-                <Icon icon='fa-pencil' className='opacity-40' />
+                <Icon icon='fa-gear' className='opacity-40' />
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

@@ -26,10 +26,11 @@ const ContractList = () => {
                     >
                         <div
                             onClick={() => setEditor(contract._uid)}
-                            className={`px-4 ring-1 flex items-center font-medium cursor-pointer relative z-[1] ${
+                            className={`px-3 ring-1 flex gap-2 items-center font-medium cursor-pointer relative z-[1] ${
                                 editor == contract._uid ? 'bg-background ring-foreground dotted' : 'bg-muted ring-muted-foreground text-muted-foreground'
                             }`}
                         >
+                            <Icon icon='fa-file' />
                             {contract.name}
                         </div>
                     </Reorder.Item>

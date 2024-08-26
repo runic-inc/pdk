@@ -82,7 +82,6 @@ export type ScopeConfig = {
 }
 
 export type ContractConfig = {
-    _uid: string;
     scopeName: string;
     name: string;
     symbol: string;
@@ -91,6 +90,10 @@ export type ContractConfig = {
     imageURI: string;
     fields: FieldConfig[];
     features?: Feature[];
+}
+
+export type UContractConfig = ContractConfig & {
+    _uid: string;
 }
 
 export enum Patchwork721Interface {
