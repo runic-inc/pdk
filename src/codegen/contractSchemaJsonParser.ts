@@ -1,8 +1,10 @@
 import { ContractSchemaImpl, type ContractSchema, type FieldType } from "./contractSchema";
 import { ContractConfig, Feature, FieldConfig } from "../types";
+import { nanoid } from "nanoid";
 
 export function parseJson(jsonData: any): ContractSchema {
     let contractConfig: ContractConfig = {
+        _uid: nanoid(),
         scopeName: jsonData.scopeName,
         name: jsonData.name,
         symbol: jsonData.symbol,

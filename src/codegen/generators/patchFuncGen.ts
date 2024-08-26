@@ -21,7 +21,7 @@ export class PatchFuncGen implements Generator {
             `    return tokenId;\n` +
             `}\n\n`);
         }
-        if (schema.features.some((feature: Feature) => feature === Feature.PATCH1155)) {
+        if (schema.features.some((feature: Feature) => feature === Feature['1155PATCH'])) {
             return ind(4,`` +
             `function mintPatch(address owner, PatchTarget memory target) external payable returns (uint256 tokenId) {\n` +
             `    if (msg.sender != _manager) {\n` +
@@ -34,7 +34,7 @@ export class PatchFuncGen implements Generator {
             `    return tokenId;\n` +
             `}\n\n`);
         }
-        if (schema.features.some((feature: Feature) => feature === Feature.PATCHACCOUNT)) {
+        if (schema.features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH)) {
             return ind(4,`` +
             `function mintPatch(address owner, address target) external payable returns (uint256 tokenId) {\n` +
             `    if (msg.sender != _manager) {\n` +

@@ -50,10 +50,10 @@ export class HeaderGen implements Generator {
         if (features.some((feature: Feature) => feature === Feature.PATCH)) {
             imports.push(`import "@patchwork/PatchworkPatch.sol";\n`);
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCH1155)) {
+        if (features.some((feature: Feature) => feature === Feature['1155PATCH'])) {
             imports.push(`import "@patchwork/Patchwork1155Patch.sol";\n`);
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCHACCOUNT)) {
+        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH)) {
             imports.push(`import "@patchwork/PatchworkAccountPatch.sol";\n`);
         }
         // If no specific feature is found, default to Patchwork721

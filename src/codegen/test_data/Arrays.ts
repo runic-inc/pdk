@@ -2,6 +2,7 @@ import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
 // TODO support field functionConfig
 const config: ContractConfig = {
+    "_uid": "testarrays",
     "scopeName": "test",
     "name": "Arrays",
     "symbol": "ARRAYS",
