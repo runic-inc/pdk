@@ -2,6 +2,17 @@ import { memo, useEffect } from 'react';
 import { FieldConfig, FunctionConfig } from '@/types';
 import { Label } from '@/wizard/primitives/label';
 import { Input } from '@/wizard/primitives/input';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/wizard/primitives/alert-dialog';
 import { Reorder } from 'framer-motion';
 import Field from './editorPanel/FieldItem';
 import { nanoid } from 'nanoid';
@@ -182,14 +193,33 @@ const ContractEditor = memo(() => {
 
                     <div className='flex justify-between items-center'>
                         <Label>Delete contract</Label>
-                        <Button
-                            variant={'destructive'}
-                            onClick={() => {
-                                deleteContract(contractConfig._uid);
-                            }}
-                        >
-                            <Icon icon='fa-trash' />
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant={'destructive'}>
+                                    <Icon icon='fa-trash' />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className='border-destructive'>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure you want to delete this contract?</AlertDialogTitle>
+                                    <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction asChild>
+                                        <Button
+                                            variant={'destructive'}
+                                            className='bg-destructive hover:bg-destructive/90'
+                                            onClick={() => {
+                                                deleteContract(contractConfig._uid);
+                                            }}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </div>
 
