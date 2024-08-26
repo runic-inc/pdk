@@ -29,6 +29,7 @@ const ContractList = () => {
                 }}
             >
                 <Icon icon='fa-plus' />
+                {contractsConfig.length == 0 ? 'Create a new contract' : ''}
             </Button>
         </div>
     );

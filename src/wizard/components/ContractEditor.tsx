@@ -12,7 +12,7 @@ import { Button } from '@/wizard/primitives/button';
 import Icon from '../primitives/icon';
 
 const ContractEditor = memo(() => {
-    const { updateContractConfig } = useStore();
+    const { updateContractConfig, deleteContract, setEditor } = useStore();
     const contractConfig = useConfig()!;
 
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -173,6 +173,24 @@ const ContractEditor = memo(() => {
                     <Button onClick={handleAddField} variant={'outline'} className='w-full'>
                         Add a new field
                     </Button>
+                </div>
+
+                <div className='flex flex-col gap-2 items-stretch justify-stretch'>
+                    <h3 className='font-medium -mx-6 my-3 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>
+                        Other settings
+                    </h3>
+
+                    <div className='flex justify-between items-center'>
+                        <Label>Delete contract</Label>
+                        <Button
+                            variant={'destructive'}
+                            onClick={() => {
+                                deleteContract(contractConfig._uid);
+                            }}
+                        >
+                            <Icon icon='fa-trash' />
+                        </Button>
+                    </div>
                 </div>
 
                 <footer className='-mx-6 p-3 pt-1 mt-4 sticky bottom-0 bg-background z-[1]'>

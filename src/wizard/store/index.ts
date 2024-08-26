@@ -13,6 +13,7 @@ type EditorState = {
     getContractConfig: () => ContractConfig | undefined;
     setEditor: (id: string | null) => void;
     addNewContract: () => string;
+    deleteContract: (id: string) => void;
     updateContractConfig: (newConfig: ContractConfig) => void;
 };
 
@@ -51,6 +52,17 @@ const useStore = create<EditorState>()((set, get) => ({
                 }
                 return config;
             }),
+        });
+    },
+    deleteContract: (id: string) => {
+        // get index of current contract
+        if (get().editor === id) {
+            const index = get().contractsConfig.findIndex((config) => config._uid === id);
+            const newEditor = get().contractsConfig[index - 1]?._uid || get().contractsConfig[index + 1]?._uid || null;
+            set({ editor: newEditor });
+        }
+        set({
+            contractsConfig: get().contractsConfig.filter((config) => config._uid !== id),
         });
     },
 }));
