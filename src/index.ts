@@ -11,7 +11,7 @@ import { execSync } from "child_process";
 import { launchWizardApp } from "./wizardServer";
 import { UserContractGen } from "./codegen/userContractGen";
 import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
-import { validateSchema } from "./codegen/configValidator";
+import { validateSchema } from "./codegen/validateSchema";
 
 const argv = yargs(hideBin(process.argv))
     .command(

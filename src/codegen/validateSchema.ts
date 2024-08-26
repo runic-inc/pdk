@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject } from "ajv";
-import { parseJson } from '../codegen/contractSchemaJsonParser';
+import { parseJson } from './contractSchemaJsonParser';
 
 // Define a structured return type
 interface ValidationResult {
