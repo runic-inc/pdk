@@ -30,12 +30,12 @@ const fieldTypeInfo: FieldTypeInfo[] = [
         description: 'A 64-bit reference to a Patchwork assignment',
         icon: icons.literef,
     },
-    {
+    /*{
         value: FieldType.ENUM,
         label: 'enum',
         description: 'A contrained set of predefined values. Can be used for creating assignment rules',
         icon: icons.enum,
-    },
+    },*/
     {
         value: FieldType.ADDRESS,
         label: 'address',

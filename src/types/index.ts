@@ -145,7 +145,7 @@ export enum FieldType {
     LITEREF,
     ADDRESS,
     STRING,
-    ENUM,
+    //ENUM,
 }
 
 export const InterfaceDecorators: Patchwork721InterfaceDecorators = {
