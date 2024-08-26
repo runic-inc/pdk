@@ -25,16 +25,18 @@ const Layout = () => {
                     <Button className='h-auto'>Save project</Button>
                 </div>
             </header>
-            {editor && (
+            {editor ? (
                 <>
                     <CodeView />
                     <ScrollArea className='bg-background border border-foreground rounded shadow-lg'>
-                        <div className='p-6 pb-0'>
+                        <div className='p-6 ppb-0'>
                             <h2 className='text-2xl font-bold mb-4'>Contract Editor</h2>
                             <ContractEditor />
                         </div>
                     </ScrollArea>
                 </>
+            ) : (
+                <div className='col-span-2 flex items-center justify-center font-light text-muted-foreground/50 text-2xl'>Add a contract to get started.</div>
             )}
         </main>
     );
