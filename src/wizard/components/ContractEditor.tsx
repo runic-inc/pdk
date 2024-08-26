@@ -223,12 +223,12 @@ const ContractEditor = memo(() => {
                     </div>
                 </div>
 
-                <footer className='-mx-6 p-3 pt-1 mt-4 sticky bottom-0 bg-background z-[1]'>
+                <footer className='-mx-6 p-3 pt-1 mt-4 sticky bottom-0 bg-background z-[1] hidden'>
                     <Button className='w-full gap-2'>
                         <Icon icon='fa-check' />
                         Done editing
                     </Button>
-                    <div className='h-10 absolute bottom-full left-0 right-0 bg-gradient-to-b from-white/0 to-white pointer-events-none' />
+                    <div className='h-10 absolute bottom-full left-0 right-0 bg-gradient-to-b from-background/0 to-background pointer-events-none' />
                 </footer>
             </div>
         )
