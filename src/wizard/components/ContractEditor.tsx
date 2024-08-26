@@ -14,11 +14,6 @@ import Icon from '../primitives/icon';
 const ContractEditor = memo(() => {
     const { updateContractConfig } = useStore();
     const contractConfig = useConfig()!;
-    //const contractConfig = useStore((state) => state.getContractConfig())!;
-
-    useEffect(() => {
-        //console.log(contractConfig);
-    }, [contractConfig]);
 
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
@@ -156,7 +151,7 @@ const ContractEditor = memo(() => {
                         Patchwork features
                     </h3>
                     {features.map((feature) => (
-                        <FeatureEntry key={feature.name} feature={feature} />
+                        <FeatureEntry key={feature.name + contractConfig._uid} feature={feature} />
                     ))}
                 </div>
 

@@ -80,12 +80,12 @@ export default [
                 description: "Contract's tokens are soulbound to a target token",
             },
             {
-                interface: Feature.PATCHACCOUNT,
+                interface: Feature.ACCOUNTPATCH,
                 label: 'Account Patch',
                 description: "Contract's tokens are soulbound to a target address",
             },
             {
-                interface: Feature.PATCH1155,
+                interface: Feature['1155PATCH'],
                 label: 'ERC1155 Patch',
                 description: "Contract's tokens are soulbound to a tokenset within a parent 1155",
             },

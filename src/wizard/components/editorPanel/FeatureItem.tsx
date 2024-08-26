@@ -3,8 +3,8 @@ import Icon from '@/wizard/primitives/icon';
 import { Label } from '@/wizard/primitives/label';
 import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
 import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useEffect, useState } from 'react';
-import { Feature, FeatureConfig } from '@/types';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { ContractConfig, Feature, FeatureConfig } from '@/types';
 import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
 import useStore, { useConfig } from '@/wizard/store';
@@ -14,23 +14,23 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     const { updateContractConfig } = useStore();
     const contractConfig = useConfig()!;
 
-    const featureEnums = feature.interfaces.map((iface) => iface.interface);
+    const featureEnums = _.map(feature.interfaces, 'interface');
     const primaryFeatures = feature.interfaces.filter((iface) => !iface.optional);
     const optionalFeatures = feature.interfaces.filter((iface) => iface.optional);
     const defaultFeature = primaryFeatures.find((iface) => iface.default)?.interface;
 
-    const [selected, setSelected] = useState<boolean>(_.intersection(contractConfig.features, featureEnums).length > 0);
-    const [currentPrimaryFeature, setcurrentPrimaryFeature] = useState<Feature | undefined>(defaultFeature);
-    const [additionalFeatures, setadditionalFeatures] = useState<Feature[]>([]);
+    const getChecked = () => !!_.intersection(contractConfig.features, featureEnums).length;
+    const getPrimaryFeature = () => _.intersection(contractConfig.features, _.map(primaryFeatures, 'interface'))[0] ?? defaultFeature;
+    const getOptionalFeatures = () => _.intersection(contractConfig.features, _.map(optionalFeatures, 'interface'));
+
+    const [selected, setSelected] = useState<boolean>(getChecked());
+    const [currentPrimaryFeature, setcurrentPrimaryFeature] = useState<Feature | undefined>(getPrimaryFeature());
+    const [additionalFeatures, setadditionalFeatures] = useState<Feature[]>(getOptionalFeatures());
 
     const getInterfaceByValue = (value: string): Feature => {
         const enumEntries = Object.entries(Feature) as [Feature, string][];
         const found = enumEntries.find(([_, val]) => val === value)!;
         return found[0];
-    };
-
-    const handleFeatureToggle = (checked: boolean) => {
-        setSelected(checked);
     };
 
     const handlePrimaryInterfaceToggle = (value: string) => {
@@ -46,41 +46,40 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     };
 
     useEffect(() => {
-        if (!selected && _.intersection(contractConfig.features, featureEnums).length > 0) {
-            setSelected(true);
-        } else if (selected && _.intersection(contractConfig.features, featureEnums).length === 0) {
-            setSelected(false);
-        }
-        if (feature.autoToggle && feature.validator) {
-            if (feature.validator(contractConfig)) {
-                setSelected(true);
-            } else {
-                setSelected(false);
-            }
-        }
-    }, [contractConfig]);
-
-    const _featureUID = nanoid(10);
-
-    useEffect(() => {
-        const contractFeatures = [...(contractConfig.features ?? [])];
-        _.pull(contractFeatures, ...featureEnums);
+        const newFeatures = _.cloneDeep(contractConfig.features) ?? [];
+        _.pull(newFeatures, ...featureEnums);
         if (selected) {
-            contractFeatures.push(...additionalFeatures);
-            if (currentPrimaryFeature) contractFeatures.push(currentPrimaryFeature);
+            newFeatures.push(...additionalFeatures);
+            if (currentPrimaryFeature) newFeatures.push(currentPrimaryFeature);
         }
-        const matches = _.intersection(contractConfig.features, contractFeatures);
-        if (matches.length !== contractFeatures.length) {
+        const compare = _.difference(contractConfig.features, newFeatures);
+        if (compare.length !== newFeatures.length) {
             updateContractConfig({
                 ...contractConfig,
-                features: contractFeatures,
+                features: newFeatures,
             });
         }
     }, [selected, currentPrimaryFeature, additionalFeatures]);
 
+    const checkAutoToggle = useCallback(() => {
+        if (feature.autoToggle && feature['validator']) {
+            if (feature.validator({ ...contractConfig }) && !selected) {
+                setSelected(true);
+            } else if (!feature.validator({ ...contractConfig }) && selected) {
+                setSelected(false);
+            }
+        }
+    }, [contractConfig, selected]);
+
+    useEffect(() => {
+        checkAutoToggle();
+    }, [contractConfig]);
+
+    const _featureUID = nanoid(10);
+
     return (
         <div
-            data-disabled={feature.validator && !feature.validator(contractConfig)}
+            data-disabled={feature.validator && !feature.validator({ ...contractConfig })}
             className={`dotted relative bg-white rounded border border-black data-[disabled=true]:border-muted-foreground data-[disabled=true]:text-muted-foreground shadow text-sm transition-all font-medium leading-none`}
         >
             <div className={`relative flex w-full items-center`}>
@@ -88,9 +87,9 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                     <div className=''>
                         <Checkbox
                             id={_featureUID}
-                            disabled={feature.autoToggle || (feature.validator ? !feature.validator(contractConfig) : false)}
+                            disabled={feature.autoToggle || (feature.validator ? !feature.validator({ ...contractConfig }) : false)}
                             checked={selected}
-                            onCheckedChange={(checked) => handleFeatureToggle(!!checked)}
+                            onCheckedChange={(checked) => setSelected(!!checked)}
                         />
                     </div>
                     <div className='grow flex flex-col gap-1.5'>
