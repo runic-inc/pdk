@@ -1,45 +1,36 @@
-import { useState, useEffect, FC } from 'hono/jsx'
-import { parseJson } from "../../codegen/contractSchemaJsonParser";
-import { MainContractGen } from "../../codegen/mainContractGen";
-import { UserContractGen } from '../../codegen/userContractGen';
-import { JSONSchemaGen } from '../../codegen/jsonSchemaGen';
-import { ContractConfig } from '../../types';
-import { ContractSchemaImpl } from '../../codegen/contractSchema';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/vs2015.css';
+import CodeBlock from './CodeBlock';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/wizard/primitives/filetabs';
+import { Badge } from '@/wizard/primitives/badge';
 
-interface CodeViewProps {
-  viewType: string;
-  contractConfig: ContractConfig;
-}
-
-const CodeView: FC<CodeViewProps> = ({ viewType, contractConfig }) => {
-  const [solidityCode, setSolidityCode] = useState("");
-
-  useEffect(() => {
-    console.log("contract config", contractConfig);
-    try {
-      if (viewType === "userContract") {
-        const highlighted = hljs.highlight(new UserContractGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'java'});
-        setSolidityCode(highlighted.value);
-      } else if (viewType === "genContract") {
-        const highlighted = hljs.highlight(new MainContractGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'java'});
-        setSolidityCode(highlighted.value);
-      } else if (viewType === "schema") {
-        const highlighted = hljs.highlight(new JSONSchemaGen().gen(new ContractSchemaImpl(contractConfig)), {language: 'json'});
-        setSolidityCode(highlighted.value);
-      }
-    } catch (error) {
-      console.error("Error generating code:", error);
-      setSolidityCode("Error generating code");
-    }
-  }, [contractConfig, viewType]);
-  const a = {__html: solidityCode}
-  return (
-    <div className="bg-gray-900 text-white p-4 rounded">
-      <pre><code dangerouslySetInnerHTML={a}></code></pre>
-    </div>
-  );
+const CodeView = () => {
+    return (
+        <Tabs defaultValue='genContract' className='grid grid-rows-[2.75rem_1fr] min-h-0 min-w-0 max-h-full max-w-full'>
+            <TabsList>
+                <div className='w-4' />
+                <TabsTrigger value='genContract' className='gap-2'>
+                    Generated Abstract Contract
+                    <Badge className='ext'>.sol</Badge>
+                </TabsTrigger>
+                <TabsTrigger value='userContract' className='gap-2'>
+                    User Contract
+                    <Badge className='ext'>.sol</Badge>
+                </TabsTrigger>
+                <TabsTrigger value='schema' className='gap-2'>
+                    Contract Schema
+                    <Badge className='ext'>.json</Badge>
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value='genContract'>
+                <CodeBlock viewType='genContract' />
+            </TabsContent>
+            <TabsContent value='userContract'>
+                <CodeBlock viewType='userContract' />
+            </TabsContent>
+            <TabsContent value='schema'>
+                <CodeBlock viewType='schema' />
+            </TabsContent>
+        </Tabs>
+    );
 };
 
 export default CodeView;

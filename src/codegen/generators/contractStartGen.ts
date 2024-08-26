@@ -31,10 +31,10 @@ export class ContractStartGen implements Generator {
         if (features.some((feature: Feature) => feature === Feature.PATCH)) {
             inheritance.push(`PatchworkPatch`);
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCH1155)) {
+        if (features.some((feature: Feature) => feature === Feature['1155PATCH'])) {
             inheritance.push(`Patchwork1155Patch`);
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCHACCOUNT)) {
+        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH)) {
             inheritance.push(`PatchworkAccountPatch`);
         }
         if (features.some((feature: Feature) => feature === Feature.FRAGMENTMULTI)) {
