@@ -1,5 +1,6 @@
-import { UContractConfig, Feature } from '@/types';
+import { Feature } from '@/types';
 import { nanoid } from 'nanoid';
+import { UContractConfig } from '../types';
 
 export default {
     _uid: nanoid(),

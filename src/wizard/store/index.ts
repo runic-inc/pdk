@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { UContractConfig, ScopeConfig } from '@/types';
+import { ScopeConfig } from '@/types';
 import defaultContract from '@/wizard/lib/defaultContract';
 import defaultScope from '@/wizard/lib/defaultScope';
 import { nanoid } from 'nanoid';
+import { UContractConfig } from '../types';
 
 type EditorState = {
     scopeConfig: ScopeConfig;

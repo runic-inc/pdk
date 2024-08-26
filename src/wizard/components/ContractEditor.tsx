@@ -23,6 +23,7 @@ import { Button } from '@/wizard/primitives/button';
 import Icon from '../primitives/icon';
 import _ from 'lodash';
 import NameInput from './editorPanel/NameInput';
+import { UFieldConfig } from '../types';
 
 const ContractEditor = memo(() => {
     const { updateContractConfig, deleteContract } = useStore();
@@ -54,7 +55,7 @@ const ContractEditor = memo(() => {
         });
     };
 
-    const handleFieldSort = (fields: FieldConfig[]) => {
+    const handleFieldSort = (fields: UFieldConfig[]) => {
         fields = fields.map((field, index) => ({ ...field, id: index + 1 }));
         updateContractConfig({
             ...contractConfig,
@@ -152,11 +153,11 @@ const ContractEditor = memo(() => {
                     <Reorder.Group
                         axis='y'
                         values={contractConfig?.fields || []}
-                        onReorder={(newOrder: FieldConfig[]) => handleFieldSort(newOrder)}
+                        onReorder={(newOrder: UFieldConfig[]) => handleFieldSort(newOrder)}
                         className='flex flex-col gap-2'
                     >
-                        {contractConfig?.fields?.map((field) => (
-                            <Field key={field._uid} field={field} />
+                        {contractConfig?.fields?.map((field: UFieldConfig) => (
+                            <Field key={field._uid} field={field as UFieldConfig} />
                         ))}
                     </Reorder.Group>
                     <Button onClick={handleAddField} variant={'outline'} className='w-full'>

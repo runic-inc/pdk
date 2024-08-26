@@ -2,10 +2,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/wizard/primitives/popover';
 import { Button } from '@/wizard/primitives/button';
 import { useState } from 'react';
-import { FieldConfig, FieldType } from '@/types';
+import { FieldType } from '@/types';
 import Icon from '@/wizard/primitives/icon';
 import { cn } from '@/wizard/lib/utils';
 import useStore, { useConfig } from '@/wizard/store';
+import { UFieldConfig } from '@/wizard/types';
 
 type FieldTypeInfo = {
     value: FieldType;
@@ -152,7 +153,7 @@ const fieldTypeInfo: FieldTypeInfo[] = [
     },
 ];
 
-const FieldTypeSelector = ({ field }: { field: FieldConfig }) => {
+const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
     const [open, setOpen] = useState(false);
     const { updateContractConfig } = useStore();
     const contractConfig = useConfig()!;

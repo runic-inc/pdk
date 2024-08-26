@@ -3,8 +3,8 @@ import Icon from '../primitives/icon';
 import useStore from '../store';
 import { Reorder } from 'framer-motion';
 import _ from 'lodash';
-import { UContractConfig } from '@/types';
 import { boxShadow } from 'tailwindcss/defaultTheme';
+import { UContractConfig } from '../types';
 
 const ContractList = () => {
     const { contractsConfig, setEditor, editor, addNewContract, updateContractsConfig } = useStore();
