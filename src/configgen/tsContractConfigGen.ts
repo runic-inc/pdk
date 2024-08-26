@@ -14,7 +14,6 @@ export class TSContractConfigGen implements Generator {
     }
     out += `    "name": "${schema.name}",\n`;
     out += `    "symbol": "${schema.symbol}",\n`;
-    
     if (schema.baseURI) {
       out += `    "baseURI": "${schema.baseURI}",\n`;
     }
@@ -24,11 +23,9 @@ export class TSContractConfigGen implements Generator {
     if (schema.imageURI) {
       out += `    "imageURI": "${schema.imageURI}",\n`;
     }
-    
     if (schema.features && schema.features.length > 0) {
       out += `    "features": [${schema.features.map(f => `Feature.${f.toUpperCase()}`).join(', ')}],\n`;
     }
-    
     if (schema.fields && schema.fields.length > 0) {
       out += `    "fields": [\n`;
       out += schema.fields.map(field => this.generateFieldConfig(field)).join(',\n');
@@ -36,7 +33,6 @@ export class TSContractConfigGen implements Generator {
     } else {
       out += `    "fields": []\n`;
     }
-    
     out += `}\n`;
     out += `export default config;\n`;
     
@@ -50,26 +46,20 @@ export class TSContractConfigGen implements Generator {
     if (field.permissionId !== undefined && field.permissionId !== 0) {
       fieldConfig += `            "permissionId": ${field.permissionId},\n`;
     }
-    
     fieldConfig += `            "key": "${field.key}",\n`;
     fieldConfig += `            "fieldType": "${field.fieldType}",\n`;
-    
     if (field.arrayLength !== undefined && field.arrayLength !== 1) {
       fieldConfig += `            "arrayLength": ${field.arrayLength},\n`;
     }
-    
     if (field.visibility) {
       fieldConfig += `            "visibility": "${field.visibility}",\n`;
     }
-    
     if (field.description) {
       fieldConfig += `            "description": "${field.description}",\n`;
     }
-    
     if (field.functionConfig) {
       fieldConfig += `            "functionConfig": FunctionConfig.${field.functionConfig.toUpperCase()},\n`;
     }
-    
     fieldConfig += `        }`;
     return fieldConfig;
   }

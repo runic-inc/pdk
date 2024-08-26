@@ -34,7 +34,6 @@ describe("TypeScriptContractConfigGen", () => {
   for (const [baseName, files] of Object.entries(groupedFiles)) {
     it(`should generate matching TypeScript for ${baseName}`, () => {
       // 1. Construct ContractSchema from JSON
-      console.log(files.json);
       const jsonString: string = fs.readFileSync(files.json, "utf8");
       const jsonData = JSON.parse(jsonString);
       const contractSchema = parseJson(jsonData);
@@ -47,7 +46,6 @@ describe("TypeScriptContractConfigGen", () => {
       const existingTypeScript: string = fs.readFileSync(files.ts, "utf8");
 
       // 4. Compare generated TypeScript with existing TypeScript
-      // Remove whitespace, newlines, and comments for comparison
       const normalizeTypeScript = (content: string) => 
         content.replace(/\s/g, '')
                .replace(/\/\*[\s\S]*?\*\//g, '')
