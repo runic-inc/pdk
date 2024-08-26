@@ -5,7 +5,7 @@ import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
 import { ContractSchemaImpl } from '@/codegen/contractSchema';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
-import useStore from '@/wizard/store';
+import useStore, { useConfig } from '@/wizard/store';
 import { ScrollArea } from '../primitives/scroll-area';
 
 const themes = {
@@ -15,7 +15,7 @@ const themes = {
 
 const CodeBlock = memo(({ viewType }: { viewType: 'userContract' | 'genContract' | 'schema' }) => {
     const [code, setCode] = useState('');
-    const { contractConfig } = useStore();
+    const contractConfig = useConfig()!;
 
     useEffect(() => {
         try {

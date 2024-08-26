@@ -5,14 +5,26 @@ import { Button } from '@/wizard/primitives/button';
 import ContractList from './ContractList';
 import useStore from '../store';
 import Logo from './Logo';
+import Icon from '../primitives/icon';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
+import { Input } from '../primitives/input';
+import { Label } from '../primitives/label';
+import ScopeEditor from './ScopeEditor';
 
 const Layout = () => {
-    const { editor } = useStore();
+    const { editor, scopeConfig } = useStore();
+    const checkInvalidChar = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!/[0-9a-zA-Z]/.test(e.key)) {
+            e.preventDefault();
+        }
+    };
     return (
         <main className='grid grid-rows-[min-content_1fr] grid-cols-[1fr_26rem] h-[100vh] items-stretch justify-stretch max-h-screen gap-4 min-h-0 min-w-0 p-4'>
             <header className='col-span-2 flex items-stretch justify-start gap-4'>
-                <div className='flex h-full items-center justify-center rounded aspect-square bg-foreground text-background'>
+                <div className='flex h-full items-center justify-center text-sm font-semibold rounded gap-3 px-3 bg-foreground text-background'>
                     <Logo className='h-4 w-4' />
+                    <div className='w-[1px] h-full bg-muted-foreground z-[0] opacity-50' />
+                    <ScopeEditor />
                 </div>
                 <ContractList />
                 <div className='flex grow justify-end items-stretch'>

@@ -1,35 +1,47 @@
 import { create } from 'zustand';
-import { ContractConfig } from '@/types';
-import defaultConfig from '@/wizard/lib/defaultContract';
+import { ContractConfig, ScopeConfig } from '@/types';
+import defaultContract from '@/wizard/lib/defaultContract';
+import defaultScope from '@/wizard/lib/defaultScope';
 import { nanoid } from 'nanoid';
 
 type EditorState = {
+    scopeConfig: ScopeConfig;
+    updateScopeConfig: (config: ScopeConfig) => void;
     contractsConfig: ContractConfig[];
     contractConfig: ContractConfig;
     editor: string | null;
     getContractConfig: () => ContractConfig | undefined;
     setEditor: (id: string | null) => void;
-    addNewContract: () => void;
+    addNewContract: () => string;
     updateContractConfig: (newConfig: ContractConfig) => void;
 };
 
 const useStore = create<EditorState>()((set, get) => ({
-    contractsConfig: [defaultConfig],
-    editor: defaultConfig._uid,
-    contractConfig: defaultConfig,
-    getContractConfig: () => get().contractsConfig.find((config) => config._uid === get().editor),
+    scopeConfig: defaultScope,
+    updateScopeConfig: (config: ScopeConfig) => set({ scopeConfig: config }),
+    contractsConfig: [defaultContract],
+    editor: defaultContract._uid,
+    contractConfig: defaultContract,
+    getContractConfig: () => {
+        return {
+            ...get().contractsConfig.find((config) => config._uid === get().editor)!,
+            scopeName: get().scopeConfig.name,
+        };
+    },
     setEditor: (id: string | null) => set({ editor: id }),
     addNewContract: () => {
+        const id = nanoid();
         set({
             contractsConfig: [
                 ...get().contractsConfig,
                 {
-                    ...defaultConfig,
-                    _uid: nanoid(),
+                    ...defaultContract,
+                    _uid: id,
                     name: 'New Contract ' + (get().contractsConfig.length + 1),
                 },
             ],
         });
+        return id;
     },
     updateContractConfig: (newConfig: ContractConfig) => {
         set({

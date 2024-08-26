@@ -97,7 +97,7 @@ const ContractEditor = memo(() => {
                         </div>
                     </div>
 
-                    <div>
+                    <div className='hidden'>
                         <Label htmlFor='scopeName'>Scope name</Label>
                         <Input name='scopeName' id='scopeName' defaultValue={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope name' />
                         <p data-description className='mt-2 text-sm text-muted-foreground'>

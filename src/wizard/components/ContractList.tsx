@@ -20,7 +20,14 @@ const ContractList = () => {
                     <div key={contract._uid + 'sep'} className='w-[1px] h-full bg-muted-foreground z-[0]' />
                 </Fragment>
             ))}
-            <Button variant={'ghost'} className='rounded-none bg-muted gap-2 text-muted-foreground shadow-none px-4' onClick={() => addNewContract()}>
+            <Button
+                variant={'ghost'}
+                className='rounded-none bg-muted gap-2 text-muted-foreground shadow-none px-4'
+                onClick={() => {
+                    const newId = addNewContract();
+                    setEditor(newId);
+                }}
+            >
                 <Icon icon='fa-plus' />
             </Button>
         </div>

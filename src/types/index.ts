@@ -76,6 +76,11 @@ export interface Patchwork721Field {
     functionConfig?: FunctionConfig;
 }
 
+export type ScopeConfig = {
+    name: string;
+    owner?: `0x${string}`;
+}
+
 export type ContractConfig = {
     _uid: string;
     scopeName: string;
