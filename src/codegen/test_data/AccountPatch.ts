@@ -1,7 +1,6 @@
 import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
 const config: ContractConfig = {
-    "_uid": 'testabc',
     "scopeName": "test",
     "name": "AccountPatch",
     "symbol": "AP",

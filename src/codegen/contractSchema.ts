@@ -52,7 +52,6 @@ export interface ContractSchema extends ContractConfig {
 
 // ContractConfig from user or file ->> ContractSchemaImpl
 export class ContractSchemaImpl implements ContractSchema {
-    _uid: string;
     scopeName!: string;
     name!: string;
     symbol!: string;
@@ -64,7 +63,6 @@ export class ContractSchemaImpl implements ContractSchema {
     storage: ContractStorage;
     
     constructor(config: ContractConfig) {
-        this._uid = config._uid;
         this.scopeName = config.scopeName;
         this.name = config.name;
         this.symbol = config.symbol;

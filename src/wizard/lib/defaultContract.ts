@@ -1,8 +1,8 @@
-import { ContractConfig, Feature } from '@/types';
+import { UContractConfig, Feature } from '@/types';
 import { nanoid } from 'nanoid';
 
 export default {
-    _uid: nanoid(10),
+    _uid: nanoid(),
     scopeName: 'MyScope',
     name: 'My New Contract',
     symbol: 'MINE',
@@ -11,4 +11,4 @@ export default {
     imageURI: 'https://mything/my/{tokenID}.png',
     fields: [],
     features: [Feature.MINTABLE],
-} satisfies ContractConfig;
+} satisfies UContractConfig;

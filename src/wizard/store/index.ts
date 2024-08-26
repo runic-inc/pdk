@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ContractConfig, ScopeConfig } from '@/types';
+import { UContractConfig, ScopeConfig } from '@/types';
 import defaultContract from '@/wizard/lib/defaultContract';
 import defaultScope from '@/wizard/lib/defaultScope';
 import { nanoid } from 'nanoid';
@@ -7,15 +7,15 @@ import { nanoid } from 'nanoid';
 type EditorState = {
     scopeConfig: ScopeConfig;
     updateScopeConfig: (config: ScopeConfig) => void;
-    contractsConfig: ContractConfig[];
-    contractConfig: ContractConfig;
+    contractsConfig: UContractConfig[];
+    contractConfig: UContractConfig;
     editor: string | null;
-    getContractConfig: () => ContractConfig | undefined;
+    getContractConfig: () => UContractConfig | undefined;
     setEditor: (id: string | null) => void;
     addNewContract: () => string;
     deleteContract: (id: string) => void;
-    updateContractConfig: (newConfig: ContractConfig) => void;
-    updateContractsConfig: (newConfigs: ContractConfig[]) => void;
+    updateContractConfig: (newConfig: UContractConfig) => void;
+    updateContractsConfig: (newConfigs: UContractConfig[]) => void;
 };
 
 const useStore = create<EditorState>()((set, get) => ({
@@ -45,7 +45,7 @@ const useStore = create<EditorState>()((set, get) => ({
         });
         return id;
     },
-    updateContractConfig: (newConfig: ContractConfig) => {
+    updateContractConfig: (newConfig: UContractConfig) => {
         set({
             contractsConfig: get().contractsConfig.map((config) => {
                 if (config._uid === get().editor) {
@@ -66,7 +66,7 @@ const useStore = create<EditorState>()((set, get) => ({
             contractsConfig: get().contractsConfig.filter((config) => config._uid !== id),
         });
     },
-    updateContractsConfig: (newConfigs: ContractConfig[]) => set({ contractsConfig: newConfigs }),
+    updateContractsConfig: (newConfigs: UContractConfig[]) => set({ contractsConfig: newConfigs }),
 }));
 
 export default useStore;
