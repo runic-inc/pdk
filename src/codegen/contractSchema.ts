@@ -249,7 +249,7 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     validate() {
-        const patchTypes = [Feature.PATCH, Feature.PATCH1155, Feature.PATCHACCOUNT];
+        const patchTypes = [Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH];
         const patchTypeCount = this.features.filter(feature => patchTypes.includes(feature)).length;
         if (patchTypeCount > 1) {
             throw new Error('PATCH, 1155PATCH, and ACCOUNTPATCH are mutually exclusive.');

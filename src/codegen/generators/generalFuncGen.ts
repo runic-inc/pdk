@@ -69,14 +69,14 @@ export class GeneralFuncGen implements Generator {
                 bases.push(`PatchworkPatch`);
             }
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCH1155)) {
+        if (features.some((feature: Feature) => feature === Feature['1155PATCH'])) {
             if (features.some((feature: Feature) => feature === Feature.REVERSIBLE)) {
                 bases.push(`PatchworkReversible1155Patch`);
             } else {
                 bases.push(`Patchwork1155Patch`);
             }
         }
-        if (features.some((feature: Feature) => feature === Feature.PATCHACCOUNT)) {
+        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH)) {
             if (features.some((feature: Feature) => feature === Feature.REVERSIBLE)) {
                 bases.push(`PatchworkReversibleAccountPatch`);
             } else {

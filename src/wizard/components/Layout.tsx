@@ -1,33 +1,45 @@
-import { FC, useState } from 'hono/jsx';
-import Tabs from './Tabs';
-import InputFields from './InputFields';
-import { ContractConfig } from '../../types';
+import ContractEditor from './ContractEditor';
+import CodeView from './CodeView';
+import { ScrollArea } from '@/wizard/primitives/scroll-area';
+import { Button } from '@/wizard/primitives/button';
+import ContractList from './ContractList';
+import useStore from '../store';
+import Logo from './Logo';
+import ScopeEditor from './ScopeEditor';
 
-const Layout: FC = (props) => {
-  const [contractConfig, setContractConfig] = useState<ContractConfig>({
-    scopeName: '',
-    name: '',
-    symbol: '',
-    baseURI: '',
-    schemaURI: '',
-    imageURI: '',
-    fields: [],
-    features: []
-  });
-
-  return (
-    <html className="h-full">
-      <body className="bg-gray-100 h-full flex">
-        <div className="w-1/4 bg-white p-4">
-          <InputFields setContractConfig={setContractConfig}/>
-        </div>
-        <div className="w-3/4 bg-gray-50 p-4">
-          <Tabs contractConfig={contractConfig}/>
-          <div className="mt-4">{props.children}</div>
-        </div>
-      </body>
-    </html>
-  );
+const Layout = () => {
+    const { editor } = useStore();
+    return (
+        <main className='grid grid-rows-[min-content_1fr] grid-cols-[1fr_26rem] h-[100vh] items-stretch justify-stretch max-h-screen gap-4 min-h-0 min-w-0 p-4'>
+            <header className='col-span-2 flex items-stretch justify-start gap-4'>
+                <div className='flex h-full items-center justify-center text-sm font-semibold rounded gap-3 px-3 bg-foreground text-background'>
+                    <Logo className='h-4 w-4' />
+                    <div className='w-[1px] h-full bg-muted-foreground z-[0] opacity-50' />
+                    <ScopeEditor />
+                </div>
+                <ContractList />
+                <div className='flex grow justify-end items-stretch'>
+                    <Button variant={'ghost'} className='h-auto'>
+                        Open project in Remix
+                    </Button>
+                    <Button className='h-auto'>Save project</Button>
+                </div>
+            </header>
+            {editor ? (
+                <>
+                    <CodeView />
+                    <ScrollArea className='bg-background border border-foreground rounded shadow-lg'>
+                        <div className='p-6 ppb-0'>
+                            <h2 className='text-2xl font-bold mb-4'>Contract Editor</h2>
+                            <ContractEditor />
+                        </div>
+                    </ScrollArea>
+                </>
+            ) : (
+                <div className='col-span-2 flex items-center justify-center font-light text-muted-foreground/50 text-2xl'>Add a contract to get started.</div>
+            )}
+        </main>
+    );
 };
 
 export default Layout;

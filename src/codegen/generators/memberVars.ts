@@ -23,7 +23,7 @@ export class MemberVarsGen implements Generator {
         if (schema.fields.some((field: any) => field.fieldType === "string")) {
             members += `mapping(uint256 => string) internal _dynamicStringStorage; // tokenId => string\n\n`;
         }
-        const hasAnyPatchType = [Feature.PATCH, Feature.PATCH1155, Feature.PATCHACCOUNT].some(patch => schema.features.includes(patch));
+        const hasAnyPatchType = [Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH].some(patch => schema.features.includes(patch));
         if (hasAnyPatchType ||  schema.features.some((feature: Feature) => feature === Feature.MINTABLE)) {
             members += `uint256 internal _nextTokenId;\n\n`;
         }
