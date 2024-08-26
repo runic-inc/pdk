@@ -4,7 +4,7 @@ import { Label } from '@/wizard/primitives/label';
 import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { ContractConfig, Feature, FeatureConfig } from '@/types';
+import { Feature, FeatureConfig } from '@/types';
 import { Badge } from '@/wizard/primitives/badge';
 import _ from 'lodash';
 import useStore, { useConfig } from '@/wizard/store';

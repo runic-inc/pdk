@@ -5,7 +5,7 @@ import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
 import { ContractSchemaImpl } from '@/codegen/contractSchema';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
-import useStore, { useConfig } from '@/wizard/store';
+import { useConfig } from '@/wizard/store';
 import { ScrollArea } from '../primitives/scroll-area';
 
 const themes = {

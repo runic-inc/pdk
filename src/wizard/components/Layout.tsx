@@ -5,19 +5,10 @@ import { Button } from '@/wizard/primitives/button';
 import ContractList from './ContractList';
 import useStore from '../store';
 import Logo from './Logo';
-import Icon from '../primitives/icon';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
-import { Input } from '../primitives/input';
-import { Label } from '../primitives/label';
 import ScopeEditor from './ScopeEditor';
 
 const Layout = () => {
-    const { editor, scopeConfig } = useStore();
-    const checkInvalidChar = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!/[0-9a-zA-Z]/.test(e.key)) {
-            e.preventDefault();
-        }
-    };
+    const { editor } = useStore();
     return (
         <main className='grid grid-rows-[min-content_1fr] grid-cols-[1fr_26rem] h-[100vh] items-stretch justify-stretch max-h-screen gap-4 min-h-0 min-w-0 p-4'>
             <header className='col-span-2 flex items-stretch justify-start gap-4'>
