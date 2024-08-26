@@ -76,9 +76,22 @@ export interface Patchwork721Field {
     functionConfig?: FunctionConfig;
 }
 
+export type MintConfig = {
+    flatFee: number;
+    active: boolean;
+}
+
 export type ScopeConfig = {
     name: string;
     owner?: `0x${string}`;
+    whitelist?: boolean;
+    userAssign?: boolean;
+    userPatch?: boolean;
+    bankers?: `0x${string}`[];
+    operators?: `0x${string}`[];
+    mintConfigs?: Map<string, MintConfig>;
+    patchFees?: Map<string, number>;
+    assignFees?: Map<string, number>;
 }
 
 export type ContractConfig = {
@@ -159,3 +172,14 @@ export const InterfaceDecorators: Patchwork721InterfaceDecorators = {
         icon: 'fa-frame',
     },
 };
+
+export type ContractRelation = {
+    fragments: string[];
+}
+
+export type ProjectConfig = {
+    name: string;
+    scopes: ScopeConfig[];
+    contracts: ContractConfig[];
+    contractRelations: Map<string, ContractRelation>;
+}
