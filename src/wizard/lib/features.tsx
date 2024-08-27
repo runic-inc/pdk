@@ -1,4 +1,5 @@
-import { ContractConfig, Feature, FeatureConfig } from '@/types';
+import { ContractConfig, Feature } from '@/types';
+import { FeatureConfig } from '../types';
 
 export default [
     {

@@ -1,14 +1,15 @@
+import { Feature } from '@/types';
+import { Badge } from '@/wizard/primitives/badge';
 import { Checkbox } from '@/wizard/primitives/checkbox';
 import Icon from '@/wizard/primitives/icon';
 import { Label } from '@/wizard/primitives/label';
 import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
-import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useCallback, useEffect, useState } from 'react';
-import { Feature, FeatureConfig } from '@/types';
-import { Badge } from '@/wizard/primitives/badge';
-import _ from 'lodash';
 import useStore, { useConfig } from '@/wizard/store';
+import { FeatureConfig } from '@/wizard/types';
+import { AnimatePresence, motion } from 'framer-motion';
+import _ from 'lodash';
 import { nanoid } from 'nanoid';
+import { memo, useCallback, useEffect, useState } from 'react';
 
 const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     const { updateContractConfig } = useStore();
@@ -80,7 +81,7 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
     return (
         <div
             data-disabled={feature.validator && !feature.validator({ ...contractConfig })}
-            className={`dotted relative bg-white rounded border border-black data-[disabled=true]:border-muted-foreground data-[disabled=true]:text-muted-foreground shadow text-sm transition-all font-medium leading-none`}
+            className={`dotted relative bg-background rounded border border-border text-foreground data-[disabled=true]:border-muted-foreground data-[disabled=true]:text-muted-foreground shadow text-sm transition-all font-medium leading-none`}
         >
             <div className={`relative flex w-full items-center`}>
                 <label htmlFor={_featureUID} className='cursor-pointer flex gap-4 grow text-left p-3 pr-4 disabled:cursor-auto'>

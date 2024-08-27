@@ -1,9 +1,11 @@
-import ContractEditor from './ContractEditor';
-import CodeView from './CodeView';
-import { ScrollArea } from '@/wizard/primitives/scroll-area';
 import { Button } from '@/wizard/primitives/button';
-import ContractList from './ContractList';
+import { ScrollArea } from '@/wizard/primitives/scroll-area';
+import { Separator } from '../primitives/separator';
 import useStore from '../store';
+import CodeView from './CodeView';
+import ContractEditor from './ContractEditor';
+import ContractList from './ContractList';
+import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
 import ScopeEditor from './ScopeEditor';
 
@@ -18,17 +20,19 @@ const Layout = () => {
                     <ScopeEditor />
                 </div>
                 <ContractList />
-                <div className='flex grow justify-end items-stretch'>
+                <div className='flex grow justify-end items-stretch gap-4'>
                     <Button variant={'ghost'} className='h-auto'>
                         Open project in Remix
                     </Button>
                     <Button className='h-auto'>Save project</Button>
+                    <Separator orientation='vertical' className='bg-muted-border' />
+                    <DarkModeToggle />
                 </div>
             </header>
             {editor ? (
                 <>
                     <CodeView />
-                    <ScrollArea className='bg-background border border-foreground rounded shadow-lg'>
+                    <ScrollArea className='bg-background border border-border rounded shadow-lg'>
                         <div className='p-6 ppb-0'>
                             <h2 className='text-2xl font-bold mb-4'>Contract Editor</h2>
                             <ContractEditor />

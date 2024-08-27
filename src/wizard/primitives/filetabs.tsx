@@ -1,5 +1,5 @@
-import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as React from 'react';
 
 import { cn } from '@wizard/lib/utils';
 
@@ -21,7 +21,7 @@ const TabsTrigger = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Trigg
         <TabsPrimitive.Trigger
             ref={ref}
             className={cn(
-                'inline-flex items-center dotted justify-center rounded-t whitespace-nowrap px-6 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  border border-muted-foreground border-b-foreground data-[state=active]:text-foreground data-[state=active]:!border-b-transparent mr-1 data-[state=active]:border-foreground bg-muted data-[state=active]:bg-white data-[state=active]:bg-none',
+                'inline-flex items-center dotted justify-center rounded-t whitespace-nowrap px-6 py-3 text-muted-foreground text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-muted-border border-b-border data-[state=active]:text-foreground data-[state=active]:!border-b-transparent mr-1 data-[state=active]:border-border bg-muted data-[state=active]:bg-background data-[state=active]:bg-none',
                 className,
             )}
             {...props}
@@ -35,7 +35,7 @@ const TabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Conte
         <TabsPrimitive.Content
             ref={ref}
             className={cn(
-                'min-h-0 min-w-0 ring-offset-background focus-visible:outline-none shadow-lg focus-visible:ring-2 rounded border-foreground bg-white border focus-visible:ring-ring focus-visible:ring-offset-2',
+                'min-h-0 min-w-0 ring-offset-background focus-visible:outline-none shadow-lg focus-visible:ring-2 rounded border-border bg-background border focus-visible:ring-ring focus-visible:ring-offset-2',
                 className,
             )}
             {...props}
@@ -44,4 +44,4 @@ const TabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Conte
 );
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };
