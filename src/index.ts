@@ -110,7 +110,11 @@ function generateSolidity(argv: any) {
                     console.log(`${configFile} did not validate:`, validationResult.errors);
                     process.exit(1);
                 }
-                schema = parseJson(jsonData);
+                const parsedSchema = parseJson(jsonData);
+                if (!(parsedSchema instanceof ContractSchemaImpl)) {
+                    throw new Error("Parsed schema is not an instance of ContractSchemaImpl");
+                }
+                schema = parsedSchema;
             }
     
             schema.validate();
