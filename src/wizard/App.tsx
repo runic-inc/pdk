@@ -1,11 +1,14 @@
-import Layout from './components/Layout';
 import { TooltipProvider } from '@/wizard/primitives/tooltip';
+import Layout from './components/Layout';
+import { ThemeProvider } from './components/ThemeProvider';
 
 const App = () => {
     return (
-        <TooltipProvider>
-            <Layout />
-        </TooltipProvider>
+        <ThemeProvider defaultTheme='light'>
+            <TooltipProvider>
+                <Layout />
+            </TooltipProvider>
+        </ThemeProvider>
     );
 };
 

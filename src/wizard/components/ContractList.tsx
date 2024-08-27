@@ -13,7 +13,7 @@ const ContractList = () => {
     };
 
     return (
-        <div className='flex gap-[1px] text-sm ring-1 ring-muted-foreground relative rounded [&>:first-child]:!rounded-l [&>:first-child>:first-child>:first-child]:!rounded-l [&>:last-child]:rounded-r'>
+        <div className='flex gap-[1px] text-sm ring-1 ring-muted-border relative rounded [&>:first-child]:!rounded-l [&>:first-child>:first-child>:first-child]:!rounded-l [&>:last-child]:rounded-r'>
             <Reorder.Group values={contractsConfig} onReorder={(newOrder) => handleContractSort(newOrder)} axis='x' className='flex gap-[1px]'>
                 {contractsConfig.map((contract, i) => (
                     <Reorder.Item
@@ -28,7 +28,7 @@ const ContractList = () => {
                             className={`px-3 ring-1 flex gap-2 items-center font-medium cursor-pointer relative z-[1] ${
                                 editor == contract._uid
                                     ? 'bg-background ring-border text-foreground dotted'
-                                    : 'bg-muted ring-muted-foreground text-muted-foreground'
+                                    : 'bg-muted ring-muted-border text-muted-foreground'
                             }`}
                         >
                             <Icon icon='fa-file' />
@@ -39,7 +39,7 @@ const ContractList = () => {
             </Reorder.Group>
             <Button
                 variant={'ghost'}
-                className='rounded-none ring-1 ring-muted-foreground bg-muted gap-2 text-muted-foreground shadow-none px-4'
+                className='rounded-none ring-1 ring-muted-border bg-muted gap-2 text-muted-foreground shadow-none px-4'
                 onClick={() => {
                     const newId = addNewContract();
                     setEditor(newId);

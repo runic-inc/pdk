@@ -1,11 +1,11 @@
 //import { parseJson } from '../../codegen/contractSchemaJsonParser';
+import { ContractSchemaImpl } from '@/codegen/contractSchema';
+import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
 import { MainContractGen } from '@/codegen/mainContractGen';
 import { UserContractGen } from '@/codegen/userContractGen';
-import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
+import { useConfig } from '@/wizard/store';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
-import { useConfig } from '@/wizard/store';
 import { ScrollArea } from '../primitives/scroll-area';
 
 const themes = {

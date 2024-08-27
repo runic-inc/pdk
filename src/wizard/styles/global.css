@@ -15,11 +15,12 @@
         --secondary: 220 14.3% 95.9%;
         --secondary-foreground: 220.9 39.3% 11%;
         --muted: 220 14.3% 95.9%;
-        --muted-foreground: 220 8.9% 55.1%;
+        --muted-foreground: 220 8.9% 50.1%;
         --accent: 220 14.3% 95.9%;
         --accent-foreground: 220.9 39.3% 11%;
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 210 20% 98%;
+        --muted-border: 220 8.9% 65.1%;
         --border: 220 13% 0%;
         --input: 220 5% 0%;
         --ring: 224 71.4% 4.1%;
@@ -44,13 +45,14 @@
         --secondary: 215 27.9% 16.9%;
         --secondary-foreground: 210 20% 98%;
         --muted: 215 20.9% 9.9%;
-        --muted-foreground: 220 8.9% 35.1%;
+        --muted-foreground: 220 12% 55.1%;
         --accent: 215 27.9% 16.9%;
         --accent-foreground: 210 20% 98%;
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 20% 98%;
-        --border: 215 15.9% 33%;
-        --input: 215 27.9% 16.9%;
+        --muted-border: 215 15.9% 18%;
+        --border: 215 15.9% 30%;
+        --input: 215 14.9% 33.9%;
         --ring: 216 12.2% 83.9%;
         --chart-1: 220 70% 50%;
         --chart-2: 160 60% 45%;
@@ -89,8 +91,7 @@
     html.dark .shiki,
     html.dark .shiki span {
         color: var(--shiki-dark) !important;
-        background-color: var(--shiki-dark-bg) !important;
-        /* Optional, if you also want font styles */
+        background-color: transparent !important;
         font-style: var(--shiki-dark-font-style) !important;
         font-weight: var(--shiki-dark-font-weight) !important;
         text-decoration: var(--shiki-dark-text-decoration) !important;
@@ -113,7 +114,6 @@
         background-position: bottom center;
         background-size: 4px;
         background-repeat: repeat-x;
-        color: hsl(223, 10%, 18%);
     }
     .dark .dotted {
         background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGNpcmNsZSBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiIGZpbGw9ImhzbCgyMjMsIDE1JSwgMzAlKSIgLz4KCTxjaXJjbGUgY3g9IjIuNSIgY3k9IjIuNSIgcj0iMC41IiBmaWxsPSJoc2woMjIzLCAxNSUsIDMwJSkiIC8+Cjwvc3ZnPg==');
