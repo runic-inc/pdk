@@ -9,9 +9,7 @@ import ContractList from './ContractList';
 import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
 import ScopeEditor from './ScopeEditor';
-import { UserContractGen } from '@/codegen/userContractGen';
 import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { MainContractGen } from '@/codegen/mainContractGen';
 import { RemixExporter } from '../utils/RemixExporter';
 
 const Layout = () => {
