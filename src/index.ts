@@ -81,10 +81,11 @@ function generateSolidity(argv: any) {
   
     for (const configFile of configFiles) {
         try {
-            let schema;
-            let solidityGenFilename;
-            let solidityUserFilename;
-            let jsonFilename;
+            let schema: ContractSchemaImpl;
+            let solidityGenFilename: string;
+            let solidityUserFilename: string;
+            let jsonFilename: string;
+
             if (configFile.endsWith(".ts")) {
                 try {
                     const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
@@ -103,12 +104,12 @@ function generateSolidity(argv: any) {
                 if (!configFile.endsWith(".json")) {
                     throw new Error("Invalid file type. Please provide a JSON or TS file.");
                 }
-                const validated = tryValidate(configFile, "../src/patchwork-contract-config.schema.json");
-                if (validated !== true) {
-                    console.log(`${configFile} did not validate`, validated);
+                const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+                const validationResult = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
+                if (!validationResult.isValid) {
+                    console.log(`${configFile} did not validate:`, validationResult.errors);
                     process.exit(1);
                 }
-                const jsonData = require(path.resolve(configFile));
                 schema = parseJson(jsonData);
             }
     
@@ -116,7 +117,6 @@ function generateSolidity(argv: any) {
             solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
             solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
             jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
-
             const solidityCode = new MainContractGen().gen(schema);
             let outputPath = path.join(outputDir, solidityGenFilename);
             fs.writeFileSync(outputPath, solidityCode);
@@ -130,7 +130,6 @@ function generateSolidity(argv: any) {
                 fs.writeFileSync(outputPath, solidityUserCode);
                 console.log(`Solidity user file generated at ${outputPath}`);
             }
-
             const jsonSchema = new JSONSchemaGen().gen(schema);
             outputPath = path.join(outputDir, jsonFilename);
             fs.writeFileSync(outputPath, jsonSchema);
@@ -139,5 +138,4 @@ function generateSolidity(argv: any) {
             console.error("Error generating Solidity file:", error.message);
         }
     }
-    
 }
