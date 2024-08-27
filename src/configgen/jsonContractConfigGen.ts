@@ -1,5 +1,5 @@
-import { ContractSchema } from "./contractSchema";
-import { Generator } from "./generator";
+import { ContractSchema } from "../codegen/contractSchema";
+import { Generator } from "../codegen/generator";
 
 export class JSONContractConfigGen implements Generator {
   constructor() {}
