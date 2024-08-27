@@ -7,6 +7,7 @@ import { ContractConfig } from '@/types';
 import { useConfig } from '@/wizard/store';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
+import { useKeyDown } from '../hooks/useKeyDown';
 import { ScrollArea } from '../primitives/scroll-area';
 
 const themes = {
@@ -33,6 +34,13 @@ const CodeBlock = memo(
     ({ viewType, setClipboard }: { viewType: 'userContract' | 'genContract' | 'schema'; setClipboard: React.Dispatch<React.SetStateAction<string>> }) => {
         const [code, setCode] = useState('');
         const contractConfig = useConfig()!;
+        useKeyDown(
+            () => {
+                document.activeElement && window.getSelection()?.selectAllChildren(document.activeElement);
+            },
+            [['Meta', 'Control'], 'a'],
+            'pre.shiki',
+        );
 
         useEffect(() => {
             let _code = '';
