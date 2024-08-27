@@ -39,3 +39,8 @@ export type UContractConfig = Omit<ContractConfig, 'fields'> & {
 export type UFieldConfig = FieldConfig & {
     _uid: string;
 };
+
+export interface PatchworkEnum {
+    uid: string;
+    value: string;
+}

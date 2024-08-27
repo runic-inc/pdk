@@ -1,10 +1,10 @@
-import useStore from '../store';
+import { useState } from 'react';
+import { Button } from '../primitives/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
 import Icon from '../primitives/icon';
-import { Label } from '../primitives/label';
 import { Input } from '../primitives/input';
-import { Button } from '../primitives/button';
-import { useState } from 'react';
+import { Label } from '../primitives/label';
+import useStore from '../store';
 
 const ScopeEditor = () => {
     const { scopeConfig, updateScopeConfig } = useStore();

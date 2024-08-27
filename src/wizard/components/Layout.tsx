@@ -1,9 +1,9 @@
-import ContractEditor from './ContractEditor';
-import CodeView from './CodeView';
-import { ScrollArea } from '@/wizard/primitives/scroll-area';
 import { Button } from '@/wizard/primitives/button';
-import ContractList from './ContractList';
+import { ScrollArea } from '@/wizard/primitives/scroll-area';
 import useStore from '../store';
+import CodeView from './CodeView';
+import ContractEditor from './ContractEditor';
+import ContractList from './ContractList';
 import Logo from './Logo';
 import ScopeEditor from './ScopeEditor';
 
@@ -28,7 +28,7 @@ const Layout = () => {
             {editor ? (
                 <>
                     <CodeView />
-                    <ScrollArea className='bg-background border border-foreground rounded shadow-lg'>
+                    <ScrollArea className='bg-background border border-border rounded shadow-lg'>
                         <div className='p-6 ppb-0'>
                             <h2 className='text-2xl font-bold mb-4'>Contract Editor</h2>
                             <ContractEditor />

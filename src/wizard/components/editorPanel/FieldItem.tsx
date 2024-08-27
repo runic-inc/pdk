@@ -1,15 +1,15 @@
+import { FunctionConfig } from '@/types';
+import Icon from '@/wizard/primitives/icon';
+import { Input } from '@/wizard/primitives/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
+import useStore, { useConfig } from '@/wizard/store';
+import { UFieldConfig } from '@/wizard/types';
 import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
-import { FunctionConfig } from '@/types';
-import Icon from '@/wizard/primitives/icon';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
-import { Input } from '@/wizard/primitives/input';
-import FieldTypeSelector from './TypeSelector';
 import EnumList from './EnumList';
-import useStore, { useConfig } from '@/wizard/store';
-import { UFieldConfig } from '@/wizard/types';
+import FieldTypeSelector from './TypeSelector';
 
 const Field = memo(({ field }: { field: UFieldConfig }) => {
     const { updateContractConfig } = useStore();
@@ -42,7 +42,7 @@ const Field = memo(({ field }: { field: UFieldConfig }) => {
         <Reorder.Item value={field} dragListener={false} whileDrag={{ scale: 1.075, boxShadow: boxShadow.lg }} dragControls={fieldDrag}>
             <Disclosure defaultOpen={true}>
                 {(_, filled: boolean = field.key != '' && typeof field.arrayLength == 'number') => (
-                    <div className={`dotted relative bg-white rounded border border-black shadow text-sm transition-all font-medium leading-none`}>
+                    <div className={`dotted relative bg-background rounded border border-border shadow text-sm transition-all font-medium leading-none`}>
                         <div className={`relative flex w-full items-center p-1`}>
                             <button onPointerDown={(e) => fieldDrag.start(e)} className='cursor-ns-resize shrink p-2'>
                                 <Icon icon='fa-grip-dots-vertical' />

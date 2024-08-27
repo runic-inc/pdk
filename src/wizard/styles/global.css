@@ -33,8 +33,8 @@
     }
 
     .dark {
-        --background: theme(colors.gray.900);
-        --foreground: 210 20% 98%;
+        --background: 225, 30%, 5%;
+        --foreground: 0 0% 100%;
         --card: 224 71.4% 4.1%;
         --card-foreground: 210 20% 98%;
         --popover: 224 71.4% 4.1%;
@@ -43,13 +43,13 @@
         --primary-foreground: 220.9 39.3% 11%;
         --secondary: 215 27.9% 16.9%;
         --secondary-foreground: 210 20% 98%;
-        --muted: 215 27.9% 16.9%;
-        --muted-foreground: 217.9 10.6% 64.9%;
+        --muted: 215 20.9% 9.9%;
+        --muted-foreground: 220 8.9% 35.1%;
         --accent: 215 27.9% 16.9%;
         --accent-foreground: 210 20% 98%;
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 20% 98%;
-        --border: 215 27.9% 16.9%;
+        --border: 215 15.9% 33%;
         --input: 215 27.9% 16.9%;
         --ring: 216 12.2% 83.9%;
         --chart-1: 220 70% 50%;
@@ -65,7 +65,7 @@
         @apply border-border;
     }
     body {
-        @apply bg-neutral-50 text-foreground;
+        @apply bg-neutral-50 dark:bg-neutral-950 text-foreground;
     }
 
     .shiki {
@@ -99,7 +99,7 @@
 
 @layer components {
     .form-label {
-        @apply text-[12px] text-black font-medium;
+        @apply text-[12px] text-foreground font-medium;
     }
     .form-input {
         @apply placeholder:font-normal focus:outline-black p-[var(--input-padding)] text-[12px] transition-all shadow font-medium leading-none rounded bg-white border border-black w-full z-[1] text-left flex items-center justify-stretch gap-1;
@@ -113,5 +113,9 @@
         background-position: bottom center;
         background-size: 4px;
         background-repeat: repeat-x;
+        color: hsl(223, 10%, 18%);
+    }
+    .dark .dotted {
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGNpcmNsZSBjeD0iMC41IiBjeT0iMC41IiByPSIwLjUiIGZpbGw9ImhzbCgyMjMsIDE1JSwgMzAlKSIgLz4KCTxjaXJjbGUgY3g9IjIuNSIgY3k9IjIuNSIgcj0iMC41IiBmaWxsPSJoc2woMjIzLCAxNSUsIDMwJSkiIC8+Cjwvc3ZnPg==');
     }
 }

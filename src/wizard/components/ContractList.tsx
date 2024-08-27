@@ -1,9 +1,8 @@
+import { Reorder } from 'framer-motion';
+import { boxShadow } from 'tailwindcss/defaultTheme';
 import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
 import useStore from '../store';
-import { Reorder } from 'framer-motion';
-import _ from 'lodash';
-import { boxShadow } from 'tailwindcss/defaultTheme';
 import { UContractConfig } from '../types';
 
 const ContractList = () => {
@@ -27,7 +26,9 @@ const ContractList = () => {
                         <div
                             onClick={() => setEditor(contract._uid)}
                             className={`px-3 ring-1 flex gap-2 items-center font-medium cursor-pointer relative z-[1] ${
-                                editor == contract._uid ? 'bg-background ring-foreground dotted' : 'bg-muted ring-muted-foreground text-muted-foreground'
+                                editor == contract._uid
+                                    ? 'bg-background ring-border text-foreground dotted'
+                                    : 'bg-muted ring-muted-foreground text-muted-foreground'
                             }`}
                         >
                             <Icon icon='fa-file' />

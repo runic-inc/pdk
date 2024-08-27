@@ -1,7 +1,5 @@
-import { memo, useEffect } from 'react';
-import { FieldConfig, FunctionConfig } from '@/types';
-import { Label } from '@/wizard/primitives/label';
-import { Input } from '@/wizard/primitives/input';
+import { FunctionConfig } from '@/types';
+import features from '@/wizard/lib/features';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -13,17 +11,18 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/wizard/primitives/alert-dialog';
-import { Reorder } from 'framer-motion';
-import Field from './editorPanel/FieldItem';
-import { nanoid } from 'nanoid';
-import features from '@/wizard/lib/features';
-import FeatureEntry from './editorPanel/FeatureItem';
-import useStore, { useConfig } from '@/wizard/store';
 import { Button } from '@/wizard/primitives/button';
+import { Input } from '@/wizard/primitives/input';
+import { Label } from '@/wizard/primitives/label';
+import useStore, { useConfig } from '@/wizard/store';
+import { Reorder } from 'framer-motion';
+import { nanoid } from 'nanoid';
+import { memo, useEffect } from 'react';
 import Icon from '../primitives/icon';
-import _ from 'lodash';
-import NameInput from './editorPanel/NameInput';
 import { UFieldConfig } from '../types';
+import FeatureEntry from './editorPanel/FeatureItem';
+import Field from './editorPanel/FieldItem';
+import NameInput from './editorPanel/NameInput';
 
 const ContractEditor = memo(() => {
     const { updateContractConfig, deleteContract } = useStore();
@@ -64,7 +63,9 @@ const ContractEditor = memo(() => {
     };
 
     useEffect(() => {
-        handleAddField();
+        if (contractConfig.fields.length === 0) {
+            handleAddField();
+        }
     }, []);
 
     return (
@@ -156,9 +157,7 @@ const ContractEditor = memo(() => {
                         onReorder={(newOrder: UFieldConfig[]) => handleFieldSort(newOrder)}
                         className='flex flex-col gap-2'
                     >
-                        {contractConfig?.fields?.map((field: UFieldConfig) => (
-                            <Field key={field._uid} field={field as UFieldConfig} />
-                        ))}
+                        {contractConfig?.fields?.map((field: UFieldConfig) => <Field key={field._uid} field={field as UFieldConfig} />)}
                     </Reorder.Group>
                     <Button onClick={handleAddField} variant={'outline'} className='w-full'>
                         Add a new field
