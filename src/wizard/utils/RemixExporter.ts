@@ -5,13 +5,9 @@ import { MainContractGen } from '@/codegen/mainContractGen';
 export class RemixExporter {
 
   private static readonly PATCHWORK_BASE_URL = 'https://github.com/runic-inc/patchwork/blob/main/src/';
-//  private static readonly OPENZEPPELIN_BASE_URL = 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/';
 
   private static readonly remappings = {
-    //'@openzeppelin/': 'lib/openzeppelin-contracts/',
     '@patchwork/': 'lib/patchwork/src/',
-    //'forge-std/': 'lib/forge-std/src/',
-    //'lib/': 'lib/'
   };
 
   static prepareForRemix(contractConfig: ContractSchemaImpl): string {
@@ -60,12 +56,10 @@ export class RemixExporter {
       }
     }
 
-    // Replace local paths with GitHub URLs
+    // Replace patchwork local paths with GitHub URLs
     if (newPath.startsWith('lib/patchwork/src/')) {
         newPath = newPath.replace('lib/patchwork/src/', this.PATCHWORK_BASE_URL);
-    }// else if (newPath.startsWith('lib/openzeppelin-contracts/')) {
-      //newPath = newPath.replace('lib/openzeppelin-contracts/', this.OPENZEPPELIN_BASE_URL);
-    //}
+    }
     return line.replace(importMatch[0], `"${newPath}"`);
   }
 
