@@ -72,7 +72,10 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
         }
         // only update features if they don't match
         // prevents unnecessary dispatches
-        if (_.difference(_.intersection(contractConfig.features, featureEnums), features).length > 0) {
+        const _int = _.intersection(contractConfig.features, featureEnums);
+        const _diffLeft = _.difference(features, _int);
+        const _diffRight = _.difference(_int, features);
+        if (_diffLeft.length > 0 || _diffRight.length > 0) {
             updateContractFeatures(features, featureEnums);
         }
     }, [selected, currentPrimaryFeature, additionalFeatures]);
