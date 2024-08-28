@@ -17,7 +17,7 @@ export class ProjectConfigGen {
         projectConfig.scopes.map(scope => {
             return this.genScopeConfig(scope);
         }).join(',\n') +
-        `    },\n` +
+        `\n    },\n` +
         `    "contracts": {\n` +
         contractConfigString + `\n` +
         `    }\n` +
@@ -26,11 +26,20 @@ export class ProjectConfigGen {
 
     genScopeConfig(scopeConfig: ScopeConfig): string {
         return `        "${scopeConfig.name}": {\n` +
+        `            "owner": "${scopeConfig.owner}",\n` +
         `            "whitelist": ${scopeConfig.whitelist},\n` +
         `            "userAssign": ${scopeConfig.userAssign},\n` +
         `            "userPatch": ${scopeConfig.userPatch},\n` +
-        `            "bankers": ${scopeConfig.bankers},\n` +
-        `            "operators": ${scopeConfig.operators},\n` +
+        `            "bankers": [` +
+        scopeConfig.bankers?.map(banker => {
+            return `"${banker}"`;
+        }).join(',') +
+        `],\n` +
+        `            "operators": [` +
+        scopeConfig.operators?.map(operator => {
+            return `"${operator}"`;
+        }).join(',') +
+        `],\n` +
         `            "mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)},\n` +
         `            "patchFees": ${this.genPatchFees(scopeConfig.patchFees)},\n` +
         `            "assignFees": ${this.genAssignFees(scopeConfig.assignFees)}\n` +
@@ -53,13 +62,16 @@ export class ProjectConfigGen {
     }
 
     genContractConfig(name: string, filename: string, relations: ContractRelation | undefined): string {
+        let fragments = '\n';
+        if (relations) {
+            fragments = `,\n            "fragments": [\n` + relations.fragments.map(fragment => {
+                return `                "${fragment}"`;
+            }).join(',\n') +
+            `\n            ]\n`
+        }
         return `        "${name}": {\n` +
-        `            "config": "${filename}",\n` +
-        `            "fragments": [\n` +
-        (relations ? relations.fragments.map(fragment => {
-            return `                "${fragment}"`;
-        }).join(',\n') : '') +
-        `\n            ]\n` +
+        `            "config": "${filename}"` +
+        fragments +
         `        }`;
     }
 }
