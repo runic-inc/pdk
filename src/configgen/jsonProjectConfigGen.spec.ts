@@ -1,5 +1,5 @@
 
-import { ProjectConfigGen } from "./jsonProjectConfigGen";
+import { JSONProjectConfigGen } from "./jsonProjectConfigGen";
 import projectConfig from "../codegen/test_data/project_configs/project-config";
 
 describe("JSONProjectConfigGen", () => {
@@ -41,7 +41,7 @@ describe("JSONProjectConfigGen", () => {
     }
   }`;
   
-  const genString = new ProjectConfigGen().gen(projectConfig);
+  const genString = new JSONProjectConfigGen().gen(projectConfig);
   expect( JSON.parse(genString)).toEqual(JSON.parse(projectJson));
   });
 });

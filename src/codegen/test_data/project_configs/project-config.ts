@@ -1,4 +1,4 @@
-import { ProjectConfig, ScopeConfig, MintConfig, ContractRelation } from "../../../types";
+import { ProjectConfig, MintConfig, ContractRelation } from "@/types";
 
 const projectConfig: ProjectConfig = {
     name: "My Project",
