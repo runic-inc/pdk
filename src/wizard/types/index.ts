@@ -2,7 +2,7 @@ import { ContractConfig, Feature, FieldConfig } from '@/types';
 import { ReactNode } from 'react';
 
 export type FeatureInterface = {
-    interface: Feature;
+    key: Feature;
     label: string;
     default?: boolean;
     optional?: boolean;
@@ -27,7 +27,7 @@ export type FeatureConfig = {
     autoToggle?: boolean;
     validator?: (value: ContractConfig) => boolean;
     validatorMessage?: string;
-    interfaces: [FeatureInterface, ...FeatureInterface[]];
+    featureSet: [FeatureInterface, ...FeatureInterface[]];
     options: FeatureOption[];
 };
 

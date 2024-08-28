@@ -11,21 +11,24 @@ import _ from 'lodash';
 import { nanoid } from 'nanoid';
 import { memo, useCallback, useEffect, useState } from 'react';
 
-const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
-    const { updateContractConfig } = useStore();
+const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => {
+    const { updateContractFeatures } = useStore();
     const contractConfig = useConfig()!;
 
-    const featureEnums = _.map(feature.interfaces, 'interface');
-    const primaryFeatures = feature.interfaces.filter((iface) => !iface.optional);
-    const optionalFeatures = feature.interfaces.filter((iface) => iface.optional);
-    const defaultFeature = primaryFeatures.find((iface) => iface.default)?.interface;
+    const featureEnums = _.map(featureGroup.featureSet, 'key');
 
-    const getChecked = () => !!_.intersection(contractConfig.features, featureEnums).length;
-    const getPrimaryFeature = () => _.intersection(contractConfig.features, _.map(primaryFeatures, 'interface'))[0] ?? defaultFeature;
-    const getOptionalFeatures = () => _.intersection(contractConfig.features, _.map(optionalFeatures, 'interface'));
+    // Break out list of available features
+    const primaryFeatures = featureGroup.featureSet.filter((item) => !item.optional);
+    const optionalFeatures = featureGroup.featureSet.filter((item) => item.optional);
+    const defaultFeature = primaryFeatures.find((item) => item.default)?.key ?? primaryFeatures[0].key;
+
+    // Getters used to instantiate initial state of the UI
+    const getChecked = useCallback(() => !!_.intersection(contractConfig.features, featureEnums).length, [contractConfig]);
+    const getPrimaryFeature = useCallback(() => _.intersection(contractConfig.features, _.map(primaryFeatures, 'key'))[0] ?? defaultFeature, [contractConfig]);
+    const getOptionalFeatures = useCallback(() => _.intersection(contractConfig.features, _.map(optionalFeatures, 'key')), [contractConfig]);
 
     const [selected, setSelected] = useState<boolean>(getChecked());
-    const [currentPrimaryFeature, setcurrentPrimaryFeature] = useState<Feature | undefined>(getPrimaryFeature());
+    const [currentPrimaryFeature, setCurrentPrimaryFeature] = useState<Feature | undefined>(getPrimaryFeature());
     const [additionalFeatures, setadditionalFeatures] = useState<Feature[]>(getOptionalFeatures());
 
     const getInterfaceByValue = (value: string): Feature => {
@@ -36,7 +39,7 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
 
     const handlePrimaryInterfaceToggle = (value: string) => {
         const featureToToggle = getInterfaceByValue(value);
-        setcurrentPrimaryFeature(featureToToggle);
+        setCurrentPrimaryFeature(featureToToggle);
     };
 
     const handleOptionalInterfaceToggle = (value: string) => {
@@ -46,27 +49,11 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
         });
     };
 
-    useEffect(() => {
-        const newFeatures = _.cloneDeep(contractConfig.features) ?? [];
-        _.pull(newFeatures, ...featureEnums);
-        if (selected) {
-            newFeatures.push(...additionalFeatures);
-            if (currentPrimaryFeature) newFeatures.push(currentPrimaryFeature);
-        }
-        const compare = _.difference(contractConfig.features, newFeatures);
-        if (compare.length !== newFeatures.length) {
-            updateContractConfig({
-                ...contractConfig,
-                features: newFeatures,
-            });
-        }
-    }, [selected, currentPrimaryFeature, additionalFeatures]);
-
     const checkAutoToggle = useCallback(() => {
-        if (feature.autoToggle && feature['validator']) {
-            if (feature.validator({ ...contractConfig }) && !selected) {
+        if (featureGroup.autoToggle && featureGroup['validator']) {
+            if (featureGroup.validator({ ...contractConfig }) && !selected) {
                 setSelected(true);
-            } else if (!feature.validator({ ...contractConfig }) && selected) {
+            } else if (!featureGroup.validator({ ...contractConfig }) && selected) {
                 setSelected(false);
             }
         }
@@ -76,11 +63,28 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
         checkAutoToggle();
     }, [contractConfig]);
 
+    useEffect(() => {
+        const features = [];
+        // cull and rebuild feature list
+        if (selected) {
+            features.push(...additionalFeatures);
+            if (currentPrimaryFeature) features.push(currentPrimaryFeature);
+        }
+        // only update features if they don't match
+        // prevents unnecessary dispatches
+        const _int = _.intersection(contractConfig.features, featureEnums);
+        const _diffLeft = _.difference(features, _int);
+        const _diffRight = _.difference(_int, features);
+        if (_diffLeft.length > 0 || _diffRight.length > 0) {
+            updateContractFeatures(features, featureEnums);
+        }
+    }, [selected, currentPrimaryFeature, additionalFeatures]);
+
     const _featureUID = nanoid(10);
 
     return (
         <div
-            data-disabled={feature.validator && !feature.validator({ ...contractConfig })}
+            data-disabled={featureGroup.validator && !featureGroup.validator({ ...contractConfig })}
             className={`dotted relative bg-background rounded border border-border text-foreground data-[disabled=true]:border-muted-foreground data-[disabled=true]:text-muted-foreground shadow text-sm transition-all font-medium leading-none`}
         >
             <div className={`relative flex w-full items-center`}>
@@ -88,48 +92,48 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                     <div className=''>
                         <Checkbox
                             id={_featureUID}
-                            disabled={feature.autoToggle || (feature.validator ? !feature.validator({ ...contractConfig }) : false)}
+                            disabled={featureGroup.autoToggle || (featureGroup.validator ? !featureGroup.validator({ ...contractConfig }) : false)}
                             checked={selected}
                             onCheckedChange={(checked) => setSelected(!!checked)}
                         />
                     </div>
                     <div className='grow flex flex-col gap-1.5'>
                         <div className='flex gap-1.5 pt-[1.5px]'>
-                            <Icon icon={feature.icon} />
-                            <span>{feature.name}</span>
+                            <Icon icon={featureGroup.icon} />
+                            <span>{featureGroup.name}</span>
                         </div>
                         <div>
                             <p className='text-muted-foreground text-[12px] font-normal leading-4'>
-                                {feature.description} <span className='underline decoration-dotted'>{feature.validatorMessage}</span>
+                                {featureGroup.description} <span className='underline decoration-dotted'>{featureGroup.validatorMessage}</span>
                             </p>
                         </div>
                     </div>
                 </label>
             </div>
             <AnimatePresence>
-                {selected && (feature.options.length || feature.interfaces.length > 1) && (
+                {selected && (featureGroup.options.length || featureGroup.featureSet.length > 1) && (
                     <motion.div
                         className='bg-muted/50 rounded-b border-t border-muted-foreground/50 p-3 pb-4 dotted flex flex-col gap-4'
-                        key={'feature_' + feature.name}
+                        key={'feature_' + featureGroup.name}
                     >
                         {primaryFeatures.length > 1 && (
                             <RadioGroup defaultValue={currentPrimaryFeature} onValueChange={(value) => handlePrimaryInterfaceToggle(value)}>
-                                {primaryFeatures.map((iface) => (
-                                    <div className='flex gap-4 items-start' key={iface.interface}>
+                                {primaryFeatures.map((featItem) => (
+                                    <div className='flex gap-4 items-start' key={featItem.key}>
                                         <div className='pt-1'>
                                             <RadioGroupItem
-                                                value={iface.interface}
-                                                id={iface.interface}
-                                                disabled={iface.validator ? !iface.validator(contractConfig) : false}
+                                                value={featItem.key}
+                                                id={featItem.key}
+                                                disabled={featItem.validator ? !featItem.validator(contractConfig) : false}
                                             />
                                         </div>
                                         <div>
-                                            <Label htmlFor={iface.interface} className='inline-flex items-center gap-2'>
-                                                {iface.label}
-                                                {iface.default && <Badge>Default</Badge>}
+                                            <Label htmlFor={featItem.key} className='inline-flex items-center gap-2'>
+                                                {featItem.label}
+                                                {featItem.default && <Badge>Default</Badge>}
                                             </Label>
                                             <p className='font-normal text-sm text-muted-foreground'>
-                                                {iface.description} <span className='underline decoration-dotted'>{iface.validatorMessage}</span>
+                                                {featItem.description} <span className='underline decoration-dotted'>{featItem.validatorMessage}</span>
                                             </p>
                                         </div>
                                     </div>
@@ -141,17 +145,17 @@ const FeatureItem = memo(({ feature }: { feature: FeatureConfig }) => {
                                 <p className='text-sm font-medium'>Options</p>
                                 <div className='flex flex-col gap-2 pt-2'>
                                     {optionalFeatures.map((iface) => (
-                                        <div className='flex gap-4 items-start' key={iface.interface}>
+                                        <div className='flex gap-4 items-start' key={iface.key}>
                                             <div className='pt-1'>
                                                 <Checkbox
-                                                    id={iface.interface}
-                                                    onCheckedChange={() => handleOptionalInterfaceToggle(iface.interface)}
-                                                    checked={additionalFeatures.includes(iface.interface)}
+                                                    id={iface.key}
+                                                    onCheckedChange={() => handleOptionalInterfaceToggle(iface.key)}
+                                                    checked={additionalFeatures.includes(iface.key)}
                                                     disabled={iface.autoToggle || (iface.validator ? !iface.validator(contractConfig) : false)}
                                                 />
                                             </div>
                                             <div>
-                                                <Label htmlFor={iface.interface} className='inline-flex items-center gap-2'>
+                                                <Label htmlFor={iface.key} className='inline-flex items-center gap-2'>
                                                     {iface.label}
                                                 </Label>
                                                 <p className='font-normal text-sm text-muted-foreground'>
