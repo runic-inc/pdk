@@ -1,5 +1,5 @@
 import { FunctionConfig } from '@/types';
-import features from '@/wizard/lib/features';
+import featureGroups from '@/wizard/lib/features';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -141,8 +141,8 @@ const ContractEditor = memo(() => {
                     <h3 className='font-medium -mx-6 my-3 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>
                         Patchwork features
                     </h3>
-                    {features.map((feature) => (
-                        <FeatureEntry key={feature.name + contractConfig._uid} feature={feature} />
+                    {featureGroups.map((featureGroup) => (
+                        <FeatureEntry key={featureGroup.name + contractConfig._uid} featureGroup={featureGroup} />
                     ))}
                 </div>
 

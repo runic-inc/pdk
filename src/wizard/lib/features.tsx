@@ -6,9 +6,9 @@ export default [
         name: 'Mintable',
         description: `Adds protocol-level mint support and enables mint fee accrual to the contract's Scope.`,
         icon: 'fa-plus',
-        interfaces: [
+        featureSet: [
             {
-                interface: Feature.MINTABLE,
+                key: Feature.MINTABLE,
                 label: '',
                 default: true,
             },
@@ -19,15 +19,15 @@ export default [
         name: 'Assignable',
         description: 'Assignable contracts contain tokens that can be assigned to an Assignee token.',
         icon: 'fa-grid-2',
-        interfaces: [
+        featureSet: [
             {
-                interface: Feature.FRAGMENTSINGLE,
+                key: Feature.FRAGMENTSINGLE,
                 label: 'Single-assignable',
                 default: true,
                 description: `Single-assignable tokens can only be assigned to one Assignee token at a time, and have the ability to have its ownership proxied through its parent.`,
             },
             {
-                interface: Feature.FRAGMENTMULTI,
+                key: Feature.FRAGMENTMULTI,
                 label: 'Multi-assignable',
                 description: `Multi-assignable tokens can be assigned to multiple Assignees, but cannot have ownership proxied.`,
             },
@@ -43,15 +43,15 @@ export default [
             return fields.filter((field) => field.fieldType === 'literef').length >= 1 ? true : false;
         },
         validatorMessage: 'This feature is automatically enabled when a LiteRef field is added.',
-        interfaces: [
+        featureSet: [
             {
-                interface: Feature.LITEREF,
+                key: Feature.LITEREF,
                 label: 'Strong assignments',
                 default: true,
                 description: `Single-assignable tokens can only be assigned to one Assignee token at a time, and have the ability to have its ownership proxied through its parent.`,
             },
             {
-                interface: Feature.DYNAMICREFLIBRARY,
+                key: Feature.DYNAMICREFLIBRARY,
                 label: 'Use dynamic reference library',
                 optional: true,
                 description: `Saves significant code space in your contract at the expense of CALLs to an external library.`,
@@ -61,7 +61,7 @@ export default [
                 validatorMessage: 'Requires a LiteRef field with a cardinality of 0.',
             },
             {
-                interface: Feature.WEAKREF,
+                key: Feature.WEAKREF,
                 label: 'Weak assignments',
                 optional: true,
                 description: `Does not attempt to cascade ownership changes to its assigned tokens.`,
@@ -73,25 +73,25 @@ export default [
         name: 'Patch',
         description: 'Patch contracts contain tokens that get soulbound to a target onchain entity.',
         icon: 'fa-frame',
-        interfaces: [
+        featureSet: [
             {
-                interface: Feature.PATCH,
+                key: Feature.PATCH,
                 label: 'ERC721 Patch',
                 default: true,
                 description: "Contract's tokens are soulbound to a target token",
             },
             {
-                interface: Feature.ACCOUNTPATCH,
+                key: Feature.ACCOUNTPATCH,
                 label: 'Account Patch',
                 description: "Contract's tokens are soulbound to a target address",
             },
             {
-                interface: Feature['1155PATCH'],
+                key: Feature['1155PATCH'],
                 label: 'ERC1155 Patch',
                 description: "Contract's tokens are soulbound to a tokenset within a parent 1155",
             },
             {
-                interface: Feature.REVERSIBLE,
+                key: Feature.REVERSIBLE,
                 label: 'Reversible',
                 description: 'Allows reverse lookups',
                 optional: true,
