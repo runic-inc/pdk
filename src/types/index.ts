@@ -96,6 +96,6 @@ export type ContractRelation = {
 export type ProjectConfig = {
     name: string;
     scopes: ScopeConfig[];
-    contracts: ContractConfig[];
+    contracts: Map<string, string>;
     contractRelations: Map<string, ContractRelation>;
 }
