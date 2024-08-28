@@ -1,6 +1,6 @@
 import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "@/types";
 
-export class ProjectConfigGen {
+export class JSONProjectConfigGen {
     constructor() {}
 
     gen(projectConfig: ProjectConfig): string {

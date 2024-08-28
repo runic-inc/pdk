@@ -42,8 +42,8 @@ export type ScopeConfig = {
     whitelist?: boolean;
     userAssign?: boolean;
     userPatch?: boolean;
-    bankers?: `0x${string}`[];
-    operators?: `0x${string}`[];
+    bankers?: string[];
+    operators?: string[];
     mintConfigs?: Map<string, MintConfig>;
     patchFees?: Map<string, number>;
     assignFees?: Map<string, number>;
