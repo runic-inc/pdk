@@ -2,6 +2,7 @@ import Icon from '@/wizard/primitives/icon';
 import { PatchworkEnum } from '@/wizard/types';
 import { Reorder, useDragControls } from 'framer-motion';
 import { boxShadow } from 'tailwindcss/defaultTheme';
+// import {types} from '@common/types';
 
 const EnumItem = ({
     item,
@@ -41,9 +42,8 @@ const EnumItem = ({
                 <Icon icon='fa-trash' />
             </button>
             <span
-                className={`absolute right-8 top-0 h-full flex items-center shrink font-mono text-[10px] font-medium text-right ${
-                    typeof number !== 'number' ? 'text-red-600' : ''
-                }`}
+                className={`absolute right-8 top-0 h-full flex items-center shrink font-mono text-[10px] font-medium text-right ${typeof number !== 'number' ? 'text-red-600' : ''
+                    }`}
             >
                 {number}
             </span>

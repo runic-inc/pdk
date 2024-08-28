@@ -35,12 +35,16 @@
       "@radix-ui/react-switch": "^1.1.0",
       "@radix-ui/react-tabs": "^1.1.0",
       "@radix-ui/react-tooltip": "^1.1.2",
+      "framer-motion": "^11.0.15",
+      "hono": "^4.5.5",
       "react": "^18.3.1",
       "react-dom": "^18.3.1",
       "react-hook-form": "^7.52.2",
       "reactflow": "^11.10.3"
     },
     "devDependencies": {
+
+      "tailwindcss": "^3.4.10",
       "vite": "^5.4.1"
     }
   }

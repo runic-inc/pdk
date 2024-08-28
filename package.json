@@ -14,7 +14,8 @@
     "codegen"
   ],
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "author": "Runic Labs, Inc",
   "license": "MIT",

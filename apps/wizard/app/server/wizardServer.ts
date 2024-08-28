@@ -1,6 +1,6 @@
-import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static'
+import { serveStatic } from '@hono/node-server/serve-static';
+import { Hono } from 'hono';
 
 export const launchWizardApp = () => {
   const app = new Hono();
@@ -9,7 +9,7 @@ export const launchWizardApp = () => {
     return c.text('Hello from Patchwork Wizard API');
   });
   
-  app.use('/*', serveStatic({ root: 'dist/wizard' }));
+  app.use('/*', serveStatic({ root: '../dist/wizard' }));
 
   serve({
     fetch: app.fetch,

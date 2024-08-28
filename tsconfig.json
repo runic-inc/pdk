@@ -12,8 +12,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@wizard/*": ["./src/wizard/*"],
+      // "@/*": ["./src/*"],
+      // "@wizard/*": ["./src/wizard/*"],
+      "@common/*": ["./common/*"],
     }
   },
   "include": ["src/**/*"],
