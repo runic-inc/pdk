@@ -1,5 +1,6 @@
 import { Button } from '@/wizard/primitives/button';
 import { ScrollArea } from '@/wizard/primitives/scroll-area';
+import Icon from '../primitives/icon';
 import { Separator } from '../primitives/separator';
 import useStore, { Store } from '../store';
 import { ProjectSaver } from '../utils/ProjectSaver';
@@ -13,8 +14,12 @@ import ScopeEditor from './ScopeEditor';
 const Layout = () => {
     const editor = useStore((state: Store) => state.editor);
 
-    const saveProject = async () => {
+    const handleExport = async () => {
         await ProjectSaver.saveProject();
+    };
+
+    const handleSaveProject = async () => {
+        // TODO: Config save handling here
     };
 
     return (
@@ -26,11 +31,16 @@ const Layout = () => {
                     <ScopeEditor />
                 </div>
                 <ContractList />
-                <div className='flex grow justify-end items-stretch gap-4'>
-                    <Button className='h-auto' onClick={() => saveProject()}>
-                        Save project files
+                <div className='flex grow justify-end items-stretch gap-2'>
+                    <Button variant={'outline'} className='h-auto gap-2' onClick={() => handleExport()}>
+                        <Icon icon='fa-file-zipper' />
+                        Export files
                     </Button>
-                    <Separator orientation='vertical' className='bg-muted-border' />
+                    <Button disabled className='h-auto gap-2' onClick={() => handleSaveProject()}>
+                        <Icon icon='fa-wand-magic-sparkles' />
+                        Save project
+                    </Button>
+                    <Separator orientation='vertical' className='bg-muted-border ml-2' />
                     <DarkModeToggle />
                 </div>
             </header>
