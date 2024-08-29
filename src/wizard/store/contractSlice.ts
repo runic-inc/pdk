@@ -3,11 +3,9 @@ import { produce } from 'immer';
 import _ from 'lodash';
 import { StateCreator } from 'zustand';
 import { Store } from '.';
-import defaultContract from '../lib/defaultContract';
 import { UContractConfig } from '../types';
 
 export type ContractStore = {
-    contractConfig: UContractConfig;
     getContractConfig: () => UContractConfig | undefined;
     updateContractConfig: (newConfig: UContractConfig) => void;
     //getContractFields: () => UFieldConfig[];
@@ -17,7 +15,6 @@ export type ContractStore = {
 };
 
 export const createContractSlice: StateCreator<Store, [], [], ContractStore> = (set, get) => ({
-    contractConfig: defaultContract,
     getContractConfig: () => {
         return {
             ...get().contractsConfig[get().editor!],

@@ -8,7 +8,6 @@ import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
-import EnumList from './EnumList';
 import FieldTypeSelector from './TypeSelector';
 
 const Field = memo(({ field }: { field: UFieldConfig }) => {
@@ -155,8 +154,6 @@ const Field = memo(({ field }: { field: UFieldConfig }) => {
                                     Remove field
                                 </button>
                             </div>
-
-                            {field.fieldType === 'enum' && <EnumList field={field} />}
                         </Disclosure.Panel>
                     </div>
                 )}

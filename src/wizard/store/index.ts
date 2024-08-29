@@ -23,6 +23,3 @@ const useStore = create<Store>()(
 );
 
 export default useStore;
-
-// computed selector hooks
-export const useConfig = () => useStore((state) => state.getContractConfig());
