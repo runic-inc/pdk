@@ -26,6 +26,7 @@ export class JSONProjectConfigGen {
 
     genScopeConfig(scopeConfig: ScopeConfig): string {
         return `        "${scopeConfig.name}": {\n` +
+        `            "name": "${scopeConfig.name}",\n` +
         `            "owner": "${scopeConfig.owner}",\n` +
         `            "whitelist": ${scopeConfig.whitelist},\n` +
         `            "userAssign": ${scopeConfig.userAssign},\n` +
