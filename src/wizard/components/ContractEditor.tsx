@@ -14,7 +14,7 @@ import {
 import { Button } from '@/wizard/primitives/button';
 import { Input } from '@/wizard/primitives/input';
 import { Label } from '@/wizard/primitives/label';
-import useStore, { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import { Reorder } from 'framer-motion';
 import { nanoid } from 'nanoid';
 import { memo, useEffect } from 'react';
@@ -26,7 +26,7 @@ import NameInput from './editorPanel/NameInput';
 
 const ContractEditor = memo(() => {
     const { updateContractConfig, deleteContract } = useStore();
-    const contractConfig = useConfig()!;
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
 
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;

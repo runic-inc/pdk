@@ -1,48 +1,47 @@
 import { Feature } from '@/types';
+import { produce } from 'immer';
 import _ from 'lodash';
 import { StateCreator } from 'zustand';
+import { Store } from '.';
 import defaultContract from '../lib/defaultContract';
 import { UContractConfig } from '../types';
-import { ContractSlice, StoreSlices } from './types';
 
-export const createContractSlice: StateCreator<StoreSlices, [], [], ContractSlice> = (set, get) => ({
+export type ContractStore = {
+    contractConfig: UContractConfig;
+    getContractConfig: () => UContractConfig | undefined;
+    updateContractConfig: (newConfig: UContractConfig) => void;
+    //getContractFields: () => UFieldConfig[];
+    //updateContractFields: (newFields: UFieldConfig[]) => void;
+    getContractFeatures: () => Feature[];
+    updateContractFeatures: (selectedKeys: Feature[], featureGroupKeys: Feature[]) => void;
+};
+
+export const createContractSlice: StateCreator<Store, [], [], ContractStore> = (set, get) => ({
     contractConfig: defaultContract,
     getContractConfig: () => {
         return {
-            ...get().contractsConfig.find((config) => config._uid === get().editor)!,
+            ...get().contractsConfig[get().editor!],
             scopeName: get().scopeConfig.name,
         };
     },
     updateContractConfig: (newConfig: UContractConfig) => {
-        set({
-            contractsConfig: get().contractsConfig.map((config) => {
-                if (config._uid === get().editor) {
-                    return newConfig;
-                }
-                return config;
+        set(
+            produce((state: Store) => {
+                state.contractsConfig[state.editor!] = newConfig;
             }),
-        });
+        );
     },
     getContractFeatures: () => {
-        return get().contractsConfig.find((config) => config._uid === get().editor)?.features ?? [];
+        return get().contractsConfig[get().editor!].features ?? [];
     },
     updateContractFeatures: (selectedKeys: Feature[], featureGroupKeys: Feature[]) => {
-        set({
-            contractsConfig: get().contractsConfig.map((config) => {
-                if (config._uid === get().editor) {
-                    // Get current feature list
-                    const features = _.uniq(_.clone(config.features) ?? []);
-                    // Remove all keys belonging to the current feature group
-                    _.pull(features, ...featureGroupKeys);
-                    // Add new features for the group
-                    features.push(...selectedKeys);
-                    return {
-                        ...config,
-                        features: _.uniq(features),
-                    };
-                }
-                return config;
+        set(
+            produce((state: Store) => {
+                const features = _.uniq(_.clone(state.contractsConfig[state.editor!].features));
+                _.pull(features, ...featureGroupKeys);
+                features.push(...selectedKeys);
+                state.contractsConfig[state.editor!].features = features;
             }),
-        });
+        );
     },
 });

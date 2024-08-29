@@ -4,11 +4,22 @@ import { useState } from 'react';
 import useCopyToClipboard from '../hooks/useCopyToClipboard';
 import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
+import { Separator } from '../primitives/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../primitives/tooltip';
+import useStore, { Store } from '../store';
+import { RemixExporter } from '../utils/RemixExporter';
 import CodeBlock from './CodeBlock';
 
 const CodeView = () => {
     const [code, setCode] = useState('');
-    const [_, copy, wasCopied] = useCopyToClipboard();
+    const [copy, wasCopied] = useCopyToClipboard();
+    const editor = useStore((state: Store) => state.editor);
+
+    const handleOpenInRemix = () => {
+        const remixUrl = RemixExporter.getRemixUrlByUID(editor ?? '');
+        if (remixUrl instanceof Error) return;
+        window.open(remixUrl, '_blank');
+    };
 
     const handleCopy = () => {
         copy(code);
@@ -30,16 +41,50 @@ const CodeView = () => {
                     Contract Schema
                     <Badge className='ext'>.json</Badge>
                 </TabsTrigger>
-                <div className='grow flex justify-end'>
-                    <Button className='relative' size={'icon'} variant={'ghost'} onClick={() => handleCopy()}>
-                        <Icon icon='fa-copy' className='text-[14px]' />
-                        {wasCopied && (
-                            <Badge className='absolute pointer-events-none right-full top-1/2 -translate-y-1/2 gap-1 -mr-0.5'>
-                                <Icon icon='fa-check' />
-                                Copied
-                            </Badge>
-                        )}
-                    </Button>
+
+                <div className='grow flex justify-end items-start'>
+                    <div className='flex items-stretch justify-stretch'>
+                        <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                                <Button className='!relative' size={'icon'} variant={'ghost'} onClick={() => handleCopy()}>
+                                    <Icon icon='fa-copy' className='text-[14px]' />
+                                    {wasCopied && (
+                                        <Badge className='absolute pointer-events-none right-full top-1/2 -translate-y-1/2 gap-1 -mr-0.5'>
+                                            <Icon icon='fa-check' />
+                                            Copied
+                                        </Badge>
+                                    )}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Copy file contents</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Separator orientation='vertical' className='mx-2 bg-muted-border/50 !h-auto my-0.5' />
+
+                        <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                                <Button size={'icon'} variant={'ghost'}>
+                                    <Icon icon='fa-download' className='text-[14px]' />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Download contract files .zip</p>
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                                <Button size={'icon'} variant={'ghost'} onClick={() => handleOpenInRemix()}>
+                                    <Icon icon='fa-play' className='text-[14px]' />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Open contract in Remix</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>
                 </div>
             </TabsList>
             <TabsContent value='genContract'>

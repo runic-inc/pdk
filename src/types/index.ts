@@ -57,7 +57,7 @@ export type ContractConfig = {
     schemaURI: string;
     imageURI: string;
     fields: FieldConfig[];
-    features?: Feature[];
+    features: Feature[];
 }
 
 export type AssignmentNodeData = {

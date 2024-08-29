@@ -1,11 +1,15 @@
+import { enableMapSet } from 'immer';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createContractSlice } from './contractSlice';
-import { createEditorSlice } from './editorSlice';
-import { createProjectSlice } from './projectSlice';
-import { ContractSlice, EditorSlice, ProjectSlice } from './types';
+import { createContractSlice, type ContractStore } from './contractSlice';
+import { createEditorSlice, type EditorStore } from './editorSlice';
+import { createProjectSlice, type ProjectStore } from './projectSlice';
 
-const useStore = create<EditorSlice & ProjectSlice & ContractSlice>()(
+enableMapSet();
+
+export type Store = EditorStore & ContractStore & ProjectStore;
+
+const useStore = create<Store>()(
     persist(
         (...f) => ({
             ...createEditorSlice(...f),

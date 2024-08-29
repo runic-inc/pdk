@@ -1,25 +1,16 @@
-import React from 'react';
 import { Button } from '@/wizard/primitives/button';
 import { ScrollArea } from '@/wizard/primitives/scroll-area';
 import { Separator } from '../primitives/separator';
-import useStore, { useConfig } from '../store';
+import useStore, { Store } from '../store';
 import CodeView from './CodeView';
 import ContractEditor from './ContractEditor';
 import ContractList from './ContractList';
 import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
 import ScopeEditor from './ScopeEditor';
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { RemixExporter } from '../utils/RemixExporter';
 
 const Layout = () => {
-    const { editor } = useStore();
-    const contractConfig = useConfig()!;
-
-    const openInRemix = () => {
-        const remixUrl = RemixExporter.getRemixUrl(new ContractSchemaImpl(contractConfig));
-        window.open(remixUrl, '_blank');
-    }  
+    const editor = useStore((state: Store) => state.editor);
 
     return (
         <main className='grid grid-rows-[min-content_1fr] grid-cols-[1fr_26rem] h-[100vh] items-stretch justify-stretch max-h-screen gap-4 min-h-0 min-w-0 p-4'>
@@ -31,10 +22,7 @@ const Layout = () => {
                 </div>
                 <ContractList />
                 <div className='flex grow justify-end items-stretch gap-4'>
-                    <Button variant={'ghost'} className='h-auto' onClick={openInRemix}>
-                        Open in Remix
-                    </Button>
-                    <Button className='h-auto'>Save project</Button>
+                    <Button className='h-auto'>Save project files</Button>
                     <Separator orientation='vertical' className='bg-muted-border' />
                     <DarkModeToggle />
                 </div>
