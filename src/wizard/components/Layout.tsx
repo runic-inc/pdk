@@ -1,4 +1,3 @@
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
 import { Button } from '@/wizard/primitives/button';
 import { ScrollArea } from '@/wizard/primitives/scroll-area';
 import { Separator } from '../primitives/separator';
@@ -15,8 +14,7 @@ const Layout = () => {
     const editor = useStore((state: Store) => state.editor);
 
     const saveProject = async () => {
-        if (!editor) return;
-        await ProjectSaver.saveProject(new ContractSchemaImpl(useStore.getState().contractsConfig[editor]));
+        await ProjectSaver.saveProject();
     };
 
     return (

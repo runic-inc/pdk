@@ -7,6 +7,7 @@ import Icon from '../primitives/icon';
 import { Separator } from '../primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../primitives/tooltip';
 import useStore, { Store } from '../store';
+import { ProjectSaver } from '../utils/ProjectSaver';
 import { RemixExporter } from '../utils/RemixExporter';
 import CodeBlock from './CodeBlock';
 
@@ -14,6 +15,11 @@ const CodeView = () => {
     const [code, setCode] = useState('');
     const [copy, wasCopied] = useCopyToClipboard();
     const editor = useStore((state: Store) => state.editor);
+
+    const handleDownload = async () => {
+        if (!editor) return;
+        await ProjectSaver.saveContract(editor);
+    };
 
     const handleOpenInRemix = () => {
         const remixUrl = RemixExporter.getRemixUrlByUID(editor ?? '');
@@ -65,7 +71,7 @@ const CodeView = () => {
 
                         <Tooltip delayDuration={100}>
                             <TooltipTrigger asChild>
-                                <Button size={'icon'} variant={'ghost'}>
+                                <Button size={'icon'} variant={'ghost'} onClick={() => handleDownload()}>
                                     <Icon icon='fa-download' className='text-[14px]' />
                                 </Button>
                             </TooltipTrigger>
