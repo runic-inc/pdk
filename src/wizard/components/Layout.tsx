@@ -15,7 +15,8 @@ const Layout = () => {
     const editor = useStore((state: Store) => state.editor);
 
     const saveProject = async () => {
-        await ProjectSaver.saveProject(new ContractSchemaImpl(useStore.getState().contractsConfig[editor!]));
+        if (!editor) return;
+        await ProjectSaver.saveProject(new ContractSchemaImpl(useStore.getState().contractsConfig[editor]));
     };
 
     return (
@@ -28,7 +29,9 @@ const Layout = () => {
                 </div>
                 <ContractList />
                 <div className='flex grow justify-end items-stretch gap-4'>
-                    <Button className='h-auto'>Save project files</Button>
+                    <Button className='h-auto' onClick={() => saveProject()}>
+                        Save project files
+                    </Button>
                     <Separator orientation='vertical' className='bg-muted-border' />
                     <DarkModeToggle />
                 </div>
