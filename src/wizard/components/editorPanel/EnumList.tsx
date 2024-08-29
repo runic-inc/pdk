@@ -1,11 +1,7 @@
-import Icon from '@/wizard/primitives/icon';
-import { FieldConfig, PatchworkEnum } from '@/types';
-import { Reorder } from 'framer-motion';
-import EnumItem from './EnumItem';
-import useStore, { useConfig } from '@/wizard/store';
+import { FieldConfig } from '@/types';
 
 const EnumList = ({ field }: { field: FieldConfig }) => {
-    const { updateContractConfig } = useStore();
+    /*const { updateContractConfig } = useStore();
     const contractConfig = useConfig()!;
     const handleEnumSort = (newOrder: PatchworkEnum[]) => {
         updateContractConfig({
@@ -74,7 +70,7 @@ const EnumList = ({ field }: { field: FieldConfig }) => {
                 </button>
             </div>
         </div>
-    );
+    );*/
 };
 
 export default EnumList;

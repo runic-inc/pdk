@@ -1,12 +1,12 @@
 import { Input } from '@/wizard/primitives/input';
 import { Label } from '@/wizard/primitives/label';
-import useStore, { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import _ from 'lodash';
 import { memo, useState } from 'react';
 
 const NameInput = memo(() => {
     const { contractsConfig, updateContractConfig } = useStore();
-    const contractConfig = useConfig()!;
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
     const [valid, setValid] = useState<boolean>(true);
 
     const validName = (name: string) => {

@@ -2,18 +2,17 @@ import { FunctionConfig } from '@/types';
 import Icon from '@/wizard/primitives/icon';
 import { Input } from '@/wizard/primitives/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
-import useStore, { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import { UFieldConfig } from '@/wizard/types';
 import { Disclosure } from '@headlessui/react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
-import EnumList from './EnumList';
 import FieldTypeSelector from './TypeSelector';
 
 const Field = memo(({ field }: { field: UFieldConfig }) => {
     const { updateContractConfig } = useStore();
-    const contractConfig = useConfig()!;
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
     const fieldDrag = useDragControls();
 
     const handleFieldInputChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -155,8 +154,6 @@ const Field = memo(({ field }: { field: UFieldConfig }) => {
                                     Remove field
                                 </button>
                             </div>
-
-                            {field.fieldType === 'enum' && <EnumList field={field} />}
                         </Disclosure.Panel>
                     </div>
                 )}

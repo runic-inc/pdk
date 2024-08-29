@@ -6,7 +6,7 @@ type useCopyToClipboardProps = {
     timeout?: number;
 };
 
-const useCopyToClipboard = (props?: useCopyToClipboardProps): [CopiedValue, CopyFn, boolean] => {
+const useCopyToClipboard = (props?: useCopyToClipboardProps): [CopyFn, boolean] => {
     const [copiedText, setCopiedText] = useState<CopiedValue>(null);
     const [wasCopied, setWasCopied] = useState<boolean>(false);
     const timeout = props?.timeout || 2000;
@@ -32,7 +32,7 @@ const useCopyToClipboard = (props?: useCopyToClipboardProps): [CopiedValue, Copy
         }
     }, []);
 
-    return [copiedText, copy, wasCopied];
+    return [copy, wasCopied];
 };
 
 export default useCopyToClipboard;

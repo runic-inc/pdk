@@ -4,7 +4,7 @@ import { Checkbox } from '@/wizard/primitives/checkbox';
 import Icon from '@/wizard/primitives/icon';
 import { Label } from '@/wizard/primitives/label';
 import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
-import useStore, { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import { FeatureConfig } from '@/wizard/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import _ from 'lodash';
@@ -13,7 +13,8 @@ import { memo, useCallback, useEffect, useState } from 'react';
 
 const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => {
     const { updateContractFeatures } = useStore();
-    const contractConfig = useConfig()!;
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
+    if (!contractConfig) return null;
 
     const featureEnums = _.map(featureGroup.featureSet, 'key');
 

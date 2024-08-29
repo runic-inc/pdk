@@ -4,7 +4,7 @@ import { Button } from '@/wizard/primitives/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/wizard/primitives/command';
 import Icon from '@/wizard/primitives/icon';
 import { Popover, PopoverContent, PopoverTrigger } from '@/wizard/primitives/popover';
-import useStore, { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import { UFieldConfig } from '@/wizard/types';
 import { useState } from 'react';
 
@@ -156,7 +156,7 @@ const fieldTypeInfo: FieldTypeInfo[] = [
 const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
     const [open, setOpen] = useState(false);
     const { updateContractConfig } = useStore();
-    const contractConfig = useConfig()!;
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
 
     const handleComboboxChange = (value: string) => {
         updateContractConfig({

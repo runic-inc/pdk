@@ -4,7 +4,7 @@ import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
 import { MainContractGen } from '@/codegen/mainContractGen';
 import { UserContractGen } from '@/codegen/userContractGen';
 import { ContractConfig } from '@/types';
-import { useConfig } from '@/wizard/store';
+import useStore, { Store } from '@/wizard/store';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
 import { useKeyDown } from '../hooks/useKeyDown';
@@ -33,7 +33,9 @@ const files = {
 const CodeBlock = memo(
     ({ viewType, setClipboard }: { viewType: 'userContract' | 'genContract' | 'schema'; setClipboard: React.Dispatch<React.SetStateAction<string>> }) => {
         const [code, setCode] = useState('');
-        const contractConfig = useConfig()!;
+        const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
+        if (!contractConfig) return null;
+
         useKeyDown(
             () => {
                 document.activeElement && window.getSelection()?.selectAllChildren(document.activeElement);
@@ -60,8 +62,8 @@ const CodeBlock = memo(
         }, [contractConfig, viewType]);
 
         return (
-            <ScrollArea className='h-full'>
-                <div className='p-4 text-[13px] antialiased'>
+            <ScrollArea className='h-full [&_.viewport]:!overflow-x-scroll'>
+                <div className='p-4 pr-8 text-[13px] antialiased relative'>
                     <pre>
                         <code dangerouslySetInnerHTML={{ __html: code }}></code>
                     </pre>
