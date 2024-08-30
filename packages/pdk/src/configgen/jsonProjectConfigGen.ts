@@ -1,7 +1,7 @@
-import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "@/types";
+import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "@patchworkdev/common/types";
 
 export class JSONProjectConfigGen {
-    constructor() {}
+    constructor() { }
 
     gen(projectConfig: ProjectConfig): string {
         let contractConfigString = '';
@@ -11,40 +11,40 @@ export class JSONProjectConfigGen {
         });
 
         return `` +
-        `{\n` +
-        `    "name": "${projectConfig.name}",\n` +
-        `    "scopes": {\n` +
-        projectConfig.scopes.map(scope => {
-            return this.genScopeConfig(scope);
-        }).join(',\n') +
-        `\n    },\n` +
-        `    "contracts": {\n` +
-        contractConfigString + `\n` +
-        `    }\n` +
-        `}`;
+            `{\n` +
+            `    "name": "${projectConfig.name}",\n` +
+            `    "scopes": {\n` +
+            projectConfig.scopes.map(scope => {
+                return this.genScopeConfig(scope);
+            }).join(',\n') +
+            `\n    },\n` +
+            `    "contracts": {\n` +
+            contractConfigString + `\n` +
+            `    }\n` +
+            `}`;
     }
 
     genScopeConfig(scopeConfig: ScopeConfig): string {
         return `        "${scopeConfig.name}": {\n` +
-        `            "name": "${scopeConfig.name}",\n` +
-        `            "owner": "${scopeConfig.owner}",\n` +
-        `            "whitelist": ${scopeConfig.whitelist},\n` +
-        `            "userAssign": ${scopeConfig.userAssign},\n` +
-        `            "userPatch": ${scopeConfig.userPatch},\n` +
-        `            "bankers": [` +
-        scopeConfig.bankers?.map(banker => {
-            return `"${banker}"`;
-        }).join(',') +
-        `],\n` +
-        `            "operators": [` +
-        scopeConfig.operators?.map(operator => {
-            return `"${operator}"`;
-        }).join(',') +
-        `],\n` +
-        `            "mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)},\n` +
-        `            "patchFees": ${this.genPatchFees(scopeConfig.patchFees)},\n` +
-        `            "assignFees": ${this.genAssignFees(scopeConfig.assignFees)}\n` +
-        `        }`;
+            `            "name": "${scopeConfig.name}",\n` +
+            `            "owner": "${scopeConfig.owner}",\n` +
+            `            "whitelist": ${scopeConfig.whitelist},\n` +
+            `            "userAssign": ${scopeConfig.userAssign},\n` +
+            `            "userPatch": ${scopeConfig.userPatch},\n` +
+            `            "bankers": [` +
+            scopeConfig.bankers?.map(banker => {
+                return `"${banker}"`;
+            }).join(',') +
+            `],\n` +
+            `            "operators": [` +
+            scopeConfig.operators?.map(operator => {
+                return `"${operator}"`;
+            }).join(',') +
+            `],\n` +
+            `            "mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)},\n` +
+            `            "patchFees": ${this.genPatchFees(scopeConfig.patchFees)},\n` +
+            `            "assignFees": ${this.genAssignFees(scopeConfig.assignFees)}\n` +
+            `        }`;
     }
 
     genMintConfigs(mintConfigs: Map<string, MintConfig> | undefined): string {
@@ -68,11 +68,11 @@ export class JSONProjectConfigGen {
             fragments = `,\n            "fragments": [\n` + relations.fragments.map(fragment => {
                 return `                "${fragment}"`;
             }).join(',\n') +
-            `\n            ]\n`
+                `\n            ]\n`
         }
         return `        "${name}": {\n` +
-        `            "config": "${filename}"` +
-        fragments +
-        `        }`;
+            `            "config": "${filename}"` +
+            fragments +
+            `        }`;
     }
 }

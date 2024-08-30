@@ -1,17 +1,17 @@
 #!/usr/bin/env node
+import { ContractSchemaImpl } from "@patchworkdev/common/codegen/contractSchema";
+import { parseJson } from '@patchworkdev/common/codegen/contractSchemaJsonParser';
+import { JSONSchemaGen } from "@patchworkdev/common/codegen/jsonSchemaGen";
+import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
+import { UserContractGen } from "@patchworkdev/common/codegen/userContractGen";
+import { cleanAndCapitalizeFirstLetter } from "@patchworkdev/common/codegen/utils";
+import { validateSchema } from "@patchworkdev/common/codegen/validateSchema";
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { parseJson } from './codegen/contractSchemaJsonParser';
-import { MainContractGen } from './codegen/mainContractGen';
-import { JSONSchemaGen } from "./codegen/jsonSchemaGen";
-import { ContractSchemaImpl } from "./codegen/contractSchema";
-import { execSync } from "child_process";
 import { launchWizardApp } from "./wizardServer";
-import { UserContractGen } from "./codegen/userContractGen";
-import { cleanAndCapitalizeFirstLetter } from "./codegen/utils";
-import { validateSchema } from "./codegen/validateSchema";
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -64,7 +64,7 @@ function validateJson(argv: any): void {
     const jsonFile = argv.jsonFile;
     const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
     const result = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
-    
+
     if (result.isValid) {
         console.log("The JSON file is a valid Patchwork contract configuration.");
     } else {
@@ -78,7 +78,7 @@ function generateSolidity(argv: any) {
     const outputDir = argv.output || process.cwd();
     const rootDir = argv.rootdir || "src";
     const tmpout = "tmpout";
-  
+
     for (const configFile of configFiles) {
         try {
             let schema: ContractSchemaImpl;
@@ -91,7 +91,7 @@ function generateSolidity(argv: any) {
                     const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
                     console.log("TSC compile success");
                     console.log(result.toString());
-                } catch (err: any) { 
+                } catch (err: any) {
                     console.log("Error", err.message);
                     console.log("output", err.stdout.toString());
                     console.log("stderr", err.stderr.toString());
@@ -116,7 +116,7 @@ function generateSolidity(argv: any) {
                 }
                 schema = parsedSchema;
             }
-    
+
             schema.validate();
             solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
             solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
@@ -125,7 +125,7 @@ function generateSolidity(argv: any) {
             let outputPath = path.join(outputDir, solidityGenFilename);
             fs.writeFileSync(outputPath, solidityCode);
             console.log(`Solidity gen file generated at ${outputPath}`);
-    
+
             const solidityUserCode = new UserContractGen().gen(schema);
             outputPath = path.join(outputDir, solidityUserFilename);
             if (fs.existsSync(outputPath)) {

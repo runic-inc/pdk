@@ -1,11 +1,11 @@
-import { ContractRelation, ProjectConfig, ScopeConfig } from "../types";
+import { ContractRelation, ProjectConfig, ScopeConfig } from "@patchworkdev/common/types";
 
 
 export class TSProjectConfigGen {
-    constructor() {}
+    constructor() { }
 
     gen(projectConfig: ProjectConfig): string {
-        let out = `import { ProjectConfig, MintConfig, ContractRelation } from "@/types";\n\n`;
+        let out = `import { ProjectConfig, MintConfig, ContractRelation } from "@patchworkdev/common/types";\n\n`;
         out += `const projectConfig: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
