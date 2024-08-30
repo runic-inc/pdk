@@ -1,12 +1,12 @@
-import { FieldType } from '@/types';
-import { cn } from '@/wizard/lib/utils';
-import { Button } from '@/wizard/primitives/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/wizard/primitives/command';
-import Icon from '@/wizard/primitives/icon';
-import { Popover, PopoverContent, PopoverTrigger } from '@/wizard/primitives/popover';
-import useStore, { Store } from '@/wizard/store';
-import { UFieldConfig } from '@/wizard/types';
+import { FieldType } from '@patchworkdev/common/types';
 import { useState } from 'react';
+import { cn } from '../../lib/utils';
+import { Button } from '../../primitives/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../primitives/command';
+import Icon from '../../primitives/icon';
+import { Popover, PopoverContent, PopoverTrigger } from '../../primitives/popover';
+import useStore, { Store } from '../../store';
+import { UFieldConfig } from '../../types';
 
 type FieldTypeInfo = {
     value: FieldType;

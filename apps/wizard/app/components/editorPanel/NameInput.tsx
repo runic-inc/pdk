@@ -1,8 +1,8 @@
-import { Input } from '@/wizard/primitives/input';
-import { Label } from '@/wizard/primitives/label';
-import useStore, { Store } from '@/wizard/store';
 import _ from 'lodash';
 import { memo, useState } from 'react';
+import { Input } from '../../primitives/input';
+import { Label } from '../../primitives/label';
+import useStore, { Store } from '../../store';
 
 const NameInput = memo(() => {
     const { contractsConfig, updateContractConfig } = useStore();

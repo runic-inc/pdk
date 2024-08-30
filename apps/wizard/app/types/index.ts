@@ -1,4 +1,4 @@
-import { ContractConfig, Feature, FieldConfig } from '@/types';
+import { ContractConfig, Feature, FieldConfig } from '@patchworkdev/common/types';
 import { ReactNode } from 'react';
 
 export type FeatureInterface = {

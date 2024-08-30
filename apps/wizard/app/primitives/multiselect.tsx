@@ -1,15 +1,15 @@
 // src/components/multi-select.tsx
 
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 
-import { cn } from '@wizard/lib/utils';
-import { Separator } from '@wizard/primitives/separator';
-import { Button } from '@wizard/primitives/button';
-import { Badge } from '@wizard/primitives/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@wizard/primitives/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@wizard/primitives/command';
 import { CheckIcon, ChevronDownIcon, Cross2Icon, CrossCircledIcon, MagicWandIcon } from '@radix-ui/react-icons';
+import { cn } from '../lib/utils';
+import { Badge } from './badge';
+import { Button } from './button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from './command';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Separator } from './separator';
 
 /**
  * Variants for the multi-select component to handle different styles.

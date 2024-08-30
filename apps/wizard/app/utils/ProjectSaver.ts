@@ -1,9 +1,9 @@
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
-import { MainContractGen } from '@/codegen/mainContractGen';
-import { UserContractGen } from '@/codegen/userContractGen';
-import { cleanAndCapitalizeFirstLetter } from '@/codegen/utils';
-import { ContractConfig } from '@/types';
+import { ContractSchemaImpl } from '@patchworkdev/common/codegen/contractSchema';
+import { JSONSchemaGen } from '@patchworkdev/common/codegen/jsonSchemaGen';
+import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
+import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
+import { cleanAndCapitalizeFirstLetter } from '@patchworkdev/common/codegen/utils';
+import { ContractConfig } from '@patchworkdev/common/types';
 import JSZip from 'jszip';
 import useStore from '../store';
 

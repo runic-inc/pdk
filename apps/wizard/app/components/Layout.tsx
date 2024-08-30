@@ -1,6 +1,6 @@
-import { Button } from '@/wizard/primitives/button';
-import { ScrollArea } from '@/wizard/primitives/scroll-area';
+import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
+import { ScrollArea } from '../primitives/scroll-area';
 import { Separator } from '../primitives/separator';
 import useStore, { Store } from '../store';
 import { ProjectSaver } from '../utils/ProjectSaver';

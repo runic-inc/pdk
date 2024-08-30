@@ -1,14 +1,14 @@
 //import { parseJson } from '../../codegen/contractSchemaJsonParser';
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { JSONSchemaGen } from '@/codegen/jsonSchemaGen';
-import { MainContractGen } from '@/codegen/mainContractGen';
-import { UserContractGen } from '@/codegen/userContractGen';
-import { ContractConfig } from '@/types';
-import useStore, { Store } from '@/wizard/store';
+import { ContractSchemaImpl } from '@patchworkdev/common/codegen/contractSchema';
+import { JSONSchemaGen } from '@patchworkdev/common/codegen/jsonSchemaGen';
+import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
+import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
+import { ContractConfig } from '@patchworkdev/common/types';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
 import { useKeyDown } from '../hooks/useKeyDown';
 import { ScrollArea } from '../primitives/scroll-area';
+import useStore, { Store } from '../store';
 
 const themes = {
     light: 'github-light',

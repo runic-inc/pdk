@@ -1,4 +1,4 @@
-import { FieldConfig } from '@/types';
+import { FieldConfig } from '@patchworkdev/common/types';
 
 const EnumList = ({ field }: { field: FieldConfig }) => {
     /*const { updateContractConfig } = useStore();

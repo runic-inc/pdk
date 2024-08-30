@@ -1,15 +1,15 @@
-import { Feature } from '@/types';
-import { Badge } from '@/wizard/primitives/badge';
-import { Checkbox } from '@/wizard/primitives/checkbox';
-import Icon from '@/wizard/primitives/icon';
-import { Label } from '@/wizard/primitives/label';
-import { RadioGroup, RadioGroupItem } from '@/wizard/primitives/radio-group';
-import useStore, { Store } from '@/wizard/store';
-import { FeatureConfig } from '@/wizard/types';
+import { Feature } from '@patchworkdev/common/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import _ from 'lodash';
 import { nanoid } from 'nanoid';
 import { memo, useCallback, useEffect, useState } from 'react';
+import { Badge } from '../../primitives/badge';
+import { Checkbox } from '../../primitives/checkbox';
+import Icon from '../../primitives/icon';
+import { Label } from '../../primitives/label';
+import { RadioGroup, RadioGroupItem } from '../../primitives/radio-group';
+import useStore, { Store } from '../../store';
+import { FeatureConfig } from '../../types';
 
 const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => {
     const { updateContractFeatures } = useStore();

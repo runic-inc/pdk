@@ -1,13 +1,13 @@
-import { FunctionConfig } from '@/types';
-import Icon from '@/wizard/primitives/icon';
-import { Input } from '@/wizard/primitives/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/wizard/primitives/select';
-import useStore, { Store } from '@/wizard/store';
-import { UFieldConfig } from '@/wizard/types';
 import { Disclosure } from '@headlessui/react';
+import { FunctionConfig } from '@patchworkdev/common/types';
 import { Reorder, useDragControls } from 'framer-motion';
 import { memo } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
+import Icon from '../../primitives/icon';
+import { Input } from '../../primitives/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../primitives/select';
+import useStore, { Store } from '../../store';
+import { UFieldConfig } from '../../types';
 import FieldTypeSelector from './TypeSelector';
 
 const Field = memo(({ field }: { field: UFieldConfig }) => {
