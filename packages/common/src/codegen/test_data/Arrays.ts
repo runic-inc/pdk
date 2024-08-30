@@ -7,6 +7,7 @@ const config: ContractConfig = {
     "baseURI": "https://mything/my/",
     "schemaURI": "https://mything/my-metadata.json",
     "imageURI": "https://mything/my/{tokenID}.png",
+    "features": [] as Feature[],
     "fields": [
         {
             "id": 1,

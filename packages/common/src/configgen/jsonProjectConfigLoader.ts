@@ -1,7 +1,7 @@
-import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "@/types";
+import { ContractRelation, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigLoader {
-    constructor() {}
+    constructor() { }
 
     load(jsonString: string): ProjectConfig {
         let projectConfig = JSON.parse(jsonString);
