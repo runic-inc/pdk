@@ -1,4 +1,4 @@
-import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "@patchworkdev/common/types";
+import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigGen {
     constructor() { }

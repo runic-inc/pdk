@@ -1,6 +1,6 @@
-import { parseJson } from "@patchworkdev/common/codegen/contractSchemaJsonParser";
 import fs from "fs";
 import path from "path";
+import { parseJson } from "../codegen/contractSchemaJsonParser";
 import { JSONContractConfigGen } from "./jsonContractConfigGen";
 
 type GroupedFiles = {

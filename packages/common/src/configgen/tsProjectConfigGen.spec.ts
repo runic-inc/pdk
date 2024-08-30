@@ -1,6 +1,6 @@
-import projectConfig from "@patchworkdev/common/codegen/test_data/project_configs/project-config";
 import fs from 'fs';
 import path from 'path';
+import projectConfig from "../codegen/test_data/project_configs/project-config";
 import { TSProjectConfigGen } from "./tsProjectConfigGen";
 
 describe("TypeScriptProjectConfigGen", () => {
@@ -9,7 +9,7 @@ describe("TypeScriptProjectConfigGen", () => {
         const genString = new TSProjectConfigGen().gen(projectConfig);
 
         // Read the content of the actual project-config.ts file
-        const projectConfigPath = path.join(__dirname, '@patchworkdev/common/codegen/test_data/project_configs/project-config.ts');
+        const projectConfigPath = path.join(__dirname, '../codegen/test_data/project_configs/project-config.ts');
         const actualFileContent = fs.readFileSync(projectConfigPath, 'utf-8');
 
         // Normalize both strings by removing all whitespace

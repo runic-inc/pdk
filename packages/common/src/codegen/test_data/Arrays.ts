@@ -1,4 +1,4 @@
-import { ContractConfig, FunctionConfig } from '../../types';
+import { ContractConfig, Feature, FunctionConfig } from '../../types';
 
 const config: ContractConfig = {
     "scopeName": "test",
@@ -7,7 +7,7 @@ const config: ContractConfig = {
     "baseURI": "https://mything/my/",
     "schemaURI": "https://mything/my-metadata.json",
     "imageURI": "https://mything/my/{tokenID}.png",
-    "features": [],
+    "features": [] as Feature[],
     "fields": [
         {
             "id": 1,

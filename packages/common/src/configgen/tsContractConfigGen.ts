@@ -1,6 +1,6 @@
-import { ContractSchema } from "@patchworkdev/common/codegen/contractSchema";
-import { Generator } from "@patchworkdev/common/codegen/generator";
-import { FieldConfig } from "@patchworkdev/common/types";
+import { ContractSchema } from "../codegen/contractSchema";
+import { Generator } from "../codegen/generator";
+import { FieldConfig } from "../types";
 
 export class TSContractConfigGen implements Generator {
     constructor() { }
