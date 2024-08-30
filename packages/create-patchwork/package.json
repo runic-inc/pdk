@@ -1,0 +1,25 @@
+{
+  "name": "create-patchwork",
+  "version": "0.0.1",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "create-patchwork": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cpy":"11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.4.2",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  }
+}
