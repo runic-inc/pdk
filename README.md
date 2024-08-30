@@ -38,7 +38,7 @@ To ensure your environment is set up correctly, you can run the following tests:
 To use the Patchwork Development Kit (PDK), run:
 
 ```shell
-pnpm dlx create-patchwork
+pdk
 ```
 
 ## Development
@@ -61,5 +61,5 @@ For development tasks such as building the TypeScript project and linking the ex
    After linking, you can use the `pdk` command to access the Patchwork Development Kit:
 
    ```shell
-   pnpm dlx create-patchwork
+   pdk
    ```
