@@ -14,7 +14,7 @@ To set up your development environment, follow these steps:
 2. **Install Node.js dependencies**:
 
    ```shell
-   npm install
+   pnpm install
    ```
 
 ## Testing Your Environment
@@ -24,7 +24,7 @@ To ensure your environment is set up correctly, you can run the following tests:
 - Using npm:
 
   ```shell
-  npm test
+  pnpm test
   ```
 
 - Using Foundry:
@@ -38,7 +38,7 @@ To ensure your environment is set up correctly, you can run the following tests:
 To use the Patchwork Development Kit (PDK), run:
 
 ```shell
-npx pdk
+pnpm dlx create-patchwork
 ```
 
 ## Development
@@ -48,18 +48,18 @@ For development tasks such as building the TypeScript project and linking the ex
 1. **Build TypeScript to JavaScript**:
 
    ```shell
-   npm run build
+   pnpm build
    ```
 
 2. **Link the Executable**:
 
    ```shell
-   npm link
+   pnpm link --global
    ```
 
 3. **Using the PDK**:
    After linking, you can use the `pdk` command to access the Patchwork Development Kit:
 
    ```shell
-   pdk
+   pnpm dlx create-patchwork
    ```
