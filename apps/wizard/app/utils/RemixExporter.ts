@@ -1,7 +1,7 @@
-import { ContractSchemaImpl } from '@/codegen/contractSchema';
-import { MainContractGen } from '@/codegen/mainContractGen';
-import { UserContractGen } from '@/codegen/userContractGen';
-import { ContractConfig } from '@/types';
+import { ContractSchemaImpl } from '@patchworkdev/common/codegen/contractSchema';
+import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
+import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
+import { ContractConfig } from '@patchworkdev/common/types';
 import useStore from '../store';
 
 export class RemixExporter {

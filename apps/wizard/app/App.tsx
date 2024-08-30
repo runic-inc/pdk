@@ -1,7 +1,7 @@
-import { TooltipProvider } from '@/wizard/primitives/tooltip';
 import { EditorProvider } from './components/EditorProvider';
 import Layout from './components/Layout';
 import { ThemeProvider } from './components/ThemeProvider';
+import { TooltipProvider } from './primitives/tooltip';
 
 const App = () => {
     return (

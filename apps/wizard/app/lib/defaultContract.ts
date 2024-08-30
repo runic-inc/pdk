@@ -1,4 +1,4 @@
-import { Feature } from '@/types';
+import { Feature } from '@patchworkdev/common/types';
 import { nanoid } from 'nanoid';
 import { UContractConfig } from '../types';
 

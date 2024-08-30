@@ -1,5 +1,8 @@
-import { FunctionConfig } from '@/types';
-import featureGroups from '@/wizard/lib/features';
+import { FunctionConfig } from '@patchworkdev/common/types';
+import { Reorder } from 'framer-motion';
+import { nanoid } from 'nanoid';
+import { memo, useEffect } from 'react';
+import featureGroups from '../lib/features';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,15 +13,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from '@/wizard/primitives/alert-dialog';
-import { Button } from '@/wizard/primitives/button';
-import { Input } from '@/wizard/primitives/input';
-import { Label } from '@/wizard/primitives/label';
-import useStore, { Store } from '@/wizard/store';
-import { Reorder } from 'framer-motion';
-import { nanoid } from 'nanoid';
-import { memo, useEffect } from 'react';
+} from '../primitives/alert-dialog';
+import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
+import { Input } from '../primitives/input';
+import { Label } from '../primitives/label';
+import useStore, { Store } from '../store';
 import { UFieldConfig } from '../types';
 import FeatureEntry from './editorPanel/FeatureItem';
 import Field from './editorPanel/FieldItem';

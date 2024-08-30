@@ -1,10 +1,10 @@
-import { ScopeConfig } from '@/types';
-import defaultScope from '@/wizard/lib/defaultScope';
+import { ScopeConfig } from '@patchworkdev/common/types';
 import { produce } from 'immer';
 import { nanoid } from 'nanoid';
 import { StateCreator } from 'zustand';
 import { Store } from '.';
 import defaultContract from '../lib/defaultContract';
+import defaultScope from '../lib/defaultScope';
 import { UContractConfig } from '../types';
 
 type ContractRecords = Record<string, UContractConfig>;

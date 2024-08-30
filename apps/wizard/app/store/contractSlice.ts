@@ -1,4 +1,4 @@
-import { Feature } from '@/types';
+import { Feature } from '@patchworkdev/common/types';
 import { produce } from 'immer';
 import _ from 'lodash';
 import { StateCreator } from 'zustand';

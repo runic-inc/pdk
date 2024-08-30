@@ -1,4 +1,4 @@
-import { ContractConfig, Feature } from '@/types';
+import { ContractConfig, Feature } from '@patchworkdev/common/types';
 import { FeatureConfig } from '../types';
 
 export default [

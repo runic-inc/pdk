@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import * as React from 'react';
 
-import { cn } from '@wizard/lib/utils';
+import { cn } from '../lib/utils';
 
 const RadioGroup = React.forwardRef<React.ElementRef<typeof RadioGroupPrimitive.Root>, React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>>(
     ({ className, ...props }, ref) => {

@@ -1,8 +1,8 @@
-import { Badge } from '@/wizard/primitives/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/wizard/primitives/filetabs';
 import { useState } from 'react';
 import useCopyToClipboard from '../hooks/useCopyToClipboard';
+import { Badge } from '../primitives/badge';
 import { Button } from '../primitives/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../primitives/filetabs';
 import Icon from '../primitives/icon';
 import { Separator } from '../primitives/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../primitives/tooltip';
