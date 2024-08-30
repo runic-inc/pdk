@@ -1,11 +1,5 @@
 #!/usr/bin/env node
-import { ContractSchemaImpl } from "@patchworkdev/common/codegen/contractSchema";
-import { parseJson } from '@patchworkdev/common/codegen/contractSchemaJsonParser';
-import { JSONSchemaGen } from "@patchworkdev/common/codegen/jsonSchemaGen";
-import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
-import { UserContractGen } from "@patchworkdev/common/codegen/userContractGen";
-import { cleanAndCapitalizeFirstLetter } from "@patchworkdev/common/codegen/utils";
-import { validateSchema } from "@patchworkdev/common/codegen/validateSchema";
+import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema } from "@patchworkdev/common";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
