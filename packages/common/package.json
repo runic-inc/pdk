@@ -4,13 +4,14 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-      "test": "jest --testPathIgnorePatterns=src/codegen/test/generateContractSchemaPermutations.test.ts",
-      "test:build-permutations": "jest src/codegen/test/generateContractSchemaPermutations.test.ts",
-      "build": "tsc"
+        "test": "jest --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
+        "test:features-build": "jest src/codegen/test/featurePermutationBuilds.test.ts",
+        "test:fields-build": "jest src/codegen/test/fieldPermutationBuilds.test.ts",
+        "build": "tsc"
     },
     "keywords": [
-      "patchwork",
-      "codegen"
+        "patchwork",
+        "codegen"
     ],
     "author": "Runic Labs, Inc",
     "license": "MIT",

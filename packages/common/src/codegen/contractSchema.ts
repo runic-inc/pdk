@@ -1,4 +1,4 @@
-import { FieldConfig, ContractConfig, Feature, FunctionConfig } from '../types';
+import { ContractConfig, Feature, FieldConfig, FunctionConfig } from '../types';
 
 export type FieldType = {
     solidityType: string;
@@ -116,6 +116,7 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     buildStorage(entries: FieldConfig[]): ContractStorage {
+        console.log(entries);
         let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.fieldType);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;
