@@ -123,9 +123,9 @@ describe("Generate and Build Contract Schema Permutations", () => {
   
       for (let index = 0; index < permutations.length; index++) {
         // Only process the first permutation for now
-        if (index !== 0) {
-          break;
-        }
+        //if (index !== 0) {
+        //  break;
+       // }
   
         const config = permutations[index];
         console.log(config);
