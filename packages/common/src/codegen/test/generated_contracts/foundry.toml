@@ -1,0 +1,5 @@
+[profile.default]
+libs = ['lib']
+src = '.'
+out = 'out'
+solc = "0.8.23"
