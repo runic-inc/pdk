@@ -7,17 +7,28 @@ import { MainContractGen } from "../mainContractGen";
 import { UserContractGen } from "../userContractGen";
 
 function generateField(features: Feature[]): FieldConfig[] {
-  const fields: FieldConfig[] = [
-    {
-      id: 1,
-      key: "single_char_field",
-      fieldType: "char16",
-      description: "A single char field",
-    },
-  ];
-
-  return fields;
-}
+    const fields: FieldConfig[] = [
+      {
+        id: 1,
+        key: "single_char_field",
+        fieldType: "char16",
+        description: "A single char field",
+      },
+    ];
+  
+    // Special case for DYNAMICREFLIBRARY feature
+    if (features.includes(Feature.DYNAMICREFLIBRARY)) {
+      fields.push({
+        id: fields.length + 1,
+        key: 'dynamic_literef',
+        fieldType: 'literef',
+        arrayLength: 0,
+        description: 'Dynamic literef array for DYNAMICREFLIBRARY feature',
+      });
+    }
+  
+    return fields;
+  }
 
 function generateFeaturePermutations(): Feature[][] {
   const baseFeatures = [Feature.MINTABLE, Feature.LITEREF];
@@ -89,93 +100,107 @@ function generateContractSchemaPermutations(): ContractConfig[] {
 }
 
 describe("Generate and Build Contract Schema Permutations", () => {
-    const outputDir = path.join(__dirname, "generated_contracts");
-    const schemaNoVerifyDir = path.join(__dirname, "schema_noverify");
-    const schemaNoBuildDir = path.join(__dirname, "schema_nobuild");
-  
-    beforeAll(() => {
-      // Create directories if they don't exist
-      [outputDir, schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
-      });
-  
-      // Clear contents of schema_noverify and schema_nobuild
-      [schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
-        fs.readdirSync(dir).forEach(file => fs.unlinkSync(path.join(dir, file)));
-      });
-  
-      // Clear contents of generated_contracts, preserving remappings.txt and foundry.toml
-      fs.readdirSync(outputDir).forEach(file => {
-        if (file !== 'remappings.txt' && file !== 'foundry.toml') {
-          fs.unlinkSync(path.join(outputDir, file));
-        }
-      });
-    });
-  
-    it("should generate, save, and build all valid contract schema permutations", async () => {
-      console.log("Generating contract schema permutations...");
-  
-      const permutations = generateContractSchemaPermutations();
-      const mainContractGen = new MainContractGen();
-      const userContractGen = new UserContractGen();
-  
-      for (let index = 0; index < permutations.length; index++) {
-        // Only process the first permutation for now
-        //if (index !== 0) {
-        //  break;
-       // }
-  
-        const config = permutations[index];
-        console.log(config);
-        const schema = new ContractSchemaImpl(config);
-        
-        try {
-          schema.validate();
-        } catch (error) {
-          console.error(`Schema validation failed for contract ${index}:`, error);
-          fs.writeFileSync(path.join(schemaNoVerifyDir, `schema_${index}.json`), JSON.stringify(config, null, 2));
-          throw error; // This will fail the test, but we've saved the schema
-        }
-  
-        try {
-          const mainCode = mainContractGen.gen(schema);
-          const userCode = userContractGen.gen(schema);
-          const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
-          const userFileName = path.join(outputDir, `TestContract.sol`);
-          fs.writeFileSync(mainFileName, mainCode);
-          fs.writeFileSync(userFileName, userCode);
-          console.log(`Generated contract ${index}`);
-  
-          // Call forge build
-          await new Promise<void>((resolve, reject) => {
-            exec('forge build', { cwd: outputDir }, (error, stdout, stderr) => {
-              if (error) {
-                console.error(`forge build failed for contract ${index}:`);
-                console.error(stderr);
-                fs.writeFileSync(path.join(schemaNoBuildDir, `schema_${index}.json`), JSON.stringify(config, null, 2));
-                reject(new Error(`forge build failed for contract ${index}`));
-              } else {
-                console.log(`Successfully built contract ${index}`);
-                resolve();
-              }
-            });
-          });
-  
-        } catch (error) {
-          console.error(`Error in contract ${index}:`, error);
-          throw error;
-        } finally {
-          // Clean up .sol files after each attempt
-          const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
-          const userFileName = path.join(outputDir, `TestContract.sol`);
-          if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
-          if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
-        }
+  const outputDir = path.join(__dirname, "generated_contracts");
+  const schemaNoVerifyDir = path.join(__dirname, "schema_noverify");
+  const schemaNoBuildDir = path.join(__dirname, "schema_nobuild");
+
+  beforeAll(() => {
+    // Create directories if they don't exist
+    [outputDir, schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
       }
-  
-      console.log(`Total valid permutations generated and built: ${permutations.length}`);
-      expect(permutations.length).toBeGreaterThan(0);
+    });
+
+    // Clear contents of schema_noverify and schema_nobuild
+    [schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
+      fs.readdirSync(dir).forEach(file => fs.unlinkSync(path.join(dir, file)));
+    });
+
+    // Clear contents of generated_contracts, preserving remappings.txt and foundry.toml
+    fs.readdirSync(outputDir).forEach(file => {
+      if (file !== 'remappings.txt' && file !== 'foundry.toml') {
+        fs.unlinkSync(path.join(outputDir, file));
+      }
     });
   });
+
+  it("should generate, save, and build all contract schema permutations", async () => {
+    console.log("Generating contract schema permutations...");
+
+    const permutations = generateContractSchemaPermutations();
+    const mainContractGen = new MainContractGen();
+    const userContractGen = new UserContractGen();
+
+    let errors: string[] = [];
+
+    for (let index = 0; index < permutations.length; index++) {
+      const config = permutations[index];
+      console.log(`Processing permutation ${index}:`, config);
+      const schema = new ContractSchemaImpl(config);
+      
+      try {
+        schema.validate();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`Schema validation failed for contract ${index}:`, errorMessage);
+        fs.writeFileSync(path.join(schemaNoVerifyDir, `schema_${index}.json`), JSON.stringify(config, null, 2));
+        errors.push(`Schema validation failed for contract ${index}: ${errorMessage}`);
+        continue; // Skip to the next permutation
+      }
+
+      try {
+        const mainCode = mainContractGen.gen(schema);
+        const userCode = userContractGen.gen(schema);
+        const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
+        const userFileName = path.join(outputDir, `TestContract.sol`);
+        fs.writeFileSync(mainFileName, mainCode);
+        fs.writeFileSync(userFileName, userCode);
+        console.log(`Generated contract ${index}`);
+
+        // Call forge build
+        await new Promise<void>((resolve, reject) => {
+          exec('forge build', { cwd: outputDir }, (error, stdout, stderr) => {
+            if (error) {
+              console.error(`forge build failed for contract ${index}:`);
+              console.error(stderr);
+              fs.writeFileSync(path.join(schemaNoBuildDir, `schema_${index}.json`), JSON.stringify(config, null, 2));
+              errors.push(`forge build failed for contract ${index}: ${stderr}`);
+              resolve(); // Resolve even on error to continue processing
+            } else {
+              console.log(`Successfully built contract ${index}`);
+              resolve();
+            }
+          });
+        });
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`Error in contract ${index}:`, errorMessage);
+        errors.push(`Error in contract ${index}: ${errorMessage}`);
+      } finally {
+        // Clean up .sol files after each attempt
+        const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
+        const userFileName = path.join(outputDir, `TestContract.sol`);
+        if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
+        if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
+      }
+
+      // Add a small delay between iterations to allow for any pending I/O operations
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    console.log(`Total permutations processed: ${permutations.length}`);
+    console.log(`Total errors encountered: ${errors.length}`);
+
+    if (errors.length > 0) {
+      console.error("Errors encountered during processing:");
+      errors.forEach((error, index) => {
+        console.error(`${index + 1}: ${error}`);
+      });
+      throw new Error(`${errors.length} errors encountered during processing`);
+    }
+
+    expect(permutations.length).toBeGreaterThan(0);
+  });
+});
