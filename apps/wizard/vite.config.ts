@@ -1,10 +1,12 @@
 import path from 'path';
 import { type UserConfig } from 'vite';
 
+const outputDir = process.env.BUILD_OUT_DIR || 'dist/wizard';
+
 export default {
     root: 'app',
     build: {
-        outDir: path.resolve(__dirname, 'dist/wizard'),
+        outDir: path.resolve(__dirname, outputDir),
         emptyOutDir: true,
     },
     resolve: {
