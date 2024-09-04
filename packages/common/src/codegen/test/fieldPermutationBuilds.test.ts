@@ -1,13 +1,13 @@
 import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
-import { ContractConfig, Feature, FieldConfig, FieldType } from "../../types";
+import { ContractConfig, Feature, FieldConfig, FieldTypeEnum } from "../../types";
 import { ContractSchemaImpl } from "../contractSchema";
 import { MainContractGen } from "../mainContractGen";
 import { UserContractGen } from "../userContractGen";
 
 function generateFieldPermutations(): FieldConfig[][] {
-    const fieldTypes = Object.values(FieldType)
+    const fieldTypes = Object.values(FieldTypeEnum)
       .filter(value => typeof value === 'string' && value !== 'empty' && value !== 'CHAR64') as string[];
     let permutations: FieldConfig[][] = [];
   
