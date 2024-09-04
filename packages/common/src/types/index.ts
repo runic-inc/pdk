@@ -64,7 +64,7 @@ export type AssignmentNodeData = {
     name: string;
 };
 
-export enum FieldType {
+export enum FieldTypeEnum {
     empty,
     BOOLEAN,
     INT8,
