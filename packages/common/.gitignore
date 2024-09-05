@@ -2,3 +2,4 @@ src/codegen/test/schema_nobuild/*.json
 src/codegen/test/schema_noverify/*.json
 src/codegen/test/generated_contracts/cache/
 src/codegen/test/generated_contracts/out/
+src/codegen/test/generated_contracts/*.sol
