@@ -6,36 +6,52 @@ import { ContractSchemaImpl } from "../contractSchema";
 import { MainContractGen } from "../mainContractGen";
 import { UserContractGen } from "../userContractGen";
 
-function generateFieldPermutations(): FieldConfig[][] {
-    const fieldTypes = Object.values(FieldTypeEnum)
-      .filter(value => typeof value === 'string' && value !== 'empty' && value !== 'CHAR64') as string[];
-    let permutations: FieldConfig[][] = [];
-  
-    fieldTypes.forEach((fieldType, index) => {
-      let actualFieldType = fieldType === 'BOOLEAN' ? 'bool' : fieldType;
-      actualFieldType = actualFieldType.toLowerCase();
-      
-      // Single field
-      permutations.push([{
-        id: 1,
-        key: `field_${actualFieldType}`,
-        fieldType: actualFieldType,
-        description: `A single ${actualFieldType} field`,
-      }]);
-  
-      // Array field (exclude for 'string' type)
-      if (actualFieldType !== 'string') {
-        permutations.push([{
-          id: 1,
-          key: `array_${actualFieldType}`,
-          fieldType: actualFieldType,
-          arrayLength: 4,
-          description: `An array of ${actualFieldType} fields`,
-        }]);
+function removeDirectoryRecursive(dirPath: string) {
+  if (fs.existsSync(dirPath)) {
+    fs.readdirSync(dirPath).forEach((file) => {
+      const curPath = path.join(dirPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // Recursive call for directories
+        removeDirectoryRecursive(curPath);
+      } else {
+        // Delete file
+        fs.unlinkSync(curPath);
       }
     });
-  
-    return permutations;
+    fs.rmdirSync(dirPath);
+  }
+}
+
+function generateFieldPermutations(): FieldConfig[][] {
+  const fieldTypes = Object.values(FieldTypeEnum)
+    .filter(value => typeof value === 'string' && value !== 'empty' && value !== 'CHAR64') as string[];
+  let permutations: FieldConfig[][] = [];
+
+  fieldTypes.forEach((fieldType, index) => {
+    let actualFieldType = fieldType === 'BOOLEAN' ? 'bool' : fieldType;
+    actualFieldType = actualFieldType.toLowerCase();
+    
+    // Single field
+    permutations.push([{
+      id: 1,
+      key: `field_${actualFieldType}`,
+      fieldType: actualFieldType,
+      description: `A single ${actualFieldType} field`,
+    }]);
+
+    // Array field (exclude for 'string' type)
+    if (actualFieldType !== 'string') {
+      permutations.push([{
+        id: 1,
+        key: `array_${actualFieldType}`,
+        fieldType: actualFieldType,
+        arrayLength: 4,
+        description: `An array of ${actualFieldType} fields`,
+      }]);
+    }
+  });
+
+  return permutations;
 }
 
 function generateContractSchemaPermutations(): ContractConfig[] {
@@ -73,13 +89,19 @@ describe("Generate and Build Contract Schema Field Permutations", () => {
 
     // Clear contents of schema_noverify and schema_nobuild
     [schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
-      fs.readdirSync(dir).forEach(file => fs.unlinkSync(path.join(dir, file)));
+      removeDirectoryRecursive(dir);
+      fs.mkdirSync(dir);
     });
 
     // Clear contents of generated_contracts, preserving remappings.txt and foundry.toml
     fs.readdirSync(outputDir).forEach(file => {
+      const filePath = path.join(outputDir, file);
       if (file !== 'remappings.txt' && file !== 'foundry.toml') {
-        fs.unlinkSync(path.join(outputDir, file));
+        if (fs.lstatSync(filePath).isDirectory()) {
+          removeDirectoryRecursive(filePath);
+        } else {
+          fs.unlinkSync(filePath);
+        }
       }
     });
   });
@@ -161,5 +183,11 @@ describe("Generate and Build Contract Schema Field Permutations", () => {
     }
 
     expect(permutations.length).toBeGreaterThan(0);
+  });
+
+  afterAll(() => {
+    // Clean up after all tests
+    removeDirectoryRecursive(path.join(outputDir, 'out'));
+    removeDirectoryRecursive(path.join(outputDir, 'cache'));
   });
 });

@@ -7,28 +7,28 @@ import { MainContractGen } from "../mainContractGen";
 import { UserContractGen } from "../userContractGen";
 
 function generateField(features: Feature[]): FieldConfig[] {
-    const fields: FieldConfig[] = [
-      {
-        id: 1,
-        key: "single_char_field",
-        fieldType: "char16",
-        description: "A single char field",
-      },
-    ];
-  
-    // Special case for DYNAMICREFLIBRARY feature
-    if (features.includes(Feature.DYNAMICREFLIBRARY)) {
-      fields.push({
-        id: fields.length + 1,
-        key: 'dynamic_literef',
-        fieldType: 'literef',
-        arrayLength: 0,
-        description: 'Dynamic literef array for DYNAMICREFLIBRARY feature',
-      });
-    }
-  
-    return fields;
+  const fields: FieldConfig[] = [
+    {
+      id: 1,
+      key: "single_char_field",
+      fieldType: "char16",
+      description: "A single char field",
+    },
+  ];
+
+  // Special case for DYNAMICREFLIBRARY feature
+  if (features.includes(Feature.DYNAMICREFLIBRARY)) {
+    fields.push({
+      id: fields.length + 1,
+      key: 'dynamic_literef',
+      fieldType: 'literef',
+      arrayLength: 0,
+      description: 'Dynamic literef array for DYNAMICREFLIBRARY feature',
+    });
   }
+
+  return fields;
+}
 
 function generateFeaturePermutations(): Feature[][] {
   const baseFeatures = [Feature.MINTABLE, Feature.LITEREF];
@@ -99,6 +99,22 @@ function generateContractSchemaPermutations(): ContractConfig[] {
   }));
 }
 
+function removeDirectoryRecursive(dirPath: string) {
+  if (fs.existsSync(dirPath)) {
+    fs.readdirSync(dirPath).forEach((file) => {
+      const curPath = path.join(dirPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // Recursive call for directories
+        removeDirectoryRecursive(curPath);
+      } else {
+        // Delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(dirPath);
+  }
+}
+
 describe("Generate and Build Contract Schema Permutations", () => {
   const outputDir = path.join(__dirname, "generated_contracts");
   const schemaNoVerifyDir = path.join(__dirname, "schema_noverify");
@@ -114,13 +130,19 @@ describe("Generate and Build Contract Schema Permutations", () => {
 
     // Clear contents of schema_noverify and schema_nobuild
     [schemaNoVerifyDir, schemaNoBuildDir].forEach(dir => {
-      fs.readdirSync(dir).forEach(file => fs.unlinkSync(path.join(dir, file)));
+      removeDirectoryRecursive(dir);
+      fs.mkdirSync(dir);
     });
 
     // Clear contents of generated_contracts, preserving remappings.txt and foundry.toml
     fs.readdirSync(outputDir).forEach(file => {
+      const filePath = path.join(outputDir, file);
       if (file !== 'remappings.txt' && file !== 'foundry.toml') {
-        fs.unlinkSync(path.join(outputDir, file));
+        if (fs.lstatSync(filePath).isDirectory()) {
+          removeDirectoryRecursive(filePath);
+        } else {
+          fs.unlinkSync(filePath);
+        }
       }
     });
   });
@@ -135,9 +157,9 @@ describe("Generate and Build Contract Schema Permutations", () => {
     let errors: string[] = [];
 
     for (let index = 0; index < permutations.length; index++) {
-        if (index > 0) {
-            break;
-        }
+//      if (index > 1) {
+//        break;
+//      }
       const config = permutations[index];
       console.log(`Processing permutation ${index}:`, config);
       const schema = new ContractSchemaImpl(config);
@@ -185,8 +207,8 @@ describe("Generate and Build Contract Schema Permutations", () => {
         // Clean up .sol files after each attempt
         const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
         const userFileName = path.join(outputDir, `TestContract.sol`);
-       // if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
-       // if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
+        if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
+        if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
       }
 
       // Add a small delay between iterations to allow for any pending I/O operations
@@ -205,5 +227,11 @@ describe("Generate and Build Contract Schema Permutations", () => {
     }
 
     expect(permutations.length).toBeGreaterThan(0);
+  });
+
+  afterAll(() => {
+    // Clean up after all tests
+    removeDirectoryRecursive(path.join(outputDir, 'out'));
+    removeDirectoryRecursive(path.join(outputDir, 'cache'));
   });
 });
