@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +10,7 @@ import { dependencies } from './package.json';
 export default defineConfig({
     name: 'create-patchwork',
     bundle: true,
+    outDir: './dist',
     clean: true,
     entry: ['src/index.ts'],
     external: Object.keys(dependencies),
@@ -29,25 +30,14 @@ export default defineConfig({
         await cpy(
             [
                 path.join(examplesPath, '**', '*'),
-                '!**/with-nextjs/**',
-                '!**/with-foundry/**',
-                '!**/with-trpc/**',
                 '!**/node_modules/**',
                 '!**/generated/**',
                 '!**/.ponder/**',
+                '!**/.next/**',
+                '!**/next-env.d.ts',
             ],
             targetPath,
-            {
-                filter: (file) => file.name !== '.env.local',
-                rename: (name) => (name === '.env.example' ? '_dot_env.local' : name.replace(/^\./, '_dot_')),
-            },
+            {},
         );
-
-        // readdirSync(targetPath)
-        //     .filter((d) => d !== 'default' && d !== 'etherscan')
-        //     .map((d) => {
-        //         const contents = readFileSync(path.join(targetPath, d, '_dot_env.local'), 'utf-8');
-        //         writeFileSync(path.join(targetPath, d, '_dot_env.local'), contents.replace(/PONDER_RPC_URL_(\d+)=.*/, 'PONDER_RPC_URL_$1='));
-        //     });
     },
 });
