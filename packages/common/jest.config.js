@@ -5,6 +5,9 @@ module.exports = {
   testMatch: [
     "**/src/**/*.spec.ts",
     "**/src/**/*.test.ts"
-  ],
+    ],
+    moduleNameMapper: {
+        "@patchworkdev/common/(.*)": "<rootDir>/src/$1"
+    }
 };
 
