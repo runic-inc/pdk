@@ -71,11 +71,6 @@ const ContractEditor = memo(() => {
     return (
         contractConfig && (
             <div className='flex flex-col gap-4'>
-                <div className='hidden'>
-                    <Label htmlFor='scopeName'>Scope name</Label>
-                    <Input name='scopeName' id='scopeName' value={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
-                </div>
-
                 <div className='flex flex-col gap-4'>
                     <h3 className='font-medium -mx-6 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>
                         Contract details

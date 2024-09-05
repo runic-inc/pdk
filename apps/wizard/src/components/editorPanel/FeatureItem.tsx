@@ -6,10 +6,11 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import { Badge } from '../../primitives/badge';
 import { Checkbox } from '../../primitives/checkbox';
 import Icon from '../../primitives/icon';
+import { Input } from '../../primitives/input';
 import { Label } from '../../primitives/label';
 import { RadioGroup, RadioGroupItem } from '../../primitives/radio-group';
 import useStore, { Store } from '../../store';
-import { FeatureConfig } from '../../types';
+import { FeatureConfig, FeatureOption } from '../../types';
 
 const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => {
     const { updateContractFeatures } = useStore();
@@ -141,7 +142,7 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
                                 ))}
                             </RadioGroup>
                         )}
-                        {optionalFeatures.length > 0 && (
+                        {(optionalFeatures.length > 0 || featureGroup.options.length > 0) && (
                             <div>
                                 <p className='text-sm font-medium'>Options</p>
                                 <div className='flex flex-col gap-2 pt-2'>
@@ -165,6 +166,19 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
                                             </div>
                                         </div>
                                     ))}
+                                    {featureGroup.options.map((option) => {
+                                        contractConfig;
+                                        return (
+                                            <div className='flex gap-4 items-start' key={option.key}>
+                                                {option.type === 'input' && (
+                                                    <div>
+                                                        <Label className='pt-1'>{option.label}</Label>
+                                                        <Input placeholder={option.placeholder} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -176,3 +190,7 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
 });
 
 export default FeatureItem;
+
+const FeatureOptionItem = memo(({ configItem }: { configItem: FeatureOption }) => {
+    return <></>;
+});
