@@ -1,4 +1,4 @@
-import { ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigGen {
     constructor() { }
@@ -9,7 +9,6 @@ export class JSONProjectConfigGen {
             if (contractConfigString.length > 0) { contractConfigString += ',\n' };
             contractConfigString += this.genContractConfig(key, value, projectConfig.contractRelations.get(key));
         });
-
         return `` +
             `{\n` +
             `    "name": "${projectConfig.name}",\n` +
@@ -62,17 +61,30 @@ export class JSONProjectConfigGen {
         return JSON.stringify(Object.fromEntries(assignFees.entries()));
     }
 
-    genContractConfig(name: string, filename: string, relations: ContractRelation | undefined): string {
-        let fragments = '\n';
+    genContractConfig(name: string, value: string | ContractConfig, relations: ContractRelation | undefined): string {
+        let fragments = '';
         if (relations) {
             fragments = `,\n            "fragments": [\n` + relations.fragments.map(fragment => {
                 return `                "${fragment}"`;
             }).join(',\n') +
-                `\n            ]\n`
+                `\n            ]`;
         }
-        return `        "${name}": {\n` +
-            `            "config": "${filename}"` +
-            fragments +
-            `        }`;
+        
+        if (typeof value === 'string') {
+            return `        "${name}": {\n` +
+                   `            "config": "${value}"` +
+                   `${fragments}\n` +
+                   `        }`;
+        } else {
+            const contractConfigString = JSON.stringify(value, null, 4)
+                .split('\n')
+                .map((line, index) => index === 0 ? line : `            ${line}`)
+                .join('\n');
+            
+            return `        "${name}": {\n` +
+                   `            "config": ${contractConfigString}` +
+                   `${fragments}\n` +
+                   `        }`;
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
+import { ContractConfig, ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
 const projectConfig: ProjectConfig = {
     name: "My Project",
@@ -25,7 +25,7 @@ const projectConfig: ProjectConfig = {
             ])
         }
     ],
-    contracts: new Map<string, string>([
+    contracts: new Map<string, string | ContractConfig>([
         ["Contract1", "config1.json"],
         ["Contract2", "config2.json"]
     ]),

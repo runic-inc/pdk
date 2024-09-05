@@ -1,17 +1,16 @@
-import { ContractRelation, ProjectConfig, ScopeConfig } from "../types";
-
+import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from '../types';
 
 export class TSProjectConfigGen {
     constructor() { }
 
     gen(projectConfig: ProjectConfig): string {
-        let out = `import { ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        let out = `import { ContractConfig, ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const projectConfig: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
         out += projectConfig.scopes.map(scope => this.genScopeConfig(scope)).join(',\n');
         out += `\n    ],\n`;
-        out += `    contracts: new Map<string, string>([\n`;
+        out += `    contracts: new Map<string, string | ContractConfig>([\n`;
         out += this.genContractsMap(projectConfig.contracts);
         out += `\n    ]),\n`;
         out += `    contractRelations: new Map<string, ContractRelation>([\n`;
@@ -19,7 +18,6 @@ export class TSProjectConfigGen {
         out += `\n    ])\n`;
         out += `};\n\n`;
         out += `export default projectConfig;\n`;
-
         return out;
     }
 
@@ -62,10 +60,30 @@ export class TSProjectConfigGen {
         return JSON.stringify(value);
     }
 
-    private genContractsMap(contracts: Map<string, string>): string {
+    private genContractsMap(contracts: Map<string, string | ContractConfig>): string {
         return Array.from(contracts.entries())
-            .map(([key, value]) => `        ["${key}", "${value}"]`)
+            .map(([key, value]) => {
+                if (typeof value === 'string') {
+                    return `        ["${key}", "${value}"]`;
+                } else {
+                    return `        ["${key}", ${this.stringifyContractConfig(value)}]`;
+                }
+            })
             .join(',\n');
+    }
+
+    private stringifyContractConfig(config: ContractConfig): string {
+        let out = '{\n';
+        out += `            scopeName: "${config.scopeName}",\n`;
+        out += `            name: "${config.name}",\n`;
+        out += `            symbol: "${config.symbol}",\n`;
+        out += `            baseURI: "${config.baseURI}",\n`;
+        out += `            schemaURI: "${config.schemaURI}",\n`;
+        out += `            imageURI: "${config.imageURI}",\n`;
+        out += `            fields: ${JSON.stringify(config.fields, null, 12)},\n`;
+        out += `            features: [${config.features.map(f => `"${f}"`).join(', ')}]\n`;
+        out += '        }';
+        return out;
     }
 
     private genContractRelationsMap(relations: Map<string, ContractRelation>): string {
