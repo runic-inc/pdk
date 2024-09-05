@@ -1,7 +1,6 @@
 import cpy from 'cpy';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import path from 'path';
 
 // Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +17,8 @@ async function copyTemplate(src: string, dest: string) {
 (async () => {
     try {
         const templateProject = 'ponder_next';
+        // currently we change to the working directory but we should create a directory to put the template files in.
+        // further option would be to have a command line directory option but the default should be to create a directory
         const cwd = process.cwd();
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
         await copyTemplate(templatePath, cwd);
