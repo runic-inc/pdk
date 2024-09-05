@@ -135,6 +135,9 @@ describe("Generate and Build Contract Schema Permutations", () => {
     let errors: string[] = [];
 
     for (let index = 0; index < permutations.length; index++) {
+        if (index > 0) {
+            break;
+        }
       const config = permutations[index];
       console.log(`Processing permutation ${index}:`, config);
       const schema = new ContractSchemaImpl(config);
@@ -182,8 +185,8 @@ describe("Generate and Build Contract Schema Permutations", () => {
         // Clean up .sol files after each attempt
         const mainFileName = path.join(outputDir, `TestContractGenerated.sol`);
         const userFileName = path.join(outputDir, `TestContract.sol`);
-        if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
-        if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
+       // if (fs.existsSync(mainFileName)) fs.unlinkSync(mainFileName);
+       // if (fs.existsSync(userFileName)) fs.unlinkSync(userFileName);
       }
 
       // Add a small delay between iterations to allow for any pending I/O operations

@@ -1,5 +1,16 @@
 [profile.default]
-libs = ['lib']
 src = '.'
 out = 'out'
+libs = ['lib']
 solc = "0.8.23"
+remappings = [
+    '@patchwork/=../../../../node_modules/@patchworkdev/contracts/src/',
+    '@openzeppelin/=../../../../node_modules/@openzeppelin/'
+]
+allow_paths = [
+    "../../../../node_modules/@patchworkdev/contracts/src/",
+    "../../../../node_modules/@openzeppelin/contracts/",
+    "../../../../node_modules/@openzeppelin/contracts/utils/",
+    "../../../../node_modules/@openzeppelin/contracts/token/",
+    "../../../../node_modules/@openzeppelin/contracts/access/"
+]
