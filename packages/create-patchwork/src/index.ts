@@ -16,12 +16,13 @@ async function copyTemplate(src: string, dest: string) {
 
 (async () => {
     try {
+        // need to get some of these values from the user. Interactive prompt with defaults
         const templateProject = 'ponder_next';
-        // currently we change to the working directory but we should create a directory to put the template files in.
-        // further option would be to have a command line directory option but the default should be to create a directory
-        const cwd = process.cwd();
+        const targetPath = process.cwd();
+        const targetDir = path.join(targetPath, 'patchworkApp');
+
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
-        await copyTemplate(templatePath, cwd);
+        await copyTemplate(templatePath, targetDir);
         // need to pnpm install
         // pdk deps install - foundry, solidity
         // git init `git init` , `git add .`, `git commit -m "Initial commit"`
