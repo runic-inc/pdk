@@ -1,6 +1,6 @@
+import { FieldConfig } from "../../types";
 import { ContractSchema, ContractStorageField } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { FieldConfig } from "../../types";
 
 export class StaticRefFuncGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -13,7 +13,7 @@ export class StaticRefFuncGen implements Generator {
         }
         function generateAddReferenceFunction(entries: ContractStorageField[]) {
             for (let entry of entries) {
-                if (entry.fieldType == "literef") {
+                if (entry.type == "literef") {
                     let addReferenceLines = [];
                     let slot = entry.slot;
                     let offset = entry.offset;

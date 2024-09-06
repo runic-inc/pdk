@@ -38,7 +38,7 @@ const projectConfigContractConfig: ProjectConfig = {
                 {
                     id: 1,
                     key: "name",
-                    fieldType: "char32",
+                    type: "char32",
                     description: "Name",
                     functionConfig: FunctionConfig.ALL,
                 }
@@ -56,7 +56,7 @@ const projectConfigContractConfig: ProjectConfig = {
                 {
                     id: 1,
                     key: "description",
-                    fieldType: "char32",
+                    type: "char32",
                     description: "Description",
                     functionConfig: FunctionConfig.ALL,
                 }

@@ -1,9 +1,9 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { ContractSchemaImpl } from './contractSchema';
 import { parseJson } from "./contractSchemaJsonParser";
 import { MainContractGen } from './mainContractGen';
-import { ContractSchemaImpl } from './contractSchema';
-import { exec, execSync } from 'child_process';
 
 describe('generateSolidityCodeFromJSON', () => {
   const testDirectory = './src/codegen/test_data';

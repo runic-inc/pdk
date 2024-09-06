@@ -23,7 +23,7 @@ export type FieldConfig = {
     id: number;
     key: string;
     description?: string;
-    fieldType: string;
+    type: string;
     arrayLength?: number;
     //values?: PatchworkEnum[];
     permissionId?: number;

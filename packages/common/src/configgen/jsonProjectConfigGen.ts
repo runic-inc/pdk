@@ -79,17 +79,9 @@ export class JSONProjectConfigGen {
                    `        }`;
         } else {
             const generator = new JSONContractConfigGen();
-            //TODO: switch back genContractConfig after changing contract json key to fieldType not type
+            const contractSchema = parseJson(value);
+            const contractConfigString = generator.gen(contractSchema);
 
-            //const contractSchema = parseJson(value);
-            //const contractConfigString = generator.gen(contractSchema);
-            //TODO: call genContractConfig
-            
-            const contractConfigString = JSON.stringify(value, null, 4)
-                .split('\n')
-                .map((line, index) => index === 0 ? line : `            ${line}`)
-                .join('\n');
-            
             return `        "${name}": {\n` +
                    `            "config": ${contractConfigString}` +
                    `${fragments}\n` +

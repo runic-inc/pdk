@@ -7,7 +7,7 @@ export class MetadataStructGen implements Generator {
         const structFields = schema.storage.fields
             .filter((field: any) => field.arrayLength !== 0 && field.totalBits !== 0)
             .map((field: any) => {
-                let fieldType = field.fieldType;
+                let fieldType = field.type;
                 if (fieldType == "literef") {
                     fieldType = "uint64";
                 }

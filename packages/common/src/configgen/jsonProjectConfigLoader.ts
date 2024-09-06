@@ -1,5 +1,6 @@
+import { ContractSchema } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
-import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ContractRelation, Feature, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigLoader {
     constructor() { }
@@ -12,14 +13,12 @@ export class JSONProjectConfigLoader {
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const v = value as any;
             if (v.config && typeof v.config === 'string') {
-                // If v.config exists and is a string, use it as is
                 contracts.set(key, v.config);
             } else {
-                // If v.config doesn't exist or isn't a string, attempt to parse v as a ContractConfig
-                const contractConfig = parseJson(v);
+                const contractSchema = parseJson(v.config);
+                const contractConfig: ContractConfig = this.extractContractConfig(contractSchema);
                 contracts.set(key, contractConfig);
             }
-
             if (v.fragments && Array.isArray(v.fragments)) {
                 contractRelations.set(key, { fragments: v.fragments });
             }
@@ -32,6 +31,19 @@ export class JSONProjectConfigLoader {
             }),
             contracts: contracts,
             contractRelations: contractRelations
+        };
+    }
+
+    private extractContractConfig(contractSchema: ContractSchema): ContractConfig {
+        return {
+            scopeName: contractSchema.scopeName,
+            name: contractSchema.name,
+            symbol: contractSchema.symbol,
+            baseURI: contractSchema.baseURI,
+            schemaURI: contractSchema.schemaURI,
+            imageURI: contractSchema.imageURI,
+            fields: contractSchema.fields.map(field => ({...field})),
+            features: contractSchema.features.map(feature => feature as Feature),
         };
     }
 

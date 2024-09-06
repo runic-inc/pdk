@@ -1,6 +1,5 @@
-import { ContractSchemaImpl, type ContractSchema, type FieldType } from "./contractSchema";
 import { ContractConfig, Feature, FieldConfig } from "../types";
-import { nanoid } from "nanoid";
+import { ContractSchemaImpl, type ContractSchema } from "./contractSchema";
 
 export function parseJson(jsonData: any): ContractSchema {
     let contractConfig: ContractConfig = {
@@ -41,7 +40,7 @@ function parseFieldEntries(jsonData: any): FieldConfig[] {
         const entry: FieldConfig = {
             id: field.id,
             permissionId: field.permissionId,
-            fieldType: field.type,
+            type: field.type,
             arrayLength: fieldArrayLength,
             visibility: "FieldVisibility.PUBLIC",
             key: field.key,

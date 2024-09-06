@@ -12,21 +12,21 @@ const config: ContractConfig = {
         {
             "id": 1,
             "key": "names",
-            "fieldType": "char8",
+            "type": "char8",
             "arrayLength": 4,
             "description": "Names"
         },
         {
             "id": 2,
             "key": "u16array",
-            "fieldType": "uint16",
+            "type": "uint16",
             "arrayLength": 32,
             "description": "Uint16 array"
         },
         {
             "id": 3,
             "key": "fieldu128a",
-            "fieldType": "uint128",
+            "type": "uint128",
             "description": "Some Uint128",
             "permissionId": 1,
             "functionConfig": FunctionConfig.STORE,
@@ -34,7 +34,7 @@ const config: ContractConfig = {
         {
             "id": 4,
             "key": "fieldu128b",
-            "fieldType": "uint128",
+            "type": "uint128",
             "description": "Some Uint128",
             "permissionId": 2,
             "functionConfig": FunctionConfig.ALL,
@@ -42,7 +42,7 @@ const config: ContractConfig = {
         {
             "id": 5,
             "key": "fieldu32",
-            "fieldType": "uint32",
+            "type": "uint32",
             "description": "Some Uint32",
             "permissionId": 3,
             "functionConfig": FunctionConfig.NONE,
@@ -50,7 +50,7 @@ const config: ContractConfig = {
         {
             "id": 6,
             "key": "c8",
-            "fieldType": "char8",
+            "type": "char8",
             "description": "c8",
             "functionConfig": FunctionConfig.LOAD,
         }
