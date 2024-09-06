@@ -56,7 +56,7 @@ const projectConfigContractConfig: ProjectConfig = {
                 {
                     id: 1,
                     key: "description",
-                    fieldType: "char64",
+                    fieldType: "char32",
                     description: "Description",
                     functionConfig: FunctionConfig.ALL,
                 }

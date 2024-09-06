@@ -62,7 +62,7 @@
                     {
                         "id": 1,
                         "key": "description",
-                        "type": "char64",
+                        "type": "char32",
                         "description": "Description",
                         "functionConfig": "all"
                     }

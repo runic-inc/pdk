@@ -1,4 +1,6 @@
+import { parseJson } from '../codegen/contractSchemaJsonParser';
 import { ContractConfig, ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
+import { JSONContractConfigGen } from './jsonContractConfigGen';
 
 export class JSONProjectConfigGen {
     constructor() { }
@@ -76,6 +78,13 @@ export class JSONProjectConfigGen {
                    `${fragments}\n` +
                    `        }`;
         } else {
+            const generator = new JSONContractConfigGen();
+            //TODO: switch back genContractConfig after changing contract json key to fieldType not type
+
+            //const contractSchema = parseJson(value);
+            //const contractConfigString = generator.gen(contractSchema);
+            //TODO: call genContractConfig
+            
             const contractConfigString = JSON.stringify(value, null, 4)
                 .split('\n')
                 .map((line, index) => index === 0 ? line : `            ${line}`)
