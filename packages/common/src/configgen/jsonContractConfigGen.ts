@@ -34,8 +34,8 @@ export class JSONContractConfigGen implements Generator {
                     fieldObj.permissionId = field.permissionId;
                 }
                 fieldObj.key = field.key;
-                fieldObj.type = field.fieldType;
-                if (field.fieldType === 'literef' || (field.arrayLength !== undefined && field.arrayLength !== 1)) {
+                fieldObj.type = field.type;
+                if (field.type === 'literef' || (field.arrayLength !== undefined && field.arrayLength !== 1)) {
                     fieldObj.arrayLength = field.arrayLength;
                 }
                 if (field.description) {

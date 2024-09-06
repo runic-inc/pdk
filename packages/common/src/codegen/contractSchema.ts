@@ -11,7 +11,7 @@ export class ContractStorageField implements FieldConfig {
     // from Entry
     id!: number;
     permissionId!: number;
-    fieldType!: string;
+    type!: string;
     arrayLength!: number;
     visibility!: string;
     key!: string;
@@ -118,7 +118,7 @@ export class ContractSchemaImpl implements ContractSchema {
     buildStorage(entries: FieldConfig[]): ContractStorage {
         console.log(entries);
         let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
-            const fieldTypeEnum = this.getFieldTypeEnum(entry.fieldType);
+            const fieldTypeEnum = this.getFieldTypeEnum(entry.type);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;
             const bits = fieldTypeEnum.bits * fieldArrayLength;
 
@@ -126,7 +126,7 @@ export class ContractSchemaImpl implements ContractSchema {
                 id: entry.id,
                 permissionId: entry.permissionId || 0,
                 solidityType: fieldTypeEnum.solidityType,
-                fieldType: entry.fieldType,
+                type: entry.type,
                 fieldTypeSolidityEnum: fieldTypeEnum.name,
                 arrayLength: fieldArrayLength,
                 visibility: "FieldVisibility.PUBLIC",
@@ -144,7 +144,7 @@ export class ContractSchemaImpl implements ContractSchema {
         
         let hasDynString = false;
         for (let i = 0; i < fields.length; i++) {
-            if (fields[i].fieldType === "string") {
+            if (fields[i].type === "string") {
                 if (hasDynString) {
                     throw new Error("Only one dynamic string field is currently supported in PDK.");
                 }
@@ -153,7 +153,7 @@ export class ContractSchemaImpl implements ContractSchema {
         }
         let hasLiteRef = false;
         for (let i = 0; i < fields.length; i++) {
-            if (fields[i].fieldType === "literef") {
+            if (fields[i].type === "literef") {
                 if (hasLiteRef) {
                     throw new Error("Only one field of literefs is currently supported in PDK.");
                 }
@@ -220,7 +220,7 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     hasLiteRef(): boolean {
-        return this.fields.some((field: any) => field.fieldType === "literef") 
+        return this.fields.some((field: any) => field.type === "literef") 
     }
 
     getMetadataStructName(): string {
@@ -233,18 +233,18 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     liteRefFieldCount(): number {
-        // Count fields where fieldType is "literef"
+        // Count fields where type is "literef"
         return this.storage.fields.filter((field: any) => field.fieldTypeSolidityEnum === "LITEREF").length;
     }
 
     liteRefArrayLength(which: number): number {
-        // Filter fields by fieldType "literef" and find by index
+        // Filter fields by type "literef" and find by index
         const liteRefField = this.liteRefField(which);
         return liteRefField ? liteRefField.arrayLength : 0;
     }
 
     liteRefSlotNumber(which: number): number {
-        // Filter fields by fieldType "literef" and find by index
+        // Filter fields by type "literef" and find by index
         const liteRefField = this.liteRefField(which);
         return liteRefField ? liteRefField.slot : 0;
     }

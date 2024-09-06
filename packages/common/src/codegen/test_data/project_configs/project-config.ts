@@ -1,7 +1,8 @@
-import { ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
+import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
-const projectConfig: ProjectConfig = {
-    name: "My Project",
+
+const exampleProjectProjectConfig: ProjectConfig = {
+    name: "Example Project",
     scopes: [
         {
             name: "MyScope",
@@ -25,7 +26,7 @@ const projectConfig: ProjectConfig = {
             ])
         }
     ],
-    contracts: new Map<string, string>([
+    contracts: new Map<string, string | ContractConfig>([
         ["Contract1", "config1.json"],
         ["Contract2", "config2.json"]
     ]),
@@ -36,4 +37,4 @@ const projectConfig: ProjectConfig = {
     ])
 };
 
-export default projectConfig;
+export default exampleProjectProjectConfig;

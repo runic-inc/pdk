@@ -12,7 +12,7 @@ const config: ContractConfig = {
         {
             "id": 1,
             "key": "name",
-            "fieldType": "char32",
+            "type": "char32",
             "description": "Name",
             "functionConfig": FunctionConfig.ALL,
         }

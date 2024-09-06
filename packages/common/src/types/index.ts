@@ -23,7 +23,7 @@ export type FieldConfig = {
     id: number;
     key: string;
     description?: string;
-    fieldType: string;
+    type: string;
     arrayLength?: number;
     //values?: PatchworkEnum[];
     permissionId?: number;
@@ -96,6 +96,6 @@ export type ContractRelation = {
 export type ProjectConfig = {
     name: string;
     scopes: ScopeConfig[];
-    contracts: Map<string, string>;
+    contracts: Map<string, string | ContractConfig>;
     contractRelations: Map<string, ContractRelation>;
 }

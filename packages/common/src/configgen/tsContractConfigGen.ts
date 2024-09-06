@@ -47,7 +47,7 @@ export class TSContractConfigGen implements Generator {
             fieldConfig += `            "permissionId": ${field.permissionId},\n`;
         }
         fieldConfig += `            "key": "${field.key}",\n`;
-        fieldConfig += `            "fieldType": "${field.fieldType}",\n`;
+        fieldConfig += `            "type": "${field.type}",\n`;
         if (field.arrayLength !== undefined && field.arrayLength !== 1) {
             fieldConfig += `            "arrayLength": ${field.arrayLength},\n`;
         }

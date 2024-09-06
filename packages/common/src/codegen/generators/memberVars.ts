@@ -1,6 +1,6 @@
+import { Feature } from "../../types";
 import { ContractSchema } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { Feature } from "../../types";
 
 export class MemberVarsGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -20,7 +20,7 @@ export class MemberVarsGen implements Generator {
                 `\n`;
             }
         }
-        if (schema.fields.some((field: any) => field.fieldType === "string")) {
+        if (schema.fields.some((field: any) => field.type === "string")) {
             members += `mapping(uint256 => string) internal _dynamicStringStorage; // tokenId => string\n\n`;
         }
         const hasAnyPatchType = [Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH].some(patch => schema.features.includes(patch));

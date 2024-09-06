@@ -28,7 +28,7 @@ export class JSONSchemaGen implements Generator {
       out += `    {\n`;
       out += `      "id": ${field.id},\n`;
       out += `      "key": "${field.key}",\n`;
-      out += `      "type": "${field.fieldType}",\n`;
+      out += `      "type": "${field.type}",\n`;
       out += `      "arrayLength": ${field.arrayLength},\n`;
       out += `      "description": "${field.description}",\n`;
       if (field.permissionId > 0) {

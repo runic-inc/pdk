@@ -17,7 +17,7 @@ export class FieldFuncGen implements Generator {
                 const permissionLine = field.permissionId ?
                 `if (!(_checkTokenWriteAuth(tokenId) || _permissionsAllow[msg.sender] & 0x${(1 << (field.permissionId - 1)).toString(16)} > 0)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}` :
                 `if (!_checkTokenWriteAuth(tokenId)) {\n    revert IPatchworkProtocol.NotAuthorized(msg.sender);\n}`;
-                if (field.fieldType === "string") {
+                if (field.type === "string") {
                     if (field.arrayLength > 1) {
                         throw new Error("String arrays are not supported in PDK");
                     }

@@ -1,28 +1,36 @@
-import { ContractRelation, ProjectConfig, ScopeConfig } from "../types";
-
+import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from '../types';
 
 export class TSProjectConfigGen {
     constructor() { }
 
     gen(projectConfig: ProjectConfig): string {
-        let out = `import { ContractRelation, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
-        out += `const projectConfig: ProjectConfig = {\n`;
+        const constantName = this.generateConstantName(projectConfig.name);
+        
+        let out = `import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
         out += projectConfig.scopes.map(scope => this.genScopeConfig(scope)).join(',\n');
         out += `\n    ],\n`;
-        out += `    contracts: new Map<string, string>([\n`;
+        out += `    contracts: new Map<string, string | ContractConfig>([\n`;
         out += this.genContractsMap(projectConfig.contracts);
         out += `\n    ]),\n`;
         out += `    contractRelations: new Map<string, ContractRelation>([\n`;
         out += this.genContractRelationsMap(projectConfig.contractRelations);
         out += `\n    ])\n`;
         out += `};\n\n`;
-        out += `export default projectConfig;\n`;
-
+        out += `export default ${constantName};\n`;
         return out;
     }
 
+    private generateConstantName(projectName: string): string {
+        const words = projectName.split(/\s+/);
+        const camelCaseWords = words.map((word, index) => 
+            index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        );
+        return camelCaseWords.join('') + 'ProjectConfig';
+    }
+    
     private genScopeConfig(scopeConfig: ScopeConfig): string {
         let out = `        {\n`;
         out += `            name: "${scopeConfig.name}",\n`;
@@ -62,10 +70,45 @@ export class TSProjectConfigGen {
         return JSON.stringify(value);
     }
 
-    private genContractsMap(contracts: Map<string, string>): string {
+    private genContractsMap(contracts: Map<string, string | ContractConfig>): string {
         return Array.from(contracts.entries())
-            .map(([key, value]) => `        ["${key}", "${value}"]`)
+            .map(([key, value]) => {
+                if (typeof value === 'string') {
+                    return `        ["${key}", "${value}"]`;
+                } else {
+                    return `        ["${key}", ${this.stringifyContractConfig(value)}]`;
+                }
+            })
             .join(',\n');
+    }
+
+    private stringifyContractConfig(config: ContractConfig): string {
+        let out = '{\n';
+        out += `            scopeName: "${config.scopeName}",\n`;
+        out += `            name: "${config.name}",\n`;
+        out += `            symbol: "${config.symbol}",\n`;
+        out += `            baseURI: "${config.baseURI}",\n`;
+        out += `            schemaURI: "${config.schemaURI}",\n`;
+        out += `            imageURI: "${config.imageURI}",\n`;
+        out += `            fields: [\n`;
+        out += config.fields.map(field => {
+            let fieldStr = '                {\n';
+            fieldStr += `                    id: ${field.id},\n`;
+            fieldStr += `                    key: "${field.key}",\n`;
+            fieldStr += `                    type: "${field.type}",\n`;
+            if (field.description) fieldStr += `                    description: "${field.description}",\n`;
+            if (field.functionConfig) fieldStr += `                    functionConfig: FunctionConfig.${field.functionConfig},\n`;
+            fieldStr += '                }';
+            return fieldStr;
+        }).join(',\n');
+        out += '\n            ],\n';
+        out += `            features: [${config.features.map(f => this.formatFeature(f)).join(', ')}]\n`;
+        out += '        }';
+        return out;
+    }
+    
+    private formatFeature(feature: string): string {
+        return feature === "1155PATCH" ? `Feature["${feature}"]` : `Feature.${feature}`;
     }
 
     private genContractRelationsMap(relations: Map<string, ContractRelation>): string {
