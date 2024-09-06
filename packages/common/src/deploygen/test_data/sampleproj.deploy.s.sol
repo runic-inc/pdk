@@ -5,10 +5,10 @@ import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import "./LiteRef8.sol";
 import "./FragmentSingle.sol";
+import "@patchwork/PatchworkProtocol.sol";
 
-contract SampleProjDeploy is Script {
+contract SampleProjectDeploy is Script {
     function run() external {
-
         address ownerAddress = vm.envAddress("OWNER");
         address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");
         console.log("Deployer starting");
@@ -16,10 +16,14 @@ contract SampleProjDeploy is Script {
         console.log("patchwork protocol: ", ppAddress);
 
         vm.startBroadcast();
-        // TODO claim scope
-        LiteRef8 lr8 = new LiteRef8(ppAddress, ownerAddress);
-        FragmentSingle fs = new FragmentSingle(ppAddress, ownerAddress);
-        lr8.registerFragment(fs);
+        PatchworkProtocol pp = PatchworkProtocol(ppAddress);
+        pp.claimScope("MyScope");
+        pp.setScopeRules("MyScope", false, false, true);
+        LiteRef8 literef8 = new LiteRef8(ppAddress, ownerAddress);
+        FragmentSingle fragmentsingle = new FragmentSingle(ppAddress, ownerAddress);
+        literef8.registerFragment(fragmentsingle);
+        pp.addWhitelist("MyScope", address(literef8));
+        pp.addWhitelist("MyScope", address(fragmentsingle));
         vm.stopBroadcast();
     }
 }
