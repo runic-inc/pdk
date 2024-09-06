@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import projectConfig from "../codegen/test_data/project_configs/project-config";
-import projectConfigContractConfig from "../codegen/test_data/project_configs/project-config-contract-config";
+import exampleProjectProjectConfig from "../codegen/test_data/project_configs/project-config";
+import contractConfigProjectProjectConfig from "../codegen/test_data/project_configs/project-config-contract-config";
 import { ContractConfig, FieldConfig, ProjectConfig } from "../types";
 import { JSONProjectConfigLoader } from "./jsonProjectConfigLoader";
 
@@ -44,13 +44,13 @@ describe("JSONProjectConfigLoader", () => {
         const projectConfigPath = path.join(__dirname, '../codegen/test_data/project_configs/project-config.json');
         const projectJson = fs.readFileSync(projectConfigPath, 'utf-8');
         const loadedConfig = new JSONProjectConfigLoader().load(projectJson);
-        expect(loadedConfig).toEqual(projectConfig);
+        expect(loadedConfig).toEqual(exampleProjectProjectConfig);
     });
 
     it("should load a project config matching project-config-contract-config.json", async () => {
         const projectConfigPath = path.join(__dirname, '../codegen/test_data/project_configs/project-config-contract-config.json');
         const projectJson = fs.readFileSync(projectConfigPath, 'utf-8');
         const loadedConfig = new JSONProjectConfigLoader().load(projectJson);
-        compareProjectConfigsWithContractConfig(loadedConfig, projectConfigContractConfig);
+        compareProjectConfigsWithContractConfig(loadedConfig, contractConfigProjectProjectConfig);
     });
 });

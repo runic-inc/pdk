@@ -4,8 +4,10 @@ export class TSProjectConfigGen {
     constructor() { }
 
     gen(projectConfig: ProjectConfig): string {
+        const constantName = this.generateConstantName(projectConfig.name);
+        
         let out = `import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
-        out += `const projectConfig: ProjectConfig = {\n`;
+        out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
         out += projectConfig.scopes.map(scope => this.genScopeConfig(scope)).join(',\n');
@@ -17,10 +19,18 @@ export class TSProjectConfigGen {
         out += this.genContractRelationsMap(projectConfig.contractRelations);
         out += `\n    ])\n`;
         out += `};\n\n`;
-        out += `export default projectConfig;\n`;
+        out += `export default ${constantName};\n`;
         return out;
     }
 
+    private generateConstantName(projectName: string): string {
+        const words = projectName.split(/\s+/);
+        const camelCaseWords = words.map((word, index) => 
+            index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        );
+        return camelCaseWords.join('') + 'ProjectConfig';
+    }
+    
     private genScopeConfig(scopeConfig: ScopeConfig): string {
         let out = `        {\n`;
         out += `            name: "${scopeConfig.name}",\n`;
@@ -80,10 +90,25 @@ export class TSProjectConfigGen {
         out += `            baseURI: "${config.baseURI}",\n`;
         out += `            schemaURI: "${config.schemaURI}",\n`;
         out += `            imageURI: "${config.imageURI}",\n`;
-        out += `            fields: ${JSON.stringify(config.fields, null, 12)},\n`;
-        out += `            features: [${config.features.map(f => `"${f}"`).join(', ')}]\n`;
+        out += `            fields: [\n`;
+        out += config.fields.map(field => {
+            let fieldStr = '                {\n';
+            fieldStr += `                    id: ${field.id},\n`;
+            fieldStr += `                    key: "${field.key}",\n`;
+            fieldStr += `                    type: "${field.type}",\n`;
+            if (field.description) fieldStr += `                    description: "${field.description}",\n`;
+            if (field.functionConfig) fieldStr += `                    functionConfig: FunctionConfig.${field.functionConfig},\n`;
+            fieldStr += '                }';
+            return fieldStr;
+        }).join(',\n');
+        out += '\n            ],\n';
+        out += `            features: [${config.features.map(f => this.formatFeature(f)).join(', ')}]\n`;
         out += '        }';
         return out;
+    }
+    
+    private formatFeature(feature: string): string {
+        return feature === "1155PATCH" ? `Feature["${feature}"]` : `Feature.${feature}`;
     }
 
     private genContractRelationsMap(relations: Map<string, ContractRelation>): string {

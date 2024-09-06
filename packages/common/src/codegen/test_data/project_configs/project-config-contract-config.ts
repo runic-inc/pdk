@@ -1,7 +1,7 @@
 import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
-const projectConfigContractConfig: ProjectConfig = {
-    name: "My Project",
+const contractConfigProjectProjectConfig: ProjectConfig = {
+    name: "Contract Config Project",
     scopes: [
         {
             name: "MyScope",
@@ -25,7 +25,7 @@ const projectConfigContractConfig: ProjectConfig = {
             ])
         }
     ],
-    contracts: new Map<string, ContractConfig>([
+    contracts: new Map<string, string | ContractConfig>([
         ["Contract1", {
             scopeName: "test",
             name: "AccountPatch",
@@ -33,7 +33,6 @@ const projectConfigContractConfig: ProjectConfig = {
             baseURI: "https://mything/my/",
             schemaURI: "https://mything/my-metadata.json",
             imageURI: "https://mything/my/{tokenID}.png",
-            features: [Feature.ACCOUNTPATCH],
             fields: [
                 {
                     id: 1,
@@ -42,7 +41,8 @@ const projectConfigContractConfig: ProjectConfig = {
                     description: "Name",
                     functionConfig: FunctionConfig.ALL,
                 }
-            ]
+            ],
+            features: [Feature.ACCOUNTPATCH]
         }],
         ["Contract2", {
             scopeName: "test",
@@ -51,7 +51,6 @@ const projectConfigContractConfig: ProjectConfig = {
             baseURI: "https://mysecondthing/my/",
             schemaURI: "https://mysecondthing/my-metadata.json",
             imageURI: "https://mysecondthing/my/{tokenID}.png",
-            features: [Feature.PATCH],
             fields: [
                 {
                     id: 1,
@@ -60,7 +59,8 @@ const projectConfigContractConfig: ProjectConfig = {
                     description: "Description",
                     functionConfig: FunctionConfig.ALL,
                 }
-            ]
+            ],
+            features: [Feature.PATCH]
         }]
     ]),
     contractRelations: new Map<string, ContractRelation>([
@@ -70,4 +70,4 @@ const projectConfigContractConfig: ProjectConfig = {
     ])
 };
 
-export default projectConfigContractConfig;
+export default contractConfigProjectProjectConfig;

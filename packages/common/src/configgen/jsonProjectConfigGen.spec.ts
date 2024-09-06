@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import projectConfig from "../codegen/test_data/project_configs/project-config";
-import projectConfigContractConfig from "../codegen/test_data/project_configs/project-config-contract-config";
+import exampleProjectProjectConfig from "../codegen/test_data/project_configs/project-config";
+import contractConfigProjectProjectConfig from "../codegen/test_data/project_configs/project-config-contract-config";
 import { JSONProjectConfigGen } from "./jsonProjectConfigGen";
 
 describe("JSONProjectConfigGen", () => {
@@ -11,7 +11,7 @@ describe("JSONProjectConfigGen", () => {
         const projectJson = fs.readFileSync(projectConfigPath, 'utf-8');
         
         // Generate the JSON string
-        const genString = new JSONProjectConfigGen().gen(projectConfig);
+        const genString = new JSONProjectConfigGen().gen(exampleProjectProjectConfig);
         
         // Parse both JSONs for comparison
         expect(JSON.parse(genString)).toEqual(JSON.parse(projectJson));
@@ -23,7 +23,7 @@ describe("JSONProjectConfigGen", () => {
         const projectJson = fs.readFileSync(projectConfigPath, 'utf-8');
         
         // Generate the JSON string
-        const genString = new JSONProjectConfigGen().gen(projectConfigContractConfig);
+        const genString = new JSONProjectConfigGen().gen(contractConfigProjectProjectConfig);
         
         // Parse both JSONs for comparison
         expect(JSON.parse(genString)).toEqual(JSON.parse(projectJson));

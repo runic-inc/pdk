@@ -1,8 +1,8 @@
 import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
 
-const projectConfig: ProjectConfig = {
-    name: "My Project",
+const exampleProjectProjectConfig: ProjectConfig = {
+    name: "Example Project",
     scopes: [
         {
             name: "MyScope",
@@ -37,4 +37,4 @@ const projectConfig: ProjectConfig = {
     ])
 };
 
-export default projectConfig;
+export default exampleProjectProjectConfig;
