@@ -44,6 +44,7 @@ export const createProjectSlice: StateCreator<Store, [], [], ProjectStore> = (se
         return id;
     },
     deleteContract: (id: string) => {
+        get().removeFragmentFromContracts(id);
         // get index of current contract
         set(
             produce((store: Store) => {

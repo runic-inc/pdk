@@ -21,6 +21,7 @@ import { Label } from '../primitives/label';
 import useStore, { Store } from '../store';
 import { UFieldConfig } from '../types';
 import FeatureEntry from './editorPanel/FeatureItem';
+import FeatureSettings from './editorPanel/FeatureSettings';
 import Field from './editorPanel/FieldItem';
 import NameInput from './editorPanel/NameInput';
 
@@ -71,11 +72,6 @@ const ContractEditor = memo(() => {
     return (
         contractConfig && (
             <div className='flex flex-col gap-4'>
-                <div className='hidden'>
-                    <Label htmlFor='scopeName'>Scope name</Label>
-                    <Input name='scopeName' id='scopeName' value={contractConfig.scopeName} onChange={handleInputChange} placeholder='Scope Name' />
-                </div>
-
                 <div className='flex flex-col gap-4'>
                     <h3 className='font-medium -mx-6 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>
                         Contract details
@@ -162,6 +158,13 @@ const ContractEditor = memo(() => {
                     <Button onClick={handleAddField} variant={'outline'} className='w-full'>
                         Add a new field
                     </Button>
+                </div>
+
+                <div className='flex flex-col gap-2 items-stretch justify-stretch'>
+                    <h3 className='font-medium -mx-6 my-3 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>
+                        Feature settings
+                    </h3>
+                    <FeatureSettings />
                 </div>
 
                 <div className='flex flex-col gap-2 items-stretch justify-stretch'>

@@ -24,7 +24,7 @@
         "@patchworkdev/common/*": ["../../packages/common/src/*"]
     }
     },
-    "include": ["app"],
+    "include": ["src"],
     "references": [
         { "path": "../../packages/common/tsconfig.json" },
         { "path": "./tsconfig.node.json" }

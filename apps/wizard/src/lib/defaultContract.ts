@@ -12,4 +12,10 @@ export default {
     imageURI: 'https://mything/my/{tokenID}.png',
     fields: [],
     features: [Feature.MINTABLE],
+    featureOptions: {
+        [Feature.MINTABLE]: {
+            mintPrice: 0.000111,
+        },
+    },
+    fragments: new Set(),
 } satisfies UContractConfig;

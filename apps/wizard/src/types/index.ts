@@ -1,7 +1,7 @@
 import { ContractConfig, Feature, FieldConfig } from '@patchworkdev/common/types';
 import { ReactNode } from 'react';
 
-export type FeatureInterface = {
+export type FeatureFlag = {
     key: Feature;
     label: string;
     default?: boolean;
@@ -13,11 +13,15 @@ export type FeatureInterface = {
 };
 
 export type FeatureOption = {
+    key: string;
     label: string;
-    name: string;
     type: 'input' | 'select' | 'checkbox' | 'toggle';
     description?: string;
     placeholder?: string;
+};
+
+export type FeatureFlagConfig = {
+    [key: string]: string | number | boolean;
 };
 
 export type FeatureConfig = {
@@ -27,13 +31,18 @@ export type FeatureConfig = {
     autoToggle?: boolean;
     validator?: (value: ContractConfig) => boolean;
     validatorMessage?: string;
-    featureSet: [FeatureInterface, ...FeatureInterface[]];
+    featureSet: [FeatureFlag, ...FeatureFlag[]];
     options: FeatureOption[];
 };
 
 export type UContractConfig = Omit<ContractConfig, 'fields'> & {
     _uid: string;
     fields: UFieldConfig[];
+    featureOptions: Partial<Record<keyof typeof Feature, FeatureFlagConfig>>;
+    mintFee?: number;
+    patchFee?: number;
+    assignFee?: number;
+    fragments: Set<string>;
 };
 
 export type UFieldConfig = FieldConfig & {

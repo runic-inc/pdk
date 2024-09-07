@@ -4,7 +4,7 @@ import { type UserConfig } from 'vite';
 const outputDir = process.env.BUILD_OUT_DIR || 'dist/wizard';
 
 export default {
-    root: 'app',
+    root: 'src',
     build: {
         outDir: path.resolve(__dirname, outputDir),
         emptyOutDir: true,
