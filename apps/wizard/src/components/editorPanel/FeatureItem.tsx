@@ -13,7 +13,7 @@ import useStore, { Store } from '../../store';
 import { FeatureConfig, FeatureOption } from '../../types';
 
 const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => {
-    const { updateContractFeatures } = useStore();
+    const { updateContractFeatures, removeFragmentFromContracts } = useStore();
     const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
     if (!contractConfig) return null;
 
@@ -82,6 +82,13 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
         }
     }, [selected, currentPrimaryFeature, additionalFeatures]);
 
+    const handleMainSelect = (checked: boolean) => {
+        setSelected(!!checked);
+        if (featureGroup.name === 'Assignable' && !checked) {
+            removeFragmentFromContracts(contractConfig._uid);
+        }
+    };
+
     const _featureUID = nanoid(10);
 
     return (
@@ -96,7 +103,7 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
                             id={_featureUID}
                             disabled={featureGroup.autoToggle || (featureGroup.validator ? !featureGroup.validator({ ...contractConfig }) : false)}
                             checked={selected}
-                            onCheckedChange={(checked) => setSelected(!!checked)}
+                            onCheckedChange={handleMainSelect}
                         />
                     </div>
                     <div className='grow flex flex-col gap-1.5'>
@@ -142,10 +149,9 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
                                 ))}
                             </RadioGroup>
                         )}
-                        {(optionalFeatures.length > 0 || featureGroup.options.length > 0) && (
+                        {optionalFeatures.length > 0 && (
                             <div>
-                                <p className='text-sm font-medium'>Options</p>
-                                <div className='flex flex-col gap-2 pt-2'>
+                                <div className='flex flex-col gap-2'>
                                     {optionalFeatures.map((iface) => (
                                         <div className='flex gap-4 items-start' key={iface.key}>
                                             <div className='pt-1'>
@@ -166,19 +172,15 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
                                             </div>
                                         </div>
                                     ))}
-                                    {featureGroup.options.map((option) => {
-                                        contractConfig;
-                                        return (
-                                            <div className='flex gap-4 items-start' key={option.key}>
-                                                {option.type === 'input' && (
-                                                    <div>
-                                                        <Label className='pt-1'>{option.label}</Label>
-                                                        <Input placeholder={option.placeholder} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
+                                </div>
+                            </div>
+                        )}
+                        {featureGroup.options.length > 0 && (
+                            <div>
+                                <div className='flex flex-col gap-2'>
+                                    {featureGroup.options.map((configItem) => (
+                                        <FeatureOptionItem key={configItem.key} configItem={configItem} />
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -192,5 +194,31 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
 export default FeatureItem;
 
 const FeatureOptionItem = memo(({ configItem }: { configItem: FeatureOption }) => {
-    return <></>;
+    const { updateContractConfig } = useStore();
+    const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
+    if (!contractConfig) return null;
+
+    const handleUpdate = (value: string) => {
+        updateContractConfig({
+            ...contractConfig,
+            [configItem.key]: value,
+        });
+    };
+
+    return (
+        <>
+            <div className='flex gap-4 items-start' key={configItem.key}>
+                {configItem.type === 'input' && (
+                    <div>
+                        <Label className='pt-1'>{configItem.label}</Label>
+                        <Input
+                            placeholder={configItem.placeholder}
+                            defaultValue={contractConfig[configItem.key as 'mintFee' | 'assignFee' | 'patchFee']}
+                            onChange={(e) => handleUpdate(e.target.value)}
+                        />
+                    </div>
+                )}
+            </div>
+        </>
+    );
 });

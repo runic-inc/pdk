@@ -13,15 +13,7 @@ export default [
                 default: true,
             },
         ],
-        options: [
-            {
-                key: 'mintFee',
-                label: 'Mint fee',
-                type: 'input',
-                placeholder: '0.000111',
-                description: 'The fee (in ETH) to charge for mints.',
-            },
-        ],
+        options: [],
     },
     {
         name: 'Assignable',

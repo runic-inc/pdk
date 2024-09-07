@@ -13,11 +13,9 @@ export default {
     fields: [],
     features: [Feature.MINTABLE],
     featureOptions: {
-        [Feature.MINTABLE]: [
-            {
-                key: 'mintPrice',
-                value: 0.000111,
-            },
-        ],
+        [Feature.MINTABLE]: {
+            mintPrice: 0.000111,
+        },
     },
+    fragments: new Set(),
 } satisfies UContractConfig;

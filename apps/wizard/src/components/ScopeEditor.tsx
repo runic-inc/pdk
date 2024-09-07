@@ -25,6 +25,13 @@ const ScopeEditor = () => {
         });
     };
 
+    const handleToggle = (key: string, value: boolean) => {
+        updateScopeConfig({
+            ...scopeConfig,
+            [key]: value,
+        });
+    };
+
     return (
         <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-4'>
@@ -56,8 +63,8 @@ const ScopeEditor = () => {
                     <Label htmlFor='scopeName'>Additional Operators</Label>
                     <Input name='scopeName' id='scopeName' placeholder='0x...' />
                     <p data-description className='mt-2 text-sm text-muted-foreground'>
-                        Accounts that are permitted to make protocol state changes on behalf of your app. We'll automatically add your Assignee contracts as
-                        Operators.
+                        Accounts that are permitted to make protocol state changes on behalf of your app. We'll automatically add your Assignee and Patch
+                        contracts as Operators.
                     </p>
                 </div>
 
@@ -80,11 +87,11 @@ const ScopeEditor = () => {
                         Require whitelist
                     </Label>
                     <div className='row-span-2'>
-                        <Switch defaultChecked={true} />
+                        <Switch defaultChecked={scopeConfig.whitelist} onCheckedChange={(v) => handleToggle('whitelist', v)} />
                     </div>
                     <p data-description className='text-sm text-muted-foreground'>
-                        Requires that any contract that claims to be part of your app to be whitelisted. Prevents spoofing when enabled, but can be disabled
-                        when spoofing isn't a concern.
+                        Requires any contract that claims to be part of your app to be whitelisted. Prevents spoofing when enabled, but can be disabled when
+                        spoofing isn't a concern.
                     </p>
                 </div>
 
@@ -93,7 +100,7 @@ const ScopeEditor = () => {
                         Allow user assign
                     </Label>
                     <div className='row-span-2'>
-                        <Switch defaultChecked={false} />
+                        <Switch defaultChecked={scopeConfig.userAssign} onCheckedChange={(v) => handleToggle('userAssign', v)} />
                     </div>
                     <p data-description className='text-sm text-muted-foreground'>
                         Allows accounts to directly make protocol calls to trigger assignments & unassignments. Usually you'll leave this unchecked and handle
@@ -106,7 +113,7 @@ const ScopeEditor = () => {
                         Allow user patch
                     </Label>
                     <div className='row-span-2'>
-                        <Switch defaultChecked={false} />
+                        <Switch defaultChecked={scopeConfig.userPatch} onCheckedChange={(v) => handleToggle('userPatch', v)} />
                     </div>
                     <p data-description className='text-sm text-muted-foreground'>
                         Allows accounts to directly make protocol calls to mint Patches. Usually you'll leave this unchecked and handle Patching logic in your

@@ -21,8 +21,7 @@ export type FeatureOption = {
 };
 
 export type FeatureFlagConfig = {
-    key: string;
-    value: string | number | boolean;
+    [key: string]: string | number | boolean;
 };
 
 export type FeatureConfig = {
@@ -39,7 +38,11 @@ export type FeatureConfig = {
 export type UContractConfig = Omit<ContractConfig, 'fields'> & {
     _uid: string;
     fields: UFieldConfig[];
-    featureOptions?: Partial<Record<keyof typeof Feature, FeatureFlagConfig[]>>;
+    featureOptions: Partial<Record<keyof typeof Feature, FeatureFlagConfig>>;
+    mintFee?: number;
+    patchFee?: number;
+    assignFee?: number;
+    fragments: Set<string>;
 };
 
 export type UFieldConfig = FieldConfig & {
