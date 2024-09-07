@@ -52,7 +52,7 @@ const Field = memo(({ field }: { field: UFieldConfig }) => {
                                 disabled={!filled}
                             >
                                 <span className='font-semibold'>{field.key}</span>
-                                <span className='font-mono text-[10px] uppercase font-semibold'>{field.fieldType != 'empty' && field.fieldType}</span>
+                                <span className='font-mono text-[10px] uppercase font-semibold'>{field.type != 'empty' && field.type}</span>
                                 <span className='font-mono text-[10px] uppercase font-semibold'>
                                     {(field.arrayLength == 0 && 'Dynamic') || (field.arrayLength == 1 && 'Single') || field.arrayLength}
                                 </span>

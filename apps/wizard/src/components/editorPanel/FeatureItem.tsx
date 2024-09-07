@@ -53,9 +53,9 @@ const FeatureItem = memo(({ featureGroup }: { featureGroup: FeatureConfig }) => 
 
     const checkAutoToggle = useCallback(() => {
         if (featureGroup.autoToggle && featureGroup['validator']) {
-            if (featureGroup.validator({ ...contractConfig }) && !selected) {
+            if (featureGroup.validator(contractConfig) && !selected) {
                 setSelected(true);
-            } else if (!featureGroup.validator({ ...contractConfig }) && selected) {
+            } else if (!featureGroup.validator(contractConfig) && selected) {
                 setSelected(false);
             }
         }

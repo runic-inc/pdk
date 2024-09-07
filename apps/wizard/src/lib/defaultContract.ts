@@ -18,4 +18,7 @@ export default {
         },
     },
     fragments: new Set(),
+    mintFee: '',
+    assignFee: '',
+    patchFee: '',
 } satisfies UContractConfig;

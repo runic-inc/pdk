@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../primitives/popove
 import useStore, { Store } from '../../store';
 import { UFieldConfig } from '../../types';
 
-type FieldTypeInfo = {
+type typeInfo = {
     value: FieldTypeEnum;
     label: string;
     description?: string;
@@ -24,7 +24,7 @@ const icons: Record<string, `fa-${string}`> = {
     enum: 'fa-list-ol',
 };
 
-const fieldTypeInfo: FieldTypeInfo[] = [
+const typeInfo: typeInfo[] = [
     {
         value: FieldTypeEnum.LITEREF,
         label: 'literef',
@@ -153,7 +153,7 @@ const fieldTypeInfo: FieldTypeInfo[] = [
     },
 ];
 
-const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
+const typeSelector = ({ field }: { field: UFieldConfig }) => {
     const [open, setOpen] = useState(false);
     const { updateContractConfig } = useStore();
     const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
@@ -161,7 +161,7 @@ const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
     const handleComboboxChange = (value: string) => {
         updateContractConfig({
             ...contractConfig,
-            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, fieldType: value } : _f)),
+            fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, type: value } : _f)),
         });
     };
 
@@ -173,23 +173,23 @@ const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
                     size='input'
                     role='combobox'
                     aria-expanded={open}
-                    className={`w-full justify-between ${field.fieldType ? 'text-foreground' : 'text-muted-foreground font-normal'}`}
+                    className={`w-full justify-between ${field.type ? 'text-foreground' : 'text-muted-foreground font-normal'}`}
                 >
-                    {field.fieldType ?? 'Select a field type'}
+                    {field.type ?? 'Select a field type'}
                     <Icon icon='fa-angles-up-down' />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='p-0'>
-                <Command defaultValue={field.fieldType}>
+                <Command defaultValue={field.type}>
                     <CommandInput placeholder='Search field types...' />
                     <CommandList>
                         <CommandEmpty>Type not found.</CommandEmpty>
                         <CommandGroup>
-                            {fieldTypeInfo.map((_f) => (
+                            {typeInfo.map((_f) => (
                                 <CommandItem
-                                    key={'fieldtype' + _f.label}
+                                    key={'type' + _f.label}
                                     value={_f.label}
-                                    defaultChecked={_f.label === field.fieldType}
+                                    defaultChecked={_f.label === field.type}
                                     onSelect={() => {
                                         handleComboboxChange(_f.label);
                                         setOpen(false);
@@ -198,7 +198,7 @@ const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
                                 >
                                     <div className='font-mono flex justify-between items-center w-full'>
                                         <span className='grow'>{_f.label}</span>
-                                        <Icon icon='fa-check' className={cn('mr-2 h-4 w-4', field.fieldType === _f.label ? 'opacity-100' : 'opacity-0')} />
+                                        <Icon icon='fa-check' className={cn('mr-2 h-4 w-4', field.type === _f.label ? 'opacity-100' : 'opacity-0')} />
                                     </div>
                                     <div className='opacity-50 leading-4 font-normal'>{_f.description}</div>
                                 </CommandItem>
@@ -211,4 +211,4 @@ const FieldTypeSelector = ({ field }: { field: UFieldConfig }) => {
     );
 };
 
-export default FieldTypeSelector;
+export default typeSelector;

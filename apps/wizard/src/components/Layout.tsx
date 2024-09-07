@@ -9,6 +9,7 @@ import ContractEditor from './ContractEditor';
 import ContractList from './ContractList';
 import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
+import ProjectCodeView from './ProjectCodeView';
 import ScopeEditor from './ScopeEditor';
 
 const Layout = () => {
@@ -63,7 +64,7 @@ const Layout = () => {
                 </>
             ) : (
                 <>
-                    <div></div>
+                    <ProjectCodeView />
                     <ScrollArea className='bg-background border border-border rounded shadow-lg'>
                         <div className='p-6 ppb-0'>
                             <h2 className='text-2xl font-bold mb-4'>Project Editor</h2>

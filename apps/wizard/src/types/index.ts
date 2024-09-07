@@ -39,9 +39,9 @@ export type UContractConfig = Omit<ContractConfig, 'fields'> & {
     _uid: string;
     fields: UFieldConfig[];
     featureOptions: Partial<Record<keyof typeof Feature, FeatureFlagConfig>>;
-    mintFee?: number;
-    patchFee?: number;
-    assignFee?: number;
+    mintFee?: string;
+    patchFee?: string;
+    assignFee?: string;
     fragments: Set<string>;
 };
 

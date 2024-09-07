@@ -80,10 +80,11 @@ export class JSONProjectConfigGen {
         } else {
             const generator = new JSONContractConfigGen();
             const contractSchema = parseJson(value);
-            const contractConfigString = generator.gen(contractSchema);
+            const contractConfigString = generator.gen(contractSchema).split('\n');
+            contractConfigString.pop();
 
             return `        "${name}": {\n` +
-                   `            "config": ${contractConfigString}` +
+                   `            "config": ${contractConfigString.join('\n            ')}` +
                    `${fragments}\n` +
                    `        }`;
         }
