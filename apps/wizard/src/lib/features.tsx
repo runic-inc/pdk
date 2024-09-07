@@ -40,7 +40,7 @@ export default [
         icon: 'fa-square-dashed',
         autoToggle: true,
         validator: ({ fields }: ContractConfig) => {
-            return fields.filter((field) => field.fieldType === 'literef').length >= 1 ? true : false;
+            return fields.filter((field) => field.type === 'literef').length >= 1 ? true : false;
         },
         validatorMessage: 'This feature is automatically enabled when a LiteRef field is added.',
         featureSet: [
@@ -56,7 +56,7 @@ export default [
                 optional: true,
                 description: `Saves significant code space in your contract at the expense of CALLs to an external library.`,
                 validator: ({ fields }: ContractConfig) => {
-                    return fields.filter((field) => field.fieldType === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
+                    return fields.filter((field) => field.type === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
                 },
                 validatorMessage: 'Requires a LiteRef field with a cardinality of 0.',
             },

@@ -47,7 +47,7 @@ const ContractEditor = memo(() => {
                     id: contractConfig.fields.length + 1,
                     key: '',
                     description: '',
-                    fieldType: 'char32',
+                    type: 'char32',
                     arrayLength: 1,
                     functionConfig: FunctionConfig.ALL,
                 },
