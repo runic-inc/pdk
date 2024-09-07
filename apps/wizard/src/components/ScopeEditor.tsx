@@ -1,3 +1,4 @@
+import DynamicInputGroup from '../primitives/dynamic-input-group';
 import { Input } from '../primitives/input';
 import { Label } from '../primitives/label';
 import { Switch } from '../primitives/switch';
@@ -26,6 +27,13 @@ const ScopeEditor = () => {
     };
 
     const handleToggle = (key: string, value: boolean) => {
+        updateScopeConfig({
+            ...scopeConfig,
+            [key]: value,
+        });
+    };
+
+    const handleDynamicInputChange = (key: 'bankers' | 'operators', value: string[]) => {
         updateScopeConfig({
             ...scopeConfig,
             [key]: value,
@@ -61,7 +69,11 @@ const ScopeEditor = () => {
 
                 <div>
                     <Label htmlFor='scopeName'>Additional Operators</Label>
-                    <Input name='scopeName' id='scopeName' placeholder='0x...' />
+                    <DynamicInputGroup
+                        placeholder='0x...'
+                        defaultValues={scopeConfig.operators || []}
+                        onChange={(v) => handleDynamicInputChange('operators', v)}
+                    />
                     <p data-description className='mt-2 text-sm text-muted-foreground'>
                         Accounts that are permitted to make protocol state changes on behalf of your app. We'll automatically add your Assignee and Patch
                         contracts as Operators.
@@ -70,7 +82,7 @@ const ScopeEditor = () => {
 
                 <div>
                     <Label htmlFor='scopeName'>Bankers</Label>
-                    <Input name='scopeName' id='scopeName' placeholder='0x...' />
+                    <DynamicInputGroup placeholder='0x...' defaultValues={scopeConfig.bankers || []} onChange={(v) => handleDynamicInputChange('bankers', v)} />
                     <p data-description className='mt-2 text-sm text-muted-foreground'>
                         Accounts that are allowed to withdraw funds from your app's mint fee collector
                     </p>
