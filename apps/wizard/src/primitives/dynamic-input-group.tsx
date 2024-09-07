@@ -9,7 +9,7 @@ interface DynamicInputGroupProps {
 }
 
 const DynamicInputGroup: React.FC<DynamicInputGroupProps> = ({ onChange, placeholder, defaultValues }) => {
-    const [inputValues, setInputValues] = useState<string[]>(defaultValues);
+    const [inputValues, setInputValues] = useState<string[]>(defaultValues.length ? defaultValues : ['']);
 
     const handleInputChange = (index: number, value: string) => {
         const updatedValues = [...inputValues];
