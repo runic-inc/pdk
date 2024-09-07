@@ -3,15 +3,11 @@ import { Input } from '../primitives/input';
 import { Label } from '../primitives/label';
 import { Switch } from '../primitives/switch';
 import useStore, { Store } from '../store';
+import sanitizeName from '../utils/sanitizeName';
 
 const ScopeEditor = () => {
     const { scopeConfig, updateScopeConfig, setEditor } = useStore();
-    const scopeName = useStore((state: Store) =>
-        state.scopeConfig.name
-            .replace(/[^a-zA-Z0-9\s]/g, '')
-            .replace(/\s+/g, '-')
-            .toLowerCase(),
-    );
+    const scopeName = useStore((state: Store) => sanitizeName(state.scopeConfig.name));
 
     const checkInvalidChar = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9a-zA-Z]/.test(e.key)) {
