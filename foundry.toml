@@ -1,8 +1,8 @@
 [profile.default]
 libs = ['lib']
-src = 'packages/pdk/src/codegen/test_data'
-out = 'packages/pdk/src/codegen/test_data/out'
-test = 'packages/pdk/src/codegen/test_data/test'
-cache_path = 'packages/pdk/src/codegen/test_data/cache'
+src = 'packages/common/src/codegen/test_data'
+out = 'packages/common/src/codegen/test_data/out'
+test = 'packages/common/src/codegen/test_data/test'
+cache_path = 'packages/common/src/codegen/test_data/cache'
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

@@ -1,0 +1,4 @@
+@openzeppelin/=lib/openzeppelin-contracts/
+@patchwork/=lib/patchwork/src/
+forge-std/=lib/forge-std/src/
+lib/=lib/
