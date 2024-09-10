@@ -3,11 +3,13 @@
     "description": "Patchwork Development Kit",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "version": "0.0.1",
     "scripts": {
         "test": "jest --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
         "test:features-build": "jest src/codegen/test/featurePermutationBuilds.test.ts",
         "test:fields-build": "jest src/codegen/test/fieldPermutationBuilds.test.ts",
-        "build": "tsc"
+        "build": "tsc",
+        "prepublishOnly": "pnpm build"
     },
     "keywords": [
         "patchwork",
