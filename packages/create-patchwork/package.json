@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [],
   "author": "",
