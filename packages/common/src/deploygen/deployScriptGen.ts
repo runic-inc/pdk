@@ -1,4 +1,4 @@
-import { ProjectConfig } from "../types";
+import { ContractConfig, ProjectConfig } from "../types";
 
 export class DeployScriptGen {
     constructor() { }
@@ -11,8 +11,10 @@ export class DeployScriptGen {
         script += `import "forge-std/console.sol";\n`;
 
         console.log(projectConfig.contracts.keys());
-        projectConfig.contracts.forEach((value: string, key: string) => {
-            script += `import "./${value.replace(".json", ".sol")}";\n`;
+        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
+            if (typeof value === "string") {
+                script += `import "./${value.replace(".json", ".sol")}";\n`;
+            }
         });
 
         script += `import "@patchwork/PatchworkProtocol.sol";\n`;
@@ -39,13 +41,18 @@ export class DeployScriptGen {
         }
 
         // deploy each contract
-        projectConfig.contracts.forEach((value: string, key: string) => {
+
+        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
             const contractName = key;
+            if (typeof value === "string") {
             script += `        ${contractName} ${contractName.toLowerCase()} = new ${contractName}(ppAddress, ownerAddress);\n`;
+            } else {
+            // Handle ContractConfig logic here
+            }
         });
 
         // register fragments
-        projectConfig.contracts.forEach((value: string, key: string) => {
+        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
                 for (const fragment of projectConfig.contractRelations.get(key)?.fragments || []) {
@@ -55,7 +62,7 @@ export class DeployScriptGen {
         });
 
         // whitelist
-        projectConfig.contracts.forEach((value: string, key: string) => {
+        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
             const contractName = key;
             // TODO FIX - load contract config to get scope name
             // Additional logic for whitelisting if applicable
