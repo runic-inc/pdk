@@ -35,7 +35,7 @@ function generateFieldPermutations(): FieldConfig[][] {
     permutations.push([{
       id: 1,
       key: `field_${actualFieldType}`,
-      fieldType: actualFieldType,
+      type: actualFieldType,
       description: `A single ${actualFieldType} field`,
     }]);
 
@@ -44,7 +44,7 @@ function generateFieldPermutations(): FieldConfig[][] {
       permutations.push([{
         id: 1,
         key: `array_${actualFieldType}`,
-        fieldType: actualFieldType,
+        type: actualFieldType,
         arrayLength: 4,
         description: `An array of ${actualFieldType} fields`,
       }]);
