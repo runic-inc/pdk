@@ -1,5 +1,4 @@
-name: Run Node Tests in Monorepo
-
+name: Run PDK tests
 on:
   push:
     branches:
