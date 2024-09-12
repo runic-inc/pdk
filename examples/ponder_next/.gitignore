@@ -39,3 +39,5 @@ next-env.d.ts
 # Ponder
 /generated/
 /.ponder/
+
+/contracts/cache/
