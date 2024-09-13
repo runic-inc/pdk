@@ -1,4 +1,4 @@
-name: Run PDK tests
+name: Run Node tests
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  test:
+  run_node_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
