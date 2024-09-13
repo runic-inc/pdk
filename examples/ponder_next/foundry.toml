@@ -1,0 +1,19 @@
+[profile.default]
+libs = ['lib']
+src = 'contracts/src'
+out = 'contracts/out'
+test = 'contracts/test'
+script = 'contracts/script'
+cache_path = 'contracts/cache'
+
+remappings = [
+    '@patchwork/=./node_modules/@patchworkdev/contracts/src/',
+    '@openzeppelin/=./node_modules/@openzeppelin/'
+]
+allow_paths = [
+    "./node_modules/@patchworkdev/contracts/src/",
+    "./node_modules/@openzeppelin/contracts/",
+    "./node_modules/@openzeppelin/contracts/utils/",
+    "./node_modules/@openzeppelin/contracts/token/",
+    "./node_modules/@openzeppelin/contracts/access/"
+]
