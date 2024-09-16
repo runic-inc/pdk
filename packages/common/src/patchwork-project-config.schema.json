@@ -1,0 +1,108 @@
+{
+    "$id": "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Patchwork Project Config",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The name of the project"
+      },
+      "scopes": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "whitelist": {
+              "type": "boolean"
+            },
+            "userAssign": {
+              "type": "boolean"  
+            },
+            "userPatch": {
+              "type": "boolean"
+            },
+            "bankers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "operators": {
+              "type": "array", 
+              "items": {
+                "type": "string"
+              }
+            },
+            "mintConfigs": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "flatFee": {
+                    "type": "number"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "patchFees": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "assignFees": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "contracts": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "config": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "fragments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "config"
+          ]
+        }
+      }
+    },
+    "required": [
+      "name",
+      "scopes",
+      "contracts"
+    ]
+  }
