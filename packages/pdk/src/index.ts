@@ -132,7 +132,7 @@ function generateSolidity(argv: any) {
         } else {
             console.error(`Invalid config file: ${configFile}`);
             process.exit(1);
-
+        }
     }
 }
 
@@ -180,6 +180,5 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
         }
         schema = parsedSchema;
     }
-
     return schema;
 }

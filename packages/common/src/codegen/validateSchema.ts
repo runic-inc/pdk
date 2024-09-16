@@ -30,7 +30,7 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
         errors: [createErrorObject("required", "must have required property '$schema'", { missingProperty: '$schema' })]
       };
     }
-    if (schema !== "https://patchwork.dev/schema/patchwork-contract-config.schema.json" || schema !== "https://patchwork.dev/schema/patchwork-project-config.schema.json") {
+    if (!(schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json" || schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json")) {
       return {
         isValid: false,
         errors: [createErrorObject("const", "must be one of", { allowedValues: ["https://patchwork.dev/schema/patchwork-contract-config.schema.json", "https://patchwork.dev/schema/patchwork-project-config.schema.json"] })]

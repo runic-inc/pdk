@@ -109,7 +109,7 @@ describe("validateSchema", () => {
     expect(result.errors.some(
       (error: ErrorObject) =>
         error.keyword === "const" &&
-        error.message === "must be equal to constant"
+        error.message === "must be one of"
     )).toBe(true);
   });
 
