@@ -11,7 +11,7 @@ function generateField(features: Feature[]): FieldConfig[] {
     {
       id: 1,
       key: "single_char_field",
-      fieldType: "char16",
+      type: "char16",
       description: "A single char field",
     },
   ];
@@ -21,7 +21,7 @@ function generateField(features: Feature[]): FieldConfig[] {
     fields.push({
       id: fields.length + 1,
       key: 'dynamic_literef',
-      fieldType: 'literef',
+      type: 'literef',
       arrayLength: 0,
       description: 'Dynamic literef array for DYNAMICREFLIBRARY feature',
     });
