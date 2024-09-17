@@ -2,6 +2,7 @@ import fs from 'fs';
 import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject } from "ajv";
 import { parseJson } from './contractSchemaJsonParser';
+import { ContractSchemaImpl } from './contractSchema';
 
 // Define a structured return type
 interface ValidationResult {
@@ -49,7 +50,7 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       // If JSON schema validation passes for a contract config, create ContractSchemaImpl and validate
       try {
         const contractSchema = parseJson(jsonData);
-        contractSchema.validate();
+        new ContractSchemaImpl(contractSchema).validate();
       } catch (error) {
         return {
           isValid: false,

@@ -32,7 +32,7 @@ describe('generateSolidityCodeFromJSON', () => {
         const jsonData = JSON.parse(fs.readFileSync(files.json, 'utf8'));
         const solidityExpected = fs.readFileSync(files.sol, 'utf8');
 
-        const solidityGenerated = gen.gen(parseJson(jsonData));
+        const solidityGenerated = gen.gen(new ContractSchemaImpl(parseJson(jsonData)));
 
         expect(solidityGenerated).toEqual(solidityExpected);
       });

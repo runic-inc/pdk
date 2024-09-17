@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { parseJson } from "../codegen/contractSchemaJsonParser";
 import { TSContractConfigGen } from "./tsContractConfigGen";
+import { ContractSchemaImpl } from "../codegen/contractSchema";
 
 type GroupedFiles = {
     [key: string]: {
@@ -36,11 +37,11 @@ describe("TypeScriptContractConfigGen", () => {
             // 1. Construct ContractSchema from JSON
             const jsonString: string = fs.readFileSync(files.json, "utf8");
             const jsonData = JSON.parse(jsonString);
-            const contractSchema = parseJson(jsonData);
+            const contractConfig = parseJson(jsonData);
 
             // 2. Call TSContractConfigGen with the ContractSchema
             const generator = new TSContractConfigGen();
-            const generatedTypeScript: string = generator.gen(contractSchema);
+            const generatedTypeScript: string = generator.gen(new ContractSchemaImpl(contractConfig));
 
             // 3. Read the existing TypeScript file
             const existingTypeScript: string = fs.readFileSync(files.ts, "utf8");

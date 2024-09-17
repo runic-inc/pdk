@@ -1,4 +1,4 @@
-import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema, JSONProjectConfigLoader } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema, JSONProjectConfigLoader, ContractConfig } from "@patchworkdev/common";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -106,15 +106,15 @@ function generateSolidity(argv: any) {
                 // Project config
                 const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
                 if (contract) {
-                    const contractSchema = projectConfig.contracts.get(contract);
-                    if (!contractSchema) {
+                    const contractConfig = projectConfig.contracts.get(contract);
+                    if (!contractConfig) {
                         console.error(`Contract '${contract}' not found in the project config.`);
                         process.exit(1);
                     }
-                    generateContract(contractSchema as ContractSchemaImpl, outputDir);
+                    generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
                 } else {
-                    projectConfig.contracts.forEach((contractSchema, name) => {
-                        generateContract(contractSchema as ContractSchemaImpl, outputDir);
+                    projectConfig.contracts.forEach((contractConfig, name) => {
+                        generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
                     });
                 }
             } else {
@@ -163,11 +163,7 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
             throw new Error("Invalid file type. Please provide a JSON or TS file.");
         }
         const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-        const parsedSchema = parseJson(jsonData);
-        if (!(parsedSchema instanceof ContractSchemaImpl)) {
-            throw new Error("Parsed schema is not an instance of ContractSchemaImpl");
-        }
-        schema = parsedSchema;
+        schema = new ContractSchemaImpl(parseJson(jsonData));
     }
     return schema;
 }

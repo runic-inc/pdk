@@ -15,9 +15,7 @@ export class JSONProjectConfigLoader {
             if (v.config && typeof v.config === 'string') {
                 contracts.set(key, v.config);
             } else {
-                const contractSchema = parseJson(v.config);
-                const contractConfig: ContractConfig = this.extractContractConfig(contractSchema);
-                contracts.set(key, contractConfig);
+                contracts.set(key, parseJson(v.config));
             }
             if (v.fragments && Array.isArray(v.fragments)) {
                 contractRelations.set(key, { fragments: v.fragments });
@@ -31,19 +29,6 @@ export class JSONProjectConfigLoader {
             }),
             contracts: contracts,
             contractRelations: contractRelations
-        };
-    }
-
-    private extractContractConfig(contractSchema: ContractSchema): ContractConfig {
-        return {
-            scopeName: contractSchema.scopeName,
-            name: contractSchema.name,
-            symbol: contractSchema.symbol,
-            baseURI: contractSchema.baseURI,
-            schemaURI: contractSchema.schemaURI,
-            imageURI: contractSchema.imageURI,
-            fields: contractSchema.fields.map(field => ({...field})),
-            features: contractSchema.features.map(feature => feature as Feature),
         };
     }
 
