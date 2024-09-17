@@ -42,11 +42,6 @@ const argv = yargs(hideBin(process.argv))
                     type: "string",
                     description: "Root directory for the TS files (defaults to 'src')",
                 })
-                .option("project", {
-                    alias: "p",
-                    type: "string",
-                    description: "Name of the project (required for project configs)"
-                })
                 .option("contract", {
                     alias: "c",
                     type: "string",
@@ -98,7 +93,6 @@ function generateSolidity(argv: any) {
     const outputDir = argv.output || process.cwd();
     const rootDir = argv.rootdir || "src";
     const tmpout = "tmpout";
-    const project = argv.project;
     const contract = argv.contract;
 
     for (const configFile of configFiles) {
@@ -110,10 +104,6 @@ function generateSolidity(argv: any) {
                 generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
             } else if (validateSchema(jsonData, PROJECT_SCHEMA).isValid) {
                 // Project config
-                if (!project) {
-                    console.error("Please provide a project name when using a project config.");
-                    process.exit(1);
-                }
                 const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
                 if (contract) {
                     const contractSchema = projectConfig.contracts.get(contract);
