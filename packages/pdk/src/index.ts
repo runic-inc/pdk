@@ -136,9 +136,21 @@ function generateContract(schema: ContractSchemaImpl, outputDir: string) {
     const solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
     const jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
     const solidityCode = new MainContractGen().gen(schema);
-    const outputPath = path.join(outputDir, solidityGenFilename);
+    const solidityUserCode = new UserContractGen().gen(schema);
+    const jsonSchema = new JSONSchemaGen().gen(schema);
+    let outputPath = path.join(outputDir, solidityGenFilename);
     fs.writeFileSync(outputPath, solidityCode);
     console.log(`Solidity gen file generated at ${outputPath}`);
+    outputPath = path.join(outputDir, solidityUserFilename);
+    if (fs.existsSync(outputPath)) {
+        console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
+    } else {
+        fs.writeFileSync(outputPath, solidityUserCode);
+        console.log(`Solidity user file generated at ${outputPath}`);
+    }
+    outputPath = path.join(outputDir, jsonFilename);
+    fs.writeFileSync(outputPath, jsonSchema);
+    console.log(`JSON Schema file generated at ${outputPath}`);
 }
 
 function getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
