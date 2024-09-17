@@ -1,4 +1,5 @@
 {
+    "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",
     "name": "Contract Config Project",
     "scopes": {
         "MyScope": {
