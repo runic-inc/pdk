@@ -45,20 +45,19 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       };
     }
 
-    // If JSON schema validation passes, create ContractSchemaImpl and validate
-    try {
-      const contractSchema = parseJson(jsonData);
-      contractSchema.validate();
-      return {
-        isValid: true,
-        errors: []
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [createErrorObject("contractSchema", (error as Error).message, {})]
-      };
+    if (schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
+      // If JSON schema validation passes for a contract config, create ContractSchemaImpl and validate
+      try {
+        const contractSchema = parseJson(jsonData);
+        contractSchema.validate();
+      } catch (error) {
+        return {
+          isValid: false,
+          errors: [createErrorObject("contractSchema", (error as Error).message, {})]
+        };
+      }
     }
+    // TODO project validation
   } catch (error: unknown) {
     console.error("Error reading schema file:", (error as Error).message);
     return {
@@ -66,6 +65,10 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       errors: [createErrorObject("$schema", (error as Error).message, {})]
     };
   }
+  return {
+    isValid: true,
+    errors: []
+  };
 }
 
 function createErrorObject(keyword: string, message: string, params: Record<string, any>): ErrorObject {

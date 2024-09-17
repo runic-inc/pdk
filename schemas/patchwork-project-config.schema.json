@@ -3,6 +3,11 @@
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "title": "Patchwork Project Config",
     "type": "object",
+    "required": [
+      "name",
+      "scopes",
+      "contracts"
+    ],
     "properties": {
       "name": {
         "type": "string",
@@ -12,6 +17,9 @@
         "type": "object",
         "additionalProperties": {
           "type": "object",
+          "required": [
+            "name"
+          ],
           "properties": {
             "name": {
               "type": "string"
@@ -66,16 +74,16 @@
                 "type": "number"
               }
             }
-          },
-          "required": [
-            "name"
-          ]
+          }
         }
       },
       "contracts": {
         "type": "object",
         "additionalProperties": {
           "type": "object",
+          "required": [
+            "config"
+          ],
           "properties": {
             "config": {
               "anyOf": [
@@ -83,7 +91,8 @@
                   "type": "string"
                 },
                 {
-                  "type": "object"
+                  "type": "object",
+                  "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json"
                 }
               ]
             },
@@ -93,16 +102,8 @@
                 "type": "string"
               }
             }
-          },
-          "required": [
-            "config"
-          ]
+          }
         }
       }
-    },
-    "required": [
-      "name",
-      "scopes",
-      "contracts"
-    ]
+    }
   }
