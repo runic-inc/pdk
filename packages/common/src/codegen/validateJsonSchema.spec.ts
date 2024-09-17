@@ -3,7 +3,7 @@ import path from "path";
 import { ErrorObject } from "ajv";
 import { validateSchema } from "./validateSchema";
 
-const schemaFile: string = "./src/patchwork-contract-config.schema.json";
+const schemaFile: string = "../../schemas/patchwork-contract-config.schema.json";
 
 type GroupedFiles = {
   [key: string]: {

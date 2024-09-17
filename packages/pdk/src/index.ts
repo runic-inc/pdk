@@ -5,7 +5,11 @@ import path from "path";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { launchWizardApp } from "./wizardServer";
-import { json } from "stream/consumers";
+
+console.log(__dirname);
+
+const CONTRACT_SCHEMA = `${__dirname}/../../../schemas/patchwork-contract-config.schema.json`;
+const PROJECT_SCHEMA = `${__dirname}/../../../schemas/patchwork-project-config.schema.json`;
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -70,12 +74,12 @@ function validateConfig(argv: any): void {
     
     let result;
     if (jsonData.$schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
-        result = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
+        result = validateSchema(jsonData, CONTRACT_SCHEMA);
         if (result.isValid) {
             console.log("The file is a valid Patchwork contract configuration.");
         }
     } else if (jsonData.$schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json") {
-        result = validateSchema(jsonData, "./src/patchwork-project-config.schema.json");
+        result = validateSchema(jsonData, PROJECT_SCHEMA);
         if (result.isValid) {
             console.log("The file is a valid Patchwork project configuration.");
         }
@@ -101,10 +105,10 @@ function generateSolidity(argv: any) {
         const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
         if (configFile.endsWith(".json")) {
-            if (validateSchema(jsonData, "./src/patchwork-contract-config.schema.json").isValid) {
+            if (validateSchema(jsonData, CONTRACT_SCHEMA).isValid) {
                 // Contract config
                 generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
-            } else if (validateSchema(jsonData, "./src/patchwork-project-config.schema.json").isValid) {
+            } else if (validateSchema(jsonData, PROJECT_SCHEMA).isValid) {
                 // Project config
                 if (!project) {
                     console.error("Please provide a project name when using a project config.");
@@ -169,11 +173,6 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
             throw new Error("Invalid file type. Please provide a JSON or TS file.");
         }
         const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-        const validationResult = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
-        if (!validationResult.isValid) {
-            console.log(`${configFile} did not validate:`, validationResult.errors);
-            process.exit(1);
-        }
         const parsedSchema = parseJson(jsonData);
         if (!(parsedSchema instanceof ContractSchemaImpl)) {
             throw new Error("Parsed schema is not an instance of ContractSchemaImpl");

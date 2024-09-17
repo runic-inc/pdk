@@ -13,6 +13,7 @@ export class JSONProjectConfigGen {
         });
         return `` +
             `{\n` +
+            `    "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",\n` +
             `    "name": "${projectConfig.name}",\n` +
             `    "scopes": {\n` +
             projectConfig.scopes.map(scope => {
