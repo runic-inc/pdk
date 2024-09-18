@@ -4,7 +4,7 @@ import { execa } from 'execa';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import pico from "picocolors";
-import { installNodeDependencies, initGitRepo } from './calls.js';
+import { installNodeDependencies, initGitRepo, forgeBuild } from './calls.js';
 
 // Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -53,6 +53,7 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
         // );
         await installNodeDependencies(targetDir);
         await initGitRepo(targetDir);
+        await forgeBuild(targetDir);
         // pdk deps install - foundry, solidity
         // git init `git init` , `git add .`, `git commit -m "Initial commit"`
     } catch (e) {

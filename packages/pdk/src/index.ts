@@ -5,6 +5,9 @@ import path from "path";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { launchWizardApp } from "./wizardServer";
+import { generateSchema } from "./generateSchema";
+import { generateABIs } from "./generateABIs";
+import { findConfig } from "./helpers/config";
 
 console.log(__dirname);
 
@@ -58,6 +61,40 @@ const argv = yargs(hideBin(process.argv))
             launchWizardApp();
         }
     )
+    .command(
+        "generateTsABIs",
+        "Generate TypeScript ABIs for ponder",
+        {},
+        async () => {
+            console.log("Generating TypeScript ABIs...");
+            const configPath = findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            const buildOutDir = path.join(path.dirname(configPath), "contracts", "out");
+            const abiDir = path.join(path.dirname(configPath), "", "abis");
+            await generateABIs(buildOutDir, abiDir);
+        }
+    )
+    .command(
+        "generateSchema",
+        "Generate the ponder schema",
+        {},
+        () => {
+            console.log("Generating Ponder Schema");
+            const configPath = findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            const abiDir = path.join(path.dirname(configPath), "", "abis");
+            const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
+            generateSchema(abiDir, ponderSchema);
+        }
+    )
     .demandCommand(1, "You must provide a valid command")
     .help("h")
     .alias("h", "help")
@@ -66,7 +103,7 @@ const argv = yargs(hideBin(process.argv))
 function validateConfig(argv: any): void {
     const configFile = argv.configFile;
     const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-    
+
     let result;
     if (jsonData.$schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
         result = validateSchema(jsonData, CONTRACT_SCHEMA);

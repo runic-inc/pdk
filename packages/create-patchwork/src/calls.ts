@@ -61,3 +61,16 @@ export async function initGitRepo(targetDir: string): Promise<void> {
     );
 
 }
+
+export async function forgeBuild(targetDir: string): Promise<void> {
+    await oraPromise(
+        execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Building contracts`,
+            failText: "Failed to build contracts",
+            successText: `Contracts built successfully`,
+        },
+    );
+}
