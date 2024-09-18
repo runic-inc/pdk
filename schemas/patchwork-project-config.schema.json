@@ -1,0 +1,109 @@
+{
+    "$id": "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "Patchwork Project Config",
+    "type": "object",
+    "required": [
+      "name",
+      "scopes",
+      "contracts"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The name of the project"
+      },
+      "scopes": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "whitelist": {
+              "type": "boolean"
+            },
+            "userAssign": {
+              "type": "boolean"  
+            },
+            "userPatch": {
+              "type": "boolean"
+            },
+            "bankers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "operators": {
+              "type": "array", 
+              "items": {
+                "type": "string"
+              }
+            },
+            "mintConfigs": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "flatFee": {
+                    "type": "number"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "patchFees": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "assignFees": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "contracts": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": [
+            "config"
+          ],
+          "properties": {
+            "config": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json"
+                }
+              ]
+            },
+            "fragments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }

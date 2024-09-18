@@ -1,7 +1,9 @@
 import { ContractConfig, Feature, FieldConfig } from "../types";
-import { ContractSchemaImpl, type ContractSchema } from "./contractSchema";
 
-export function parseJson(jsonData: any): ContractSchema {
+/**
+ * Parse raw JSON object to a ContractConfig which can be fed to a ContractSchemaImpl
+ */
+export function parseJson(jsonData: any): ContractConfig {
     let contractConfig: ContractConfig = {
         scopeName: jsonData.scopeName,
         name: jsonData.name,
@@ -12,7 +14,7 @@ export function parseJson(jsonData: any): ContractSchema {
         fields: parseFieldEntries(jsonData),
         features: parseFeatures(jsonData),
     };
-    return new ContractSchemaImpl(contractConfig);
+    return contractConfig;
 }
 
 function parseFeatures(jsonData: any): Feature[] {

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { parseJson } from "../codegen/contractSchemaJsonParser";
 import { JSONContractConfigGen } from "./jsonContractConfigGen";
+import { ContractSchemaImpl } from "../codegen/contractSchema";
 
 type GroupedFiles = {
     [key: string]: {
@@ -34,11 +35,11 @@ describe("JSONContractConfigGen", () => {
                 // 1. Construct ContractSchema from JSON
                 const originalJsonString: string = fs.readFileSync(files.json, "utf8");
                 const originalJson = JSON.parse(originalJsonString);
-                const contractSchema = parseJson(originalJson);
+                const contractConfig = parseJson(originalJson);
 
                 // 2. Call JSONContractConfigGen with the ContractSchema
                 const generator = new JSONContractConfigGen();
-                const generatedJsonString: string = generator.gen(contractSchema);
+                const generatedJsonString: string = generator.gen(new ContractSchemaImpl(contractConfig));
 
                 // 3. Compare generated JSON with original JSON
                 const generatedJson = JSON.parse(generatedJsonString);

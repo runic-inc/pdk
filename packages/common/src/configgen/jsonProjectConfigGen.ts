@@ -1,3 +1,4 @@
+import { ContractSchemaImpl } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
 import { ContractConfig, ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
 import { JSONContractConfigGen } from './jsonContractConfigGen';
@@ -13,6 +14,7 @@ export class JSONProjectConfigGen {
         });
         return `` +
             `{\n` +
+            `    "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",\n` +
             `    "name": "${projectConfig.name}",\n` +
             `    "scopes": {\n` +
             projectConfig.scopes.map(scope => {
@@ -79,8 +81,8 @@ export class JSONProjectConfigGen {
                    `        }`;
         } else {
             const generator = new JSONContractConfigGen();
-            const contractSchema = parseJson(value);
-            const contractConfigString = generator.gen(contractSchema).split('\n');
+            const contractConfig = parseJson(value);
+            const contractConfigString = generator.gen(new ContractSchemaImpl(contractConfig)).split('\n');
             contractConfigString.pop();
 
             return `        "${name}": {\n` +

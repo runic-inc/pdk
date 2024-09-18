@@ -2,6 +2,7 @@ import fs from 'fs';
 import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject } from "ajv";
 import { parseJson } from './contractSchemaJsonParser';
+import { ContractSchemaImpl } from './contractSchema';
 
 // Define a structured return type
 interface ValidationResult {
@@ -30,10 +31,10 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
         errors: [createErrorObject("required", "must have required property '$schema'", { missingProperty: '$schema' })]
       };
     }
-    if (schema !== "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
+    if (!(schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json" || schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json")) {
       return {
         isValid: false,
-        errors: [createErrorObject("const", "must be equal to constant", { allowedValue: "https://patchwork.dev/schema/patchwork-contract-config.schema.json" })]
+        errors: [createErrorObject("const", "must be one of", { allowedValues: ["https://patchwork.dev/schema/patchwork-contract-config.schema.json", "https://patchwork.dev/schema/patchwork-project-config.schema.json"] })]
       };
     }
 
@@ -45,20 +46,19 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       };
     }
 
-    // If JSON schema validation passes, create ContractSchemaImpl and validate
-    try {
-      const contractSchema = parseJson(jsonData);
-      contractSchema.validate();
-      return {
-        isValid: true,
-        errors: []
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [createErrorObject("contractSchema", (error as Error).message, {})]
-      };
+    if (schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
+      // If JSON schema validation passes for a contract config, create ContractSchemaImpl and validate
+      try {
+        const contractSchema = parseJson(jsonData);
+        new ContractSchemaImpl(contractSchema).validate();
+      } catch (error) {
+        return {
+          isValid: false,
+          errors: [createErrorObject("contractSchema", (error as Error).message, {})]
+        };
+      }
     }
+    // TODO project validation
   } catch (error: unknown) {
     console.error("Error reading schema file:", (error as Error).message);
     return {
@@ -66,6 +66,10 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       errors: [createErrorObject("$schema", (error as Error).message, {})]
     };
   }
+  return {
+    isValid: true,
+    errors: []
+  };
 }
 
 function createErrorObject(keyword: string, message: string, params: Record<string, any>): ErrorObject {

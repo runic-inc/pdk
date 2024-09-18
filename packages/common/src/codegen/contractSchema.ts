@@ -116,7 +116,7 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     buildStorage(entries: FieldConfig[]): ContractStorage {
-        console.log(entries);
+        // console.log(entries);
         let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.type);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;

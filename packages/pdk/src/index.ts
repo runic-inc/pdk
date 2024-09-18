@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema, JSONProjectConfigLoader, ContractConfig } from "@patchworkdev/common";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -7,20 +6,25 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { launchWizardApp } from "./wizardServer";
 
+console.log(__dirname);
+
+const CONTRACT_SCHEMA = `${__dirname}/../../../schemas/patchwork-contract-config.schema.json`;
+const PROJECT_SCHEMA = `${__dirname}/../../../schemas/patchwork-project-config.schema.json`;
+
 const argv = yargs(hideBin(process.argv))
     .command(
-        "validate <jsonFile>",
-        "Validate a JSON metadata schema file",
+        "validate <configFile>",
+        "Validate a JSON or TS config file",
         (yargs) => {
-            yargs.positional("jsonFile", {
-                describe: "Path to the JSON file",
+            yargs.positional("configFile", {
+                describe: "Path to the JSON or TS file",
                 type: "string",
             });
         },
-        validateJson
+        validateConfig
     )
     .command(
-        "generate <configFiles..>",
+        "generate [configFiles..]",
         "Generate patchwork contracts",
         (yargs) => {
             yargs
@@ -37,6 +41,11 @@ const argv = yargs(hideBin(process.argv))
                     alias: "r",
                     type: "string",
                     description: "Root directory for the TS files (defaults to 'src')",
+                })
+                .option("contract", {
+                    alias: "c",
+                    type: "string",
+                    description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
         generateSolidity
@@ -54,16 +63,28 @@ const argv = yargs(hideBin(process.argv))
     .alias("h", "help")
     .argv;
 
-function validateJson(argv: any): void {
-    const jsonFile = argv.jsonFile;
-    const jsonData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
-    const result = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
-
-    if (result.isValid) {
-        console.log("The JSON file is a valid Patchwork contract configuration.");
+function validateConfig(argv: any): void {
+    const configFile = argv.configFile;
+    const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    
+    let result;
+    if (jsonData.$schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
+        result = validateSchema(jsonData, CONTRACT_SCHEMA);
+        if (result.isValid) {
+            console.log("The file is a valid Patchwork contract configuration.");
+        }
+    } else if (jsonData.$schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json") {
+        result = validateSchema(jsonData, PROJECT_SCHEMA);
+        if (result.isValid) {
+            console.log("The file is a valid Patchwork project configuration.");
+        }
     } else {
-        console.log("The JSON file is not a valid Patchwork contract config");
-        console.log("Contract Config Validation Errors:", result.errors);
+        console.log("File missing $schema property.");
+        process.exit(1);
+    }
+    if (!result.isValid) {
+        console.log("Validation Errors:", result.errors);
+        process.exit(1);
     }
 }
 
@@ -72,68 +93,89 @@ function generateSolidity(argv: any) {
     const outputDir = argv.output || process.cwd();
     const rootDir = argv.rootdir || "src";
     const tmpout = "tmpout";
+    const contract = argv.contract;
 
     for (const configFile of configFiles) {
-        try {
-            let schema: ContractSchemaImpl;
-            let solidityGenFilename: string;
-            let solidityUserFilename: string;
-            let jsonFilename: string;
+        const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
-            if (configFile.endsWith(".ts")) {
-                try {
-                    const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
-                    console.log("TSC compile success");
-                    console.log(result.toString());
-                } catch (err: any) {
-                    console.log("Error", err.message);
-                    console.log("output", err.stdout.toString());
-                    console.log("stderr", err.stderr.toString());
+        if (configFile.endsWith(".json")) {
+            if (validateSchema(jsonData, CONTRACT_SCHEMA).isValid) {
+                // Contract config
+                generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
+            } else if (validateSchema(jsonData, PROJECT_SCHEMA).isValid) {
+                // Project config
+                const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
+                if (contract) {
+                    const contractConfig = projectConfig.contracts.get(contract);
+                    if (!contractConfig) {
+                        console.error(`Contract '${contract}' not found in the project config.`);
+                        process.exit(1);
+                    }
+                    generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
+                } else {
+                    projectConfig.contracts.forEach((contractConfig, name) => {
+                        generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
+                    });
                 }
-                const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
-                const t = require(path.resolve(jsConfigFile)).default;
-                schema = new ContractSchemaImpl(t);
-                fs.rmSync(tmpout, { recursive: true });
             } else {
-                if (!configFile.endsWith(".json")) {
-                    throw new Error("Invalid file type. Please provide a JSON or TS file.");
-                }
-                const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-                const validationResult = validateSchema(jsonData, "./src/patchwork-contract-config.schema.json");
-                if (!validationResult.isValid) {
-                    console.log(`${configFile} did not validate:`, validationResult.errors);
-                    process.exit(1);
-                }
-                const parsedSchema = parseJson(jsonData);
-                if (!(parsedSchema instanceof ContractSchemaImpl)) {
-                    throw new Error("Parsed schema is not an instance of ContractSchemaImpl");
-                }
-                schema = parsedSchema;
+                console.error(`Invalid config file: ${configFile}`);
+                process.exit(1);
             }
-
-            schema.validate();
-            solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
-            solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
-            jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
-            const solidityCode = new MainContractGen().gen(schema);
-            let outputPath = path.join(outputDir, solidityGenFilename);
-            fs.writeFileSync(outputPath, solidityCode);
-            console.log(`Solidity gen file generated at ${outputPath}`);
-
-            const solidityUserCode = new UserContractGen().gen(schema);
-            outputPath = path.join(outputDir, solidityUserFilename);
-            if (fs.existsSync(outputPath)) {
-                console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
-            } else {
-                fs.writeFileSync(outputPath, solidityUserCode);
-                console.log(`Solidity user file generated at ${outputPath}`);
-            }
-            const jsonSchema = new JSONSchemaGen().gen(schema);
-            outputPath = path.join(outputDir, jsonFilename);
-            fs.writeFileSync(outputPath, jsonSchema);
-            console.log(`JSON Schema file generated at ${outputPath}`);
-        } catch (error: any) {
-            console.error("Error generating Solidity file:", error.message);
+        } else if (configFile.endsWith(".ts")) {
+            generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
+        } else {
+            console.error(`Invalid config file: ${configFile}`);
+            process.exit(1);
         }
     }
+}
+
+function generateContract(schema: ContractSchemaImpl, outputDir: string) {
+    schema.validate();
+    const solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
+    const solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
+    const jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
+    const solidityCode = new MainContractGen().gen(schema);
+    const solidityUserCode = new UserContractGen().gen(schema);
+    const jsonSchema = new JSONSchemaGen().gen(schema);
+    let outputPath = path.join(outputDir, solidityGenFilename);
+    fs.writeFileSync(outputPath, solidityCode);
+    console.log(`Solidity gen file generated at ${outputPath}`);
+    outputPath = path.join(outputDir, solidityUserFilename);
+    if (fs.existsSync(outputPath)) {
+        console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
+    } else {
+        fs.writeFileSync(outputPath, solidityUserCode);
+        console.log(`Solidity user file generated at ${outputPath}`);
+    }
+    outputPath = path.join(outputDir, jsonFilename);
+    fs.writeFileSync(outputPath, jsonSchema);
+    console.log(`JSON Schema file generated at ${outputPath}`);
+}
+
+function getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
+    let schema: ContractSchemaImpl;
+
+    if (configFile.endsWith(".ts")) {
+        try {
+            const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
+            console.log("TSC compile success");
+            console.log(result.toString());
+        } catch (err: any) {
+            console.log("Error", err.message);
+            console.log("output", err.stdout.toString());
+            console.log("stderr", err.stderr.toString());
+        }
+        const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
+        const t = require(path.resolve(jsConfigFile)).default;
+        schema = new ContractSchemaImpl(t);
+        fs.rmSync(tmpout, { recursive: true });
+    } else {
+        if (!configFile.endsWith(".json")) {
+            throw new Error("Invalid file type. Please provide a JSON or TS file.");
+        }
+        const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+        schema = new ContractSchemaImpl(parseJson(jsonData));
+    }
+    return schema;
 }

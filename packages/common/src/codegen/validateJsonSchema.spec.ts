@@ -3,7 +3,7 @@ import path from "path";
 import { ErrorObject } from "ajv";
 import { validateSchema } from "./validateSchema";
 
-const schemaFile: string = "./src/patchwork-contract-config.schema.json";
+const schemaFile: string = "../../schemas/patchwork-contract-config.schema.json";
 
 type GroupedFiles = {
   [key: string]: {
@@ -109,7 +109,7 @@ describe("validateSchema", () => {
     expect(result.errors.some(
       (error: ErrorObject) =>
         error.keyword === "const" &&
-        error.message === "must be equal to constant"
+        error.message === "must be one of"
     )).toBe(true);
   });
 
