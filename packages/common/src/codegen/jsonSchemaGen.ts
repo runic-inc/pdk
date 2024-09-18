@@ -17,7 +17,7 @@ export class JSONSchemaGen implements Generator {
     out += `  "schemaURI": "${schema.schemaURI}",\n`;
     out += `  "imageURI": "${schema.imageURI}",\n`;
     if (schema.storage.fields.length > 0) {
-      out += `  "fields": [\n`;      
+      out += `  "fields": [\n`;
     }
     let first = true;
     for (let field of schema.storage.fields) {
