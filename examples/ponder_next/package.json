@@ -2,7 +2,7 @@
     "name": "ponder_next",
     "version": "0.1.0",
     "private": true,
-    "type": "module",
+    "type": "commonjs",
     "scripts": {
       "dev": "next dev && ponder dev",
       "build": "next build",
