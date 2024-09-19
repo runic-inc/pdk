@@ -78,33 +78,41 @@ export function createTable(contractName: string, abiEvent: AbiEvent) {
     const requiredColumns = [
         createColumn('id', 'p.bigint()'),
     ];
-    const columns = abiEvent.inputs.map((input) => {
+    const columns = createTableProcessInputs(abiEvent.inputs);
+
+    return createTableProperty(`${contractName}_${abiEvent.name}`, [...requiredColumns, ...columns.filter((column) => column !== undefined)] as ts.PropertyAssignment[]);
+}
+
+function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.PropertyAssignment[] {
+    return inputs.flatMap((input) => {
+        const fullName = prefix ? `${prefix}_${input.name}` : input.name ?? '';
         switch (input.type) {
             case "address":
             case "bytes":
-                if (!input.name) return undefined;
-                return createColumn(input.name, 'p.hex()');
+                if (!input.name) return [];
+                return [createColumn(fullName, 'p.hex()')];
             case "bool":
-                if (!input.name) return undefined;
-                return createColumn(input.name, 'p.boolean()');
-
+                if (!input.name) return [];
+                return [createColumn(fullName, 'p.boolean()')];
             case "string":
-                if (!input.name) return undefined;
-                return createColumn(input.name, 'p.string()');
+                if (!input.name) return [];
+                return [createColumn(fullName, 'p.string()')];
             case "uint8":
-                if (!input.name) return undefined;
-                return createColumn(input.name, 'p.int()');
+                if (!input.name) return [];
+                return [createColumn(fullName, 'p.int()')];
             case "uint256":
-                if (!input.name) return undefined;
-                return createColumn(input.name, 'p.bigint()');
-            case "tuple": // need to add support for tuples
+                if (!input.name) return [];
+                return [createColumn(fullName, 'p.bigint()')];
+            case "tuple":
+                if ('components' in input && Array.isArray(input.components)) {
+                    return createTableProcessInputs(input.components, fullName);
+                }
+                return [];
             default:
                 console.log("didn't match ", input.type);
-                break;
+                return [];
         }
     });
-
-    return createTableProperty(`${contractName}_${abiEvent.name}`, [...requiredColumns, ...columns.filter((column) => column !== undefined)] as ts.PropertyAssignment[]);
 }
 
 function createTableProperty(tableName: string, columns: ts.PropertyAssignment[]) {
