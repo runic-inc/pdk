@@ -107,7 +107,6 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             await generateAPI(schemaPath);
-            console.log(schemaPath)
         }
     )
     .demandCommand(1, "You must provide a valid command")

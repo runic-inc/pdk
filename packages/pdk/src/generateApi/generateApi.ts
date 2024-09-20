@@ -12,9 +12,9 @@ export async function generateAPI(ponderSchema: string) {
                 moduleResolution: 'node',
             }
         });
-
+        console.log("Ponder Schema:", ponderSchema);
         const schemaModule = await import(ponderSchema);
-            
+        console.log("Schema module:", schemaModule);
         // Get the default export, which should be the createSchema function
         const createSchema = schemaModule.default;
 
