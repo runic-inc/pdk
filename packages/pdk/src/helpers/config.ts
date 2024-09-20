@@ -14,8 +14,13 @@ function findFileUpwards(directory: string, filename: string): string | null {
 }
 
 export function findConfig() {
-
     const configFileName = 'patchwork.config.ts';
     const currentDirectory = process.cwd();
     return findFileUpwards(currentDirectory, configFileName);
+}
+
+export function findPonderSchema() {
+    const schemaFileName = 'ponder.schema.ts';
+    const currentDirectory = process.cwd();
+    return findFileUpwards(currentDirectory, schemaFileName);
 }

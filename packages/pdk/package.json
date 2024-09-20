@@ -21,6 +21,7 @@
       "@hono/node-server": "1.12.2",
       "@patchworkdev/common": "workspace:*",
       "hono": "4.5.9",
+      "@ponder/core": "^0.5.17",
       "prettier": "3.3.3",
       "ts-node": "10.9.2",
       "typescript": "5.5.4",
