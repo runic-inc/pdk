@@ -29,10 +29,10 @@ export async function generateAPI(ponderSchema: string) {
 
         try {
             const schemaModule = await import(ponderSchema);
-            console.log("Schema module:", schemaModule);
+            //console.log("Schema module:", schemaModule);
 
-            //const schema = schemaModule.default;
-            //console.log("Schema result:", schema);
+            const schema = schemaModule.default;
+            console.log("Schema result:", schema);
 
             // TODO: Generate your tRPC API based on the schema
             //console.log("TODO: Implement API generation based on schema");
