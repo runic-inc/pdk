@@ -18,6 +18,7 @@
     "dependencies": {
       "@hono/trpc-server":"0.3.2",
       "@openzeppelin/contracts": "5.0.2",
+      "@patchworkdev/common": "0.0.1",
       "@patchworkdev/contracts": "2.0.3-beta.0",
       "@patchworkdev/pdk": "0.1.11",
       "@trpc/client": "11.0.0-rc.482",
