@@ -18,16 +18,38 @@ export enum FunctionConfig {
     STORE = "STORE"
 }
 
+type FieldType =
+    | 'BOOLEAN'
+    | 'INT8'
+    | 'INT16'
+    | 'INT32'
+    | 'INT64'
+    | 'INT128'
+    | 'INT256'
+    | 'UINT8'
+    | 'UINT16'
+    | 'UINT32'
+    | 'UINT64'
+    | 'UINT128'
+    | 'UINT256'
+    | 'CHAR8'
+    | 'CHAR16'
+    | 'CHAR32'
+    | 'CHAR64'
+    | 'LITEREF'
+    | 'ADDRESS'
+    | 'STRING';
+
+type Visibility = 'PUBLIC' | 'PRIVATE';
+
 export type FieldConfig = {
-    //_uid?: string;
     id: number;
     key: string;
     description?: string;
-    type: string;
+    type: FieldType;
     arrayLength?: number;
-    //values?: PatchworkEnum[];
     permissionId?: number;
-    visibility?: string;
+    visibility?: Visibility;
     functionConfig?: FunctionConfig;
 }
 
@@ -36,18 +58,23 @@ export type MintConfig = {
     active: boolean;
 }
 
+
+export type MintConfigs = Record<string, MintConfig>;
+export type PatchFees = Record<string, number>;
+export type AssignFees = Record<string, number>;
+
 export type ScopeConfig = {
     name: string;
     owner?: `0x${string}`;
     whitelist?: boolean;
     userAssign?: boolean;
     userPatch?: boolean;
-    bankers?: string[];
-    operators?: string[];
-    mintConfigs?: Map<string, MintConfig>;
-    patchFees?: Map<string, number>;
-    assignFees?: Map<string, number>;
-}
+    bankers?: `0x${string}`[];
+    operators?: `0x${string}`[];
+    mintConfigs?: MintConfigs;
+    patchFees?: PatchFees;
+    assignFees?: AssignFees;
+};
 
 export type ContractConfig = {
     scopeName: string;
@@ -93,9 +120,13 @@ export type ContractRelation = {
     fragments: string[];
 }
 
+type ContractsConfig = Record<string, ContractConfig>;
+
+type ContractRelationsConfig = Record<string, ContractRelation>;
+
 export type ProjectConfig = {
     name: string;
     scopes: ScopeConfig[];
-    contracts: Map<string, string | ContractConfig>;
-    contractRelations: Map<string, ContractRelation>;
-}
+    contracts: ContractsConfig;
+    contractRelations: ContractRelationsConfig;
+};
