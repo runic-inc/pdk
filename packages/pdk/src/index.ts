@@ -7,7 +7,8 @@ import yargs from "yargs/yargs";
 import { launchWizardApp } from "./wizardServer";
 import { generateSchema } from "./generateSchema";
 import { generateABIs } from "./generateABIs";
-import { findConfig } from "./helpers/config";
+import { generateAPI } from "./generateApi";
+import { findConfig, findPonderSchema } from "./helpers/config";
 
 console.log(__dirname);
 
@@ -93,6 +94,25 @@ const argv = yargs(hideBin(process.argv))
             const abiDir = path.join(path.dirname(configPath), "", "abis");
             const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
             generateSchema(abiDir, ponderSchema);
+        }
+    ).command(
+        "generateAPI",
+        "Generate the trpc api",
+        {},
+        async () => {
+            console.log("Generating API");
+            const schemaPath = findPonderSchema();
+            if (!schemaPath) {
+                console.error("No ponder schema file found.");
+                return;
+            }
+            const configPath = findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
+            await generateAPI(schemaPath, apiOutputDir);
         }
     )
     .demandCommand(1, "You must provide a valid command")
