@@ -1,4 +1,3 @@
-import { ContractSchema } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
 import { ContractConfig, ContractRelation, Feature, ProjectConfig, ScopeConfig } from "../types";
 
@@ -7,18 +6,18 @@ export class JSONProjectConfigLoader {
 
     load(jsonString: string): ProjectConfig {
         let projectConfig = JSON.parse(jsonString);
-        let contractRelations = new Map<string, ContractRelation>();
-        let contracts = new Map<string, string | ContractConfig>();
+        let contractRelations: Record<string, ContractRelation> = {};
+        let contracts: Record<string, string | ContractConfig> = {};
 
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const v = value as any;
             if (v.config && typeof v.config === 'string') {
-                contracts.set(key, v.config);
+                contracts[key] = v.config;
             } else {
-                contracts.set(key, parseJson(v.config));
+                contracts[key] = parseJson(v.config);
             }
             if (v.fragments && Array.isArray(v.fragments)) {
-                contractRelations.set(key, { fragments: v.fragments });
+                contractRelations[key] = { fragments: v.fragments };
             }
         });
 
@@ -41,9 +40,9 @@ export class JSONProjectConfigLoader {
             userPatch: scopeConfig.userPatch,
             bankers: scopeConfig.bankers,
             operators: scopeConfig.operators,
-            mintConfigs: new Map(Object.entries(scopeConfig.mintConfigs || {})),
-            patchFees: new Map(Object.entries(scopeConfig.patchFees || {})),
-            assignFees: new Map(Object.entries(scopeConfig.assignFees || {}))
+            mintConfigs: scopeConfig.mintConfigs || {},
+            patchFees: scopeConfig.patchFees || {},
+            assignFees: scopeConfig.assignFees || {}
         };
     }
 }

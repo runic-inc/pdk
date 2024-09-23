@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
-import { ContractConfig, Feature, FieldConfig, FieldTypeEnum } from "../../types";
+import { ContractConfig, Feature, FieldConfig, FieldType, FieldTypeEnum } from "../../types";
 import { ContractSchemaImpl } from "../contractSchema";
 import { MainContractGen } from "../mainContractGen";
 import { UserContractGen } from "../userContractGen";
@@ -28,8 +28,8 @@ function generateFieldPermutations(): FieldConfig[][] {
   let permutations: FieldConfig[][] = [];
 
   fieldTypes.forEach((fieldType, index) => {
-    let actualFieldType = fieldType === 'BOOLEAN' ? 'bool' : fieldType;
-    actualFieldType = actualFieldType.toLowerCase();
+    let actualFieldType: FieldType = (fieldType === 'BOOLEAN' ? 'bool' : fieldType.toLowerCase()) as FieldType;
+    actualFieldType = actualFieldType.toLowerCase() as FieldType;
     
     // Single field
     permutations.push([{

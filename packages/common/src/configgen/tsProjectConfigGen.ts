@@ -59,8 +59,8 @@ export class TSProjectConfigGen {
         return out;
     }
 
-    private genMapEntries(map: Map<string, any>): string {
-        return `[\n                ${Array.from(map.entries()).map(([key, value]) => `["${key}", ${this.stringifyValue(value)}]`).join(',\n                ')}\n            ]`;
+    private genMapEntries(map: Record<string, any>): string {
+        return `[\n                ${Object.entries(map).map(([key, value]) => `["${key}", ${this.stringifyValue(value)}]`).join(',\n                ')}\n            ]`;
     }
 
     private stringifyValue(value: any): string {
@@ -70,8 +70,8 @@ export class TSProjectConfigGen {
         return JSON.stringify(value);
     }
 
-    private genContractsMap(contracts: Map<string, string | ContractConfig>): string {
-        return Array.from(contracts.entries())
+    private genContractsMap(contracts: Record<string, string | ContractConfig>): string {
+        return Object.entries(contracts)
             .map(([key, value]) => {
                 if (typeof value === 'string') {
                     return `        ["${key}", "${value}"]`;
@@ -111,8 +111,8 @@ export class TSProjectConfigGen {
         return feature === "1155PATCH" ? `Feature["${feature}"]` : `Feature.${feature}`;
     }
 
-    private genContractRelationsMap(relations: Map<string, ContractRelation>): string {
-        return Array.from(relations.entries())
+    private genContractRelationsMap(relations: Record<string, ContractRelation>): string {
+        return Object.entries(relations)
             .map(([key, value]) => `        ["${key}", { fragments: [${value.fragments.map(f => `"${f}"`).join(', ')}] }]`)
             .join(',\n');
     }

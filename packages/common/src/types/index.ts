@@ -18,29 +18,29 @@ export enum FunctionConfig {
     STORE = "STORE"
 }
 
-type FieldType =
-    | 'BOOLEAN'
-    | 'INT8'
-    | 'INT16'
-    | 'INT32'
-    | 'INT64'
-    | 'INT128'
-    | 'INT256'
-    | 'UINT8'
-    | 'UINT16'
-    | 'UINT32'
-    | 'UINT64'
-    | 'UINT128'
-    | 'UINT256'
-    | 'CHAR8'
-    | 'CHAR16'
-    | 'CHAR32'
-    | 'CHAR64'
-    | 'LITEREF'
-    | 'ADDRESS'
-    | 'STRING';
+export type FieldType =
+    | 'boolean'
+    | 'int8'
+    | 'int16'
+    | 'int32'
+    | 'int64'
+    | 'int128'
+    | 'int256'
+    | 'uint8'
+    | 'uint16'
+    | 'uint32'
+    | 'uint64'
+    | 'uint128'
+    | 'uint256'
+    | 'char8'
+    | 'char16'
+    | 'char32'
+    | 'char64'
+    | 'literef'
+    | 'address'
+    | 'string';
 
-type Visibility = 'PUBLIC' | 'PRIVATE';
+export type Visibility = 'public' | 'private';
 
 export type FieldConfig = {
     id: number;
@@ -69,8 +69,8 @@ export type ScopeConfig = {
     whitelist?: boolean;
     userAssign?: boolean;
     userPatch?: boolean;
-    bankers?: `0x${string}`[];
-    operators?: `0x${string}`[];
+    bankers?: string[];
+    operators?: string[];
     mintConfigs?: MintConfigs;
     patchFees?: PatchFees;
     assignFees?: AssignFees;
@@ -120,9 +120,9 @@ export type ContractRelation = {
     fragments: string[];
 }
 
-type ContractsConfig = Record<string, ContractConfig>;
+export type ContractsConfig = Record<string, ContractConfig | string>;
 
-type ContractRelationsConfig = Record<string, ContractRelation>;
+export type ContractRelationsConfig = Record<string, ContractRelation>;
 
 export type ProjectConfig = {
     name: string;

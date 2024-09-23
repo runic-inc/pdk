@@ -1,6 +1,6 @@
-import { ContractConfig, Feature, FieldConfig, FunctionConfig } from '../types';
+import { ContractConfig, Feature, FieldConfig, FieldType, FunctionConfig, Visibility } from '../types';
 
-export type FieldType = {
+export type ContractFieldType = {
     solidityType: string;
     name: string;
     bits: number;
@@ -11,9 +11,9 @@ export class ContractStorageField implements FieldConfig {
     // from Entry
     id!: number;
     permissionId!: number;
-    type!: string;
+    type!: FieldType;
     arrayLength!: number;
-    visibility!: string;
+    visibility!: Visibility;
     key!: string;
     description!: string;
     functionConfig!: FunctionConfig;
@@ -129,7 +129,7 @@ export class ContractSchemaImpl implements ContractSchema {
                 type: entry.type,
                 fieldTypeSolidityEnum: fieldTypeEnum.name,
                 arrayLength: fieldArrayLength,
-                visibility: "FieldVisibility.PUBLIC",
+                visibility: "public",
                 isString: fieldTypeEnum.isString,
                 elementBits: fieldTypeEnum.bits,
                 totalBits: bits,
@@ -289,7 +289,7 @@ export class ContractSchemaImpl implements ContractSchema {
     }
 
     getFieldTypeEnum(name: string) {
-        const fieldTypeMap: Record<string, FieldType> = {
+        const fieldTypeMap: Record<string, ContractFieldType> = {
             bool: { solidityType: "bool", name: "BOOLEAN", bits: 1, isString: false },
             int8: { solidityType: "int8", name: "INT8", bits: 8, isString: false },
             int16: { solidityType: "int16", name: "INT16", bits: 16, isString: false },

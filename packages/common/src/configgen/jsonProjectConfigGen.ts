@@ -8,9 +8,9 @@ export class JSONProjectConfigGen {
 
     gen(projectConfig: ProjectConfig): string {
         let contractConfigString = '';
-        projectConfig.contracts.forEach((value, key) => {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             if (contractConfigString.length > 0) { contractConfigString += ',\n' };
-            contractConfigString += this.genContractConfig(key, value, projectConfig.contractRelations.get(key));
+            contractConfigString += this.genContractConfig(key, value, projectConfig.contractRelations[key]);
         });
         return `` +
             `{\n` +
@@ -50,19 +50,19 @@ export class JSONProjectConfigGen {
             `        }`;
     }
 
-    genMintConfigs(mintConfigs: Map<string, MintConfig> | undefined): string {
+    genMintConfigs(mintConfigs: Record<string, MintConfig> | undefined): string {
         if (!mintConfigs) return '{}';
-        return JSON.stringify(Object.fromEntries(mintConfigs.entries()));
+        return JSON.stringify(mintConfigs);
     }
 
-    genPatchFees(patchFees: Map<string, number> | undefined): string {
+    genPatchFees(patchFees: Record<string, number> | undefined): string {
         if (!patchFees) return '{}';
-        return JSON.stringify(Object.fromEntries(patchFees.entries()));
+        return JSON.stringify(patchFees);
     }
 
-    genAssignFees(assignFees: Map<string, number> | undefined): string {
+    genAssignFees(assignFees: Record<string, number> | undefined): string {
         if (!assignFees) return '{}';
-        return JSON.stringify(Object.fromEntries(assignFees.entries()));
+        return JSON.stringify(assignFees);
     }
 
     genContractConfig(name: string, value: string | ContractConfig, relations: ContractRelation | undefined): string {
