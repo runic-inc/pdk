@@ -2,6 +2,7 @@ import { register } from 'ts-node';
 import Module from 'module';
 import path from 'path';
 import fs from 'fs/promises';
+import prettier from 'prettier';
 
 interface TableDefinition {
   [key: string]: 'bigint' | 'int' | 'hex' | 'boolean' | 'string';
@@ -11,7 +12,7 @@ interface Schema {
   [tableName: string]: TableDefinition;
 }
 
-async function generateTrpcApi(schema: Schema, outputPath: string) {
+async function generateTrpcApi(schema: Schema): Promise<string> {
   let apiContent = `
 import { ponder } from '@/generated';
 import { trpcServer } from '@hono/trpc-server';
@@ -72,8 +73,8 @@ ponder.use(
 );
 `;
 
-  await fs.writeFile(outputPath, apiContent);
-  console.log(`API file generated at: ${outputPath}`);
+
+  return await prettier.format(apiContent, { parser: "typescript" });
 }
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
@@ -97,10 +98,14 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
         Module.prototype.require = newRequire;
         try {
             const schemaModule = await import(ponderSchema);
-            const schema = schemaModule.default;            
-            // Generate the tRPC API
+            const schema = schemaModule.default;
+            
+            // Generate the tRPC API content
+            const apiContent = await generateTrpcApi(schema);
+            
+            // Write the formatted API content to file
             const outputPath = path.join(apiOutputDir, 'index.ts');
-            await generateTrpcApi(schema, outputPath);
+            await fs.writeFile(outputPath, apiContent, 'utf8');
             console.log("tRPC API generation completed.");
         } catch (error) {
             if (error instanceof TypeError && error.message.includes('is not a function')) {
