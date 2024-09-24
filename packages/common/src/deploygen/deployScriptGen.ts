@@ -9,9 +9,8 @@ export class DeployScriptGen {
         script += `pragma solidity ^0.8.13;\n\n`;
         script += `import "forge-std/Script.sol";\n`;
         script += `import "forge-std/console.sol";\n`;
-
-        console.log(projectConfig.contracts.keys());
-        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
+        console.log(Object.keys(projectConfig.contracts));
+        Object.values(projectConfig.contracts).forEach((value: string | ContractConfig) => {
             if (typeof value === "string") {
                 script += `import "./${value.replace(".json", ".sol")}";\n`;
             }
@@ -42,27 +41,27 @@ export class DeployScriptGen {
 
         // deploy each contract
 
-        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (typeof value === "string") {
-            script += `        ${contractName} ${contractName.toLowerCase()} = new ${contractName}(ppAddress, ownerAddress);\n`;
+                script += `        ${contractName} ${contractName.toLowerCase()} = new ${contractName}(ppAddress, ownerAddress);\n`;
             } else {
             // Handle ContractConfig logic here
             }
         });
 
         // register fragments
-        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
-                for (const fragment of projectConfig.contractRelations.get(key)?.fragments || []) {
+                for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
                     script += `        ${contractName.toLowerCase()}.registerFragment(${fragment.toLowerCase()});\n`;
                 }
             }
         });
 
         // whitelist
-        projectConfig.contracts.forEach((value: string | ContractConfig, key: string) => {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             // TODO FIX - load contract config to get scope name
             // Additional logic for whitelisting if applicable

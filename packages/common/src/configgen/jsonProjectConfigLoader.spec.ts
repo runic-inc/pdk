@@ -28,12 +28,12 @@ function compareProjectConfigsWithContractConfig(actual: ProjectConfig, expected
 
     // Compare contracts separately
     expect(actual.contracts.size).toEqual(expected.contracts.size);
-    actual.contracts.forEach((value, key) => {
-        const expectedValue = expected.contracts.get(key);
-        if (typeof value === 'string' || typeof expectedValue === 'string') {
-            expect(value).toEqual(expectedValue);
+    Object.entries(actual.contracts).forEach((kv: [string, string | ContractConfig]) => {
+        const expectedValue = expected.contracts[kv[0]];
+        if (typeof kv[1] === 'string' || typeof expectedValue === 'string') {
+            expect(kv[1]).toEqual(expectedValue);
         } else {
-            compareContractConfigs(value, expectedValue as ContractConfig);
+            compareContractConfigs(kv[1], expectedValue as ContractConfig);
         }
     });
 }

@@ -11,22 +11,18 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
             userPatch: false,
             bankers: ["0x000000254729296a45a3885639AC7E10F9d54979", "Contract1"],
             operators: ["0x000000111129296a45a3885639AC7E10F9d54979", "Contract1"],
-            mintConfigs: new Map<string, MintConfig>([
-                ["0xc0ffee254729296a45a3885639AC7E10F9d54979", {
+            mintConfigs: {
+                "0xc0ffee254729296a45a3885639AC7E10F9d54979": {
                     flatFee: 0,
                     active: true
-                }]
-            ]),
-            patchFees: new Map<string, number>([
-                ["0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E", 0]
-            ]),
-            assignFees: new Map<string, number>([
-                ["0x555555cf1046e68e36E1aA2E0E07105eDDD1f08E", 0]
-            ])
+                }
+            },
+            patchFees: {"0x999999cf1046e68e36E1aA2E0E07105eDDD1f08E": 0},
+            assignFees: {"0x555555cf1046e68e36E1aA2E0E07105eDDD1f08E": 0}
         }
     ],
-    contracts: new Map<string, string | ContractConfig>([
-        ["Contract1", {
+    contracts: {
+        "Contract1": {
             scopeName: "test",
             name: "AccountPatch",
             symbol: "AP",
@@ -43,8 +39,8 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                 }
             ],
             features: [Feature.ACCOUNTPATCH]
-        }],
-        ["Contract2", {
+        },
+        "Contract2": {
             scopeName: "test",
             name: "SecondContract",
             symbol: "SC",
@@ -61,13 +57,13 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                 }
             ],
             features: [Feature.PATCH]
-        }]
-    ]),
-    contractRelations: new Map<string, ContractRelation>([
-        ["Contract1", {
+        }
+    },
+    contractRelations: {
+        "Contract1": {
             fragments: ["Contract2"]
-        }]
-    ])
+        }
+    }
 };
 
 export default contractConfigProjectProjectConfig;

@@ -10,7 +10,7 @@ import { generateABIs } from "./generateABIs";
 import { generateAPI } from "./generateApi";
 import { findConfig, findPonderSchema } from "./helpers/config";
 
-console.log(__dirname);
+// console.log(__dirname);
 
 const CONTRACT_SCHEMA = `${__dirname}/../../../schemas/patchwork-contract-config.schema.json`;
 const PROJECT_SCHEMA = `${__dirname}/../../../schemas/patchwork-project-config.schema.json`;
@@ -163,15 +163,15 @@ function generateSolidity(argv: any) {
                 // Project config
                 const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
                 if (contract) {
-                    const contractConfig = projectConfig.contracts.get(contract);
+                    const contractConfig = projectConfig.contracts[contract];
                     if (!contractConfig) {
                         console.error(`Contract '${contract}' not found in the project config.`);
                         process.exit(1);
                     }
                     generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
                 } else {
-                    projectConfig.contracts.forEach((contractConfig, name) => {
-                        generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
+                    Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+                        generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
                     });
                 }
             } else {

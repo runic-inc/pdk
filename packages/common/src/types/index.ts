@@ -18,16 +18,38 @@ export enum FunctionConfig {
     STORE = "STORE"
 }
 
+export type FieldType =
+    | 'boolean'
+    | 'int8'
+    | 'int16'
+    | 'int32'
+    | 'int64'
+    | 'int128'
+    | 'int256'
+    | 'uint8'
+    | 'uint16'
+    | 'uint32'
+    | 'uint64'
+    | 'uint128'
+    | 'uint256'
+    | 'char8'
+    | 'char16'
+    | 'char32'
+    | 'char64'
+    | 'literef'
+    | 'address'
+    | 'string';
+
+export type Visibility = 'public' | 'private';
+
 export type FieldConfig = {
-    //_uid?: string;
     id: number;
     key: string;
     description?: string;
-    type: string;
+    type: FieldType;
     arrayLength?: number;
-    //values?: PatchworkEnum[];
     permissionId?: number;
-    visibility?: string;
+    visibility?: Visibility;
     functionConfig?: FunctionConfig;
 }
 
@@ -35,6 +57,11 @@ export type MintConfig = {
     flatFee: number;
     active: boolean;
 }
+
+
+export type MintConfigs = Record<string, MintConfig>;
+export type PatchFees = Record<string, number>;
+export type AssignFees = Record<string, number>;
 
 export type ScopeConfig = {
     name: string;
@@ -44,10 +71,10 @@ export type ScopeConfig = {
     userPatch?: boolean;
     bankers?: string[];
     operators?: string[];
-    mintConfigs?: Map<string, MintConfig>;
-    patchFees?: Map<string, number>;
-    assignFees?: Map<string, number>;
-}
+    mintConfigs?: MintConfigs;
+    patchFees?: PatchFees;
+    assignFees?: AssignFees;
+};
 
 export type ContractConfig = {
     scopeName: string;
@@ -93,9 +120,13 @@ export type ContractRelation = {
     fragments: string[];
 }
 
+export type ContractsConfig = Record<string, ContractConfig | string>;
+
+export type ContractRelationsConfig = Record<string, ContractRelation>;
+
 export type ProjectConfig = {
     name: string;
     scopes: ScopeConfig[];
-    contracts: Map<string, string | ContractConfig>;
-    contractRelations: Map<string, ContractRelation>;
-}
+    contracts: ContractsConfig;
+    contractRelations: ContractRelationsConfig;
+};

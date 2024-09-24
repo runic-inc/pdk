@@ -44,7 +44,7 @@ function parseFieldEntries(jsonData: any): FieldConfig[] {
             permissionId: field.permissionId,
             type: field.type,
             arrayLength: fieldArrayLength,
-            visibility: "FieldVisibility.PUBLIC",
+            visibility: "public",
             key: field.key,
             description: field.description,
             functionConfig: field.functionConfig ? field.functionConfig.toUpperCase() : undefined,

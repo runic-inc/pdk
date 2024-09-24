@@ -108,6 +108,29 @@ function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.P
                     return createTableProcessInputs(input.components, fullName);
                 }
                 return [];
+            // ToDo. Need to work out which ones will appear in events
+            // // type list
+            //     BOOLEAN,  ///< A Boolean type (true or false).
+            //     INT8,     ///< An 8-bit signed integer.
+            //     INT16,    ///< A 16-bit signed integer.
+            //     INT32,    ///< A 32-bit signed integer.
+            //     INT64,    ///< A 64-bit signed integer.
+            //     INT128,   ///< A 128-bit signed integer.
+            //     INT256,   ///< A 256-bit signed integer.
+            //     UINT8,    ///< An 8-bit unsigned integer.
+            //     UINT16,   ///< A 16-bit unsigned integer.
+            //     UINT32,   ///< A 32-bit unsigned integer.
+            //     UINT64,   ///< A 64-bit unsigned integer.
+            //     UINT128,  ///< A 128-bit unsigned integer.
+            //     UINT256,  ///< A 256-bit unsigned integer.
+            //     CHAR8,    ///< An 8-character string (64 bits).
+            //     CHAR16,   ///< A 16-character string (128 bits).
+            //     CHAR32,   ///< A 32-character string (256 bits).
+            //     CHAR64,   ///< A 64-character string (512 bits).
+            //     LITEREF,  ///< A 64-bit Literef reference to a patchwork fragment.
+            //     ADDRESS,  ///< A 160-bit address.
+            //     STRING    ///< A dynamically-sized string.
+
             default:
                 console.log("didn't match ", input.type);
                 return [];
