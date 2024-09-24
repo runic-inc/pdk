@@ -33,9 +33,9 @@ const Layout = () => {
                 >
                     <Logo className='h-4 w-4' />
                     <div className='w-[1px] h-full bg-muted-foreground z-[0] opacity-50' />
-                    <div className='grow h-full flex gap-2 items-center'>
+                    <div className='grow h-full flex gap-2 items-center font-bold'>
                         <span>{scopeConfig.name}</span>
-                        <Icon icon='fa-gear' className='opacity-40' />
+                        <Icon icon='fa-gear' className='opacity-50' />
                     </div>
                 </div>
                 <ContractList />
