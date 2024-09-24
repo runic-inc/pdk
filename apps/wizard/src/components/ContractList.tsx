@@ -1,4 +1,5 @@
 import { Reorder } from 'framer-motion';
+import { useEffect } from 'react';
 import { boxShadow } from 'tailwindcss/defaultTheme';
 import { Button } from '../primitives/button';
 import Icon from '../primitives/icon';
@@ -6,6 +7,10 @@ import useStore from '../store';
 
 const ContractList = () => {
     const { contractsConfig, setEditor, editor, addNewContract, contractsOrder, updateContractsOrder } = useStore();
+
+    useEffect(() => {
+        console.log(contractsConfig);
+    }, [contractsConfig]);
 
     const handleContractSort = (newOrder: string[]) => {
         updateContractsOrder(newOrder);
