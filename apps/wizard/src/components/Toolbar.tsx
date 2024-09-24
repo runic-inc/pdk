@@ -122,7 +122,7 @@ const Toolbar = () => {
                     <DialogTrigger asChild>
                         <Button className='h-auto gap-2'>
                             <Icon icon='fa-wand-magic-sparkles' />
-                            Save project
+                            Export project
                         </Button>
                     </DialogTrigger>
 
