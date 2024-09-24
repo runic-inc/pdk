@@ -4,7 +4,7 @@ import { Generator, ind } from "../generator";
 export class SchemaFuncGen implements Generator {
     gen(schema: ContractSchema): string {
         const fieldEntries = schema.storage.fields.map((entry: ContractStorageField, index: number) => {
-            return `entries[${index}] = MetadataSchemaEntry(${entry.id}, ${entry.permissionId?entry.permissionId:0}, FieldType.${entry.fieldTypeSolidityEnum}, ${entry.arrayLength}, ${entry.visibility}, ${entry.slot}, ${entry.offset}, "${entry.key}");`;
+            return `entries[${index}] = MetadataSchemaEntry(${entry.id}, ${entry.permissionId?entry.permissionId:0}, FieldType.${entry.fieldTypeSolidityEnum}, ${entry.arrayLength}, FieldVisibility.${entry.visibility.toUpperCase()}, ${entry.slot}, ${entry.offset}, "${entry.key}");`;
         });
 
         return ind(4, `` +

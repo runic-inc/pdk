@@ -41,9 +41,9 @@ export class DeployScriptGen {
 
         // deploy each contract
 
-        Object.entries(projectConfig.contracts).forEach((kv: [string, string | ContractConfig]) => {
-            const contractName = kv[0];
-            if (typeof kv[1] === "string") {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            const contractName = key;
+            if (typeof value === "string") {
                 script += `        ${contractName} ${contractName.toLowerCase()} = new ${contractName}(ppAddress, ownerAddress);\n`;
             } else {
             // Handle ContractConfig logic here
@@ -51,18 +51,18 @@ export class DeployScriptGen {
         });
 
         // register fragments
-        Object.entries(projectConfig.contracts).forEach((kv: [string, string | ContractConfig]) => {
-            const contractName = kv[0];
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
-                for (const fragment of projectConfig.contractRelations[kv[0]]?.fragments || []) {
+                for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
                     script += `        ${contractName.toLowerCase()}.registerFragment(${fragment.toLowerCase()});\n`;
                 }
             }
         });
 
         // whitelist
-        Object.entries(projectConfig.contracts).forEach((kv: [string, string | ContractConfig]) => {
-            const contractName = kv[0];
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            const contractName = key;
             // TODO FIX - load contract config to get scope name
             // Additional logic for whitelisting if applicable
             //if (scopeConfig.whitelist) {
