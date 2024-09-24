@@ -9,7 +9,7 @@ import { generateSchema } from "./generateSchema";
 import { generateABIs } from "./generateABIs";
 import { findConfig } from "./helpers/config";
 
-console.log(__dirname);
+// console.log(__dirname);
 
 const CONTRACT_SCHEMA = `${__dirname}/../../../schemas/patchwork-contract-config.schema.json`;
 const PROJECT_SCHEMA = `${__dirname}/../../../schemas/patchwork-project-config.schema.json`;
