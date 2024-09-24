@@ -19,6 +19,7 @@ export enum FunctionConfig {
 }
 
 export type FieldType =
+    | 'empty'
     | 'boolean'
     | 'int8'
     | 'int16'

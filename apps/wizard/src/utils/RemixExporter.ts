@@ -1,8 +1,8 @@
 import { ContractSchemaImpl } from '@patchworkdev/common/codegen/contractSchema';
 import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
 import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
-import { ContractConfig } from '@patchworkdev/common/types';
 import useStore from '../store';
+import sanitizeName from './sanitizeName';
 
 export class RemixExporter {
     private static readonly PATCHWORK_BASE_URL = 'https://github.com/runic-inc/patchwork/blob/main/src/';
@@ -69,8 +69,14 @@ export class RemixExporter {
     }
 
     static getRemixUrlByUID(uid: string): string | Error {
-        const config = useStore.getState().contractsConfig.find((contract) => contract._uid === uid);
+        const config = useStore.getState().contractsConfig[uid];
+        const scopeConfig = useStore.getState().scopeConfig;
         if (!config) return Error('Contract not found');
-        return this.getRemixUrl(new ContractSchemaImpl(config as ContractConfig));
+        return this.getRemixUrl(
+            new ContractSchemaImpl({
+                ...config,
+                scopeName: sanitizeName(scopeConfig.name),
+            }),
+        );
     }
 }
