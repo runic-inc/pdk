@@ -1,4 +1,5 @@
 import { Button } from '../primitives/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
 import Icon from '../primitives/icon';
 import { ScrollArea } from '../primitives/scroll-area';
 import { Separator } from '../primitives/separator';
@@ -16,12 +17,16 @@ const Layout = () => {
     const { scopeConfig, setEditor } = useStore();
     const contract = useStore((state: Store) => (state.editor ? (state.contractsConfig[state.editor]?._uid ?? null) : null));
 
-    const handleExport = async () => {
-        await ProjectSaver.saveProject();
+    const handleImportProjectConfig = async () => {
+        // tba
     };
 
-    const handleSaveProject = async () => {
-        // TODO: Config save handling here
+    const handleSaveProjectConfig = async () => {
+        await ProjectSaver.saveProjectConfig();
+    };
+
+    const handleSaveProjectZip = async () => {
+        await ProjectSaver.saveProject();
     };
 
     return (
@@ -40,14 +45,42 @@ const Layout = () => {
                 </div>
                 <ContractList />
                 <div className='flex grow justify-end items-stretch gap-2'>
-                    <Button variant={'outline'} className='h-auto gap-2' onClick={() => handleExport()}>
-                        <Icon icon='fa-file-zipper' />
-                        Export files
+                    <Button variant={'outline'} className='h-auto gap-2' onClick={() => handleImportProjectConfig()}>
+                        <Icon icon='fa-file-import' />
+                        Import project
                     </Button>
-                    <Button disabled className='h-auto gap-2' onClick={() => handleSaveProject()}>
-                        <Icon icon='fa-wand-magic-sparkles' />
-                        Save project
-                    </Button>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className='h-auto gap-2'>
+                                <Icon icon='fa-wand-magic-sparkles' />
+                                Save project
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Save your project</DialogTitle>
+                                <DialogDescription className='py-2'>
+                                    Download a project configuration file that can be used with our{' '}
+                                    <a href='https://docs.patchwork.dev/pdk/introduction' target='_blank' className='text-foreground underline font-semibold'>
+                                        PDK CLI tool
+                                    </a>
+                                    . When provided with this configuration file, PDK will generate all the necessary files for your project.
+                                </DialogDescription>
+                                <DialogFooter className='pt-4'>
+                                    <div className='grow flex flex-col gap-2'>
+                                        <Button className='gap-2 text-[14px]' size={'lg'} onClick={() => handleSaveProjectConfig()}>
+                                            <Icon icon='fa-wand-magic-sparkles' />
+                                            Download project configuration
+                                        </Button>
+                                        <Button className='gap-2 opacity-50' variant={'ghost'} onClick={() => handleSaveProjectZip()}>
+                                            <Icon icon='fa-file-zipper' />
+                                            Download generated files instead
+                                        </Button>
+                                    </div>
+                                </DialogFooter>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
                     <Separator orientation='vertical' className='bg-muted-border ml-2' />
                     <DarkModeToggle />
                 </div>

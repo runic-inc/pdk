@@ -3,23 +3,52 @@ import { JSONSchemaGen } from '@patchworkdev/common/codegen/jsonSchemaGen';
 import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
 import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
 import { cleanAndCapitalizeFirstLetter } from '@patchworkdev/common/codegen/utils';
+import { JSONProjectConfigGen } from '@patchworkdev/common/index';
 import { ContractConfig } from '@patchworkdev/common/types';
 import JSZip from 'jszip';
 import useStore from '../store';
+import sanitizeName from './sanitizeName';
+import storeToSchema from './storeToSchema';
 
 export class ProjectSaver {
+    static async saveProjectConfig(): Promise<void> {
+        const generatedConfig = new JSONProjectConfigGen().gen(storeToSchema());
+        const content = new Blob([generatedConfig], { type: 'application/json' });
+        const fileName = `patchwork.config.json`;
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
     static async saveContract(contractUID: string): Promise<void> {
         const zip = new JSZip();
         const config = useStore.getState().contractsConfig[contractUID];
-        await this.prepareContract(config, zip);
+        const scopeConfig = useStore.getState().scopeConfig;
+        await this.prepareContract(
+            {
+                ...config,
+                scopeName: sanitizeName(scopeConfig.name),
+            },
+            zip,
+        );
         await this.deliverZip(zip);
     }
 
     static async saveProject(): Promise<void> {
         const zip = new JSZip();
         const contractConfigs = Object.values(useStore.getState().contractsConfig);
+        const scopeConfig = useStore.getState().scopeConfig;
         contractConfigs.forEach(async (config) => {
-            await this.prepareContract(config, zip);
+            await this.prepareContract(
+                {
+                    ...config,
+                    scopeName: sanitizeName(scopeConfig.name),
+                },
+                zip,
+            );
         });
         await this.deliverZip(zip);
     }
