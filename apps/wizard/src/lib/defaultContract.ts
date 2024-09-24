@@ -4,7 +4,6 @@ import { UContractConfig } from '../types';
 
 export default {
     _uid: nanoid(),
-    scopeName: 'MyScope',
     name: 'My New Contract',
     symbol: 'MINE',
     baseURI: 'https://mything/my/',

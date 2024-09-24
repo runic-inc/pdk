@@ -1,4 +1,4 @@
-import { FieldTypeEnum } from '@patchworkdev/common/types';
+import { FieldType } from '@patchworkdev/common/types';
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
 import { Button } from '../../primitives/button';
@@ -9,8 +9,8 @@ import useStore, { Store } from '../../store';
 import { UFieldConfig } from '../../types';
 
 type typeInfo = {
-    value: FieldTypeEnum;
-    label: string;
+    value: FieldType;
+    label: FieldType;
     description?: string;
     icon: `fa-${string}`;
 };
@@ -26,7 +26,7 @@ const icons: Record<string, `fa-${string}`> = {
 
 const typeInfo: typeInfo[] = [
     {
-        value: FieldTypeEnum.LITEREF,
+        value: 'literef',
         label: 'literef',
         description: 'A 64-bit reference to a Patchwork assignment',
         icon: icons.literef,
@@ -38,115 +38,115 @@ const typeInfo: typeInfo[] = [
         icon: icons.enum,
     },*/
     {
-        value: FieldTypeEnum.ADDRESS,
+        value: 'address',
         label: 'address',
         description: 'A 160-bit address',
         icon: icons.address,
     },
     {
-        value: FieldTypeEnum.BOOLEAN,
+        value: 'boolean',
         label: 'boolean',
         description: 'A boolean type (true or false)',
         icon: icons.boolean,
     },
     {
-        value: FieldTypeEnum.INT8,
+        value: 'int8',
         label: 'int8',
         description: 'An 8-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.INT16,
+        value: 'int16',
         label: 'int16',
         description: 'A 16-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.INT32,
+        value: 'int32',
         label: 'int32',
         description: 'A 32-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.INT64,
+        value: 'int64',
         label: 'int64',
         description: 'A 64-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.INT128,
+        value: 'int128',
         label: 'int128',
         description: 'A 128-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.INT256,
+        value: 'int256',
         label: 'int256',
         description: 'A 256-bit signed integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT8,
+        value: 'uint8',
         label: 'uint8',
         description: 'An 8-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT16,
+        value: 'uint16',
         label: 'uint16',
         description: 'A 16-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT32,
+        value: 'uint32',
         label: 'uint32',
         description: 'A 32-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT64,
+        value: 'uint64',
         label: 'uint64',
         description: 'A 64-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT128,
+        value: 'uint128',
         label: 'uint128',
         description: 'A 128-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.UINT256,
+        value: 'uint256',
         label: 'uint256',
         description: 'A 256-bit unsigned integer',
         icon: icons.number,
     },
     {
-        value: FieldTypeEnum.CHAR8,
+        value: 'char8',
         label: 'char8',
         description: 'An 8-character string (64 bits)',
         icon: icons.string,
     },
     {
-        value: FieldTypeEnum.CHAR16,
+        value: 'char16',
         label: 'char16',
         description: 'A 16-character string (128 bits)',
         icon: icons.string,
     },
     {
-        value: FieldTypeEnum.CHAR32,
+        value: 'char32',
         label: 'char32',
         description: 'A 32-character string (256 bits)',
         icon: icons.string,
     },
     {
-        value: FieldTypeEnum.CHAR64,
+        value: 'char64',
         label: 'char64',
         description: 'A 64-character string (512 bits)',
         icon: icons.string,
     },
     {
-        value: FieldTypeEnum.STRING,
+        value: 'string',
         label: 'string',
         description: 'A dynamically-sized string',
         icon: icons.string,
@@ -158,7 +158,7 @@ const typeSelector = ({ field }: { field: UFieldConfig }) => {
     const { updateContractConfig } = useStore();
     const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
 
-    const handleComboboxChange = (value: string) => {
+    const handleComboboxChange = (value: FieldType) => {
         updateContractConfig({
             ...contractConfig,
             fields: contractConfig.fields.map((_f) => (_f._uid === field._uid ? { ..._f, type: value } : _f)),

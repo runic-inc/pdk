@@ -1,6 +1,5 @@
 //import { parseJson } from '../../codegen/contractSchemaJsonParser';
 import { JSONProjectConfigGen } from '@patchworkdev/common/index';
-import { ProjectConfig } from '@patchworkdev/common/types';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
 import { useKeyDown } from '../hooks/useKeyDown';
@@ -16,8 +15,8 @@ const themes = {
 const files = {
     schema: {
         lang: 'json',
-        generate: (config: ProjectConfig) => {
-            return new JSONProjectConfigGen().gen(config);
+        generate: () => {
+            return new JSONProjectConfigGen().gen(storeToSchema());
         },
     },
 };
@@ -37,7 +36,7 @@ const ProjectCodeBlock = memo(({ viewType, setClipboard }: { viewType: 'schema';
     useEffect(() => {
         let _code = '';
         try {
-            _code = files[viewType].generate(storeToSchema());
+            _code = files[viewType].generate();
             codeToHtml(_code, {
                 lang: files[viewType].lang,
                 themes,

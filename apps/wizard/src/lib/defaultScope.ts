@@ -1,11 +1,11 @@
 import { ScopeConfig } from '@patchworkdev/common/types';
 
 export default {
-    name: 'MyScope',
+    name: 'My Scope',
     whitelist: true,
     userAssign: false,
     userPatch: false,
-    mintConfigs: new Map(),
+    mintConfigs: {},
     operators: [],
     bankers: [],
 } satisfies ScopeConfig;

@@ -35,7 +35,7 @@ export type FeatureConfig = {
     options: FeatureOption[];
 };
 
-export type UContractConfig = Omit<ContractConfig, 'fields'> & {
+export type UContractConfig = Omit<ContractConfig, 'fields' | 'scopeName'> & {
     _uid: string;
     fields: UFieldConfig[];
     featureOptions: Partial<Record<keyof typeof Feature, FeatureFlagConfig>>;

@@ -9,6 +9,7 @@ import { codeToHtml } from 'shiki';
 import { useKeyDown } from '../hooks/useKeyDown';
 import { ScrollArea } from '../primitives/scroll-area';
 import useStore, { Store } from '../store';
+import sanitizeName from '../utils/sanitizeName';
 
 const themes = {
     light: 'github-light',
@@ -34,6 +35,7 @@ const CodeBlock = memo(
     ({ viewType, setClipboard }: { viewType: 'userContract' | 'genContract' | 'schema'; setClipboard: React.Dispatch<React.SetStateAction<string>> }) => {
         const [code, setCode] = useState('');
         const contractConfig = useStore((state: Store) => state.contractsConfig[state.editor!]);
+        const scopeConfig = useStore((state: Store) => state.scopeConfig);
         if (!contractConfig) return null;
 
         useKeyDown(
@@ -47,7 +49,10 @@ const CodeBlock = memo(
         useEffect(() => {
             let _code = '';
             try {
-                _code = files[viewType].generate(contractConfig);
+                _code = files[viewType].generate({
+                    ...contractConfig,
+                    scopeName: sanitizeName(scopeConfig.name),
+                });
                 codeToHtml(_code, {
                     lang: files[viewType].lang,
                     themes,
