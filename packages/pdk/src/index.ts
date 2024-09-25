@@ -171,7 +171,11 @@ function generateSolidity(argv: any) {
                     generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
                 } else {
                     Object.entries(projectConfig.contracts).forEach(([key, value]) => {
-                        generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
+                        if (typeof value === "string") {
+                            generateContract(getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout), outputDir);
+                        } else {
+                            generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
+                        }
                     });
                 }
             } else {
