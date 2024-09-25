@@ -94,12 +94,15 @@ function validateProjectConfig(jsonData: unknown): ValidationResult {
       if (typeof contractConfig === 'object' && contractConfig !== null) {
         const config = (contractConfig as { config?: ContractConfig }).config;
         if (config) {
-          const result = validateContractConfig(config);
-          if (!result.isValid) {
-            contractErrors.push(...result.errors.map(error => ({
-              ...error,
-              message: `Invalid contract config for ${contractName}: ${error.message}`
-            })));
+          try {
+            const contractSchema = parseJson(config);
+            new ContractSchemaImpl(contractSchema).validate();
+          } catch (error) {
+            contractErrors.push(createErrorObject(
+              "contractSchema",
+              `Invalid contract config for ${contractName}: ${(error as Error).message}`,
+              { contractName }
+            ));
           }
         }
       }

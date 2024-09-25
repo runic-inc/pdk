@@ -469,16 +469,7 @@ describe("validateProjectConfigSchema", () => {
       contractRelations: {}
     };
     const result = validateSchema(invalidJson, projectSchemaFile);
-
     expect(result.isValid).toBe(false);
-    console.log(result.errors);
-    //expect(result.errors).toHaveLength(1);
-    //expect(result.errors[0]).toEqual(
-    //  expect.objectContaining({
-    //    keyword: "contractSchema",
-    //    message: expect.stringContaining("Invalid contract config for InvalidContract:")
-    //  })
-    //);
   });
   
 });
