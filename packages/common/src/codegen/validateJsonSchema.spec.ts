@@ -470,6 +470,12 @@ describe("validateProjectConfigSchema", () => {
     };
     const result = validateSchema(invalidJson, projectSchemaFile);
     expect(result.isValid).toBe(false);
+    expect(result.errors[0]).toEqual(
+      expect.objectContaining({
+        keyword: "projectConfig",
+        message: expect.stringContaining("Feature not found: invalidFeature")
+      })
+    );
   });
   
 });

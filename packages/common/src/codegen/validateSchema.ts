@@ -89,31 +89,6 @@ function validateProjectConfig(jsonData: unknown): ValidationResult {
     const projectConfigLoader = new JSONProjectConfigLoader();
     const projectConfig = projectConfigLoader.load(JSON.stringify(jsonData)) as ProjectConfig;
     
-    const contractErrors: ErrorObject[] = [];
-    Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
-      if (typeof contractConfig === 'object' && contractConfig !== null) {
-        const config = (contractConfig as { config?: ContractConfig }).config;
-        if (config) {
-          try {
-            const contractSchema = parseJson(config);
-            new ContractSchemaImpl(contractSchema).validate();
-          } catch (error) {
-            contractErrors.push(createErrorObject(
-              "contractSchema",
-              `Invalid contract config for ${contractName}: ${(error as Error).message}`,
-              { contractName }
-            ));
-          }
-        }
-      }
-    });
-    
-    if (contractErrors.length > 0) {
-      return {
-        isValid: false,
-        errors: contractErrors
-      };
-    }
     return { isValid: true, errors: [] };
   } catch (error) {
     return {
