@@ -12,7 +12,6 @@ export type ContractStore = {
     //updateContractFields: (newFields: UFieldConfig[]) => void;
     getContractFeatures: () => Feature[];
     updateContractFeatures: (selectedKeys: Feature[], featureGroupKeys: Feature[]) => void;
-    updateContractFeatureOptions: (feature: Feature, key: string, value: string) => void;
     updateContractFragments: (fragments: string[]) => void;
     addFragmentToContract: (target: string) => void;
     removeFragmentFromContract: (target: string) => void;
@@ -48,17 +47,6 @@ export const createContractSlice: StateCreator<Store, [], [], ContractStore> = (
             }),
         );
     },
-    updateContractFeatureOptions: (feature: Feature, key: string, value: string) => {
-        set(
-            produce((state: Store) => {
-                if (feature in state.contractsConfig[state.editor!].featureOptions) {
-                    state.contractsConfig[state.editor!].featureOptions[feature]![key] = value;
-                } else {
-                    state.contractsConfig[state.editor!].featureOptions[feature] = { [key]: value };
-                }
-            }),
-        );
-    },
     updateContractFragments: (fragments: string[]) => {
         set(
             produce((state: Store) => {
@@ -85,6 +73,7 @@ export const createContractSlice: StateCreator<Store, [], [], ContractStore> = (
             produce((state: Store) => {
                 const contracts = Object.values(_.clone(get().contractsConfig));
                 contracts.forEach((contract) => {
+                    console.log(contract);
                     if ('has' in contract.fragments && contract.fragments.has(uid)) {
                         state.contractsConfig[contract._uid].fragments.delete(uid);
                     }

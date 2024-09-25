@@ -44,14 +44,15 @@ const Toolbar = () => {
     const handleImportProjectConfig = async () => {
         if (projectConfigJsonData) {
             setEditor(null);
+            const scope = Object.values(projectConfigJsonData.scopes)[0]!;
             updateScopeConfig({
-                ...Object.values(projectConfigJsonData.scopes)[0],
+                ...scope,
                 name: projectConfigJsonData.name,
             });
             const contracts: Record<string, UContractConfig> = {};
-            Object.values(projectConfigJsonData.contracts).forEach((contractConfig) => {
+            Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
                 if (typeof contractConfig === 'string') return;
-                const _uid = nanoid();
+                const fragments = new Set<string>(projectConfigJsonData.contractRelations[_uid]?.fragments ?? []);
                 contracts[_uid] = {
                     ...(contractConfig as unknown as UContractConfig),
                     _uid,
@@ -61,6 +62,10 @@ const Toolbar = () => {
                             _uid: nanoid(),
                         } as UFieldConfig;
                     }),
+                    fragments,
+                    mintFee: (scope.mintConfigs && scope.mintConfigs[_uid]?.flatFee.toString()) ?? '',
+                    patchFee: '',
+                    assignFee: '',
                 };
             });
             updateContractsConfig(contracts);

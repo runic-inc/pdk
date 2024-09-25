@@ -1,5 +1,5 @@
-import { ContractConfig, Feature } from '@patchworkdev/common/types';
-import { FeatureConfig } from '../types';
+import { Feature } from '@patchworkdev/common/types';
+import { FeatureConfig, UContractConfig } from '../types';
 
 export default [
     {
@@ -39,7 +39,7 @@ export default [
         description: `Assignee tokens can hold and own Assignable tokens.`,
         icon: 'fa-square-dashed',
         autoToggle: true,
-        validator: ({ fields }: ContractConfig) => {
+        validator: ({ fields }: UContractConfig) => {
             return fields.filter((field) => field.type === 'literef').length >= 1 ? true : false;
         },
         validatorMessage: 'This feature is automatically enabled when a LiteRef field is added.',
@@ -55,7 +55,7 @@ export default [
                 label: 'Use dynamic reference library',
                 optional: true,
                 description: `Saves significant code space in your contract at the expense of CALLs to an external library.`,
-                validator: ({ fields }: ContractConfig) => {
+                validator: ({ fields }: UContractConfig) => {
                     return fields.filter((field) => field.type === 'literef' && field.arrayLength === 0).length >= 1 ? true : false;
                 },
                 validatorMessage: 'Requires a LiteRef field with a cardinality of 0.',
