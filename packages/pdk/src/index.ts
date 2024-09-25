@@ -1,14 +1,15 @@
-import { cleanAndCapitalizeFirstLetter, ContractSchemaImpl, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema, JSONProjectConfigLoader, ContractConfig } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema } from "@patchworkdev/common";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { launchWizardApp } from "./wizardServer";
-import { generateSchema } from "./generateSchema";
 import { generateABIs } from "./generateABIs";
 import { generateAPI } from "./generateApi";
+import { generateEventHooks } from "./generateEventHooks";
+import { generateSchema } from "./generateSchema";
 import { findConfig, findPonderSchema } from "./helpers/config";
+import { launchWizardApp } from "./wizardServer";
 
 // console.log(__dirname);
 
@@ -68,32 +69,42 @@ const argv = yargs(hideBin(process.argv))
         {},
         async () => {
             console.log("Generating TypeScript ABIs...");
-            const configPath = findConfig();
+            const configPath = await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
                 return;
             }
             console.log("Using config file:", configPath);
-            const buildOutDir = path.join(path.dirname(configPath), "contracts", "out");
-            const abiDir = path.join(path.dirname(configPath), "", "abis");
-            await generateABIs(buildOutDir, abiDir);
+            await generateABIs(configPath);
         }
     )
     .command(
         "generateSchema",
         "Generate the ponder schema",
         {},
-        () => {
+        async () => {
             console.log("Generating Ponder Schema");
-            const configPath = findConfig();
+            const configPath = await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
                 return;
             }
             console.log("Using config file:", configPath);
-            const abiDir = path.join(path.dirname(configPath), "", "abis");
-            const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
-            generateSchema(abiDir, ponderSchema);
+            generateSchema(configPath);
+        }
+    ).command(
+        "generateEventHooks",
+        "Generate the ponder event code",
+        {},
+        async () => {
+            console.log("Generating Ponder event code");
+            const configPath = await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            generateEventHooks(configPath);
         }
     ).command(
         "generateAPI",
@@ -101,12 +112,12 @@ const argv = yargs(hideBin(process.argv))
         {},
         async () => {
             console.log("Generating API");
-            const schemaPath = findPonderSchema();
+            const schemaPath = await findPonderSchema();
             if (!schemaPath) {
                 console.error("No ponder schema file found.");
                 return;
             }
-            const configPath = findConfig();
+            const configPath = await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
                 return;
