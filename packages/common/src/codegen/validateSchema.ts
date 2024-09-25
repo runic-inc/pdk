@@ -3,8 +3,9 @@ import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject } from "ajv";
 import { parseJson } from './contractSchemaJsonParser';
 import { ContractSchemaImpl } from './contractSchema';
+import { JSONProjectConfigLoader } from '../configgen/jsonProjectConfigLoader';
+import { ContractConfig, ProjectConfig } from '../types';
 
-// Define a structured return type
 interface ValidationResult {
   isValid: boolean;
   errors: ErrorObject[];
@@ -16,14 +17,13 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
     const ajv: Ajv2019 = new Ajv2019();
     const validate = ajv.compile(schemaData);
     
-    // Check if jsonData is an object and has the correct $schema value
     if (typeof jsonData !== 'object' || jsonData === null) {
       return {
         isValid: false,
         errors: [createErrorObject("type", "must be object", { type: "object" })]
       };
     }
-
+    
     const schema = (jsonData as any).$schema;
     if (schema === undefined) {
       return {
@@ -31,13 +31,19 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
         errors: [createErrorObject("required", "must have required property '$schema'", { missingProperty: '$schema' })]
       };
     }
-    if (!(schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json" || schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json")) {
+    
+    const allowedSchemas = [
+      "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+      "https://patchwork.dev/schema/patchwork-project-config.schema.json"
+    ];
+    
+    if (!allowedSchemas.includes(schema)) {
       return {
         isValid: false,
-        errors: [createErrorObject("const", "must be one of", { allowedValues: ["https://patchwork.dev/schema/patchwork-contract-config.schema.json", "https://patchwork.dev/schema/patchwork-project-config.schema.json"] })]
+        errors: [createErrorObject("const", "must be one of", { allowedValues: allowedSchemas })]
       };
     }
-
+    
     const valid: boolean = validate(jsonData);
     if (!valid) {
       return {
@@ -45,20 +51,12 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
         errors: validate.errors || []
       };
     }
-
+    
     if (schema === "https://patchwork.dev/schema/patchwork-contract-config.schema.json") {
-      // If JSON schema validation passes for a contract config, create ContractSchemaImpl and validate
-      try {
-        const contractSchema = parseJson(jsonData);
-        new ContractSchemaImpl(contractSchema).validate();
-      } catch (error) {
-        return {
-          isValid: false,
-          errors: [createErrorObject("contractSchema", (error as Error).message, {})]
-        };
-      }
+      return validateContractConfig(jsonData);
+    } else if (schema === "https://patchwork.dev/schema/patchwork-project-config.schema.json") {
+      return validateProjectConfig(jsonData);
     }
-    // TODO project validation
   } catch (error: unknown) {
     console.error("Error reading schema file:", (error as Error).message);
     return {
@@ -66,10 +64,60 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
       errors: [createErrorObject("$schema", (error as Error).message, {})]
     };
   }
+  
   return {
     isValid: true,
     errors: []
   };
+}
+
+function validateContractConfig(jsonData: unknown): ValidationResult {
+  try {
+    const contractSchema = parseJson(jsonData);
+    new ContractSchemaImpl(contractSchema).validate();
+    return { isValid: true, errors: [] };
+  } catch (error) {
+    return {
+      isValid: false,
+      errors: [createErrorObject("contractSchema", (error as Error).message, {})]
+    };
+  }
+}
+
+function validateProjectConfig(jsonData: unknown): ValidationResult {
+  try {
+    const projectConfigLoader = new JSONProjectConfigLoader();
+    const projectConfig = projectConfigLoader.load(JSON.stringify(jsonData)) as ProjectConfig;
+    
+    const contractErrors: ErrorObject[] = [];
+    Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
+      if (typeof contractConfig === 'object' && contractConfig !== null) {
+        const config = (contractConfig as { config?: ContractConfig }).config;
+        if (config) {
+          const result = validateContractConfig(config);
+          if (!result.isValid) {
+            contractErrors.push(...result.errors.map(error => ({
+              ...error,
+              message: `Invalid contract config for ${contractName}: ${error.message}`
+            })));
+          }
+        }
+      }
+    });
+    
+    if (contractErrors.length > 0) {
+      return {
+        isValid: false,
+        errors: contractErrors
+      };
+    }
+    return { isValid: true, errors: [] };
+  } catch (error) {
+    return {
+      isValid: false,
+      errors: [createErrorObject("projectConfig", (error as Error).message, {})]
+    };
+  }
 }
 
 function createErrorObject(keyword: string, message: string, params: Record<string, any>): ErrorObject {

@@ -4,6 +4,7 @@ import { ErrorObject } from "ajv";
 import { validateSchema } from "./validateSchema";
 
 const schemaFile: string = "../../schemas/patchwork-contract-config.schema.json";
+const projectSchemaFile: string = "../../schemas/patchwork-project-config.schema.json";
 
 type GroupedFiles = {
   [key: string]: {
@@ -227,4 +228,257 @@ describe("validateSchema", () => {
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
+});
+
+describe("validateProjectConfigSchema", () => {
+  const testDirectory: string = "./src/codegen/test_data/project_configs";
+  const files: string[] = fs.readdirSync(testDirectory);
+  const jsonFiles: string[] = files.filter((file: string) => file.endsWith(".json"));
+
+  jsonFiles.forEach((jsonFile: string) => {
+    it(`should validate ${jsonFile} successfully`, () => {
+      const jsonData: unknown = JSON.parse(
+        fs.readFileSync(path.join(testDirectory, jsonFile), "utf8")
+      );
+      const result = validateSchema(jsonData, projectSchemaFile);
+
+      if (!result.isValid) {
+        console.error(`Validation errors for ${jsonFile}:`, result.errors);
+      }
+
+      expect(result.isValid).toBe(true);
+    });
+  });
+
+  it("should fail validation for project config without $schema", () => {
+    const invalidJson = {
+      name: "Invalid Project",
+      scopes: {},
+      contracts: {}
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toEqual(
+      expect.objectContaining({
+        keyword: "required",
+        params: { missingProperty: '$schema' },
+        message: "must have required property '$schema'"
+      })
+    );
+  });
+
+  it("should fail validation for project config with incorrect $schema value", () => {
+    const invalidJson = {
+      $schema: "https://wrong-url.com/schema.json",
+      name: "Invalid Project",
+      scopes: {},
+      contracts: {}
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toEqual(
+      expect.objectContaining({
+        keyword: "const",
+        message: "must be one of",
+        params: {
+          allowedValues: [
+            "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+            "https://patchwork.dev/schema/patchwork-project-config.schema.json"
+          ]
+        }
+      })
+    );
+  });
+
+  it("should fail validation when a required field is missing", () => {
+    const invalidJson = {
+      $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+      name: "Invalid Project",
+      // missing 'scopes' field
+      contracts: {}
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors.some(
+      (error: ErrorObject) =>
+        error.keyword === "required" &&
+        error.params.missingProperty === "scopes"
+    )).toBe(true);
+  });
+
+  it("should fail validation when a scope has invalid properties", () => {
+    const invalidJson = {
+      $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+      name: "Invalid Project",
+      scopes: {
+        MyScope: {
+          name: "MyScope",
+          owner: "not-an-address",
+          whitelist: "not-a-boolean",
+          userAssign: "not-a-boolean",
+          userPatch: "not-a-boolean",
+          bankers: ["not-an-address"],
+          operators: ["not-an-address"],
+          mintConfigs: {
+            "not-an-address": {
+              flatFee: "not-a-number",
+              active: "not-a-boolean"
+            }
+          },
+          patchFees: {
+            "not-an-address": "not-a-number"
+          },
+          assignFees: {
+            "not-an-address": "not-a-number"
+          }
+        }
+      },
+      contracts: {}
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it("should fail validation when a contract config is invalid", () => {
+    const invalidJson = {
+      $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+      name: "Invalid Project",
+      scopes: {},
+      contracts: {
+        InvalidContract: {
+          config: {
+            $schema: "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+            // missing required fields
+          },
+          fragments: []
+        }
+      }
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toEqual(
+      expect.objectContaining({
+        keyword: "projectConfig"
+      })
+    );
+  });
+
+  it("should pass validation for a valid project configuration", () => {
+    const validJson = {
+      $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+      name: "Valid Project",
+      scopes: {
+        MyScope: {
+          name: "MyScope",
+          owner: "0x1234567890123456789012345678901234567890",
+          whitelist: true,
+          userAssign: false,
+          userPatch: false,
+          bankers: ["0x1234567890123456789012345678901234567890"],
+          operators: ["0x1234567890123456789012345678901234567890"],
+          mintConfigs: {
+            "0x1234567890123456789012345678901234567890": {
+              flatFee: 0,
+              active: true
+            }
+          },
+          patchFees: {
+            "0x1234567890123456789012345678901234567890": 0
+          },
+          assignFees: {
+            "0x1234567890123456789012345678901234567890": 0
+          }
+        }
+      },
+      contracts: {
+        ValidContract: {
+          config: {
+            $schema: "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+            scopeName: "MyScope",
+            name: "ValidContract",
+            symbol: "VC",
+            baseURI: "https://example.com/",
+            schemaURI: "https://example.com/schema.json",
+            imageURI: "https://example.com/image.png",
+            features: ["patch"],
+            fields: [
+              {
+                id: 1,
+                key: "name",
+                type: "char32",
+                description: "Name",
+                functionConfig: "all"
+              }
+            ]
+          },
+          fragments: []
+        }
+      }
+    };
+    const result = validateSchema(validJson, projectSchemaFile);
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("should fail validation when a contract config is invalid", () => {
+    const invalidJson = {
+      $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+      name: "Invalid Project",
+      scopes: {
+        MyScope: {
+          name: "MyScope",
+          owner: "0x1234567890123456789012345678901234567890",
+          whitelist: true,
+          userAssign: false,
+          userPatch: false,
+        }
+      },
+      contracts: {
+        InvalidContract: {
+          config: {
+            $schema: "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+            scopeName: "MyScope",
+            name: "InvalidContract",
+            symbol: "IC",
+            baseURI: "https://example.com/",
+            schemaURI: "https://example.com/schema.json",
+            imageURI: "https://example.com/image.png",
+            features: ["invalidFeature"], // Invalid feature
+            fields: [
+              {
+                id: 1,
+                key: "name",
+                type: "invalidType", // Invalid field type
+                description: "Name",
+                functionConfig: "all"
+              }
+            ]
+          },
+          fragments: []
+        }
+      },
+      contractRelations: {}
+    };
+    const result = validateSchema(invalidJson, projectSchemaFile);
+
+    expect(result.isValid).toBe(false);
+    console.log(result.errors);
+    //expect(result.errors).toHaveLength(1);
+    //expect(result.errors[0]).toEqual(
+    //  expect.objectContaining({
+    //    keyword: "contractSchema",
+    //    message: expect.stringContaining("Invalid contract config for InvalidContract:")
+    //  })
+    //);
+  });
+  
 });
