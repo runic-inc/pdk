@@ -12,8 +12,8 @@ import { findConfig, findPonderSchema } from "./helpers/config";
 
 // console.log(__dirname);
 
-const CONTRACT_SCHEMA = `${__dirname}/../../../schemas/patchwork-contract-config.schema.json`;
-const PROJECT_SCHEMA = `${__dirname}/../../../schemas/patchwork-project-config.schema.json`;
+const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
+const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
 
 const argv = yargs(hideBin(process.argv))
     .command(

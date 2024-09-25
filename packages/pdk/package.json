@@ -1,12 +1,12 @@
 {
     "name": "@patchworkdev/pdk",
-    "version": "0.2.1-beta.2",
+    "version": "0.2.1-beta.3",
     "description": "Patchwork Development Kit",
     "main": "src/index.ts",
     "scripts": {
         "start": "node dist/index.js",
         "test": "echo \"Error: no test specified\" && exit 0",
-        "build": "tsc --build",
+        "build": "tsc --build && cp -r ../../schemas dist",
         "build:wizard": "cd ../../apps/wizard && BUILD_OUT_DIR=../../packages/pdk/dist/wizard vite build",
         "build:all": "pnpm build && pnpm build:wizard"
     },
