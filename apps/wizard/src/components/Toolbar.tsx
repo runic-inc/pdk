@@ -3,7 +3,7 @@ import { ProjectConfig } from '@patchworkdev/common/types';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { Button } from '../primitives/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
 import Icon from '../primitives/icon';
 import { Input } from '../primitives/input';
 import { Separator } from '../primitives/separator';
@@ -109,10 +109,12 @@ const Toolbar = () => {
                                 <Input type='file' accept='.json' onChange={validateProjectConfig} />
                             </div>
                             <DialogFooter className='pt-4'>
-                                <Button disabled={!valid} className='gap-2' onClick={() => handleImportProjectConfig()}>
-                                    <Icon icon='fa-file-import' />
-                                    Import project config
-                                </Button>
+                                <DialogClose asChild>
+                                    <Button disabled={!valid} className='gap-2' onClick={() => handleImportProjectConfig()}>
+                                        <Icon icon='fa-file-import' />
+                                        Import project config
+                                    </Button>
+                                </DialogClose>
                             </DialogFooter>
                         </DialogHeader>
                     </DialogContent>
