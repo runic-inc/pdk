@@ -1,6 +1,6 @@
 import path from 'path';
 import ts from 'typescript';
-import { importABIFiles, importPatchworkConfig } from '../helpers/config';
+import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
 import { createSchemaFile, createTableFromAbiEvent, createTableFromObject, generalDBStructure } from './factories';
 
 // using this simple function first rather than installing lodash or change-case.
@@ -15,7 +15,7 @@ export async function generateSchema(configPath: string) {
     const abiDir = path.join(path.dirname(configPath), "", "abis");
     const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
 
-    const abiObjects = await importABIFiles(abiDir);
+    const abis = await importABIFiles(abiDir);
     const projectConfig = await importPatchworkConfig(configPath);
     console.log('projectConfig', projectConfig);
     if (!projectConfig) {
@@ -36,15 +36,16 @@ export async function generateSchema(configPath: string) {
     // on setup event handler - we want to add info about the contracts to the contracts table
 
     // need to get the fragments relationships to the assigned contracts
-    const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
-    Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
-        fragments.forEach((fragment) => {
-            if (!fragmentRelationships[fragment]) {
-                fragmentRelationships[fragment] = [];
-            }
-            fragmentRelationships[fragment].push(contractName);
-        });
-    });
+    // const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
+    // Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
+    //     fragments.forEach((fragment) => {
+    //         if (!fragmentRelationships[fragment]) {
+    //             fragmentRelationships[fragment] = [];
+    //         }
+    //         fragmentRelationships[fragment].push(contractName);
+    //     });
+    // });
+    const fragmentRelationships = getFragmentRelationships(projectConfig);
 
     console.log('projectConfig.contracts', projectConfig.contracts);
     const contractDBEntities = Object.entries(projectConfig.contracts).map(([contractName, contractConfig]) => {
@@ -85,12 +86,12 @@ export async function generateSchema(configPath: string) {
 
     // we don't use the raw abi events to generate the schema at the moment. Leaving in for future reference.
     const tables: ts.PropertyAssignment[] = [];
-    for (const abiObject of abiObjects) {
-        abiObject.abi.forEach((abiItem) => {
+    for (const i in abis) {
+        abis[i].forEach((abiItem) => {
             if (abiItem.type === 'event') {
-                tables.push(createTableFromAbiEvent(abiObject.name, abiItem));
+                tables.push(createTableFromAbiEvent(i, abiItem));
             }
         });
     }
-    await createSchemaFile([...generalDB, ...contractDBEntities], ponderSchema);
+    await createSchemaFile([...generalDB, ...contractDBEntities, ...tables], ponderSchema);
 }

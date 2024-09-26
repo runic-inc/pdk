@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import prettier from 'prettier';
 import ts from 'typescript';
 import { AbiEvent } from 'viem';
+import { createImport } from '../helpers/factories';
 
 export async function createSchemaFile(tableArray: ts.PropertyAssignment[], schemaFile: string) {
 
@@ -24,25 +25,6 @@ export async function createSchemaFile(tableArray: ts.PropertyAssignment[], sche
 
     // Format with prettier and write the result to a file
     await fs.writeFile(schemaFile, await prettier.format(result, { parser: "typescript" }), 'utf8');
-}
-
-function createImport(imports: string, module: string) {
-    return ts.factory.createImportDeclaration(
-        undefined, // modifiers
-        ts.factory.createImportClause(
-            false, // isTypeOnly
-            undefined, // name
-            ts.factory.createNamedImports([
-                ts.factory.createImportSpecifier(
-                    false, // isTypeOnly
-                    undefined, // propertyName
-                    ts.factory.createIdentifier(imports)
-                )
-            ])
-        ),
-        ts.factory.createStringLiteral(module),
-        undefined // assertClause
-    );
 }
 
 export function createSchemaObject(tableArray: ts.PropertyAssignment[]) {

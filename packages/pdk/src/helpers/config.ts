@@ -65,6 +65,7 @@ export async function importABIFiles(abiDir: string) {
         }
     });
 
+    const abiObjects: Record<string, Abi> = {};
     try {
         // Read the directory
         const abiFiles = (await fs.readdir(abiDir)).filter((file) => file.endsWith('.abi.ts'));
@@ -77,16 +78,33 @@ export async function importABIFiles(abiDir: string) {
                 // Import the TypeScript file
                 const module = await import(filePath);
                 const baseName = path.basename(file, '.abi.ts');
+                abiObjects[baseName] = module[baseName];
 
                 // Return the exported constant
                 return { name: baseName, abi: module[baseName] };
             })
         );
 
+
         // Filter out any null results and return the ABI objects
-        return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);
+        // return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);
+        return abiObjects;
     } catch (error) {
         console.error('Error importing ABI files:', error);
-        return [];
+        return abiObjects;
     }
+}
+
+export function getFragmentRelationships(projectConfig: ProjectConfig): Record<string, string[]> {
+    const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
+    Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
+        fragments.forEach((fragment) => {
+            if (!fragmentRelationships[fragment]) {
+                fragmentRelationships[fragment] = [];
+            }
+            fragmentRelationships[fragment].push(contractName);
+        });
+    });
+
+    return fragmentRelationships;
 }
