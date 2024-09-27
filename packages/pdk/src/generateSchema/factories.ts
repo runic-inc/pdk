@@ -1,8 +1,9 @@
 
-import ts from 'typescript';
-import { AbiEvent } from 'viem';
 import fs from 'fs/promises';
 import prettier from 'prettier';
+import ts from 'typescript';
+import { AbiEvent } from 'viem';
+import { createImport } from '../helpers/factories';
 
 export async function createSchemaFile(tableArray: ts.PropertyAssignment[], schemaFile: string) {
 
@@ -23,26 +24,7 @@ export async function createSchemaFile(tableArray: ts.PropertyAssignment[], sche
     const result = printer.printFile(sourceFile);
 
     // Format with prettier and write the result to a file
-    await fs.writeFile(schemaFile, await prettier.format(result, { parser: "typescript" }), 'utf8');
-}
-
-function createImport(imports: string, module: string) {
-    return ts.factory.createImportDeclaration(
-        undefined, // modifiers
-        ts.factory.createImportClause(
-            false, // isTypeOnly
-            undefined, // name
-            ts.factory.createNamedImports([
-                ts.factory.createImportSpecifier(
-                    false, // isTypeOnly
-                    undefined, // propertyName
-                    ts.factory.createIdentifier(imports)
-                )
-            ])
-        ),
-        ts.factory.createStringLiteral(module),
-        undefined // assertClause
-    );
+    await fs.writeFile(schemaFile, await prettier.format(result, { parser: "typescript", tabWidth: 4 }), 'utf8');
 }
 
 export function createSchemaObject(tableArray: ts.PropertyAssignment[]) {
@@ -74,13 +56,36 @@ export function createSchemaObject(tableArray: ts.PropertyAssignment[]) {
     return exportDefault;
 }
 
-export function createTable(contractName: string, abiEvent: AbiEvent) {
+export function createTableFromAbiEvent(contractName: string, abiEvent: AbiEvent) {
     const requiredColumns = [
         createColumn('id', 'p.bigint()'),
     ];
     const columns = createTableProcessInputs(abiEvent.inputs);
 
     return createTableProperty(`${contractName}_${abiEvent.name}`, [...requiredColumns, ...columns.filter((column) => column !== undefined)] as ts.PropertyAssignment[]);
+}
+
+export function createTableFromObject(tableName: string, fields: { key: string, value: string }[]) {
+    const columns = Object.values(fields).map((entry) => {
+        return createColumn(entry.key, entry.value);
+    });
+
+    return createTableProperty(tableName, columns);
+}
+
+export function createEnumFromObject(enumName: string, values: string[]) {
+    const factory = ts.factory;
+    return factory.createPropertyAssignment(
+        factory.createIdentifier(enumName),
+        factory.createCallExpression(
+            factory.createPropertyAccessExpression(
+                factory.createIdentifier('p'),
+                factory.createIdentifier('createEnum')
+            ),
+            undefined,
+            [factory.createArrayLiteralExpression(values.map((value) => factory.createStringLiteral(value)), true)]
+        )
+    );
 }
 
 function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.PropertyAssignment[] {
@@ -138,6 +143,7 @@ function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.P
     });
 }
 
+// this function could be better named. Take a pass after we have a more finished schema generator
 function createTableProperty(tableName: string, columns: ts.PropertyAssignment[]) {
     const factory = ts.factory;
     return factory.createPropertyAssignment(
@@ -161,14 +167,101 @@ function createColumn(name: string, type: string) {
     );
 }
 
-function print(node: ts.Node) {
-    const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-    const sourceFile = ts.createSourceFile(
-        'schema.ts',
-        '',
-        ts.ScriptTarget.Latest,
-        false,
-        ts.ScriptKind.TS
-    );
-    return printer.printNode(ts.EmitHint.Unspecified, node, sourceFile);
-}
+// function print(node: ts.Node) {
+//     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+//     const sourceFile = ts.createSourceFile(
+//         'schema.ts',
+//         '',
+//         ts.ScriptTarget.Latest,
+//         false,
+//         ts.ScriptKind.TS
+//     );
+//     return printer.printNode(ts.EmitHint.Unspecified, node, sourceFile);
+// }
+
+
+export function generalDBStructure(): ts.PropertyAssignment[] {
+    const enums: Record<string, string[]> = {
+        "PatchType": ["PATCH", "ERC1155", "ACCOUNT"],
+        "LogType": ["ADD", "REMOVE"],
+        "FeeChangeType": ["PROPOSE", "COMMIT"],
+        "AssignType": ["ASSIGN", "UNASSIGN"],
+        "SchemaTypes": [
+            "BOOLEAN",
+            "INT8",
+            "INT16",
+            "INT32",
+            "INT64",
+            "INT128",
+            "INT256",
+            "UINT8",
+            "UINT16",
+            "UINT32",
+            "UINT64",
+            "UINT128",
+            "UINT256",
+            "CHAR8",
+            "CHAR16",
+            "CHAR32",
+            "CHAR64",
+            "LITEREF",
+            "ADDRESS",
+            "STRING"
+        ]
+    }
+    const tables: Record<string, { key: string; value: string; }[]> = {
+        Chain: [
+            { key: "id", value: "p.string()" }, // making this a string as the trpc generation doesn't know about column types. Ideally should be p.int()
+            { key: "name", value: "p.string()" },
+            { key: "namespace", value: "p.string()" },
+            { key: "patchworkAddress", value: "p.hex()" }
+        ],
+        Block: [
+            { key: "id", value: "p.string()" },
+            { key: "extraData", value: "p.hex()" },
+            { key: "number", value: "p.bigint()" },
+            { key: "timestamp", value: "p.bigint()" },
+            { key: "chainId", value: "p.string().references('Chain.id')" }
+        ],
+        Tx: [
+            { key: "id", value: "p.string()" },
+            { key: "blockId", value: "p.string().references('Block.id')" },
+            { key: "timestamp", value: "p.string()" },
+            { key: "fromId", value: "p.string().references('Address.id')" },
+            { key: "nonce", value: "p.int()" },
+            { key: "toId", value: "p.string().references('Address.id').optional()" },
+            { key: "txIndex", value: "p.int()" },
+            { key: "value", value: "p.bigint()" },
+            { key: "chainId", value: "p.string().references('Chain.id')" }
+        ],
+        GlobalAddress: [
+            { key: "id", value: "p.string()" }, // making this a string as the trpc generation doesn't know about column types. possibly should be p.hex()
+            { key: "address", value: "p.hex()" },
+            { key: "addresses", value: "p.many('Address.addressId')" }
+        ],
+        Address: [
+            { key: "id", value: "p.string()" },
+            { key: "addressId", value: "p.string().references('GlobalAddress.id')" },
+            { key: "chainId", value: "p.string().references('Chain.id')" },
+            { key: "type", value: "p.string()" },
+            { key: "txsFrom", value: "p.many('Tx.fromId')" },
+            { key: "txsTo", value: "p.many('Tx.toId')" },
+            { key: "searchable", value: "p.string().optional()" }
+        ],
+        Scope: [
+            { key: "id", value: "p.string()" },
+            { key: "name", value: "p.string()" },
+            { key: "addressId", value: "p.string().references('Address.id')" },
+            { key: "address", value: "p.one('addressId')" },
+            { key: "txId", value: "p.string().references('Tx.id')" },
+            { key: "tx", value: "p.one('txId')" },
+            { key: "chainId", value: "p.string().references('Chain.id')" },
+            { key: "chain", value: "p.one('chainId')" }
+        ]
+    }
+
+    const enumEntities = Object.entries(enums).map(([key, value]) => { return createEnumFromObject(key, value) });
+    const tableEntities = Object.entries(tables).map(([key, value]) => { return createTableFromObject(key, value) });
+
+    return [...enumEntities, ...tableEntities];
+} 

@@ -121,13 +121,31 @@ export type ContractRelation = {
     fragments: string[];
 }
 
+export type DeployedContract = {
+    name: string;
+    address: `0x${string}`;
+    block: number;
+}
+export type Deployment<T extends string> = {
+    network: T;
+    contracts: Record<string, DeployedContract>;
+    txHash?: string; // making this optional for now. Need to think whether it should stay optional or not
+}
+
+export type Network = {
+    chainId: number;
+    rpc: string;
+}
+
 export type ContractsConfig = Record<string, ContractConfig | string>;
 
 export type ContractRelationsConfig = Record<string, ContractRelation>;
 
-export type ProjectConfig = {
+export type ProjectConfig<T extends string = string> = {
     name: string;
     scopes: ScopeConfig[];
     contracts: ContractsConfig;
     contractRelations: ContractRelationsConfig;
+    networks?: Record<T, Network>;
+    deployments?: Deployment<T>[];
 };

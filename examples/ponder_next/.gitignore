@@ -41,3 +41,4 @@ next-env.d.ts
 /.ponder/
 
 /contracts/cache/
+/contracts/out/

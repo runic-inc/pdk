@@ -21,8 +21,11 @@ async function getAbiJsonFiles(directory: string): Promise<string[]> {
 }
 
 
-export async function generateABIs(buildOutDir: string, abiDir: string) {
+export async function generateABIs(configPath: string) {
     try {
+        const buildOutDir = path.join(path.dirname(configPath), "contracts", "out");
+        const abiDir = path.join(path.dirname(configPath), "", "abis");
+
         const files = await getAbiJsonFiles(buildOutDir);
         // we're going to be writing files to the out directory
         // naively we'll delete the current contents of the out directory
