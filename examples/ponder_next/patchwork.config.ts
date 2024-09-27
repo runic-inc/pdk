@@ -15,13 +15,13 @@ export const config: ProjectConfig = {
                     // 0, 0, FieldType.CHAR32, 1, FieldVisibility.PUBLIC, 0, 0, "name"
                     id: 0,
                     key: "name",
-                    type: "CHAR32",
+                    type: "char32",
                 },
                 {
                     //1, 0, FieldType.LITEREF, 0, FieldVisibility.PUBLIC, 0, 0, "bubbleRefs"
                     id: 1,
                     key: "bubbleRefs",
-                    type: "LITEREF",
+                    type: "literef",
                 },
             ],
             features: [
@@ -40,21 +40,21 @@ export const config: ProjectConfig = {
                     // 0, 0, FieldType.UINT256, 1, FieldVisibility.PUBLIC, 0, 0, "sequence"
                     id: 0,
                     key: "sequence",
-                    type: "UINT256",
+                    type: "uint256",
 
                 },
                 {
                     // 1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 1, 0, "decorations"
                     id: 0,
                     key: "decorations",
-                    type: "CHAR8",
+                    type: "char8",
 
                 },
                 {
                     // 2, 0, FieldType.ADDRESS, 1, FieldVisibility.PUBLIC, 2, 0, "minter"
                     id: 0,
                     key: "minter",
-                    type: "ADDRESS",
+                    type: "address",
 
                 }
             ],
@@ -71,5 +71,29 @@ export const config: ProjectConfig = {
     ,
     scopes: [{
         name: "Canvas",
-    }]
+    }],
+    networks: {
+        base: {
+
+            chainId: 8453,
+            rpc: "http://localhost:8545",
+        }
+    },
+    deployments: [
+        {
+            network: "base",
+            contracts: {
+                "Canvas": {
+                    name: "Canvas",
+                    address: "0x4e110000000003FaC58d6F09DbA701181Bb67738",
+                    block: 5302131
+                },
+                "Bubble": {
+                    name: "Bubble",
+                    address: "0xB0Bb1eb0bb1E823D6eFfd2ED7Fdb67A78995AE7c",
+                    block: 5302131
+                },
+            },
+        }
+    ]
 };

@@ -1,19 +1,16 @@
-import { register } from 'ts-node';
+import fs from 'fs/promises';
 import Module from 'module';
 import path from 'path';
-import fs from 'fs/promises';
 import prettier from 'prettier';
+import { register } from 'ts-node';
+import { Schema } from './ponderMocks';
 
-interface TableDefinition {
-  [key: string]: 'bigint' | 'int' | 'hex' | 'boolean' | 'string';
-}
-
-interface Schema {
-  [tableName: string]: TableDefinition;
-}
+// ToDo 
+// api generation needs to be aware of column types to allow us to generate which fields to filter on.
+// Paginated results need to be ordered by a field that is sortable - might need to add some fields to the tables such as a timestamp
 
 async function generateTrpcApi(schema: Schema): Promise<string> {
-  let apiContent = `
+    let apiContent = `
 import { ponder } from '@/generated';
 import { trpcServer } from '@hono/trpc-server';
 import { eq } from '@ponder/core';
@@ -21,7 +18,11 @@ import { z } from 'zod';
 import { publicProcedure, router } from './trpc';
 
 const appRouter = router({
-${Object.entries(schema).map(([tableName, tableDefinition]) => `
+${Object.entries(schema).map(([tableName, entity]) => {
+        if (entity.type === 'enum') {
+            return '';
+        }
+        return `
   ${tableName}: router({
     getById: publicProcedure
       .input(z.string())
@@ -44,8 +45,9 @@ ${Object.entries(schema).map(([tableName, tableDefinition]) => `
         const items = await ctx.db
           .select()
           .from(ctx.tables.${tableName})
-          .limit(limit + 1)
-          .cursor(cursor ? { id: cursor } : undefined);
+          .limit(limit)
+        //   .limit(limit + 1)
+        //   .cursor(cursor ? { id: cursor } : undefined);
 
         let nextCursor: string | undefined = undefined;
         if (items.length > limit) {
@@ -59,7 +61,7 @@ ${Object.entries(schema).map(([tableName, tableDefinition]) => `
         };
       }),
   }),
-`).join('')}
+`}).join('')}
 });
 
 export type AppRouter = typeof appRouter;
@@ -74,7 +76,7 @@ ponder.use(
 `;
 
 
-  return await prettier.format(apiContent, { parser: "typescript" });
+    return await prettier.format(apiContent, { parser: "typescript", tabWidth: 4 });
 }
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
@@ -88,7 +90,7 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
             }
         });
         const originalRequire = Module.prototype.require;
-        const newRequire = function(this: NodeModule, id: string) {
+        const newRequire = function (this: NodeModule, id: string) {
             if (id === '@ponder/core') {
                 return require(path.resolve(__dirname, './ponderMocks'));
             }
@@ -99,10 +101,10 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
         try {
             const schemaModule = await import(ponderSchema);
             const schema = schemaModule.default;
-            
+
             // Generate the tRPC API content
             const apiContent = await generateTrpcApi(schema);
-            
+
             // Write the formatted API content to file
             const outputPath = path.join(apiOutputDir, 'index.ts');
             await fs.writeFile(outputPath, apiContent, 'utf8');

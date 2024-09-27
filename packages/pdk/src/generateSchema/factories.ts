@@ -24,7 +24,7 @@ export async function createSchemaFile(tableArray: ts.PropertyAssignment[], sche
     const result = printer.printFile(sourceFile);
 
     // Format with prettier and write the result to a file
-    await fs.writeFile(schemaFile, await prettier.format(result, { parser: "typescript" }), 'utf8');
+    await fs.writeFile(schemaFile, await prettier.format(result, { parser: "typescript", tabWidth: 4 }), 'utf8');
 }
 
 export function createSchemaObject(tableArray: ts.PropertyAssignment[]) {
@@ -211,7 +211,7 @@ export function generalDBStructure(): ts.PropertyAssignment[] {
     }
     const tables: Record<string, { key: string; value: string; }[]> = {
         Chain: [
-            { key: "id", value: "p.int()" },
+            { key: "id", value: "p.string()" }, // making this a string as the trpc generation doesn't know about column types. Ideally should be p.int()
             { key: "name", value: "p.string()" },
             { key: "namespace", value: "p.string()" },
             { key: "patchworkAddress", value: "p.hex()" }
@@ -221,7 +221,7 @@ export function generalDBStructure(): ts.PropertyAssignment[] {
             { key: "extraData", value: "p.hex()" },
             { key: "number", value: "p.bigint()" },
             { key: "timestamp", value: "p.bigint()" },
-            { key: "chainId", value: "p.int()" }
+            { key: "chainId", value: "p.string().references('Chain.id')" }
         ],
         Tx: [
             { key: "id", value: "p.string()" },
@@ -232,17 +232,17 @@ export function generalDBStructure(): ts.PropertyAssignment[] {
             { key: "toId", value: "p.string().references('Address.id').optional()" },
             { key: "txIndex", value: "p.int()" },
             { key: "value", value: "p.bigint()" },
-            { key: "chainId", value: "p.int().references('Chain.id')" }
+            { key: "chainId", value: "p.string().references('Chain.id')" }
         ],
         GlobalAddress: [
-            { key: "id", value: "p.hex()" },
+            { key: "id", value: "p.string()" }, // making this a string as the trpc generation doesn't know about column types. possibly should be p.hex()
             { key: "address", value: "p.hex()" },
             { key: "addresses", value: "p.many('Address.addressId')" }
         ],
         Address: [
             { key: "id", value: "p.string()" },
-            { key: "addressId", value: "p.hex().references('GlobalAddress.id')" },
-            { key: "chainId", value: "p.int().references('Chain.id')" },
+            { key: "addressId", value: "p.string().references('GlobalAddress.id')" },
+            { key: "chainId", value: "p.string().references('Chain.id')" },
             { key: "type", value: "p.string()" },
             { key: "txsFrom", value: "p.many('Tx.fromId')" },
             { key: "txsTo", value: "p.many('Tx.toId')" },
@@ -255,7 +255,7 @@ export function generalDBStructure(): ts.PropertyAssignment[] {
             { key: "address", value: "p.one('addressId')" },
             { key: "txId", value: "p.string().references('Tx.id')" },
             { key: "tx", value: "p.one('txId')" },
-            { key: "chainId", value: "p.int().references('Chain.id')" },
+            { key: "chainId", value: "p.string().references('Chain.id')" },
             { key: "chain", value: "p.one('chainId')" }
         ]
     }

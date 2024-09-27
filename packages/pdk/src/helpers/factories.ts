@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import prettier from 'prettier';
 import ts from 'typescript';
 
 export function createImport(imports: string, module: string) {
@@ -28,27 +29,6 @@ export async function writeTsFile(tsStatements: ts.Statement[], filename: string
     );
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
     const result = printer.printFile(sourceFile);
-    const formatted = result;//await prettier.format(result, { parser: 'typescript' });
-    fs.writeFile(filename, formatted, 'utf-8');
+    const formatted = await prettier.format(result, { parser: 'typescript', tabWidth: 4 });
+    await fs.writeFile(filename, formatted, 'utf-8');
 }
-
-// export async function writeTsFile(tsStatements: ts.Statement[], filename: string) {
-//     const sourceFile = ts.createSourceFile(
-//         filename,
-//         '',
-//         ts.ScriptTarget.Latest,
-//         false,
-//         ts.ScriptKind.TS
-//     );
-
-//     const printer = ts.createPrinter({
-//         newLine: ts.NewLineKind.LineFeed,
-//         removeComments: false,
-//     });
-
-//     const result = tsStatements.map(statement =>
-//         printer.printNode(ts.EmitHint.Unspecified, statement, sourceFile)
-//     ).join('\n\n');
-
-//     await fs.writeFile(filename, result, 'utf-8');
-// }

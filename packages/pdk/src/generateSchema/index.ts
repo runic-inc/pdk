@@ -23,28 +23,17 @@ export async function generateSchema(configPath: string) {
         return;
     }
 
-    // begin process config
-
+    // ToDo 
     // create entities table to store info about our models.
     // create contracts table to store info about our contracts.
     // can we combine entities and contracts into one table?
-    const generalDB = generalDBStructure();
 
-    // entity db model - needs relationships to other entities
+    // entity db model - needs relationships to other entities - done
     // metadata schema
     // on setup event handler - we want to add info about the entities to the entities table
     // on setup event handler - we want to add info about the contracts to the contracts table
 
-    // need to get the fragments relationships to the assigned contracts
-    // const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
-    // Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
-    //     fragments.forEach((fragment) => {
-    //         if (!fragmentRelationships[fragment]) {
-    //             fragmentRelationships[fragment] = [];
-    //         }
-    //         fragmentRelationships[fragment].push(contractName);
-    //     });
-    // });
+    const generalDB = generalDBStructure();
     const fragmentRelationships = getFragmentRelationships(projectConfig);
 
     console.log('projectConfig.contracts', projectConfig.contracts);
@@ -82,8 +71,6 @@ export async function generateSchema(configPath: string) {
         return createTableFromObject(contractName, fields);
     }).filter((x) => x !== undefined) as ts.PropertyAssignment[];
 
-    // end process config
-
     // we don't use the raw abi events to generate the schema at the moment. Leaving in for future reference.
     const tables: ts.PropertyAssignment[] = [];
     for (const i in abis) {
@@ -93,5 +80,5 @@ export async function generateSchema(configPath: string) {
             }
         });
     }
-    await createSchemaFile([...generalDB, ...contractDBEntities, ...tables], ponderSchema);
+    await createSchemaFile([...generalDB, ...contractDBEntities], ponderSchema);
 }
