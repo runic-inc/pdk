@@ -1,7 +1,7 @@
 import path from 'path';
 import ts from 'typescript';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
-import { createSchemaFile, createTableFromAbiEvent, createTableFromObject, generalDBStructure } from './factories';
+import { createSchemaFile, createTableFromObject, generalDBStructure } from './factories';
 
 // using this simple function first rather than installing lodash or change-case.
 const camelCase = (s: string) => s
@@ -71,6 +71,7 @@ export async function generateSchema(configPath: string) {
         return createTableFromObject(contractName, fields);
     }).filter((x) => x !== undefined) as ts.PropertyAssignment[];
 
+    /*
     // we don't use the raw abi events to generate the schema at the moment. Leaving in for future reference.
     const tables: ts.PropertyAssignment[] = [];
     for (const i in abis) {
@@ -80,5 +81,6 @@ export async function generateSchema(configPath: string) {
             }
         });
     }
+        */
     await createSchemaFile([...generalDB, ...contractDBEntities], ponderSchema);
 }
