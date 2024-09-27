@@ -66,11 +66,34 @@ export function createTableFromAbiEvent(contractName: string, abiEvent: AbiEvent
 }
 
 export function createTableFromObject(tableName: string, fields: { key: string, value: string }[]) {
-    const columns = Object.values(fields).map((entry) => {
+    // Check if a timestamp field already exists
+    const hasTimestamp = fields.some(field => field.key === 'timestamp');
+
+    // If there's no timestamp field, add one
+    if (!hasTimestamp) {
+        fields.push({ key: 'timestamp', value: 'p.bigint()' });
+    }
+
+    const columns = fields.map((entry) => {
         return createColumn(entry.key, entry.value);
     });
 
-    return createTableProperty(tableName, columns);
+    // Create an index for the timestamp field
+    const indexes = {
+        timestampIndex: ts.factory.createPropertyAssignment(
+            ts.factory.createIdentifier('timestampIndex'),
+            ts.factory.createCallExpression(
+                ts.factory.createPropertyAccessExpression(
+                    ts.factory.createIdentifier('p'),
+                    ts.factory.createIdentifier('index')
+                ),
+                undefined,
+                [ts.factory.createStringLiteral('timestamp')]
+            )
+        )
+    };
+
+    return createTableProperty(tableName, columns, indexes);
 }
 
 export function createEnumFromObject(enumName: string, values: string[]) {
@@ -144,8 +167,20 @@ function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.P
 }
 
 // this function could be better named. Take a pass after we have a more finished schema generator
-function createTableProperty(tableName: string, columns: ts.PropertyAssignment[]) {
+function createTableProperty(tableName: string, columns: ts.PropertyAssignment[], indexes?: Record<string, ts.PropertyAssignment>) {
     const factory = ts.factory;
+    const tableDefinition = factory.createObjectLiteralExpression(columns, true);
+    
+    let args: ts.Expression[] = [tableDefinition];
+
+    if (indexes && Object.keys(indexes).length > 0) {
+        const indexesObject = factory.createObjectLiteralExpression(
+            Object.values(indexes),
+            true
+        );
+        args.push(indexesObject);
+    }
+
     return factory.createPropertyAssignment(
         factory.createIdentifier(tableName),
         factory.createCallExpression(
@@ -154,7 +189,7 @@ function createTableProperty(tableName: string, columns: ts.PropertyAssignment[]
                 factory.createIdentifier('createTable')
             ),
             undefined,
-            [factory.createObjectLiteralExpression(columns, true)]
+            args
         )
     );
 }
