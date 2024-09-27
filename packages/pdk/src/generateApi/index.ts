@@ -13,7 +13,7 @@ async function generateTrpcApi(schema: Schema): Promise<string> {
     let apiContent = `
 import { ponder } from '@/generated';
 import { trpcServer } from '@hono/trpc-server';
-import { eq } from '@ponder/core';
+import { eq, gt } from '@ponder/core';
 import { z } from 'zod';
 import { publicProcedure, router } from './trpc';
 
@@ -30,7 +30,7 @@ ${Object.entries(schema).map(([tableName, entity]) => {
         const result = await ctx.db
           .select()
           .from(ctx.tables.${tableName})
-          .where(eq(ctx.tables.${tableName}.id, input))
+          .where((${tableName.toLowerCase()}) => eq(${tableName.toLowerCase()}.id, input))
           .limit(1);
         return result[0] || null;
       }),
@@ -38,26 +38,31 @@ ${Object.entries(schema).map(([tableName, entity]) => {
     getPaginated: publicProcedure
       .input(z.object({
         limit: z.number().min(1).max(100).default(10),
-        cursor: z.string().optional(),
+        lastTimestamp: z.number().optional(),
       }))
       .query(async ({ input, ctx }) => {
-        const { limit, cursor } = input;
-        const items = await ctx.db
+        const { limit, lastTimestamp } = input;
+        
+        const query = ctx.db
           .select()
           .from(ctx.tables.${tableName})
-          .limit(limit)
-        //   .limit(limit + 1)
-        //   .cursor(cursor ? { id: cursor } : undefined);
+          .where(lastTimestamp
+            ? (${tableName.toLowerCase()}) => gt(${tableName.toLowerCase()}.timestamp, BigInt(lastTimestamp))
+            : undefined)
+          .orderBy(ctx.tables.${tableName}.timestamp)
+          .limit(limit + 1);
 
-        let nextCursor: string | undefined = undefined;
+        const items = await query;
+
+        let nextTimestamp: number | undefined = undefined;
         if (items.length > limit) {
           const nextItem = items.pop();
-          nextCursor = nextItem?.id;
+          nextTimestamp = nextItem?.timestamp ? Number(nextItem.timestamp) : undefined;
         }
 
         return {
           items,
-          nextCursor,
+          nextTimestamp,
         };
       }),
   }),
@@ -74,8 +79,6 @@ ponder.use(
   }),
 );
 `;
-
-
     return await prettier.format(apiContent, { parser: "typescript", tabWidth: 4 });
 }
 

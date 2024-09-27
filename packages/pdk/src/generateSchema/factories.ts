@@ -71,7 +71,7 @@ export function createTableFromObject(tableName: string, fields: { key: string, 
 
     // If there's no timestamp field, add one
     if (!hasTimestamp) {
-        fields.push({ key: 'timestamp', value: 'p.int()' });
+        fields.push({ key: 'timestamp', value: 'p.bigint()' });
     }
 
     const columns = fields.map((entry) => {
