@@ -24,6 +24,7 @@
       "@ponder/core": "^0.5.17",
       "prettier": "3.3.3",
       "ts-node": "10.9.2",
+      "tsconfig-paths": "4.2.0",
       "typescript": "5.5.4",
       "viem": "2.21.9",
       "yargs": "17.7.2"

@@ -8,6 +8,7 @@ import { generateABIs } from "./generateABIs";
 import { generateAPI } from "./generateApi";
 import { generateEventHooks } from "./generateEventHooks";
 import { generatePonderConfig } from './generatePonderConfig';
+import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from "./generateSchema";
 import { findConfig, findPonderSchema } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
@@ -120,6 +121,20 @@ const argv = yargs(hideBin(process.argv))
             }
             console.log("Using config file:", configPath);
             generatePonderConfig(configPath);
+        }
+    ).command(
+        "generateReactHooks",
+        "Generate the React hooks for app",
+        {},
+        async () => {
+            console.log("Generating React hooks for app");
+            const configPath = await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            await generateReactHooks(configPath);
         }
     ).command(
         "generateAPI",
