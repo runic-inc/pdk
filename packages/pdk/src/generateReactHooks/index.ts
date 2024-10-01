@@ -1,295 +1,191 @@
+import fs from 'fs/promises';
 import path from 'path';
-import { register } from 'ts-node';
-import * as tsConfigPaths from 'tsconfig-paths';
-import { importPatchworkConfig } from '../helpers/config';
-
-
+import prettier from 'prettier';
 import * as ts from 'typescript';
-import * as fs from 'fs';
 
+interface APIRoute {
+    name: string;
+    type: 'query' | 'mutation' | 'subscription';
+    inputType: string;
+    outputType: string;
+}
 
+interface APIStructure {
+    [key: string]: APIRoute | APIStructure;
+}
 
-function analyzeTypeScript(filePath: string) {
+export async function generateReactHooks(configPath: string) {
+    const trpcRouter = path.join(path.dirname(configPath), "src", "api", "index.ts");
+    const hooksFile = path.join(path.dirname(configPath), "app", "hooks", "index.ts");
 
+    const apiStructure = analyzeTypeScript(trpcRouter);
+
+    const hooksFileArray = [
+        `import { trpc } from '../utils/trpc';
+
+        `];
+    for (let key in apiStructure) {
+        const varname = key.split(".").map((word, index) => index === 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word).join("");
+        hooksFileArray.push(`export const use${varname} = trpc.${key}.useQuery;
+        `);
+    }
+
+    const formatted = await prettier.format(hooksFileArray.join(""), { parser: 'typescript', tabWidth: 4, printWidth: 120 });
+    await fs.writeFile(hooksFile, formatted, 'utf-8');
+}
+
+function analyzeTypeScript(filePath: string): APIStructure {
     const configPath = ts.findConfigFile(
         path.dirname(filePath),
         ts.sys.fileExists,
         'tsconfig.json'
-      );
-      
-      if (!configPath) {
-        throw new Error("Could not find a valid 'tsconfig.json'.");
-      }
-      console.log(configPath);
-
-      const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
-  const { options, fileNames } = ts.parseJsonConfigFileContent(
-    config,
-    ts.sys,
-    path.dirname(configPath)
-  );
-
-  const program = ts.createProgram(fileNames, options);
-  const typeChecker = program.getTypeChecker();
-
-  const sourceFile = program.getSourceFile(filePath);
-  if (!sourceFile) {
-    throw new Error(`Could not find source file: ${filePath}`);
-  }
-//   // Read the file
-//   const fileContents = fs.readFileSync(filePath, 'utf8');
-
-//   // Create a SourceFile object
-//   const sourceFile = ts.createSourceFile(
-//     filePath,
-//     fileContents,
-//     ts.ScriptTarget.Latest,
-//     true
-//   );
-
-//   // Create a program
-//   const program = ts.createProgram([filePath], {});
-//   const typeChecker = program.getTypeChecker();
-
-  // Function to recursively analyze nodes
-  function analyzeNode(node: ts.Node) {
-    // console.log(node.getText());
-
-    if (ts.isTypeAliasDeclaration(node) && node.name?.text === 'AppRouter') {
-        console.log(`Found AppRouter type alias: ${node.name?.text}`);
-        console.log(`  Node: ${node.getText()}`);
-        const type = typeChecker.getTypeAtLocation(node);
-        // exploreType(type);
-        const appRouterType = typeChecker.typeToString(type);
-        analyzeType(type,node);
-        console.log(`Found AppRouter type: ${appRouterType}`);
-    }
-    if (ts.isInterfaceDeclaration(node) || ts.isClassDeclaration(node)) {
-      console.log(`Found ${ts.isInterfaceDeclaration(node) ? 'interface' : 'class'}: ${node.name?.text}`);
-      node.members.forEach(member => {
-        if (ts.isPropertySignature(member) || ts.isMethodSignature(member)) {
-          const type = typeChecker.getTypeAtLocation(member);
-          console.log(`  Member ${member.name.getText()}: ${typeChecker.typeToString(type)}`);
-        }
-      });
-    }
-
-    ts.forEachChild(node, analyzeNode);
-  }
-
-  function analyzeType(type: ts.Type, node: ts.Node) {
-    if (type.isUnion()) {
-      console.log('Union type with the following types:');
-      type.types.forEach(t => analyzeType(t, node));
-    } else if (type.isIntersection()) {
-      console.log('Intersection type with the following types:');
-      type.types.forEach(t => analyzeType(t, node));
-    } else if (type.isClassOrInterface()) {
-      console.log('Class or Interface type:');
-      type.getProperties().forEach(prop => {
-        const propType = typeChecker.getTypeOfSymbolAtLocation(prop, node);
-        console.log(`  ${prop.name}: ${typeChecker.typeToString(propType)}`);
-      });
-    } else if (type.isLiteral()) {
-      console.log(`Literal type: ${type.value}`);
-    } else {
-      console.log(`Other type: ${typeChecker.typeToString(type)}`);
-    }
-  }
-
-  function buildTypeObject(type: ts.Type, node: ts.Node): any {
-    if (type.isUnion()) {
-      return {
-        kind: 'union',
-        types: type.types.map(t => buildTypeObject(t, node))
-      };
-    } else if (type.isIntersection()) {
-      return {
-        kind: 'intersection',
-        types: type.types.map(t => buildTypeObject(t, node))
-      };
-    } else if (type.isClassOrInterface()) {
-      const properties: {[key: string]: any} = {};
-      type.getProperties().forEach(prop => {
-        const propType = typeChecker.getTypeOfSymbolAtLocation(prop, node);
-        properties[prop.name] = buildTypeObject(propType, node);
-      });
-      return {
-        kind: 'classOrInterface',
-        properties
-      };
-    } else if (type.isLiteral()) {
-      return {
-        kind: 'literal',
-        value: type.value
-      };
-    } else {
-      return {
-        kind: 'other',
-        typeString: typeChecker.typeToString(type)
-      };
-    }
-  }
-
-  function exploreType(type: ts.Type, node: ts.Node, indent: string = '', depth: number = 0) {
-    if (depth > 5) {  // Limit recursion depth
-        console.log(`${indent}(Max depth reached)`);
-        return;
-      }
-    
-      console.log(`${indent}Type: ${typeChecker.typeToString(type)}`);
-      
-      if (type.isUnion()) {
-        console.log(`${indent}Union type:`);
-        type.types.forEach((t, i) => {
-          console.log(`${indent}  Type ${i + 1}:`);
-          exploreType(t, node, indent + '    ', depth + 1);
-        });
-      } else if (type.isIntersection()) {
-        console.log(`${indent}Intersection type:`);
-        type.types.forEach((t, i) => {
-          console.log(`${indent}  Type ${i + 1}:`);
-          exploreType(t, node, indent + '    ', depth + 1);
-        });
-      } else {
-        const properties = typeChecker.getPropertiesOfType(type);
-        if (properties.length > 0) {
-          console.log(`${indent}Properties:`);
-          properties.forEach(prop => {
-            const propType = typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration || prop.declarations?.[0] || node);
-            console.log(`${indent}  ${prop.name}: ${typeChecker.typeToString(propType)}`);
-            if (isComplexType(propType)) {
-              exploreType(propType, node, indent + '    ', depth + 1);
-            }
-          });
-        }
-      }
-    
-      // Add exploration of call signatures
-      const callSignatures = type.getCallSignatures();
-      if (callSignatures.length > 0) {
-        console.log(`${indent}Call Signatures:`);
-        callSignatures.forEach((sig, i) => {
-          console.log(`${indent}  Signature ${i + 1}: ${typeChecker.signatureToString(sig)}`);
-        });
-      }
-    
-      // Add exploration of construct signatures
-      const constructSignatures = type.getConstructSignatures();
-      if (constructSignatures.length > 0) {
-        console.log(`${indent}Construct Signatures:`);
-        constructSignatures.forEach((sig, i) => {
-          console.log(`${indent}  Signature ${i + 1}: ${typeChecker.signatureToString(sig)}`);
-        });
-      }
-    // console.log(`${indent}Type: ${typeChecker.typeToString(type)}`);
-    
-    // if (type.isUnion() || type.isIntersection()) {
-    //   type.types.forEach((t, i) => {
-    //     console.log(`${indent}  Type ${i + 1}:`);
-    //     exploreType(t, indent + '    ');
-    //   });
-    // } else {
-    //   const properties = typeChecker.getPropertiesOfType(type);
-    //   properties.forEach(prop => {
-    //     const propType = typeChecker.getTypeOfPropertyOfType(type, prop.name);
-    //     console.log(`${indent}  ${prop.name}: ${typeChecker.typeToString(propType)}`);
-    //     if (propType.isObject()) {
-    //       exploreType(propType, indent + '    ');
-    //     }
-    //   });
-    // }
-  }
-
-  function isComplexType(type: ts.Type): boolean {
-    return !(
-      type.flags & ts.TypeFlags.Number ||
-      type.flags & ts.TypeFlags.String ||
-      type.flags & ts.TypeFlags.Boolean ||
-      type.flags & ts.TypeFlags.Undefined ||
-      type.flags & ts.TypeFlags.Null ||
-      type.flags & ts.TypeFlags.Void ||
-      type.flags & ts.TypeFlags.Never
     );
-  }
 
-//   4. Use getBaseTypes and getConstraint:
-// For more complex types, you might need to explore base types and constraints:
-function exploreTypeExtended(type: ts.Type, indent: string = '') {
-  console.log(`${indent}Type: ${typeChecker.typeToString(type)}`);
-  
-  const baseTypes = type.getBaseTypes();
-  if (baseTypes) {
-    console.log(`${indent}Base Types:`);
-    baseTypes.forEach(baseType => exploreTypeExtended(baseType, indent + '  '));
-  }
+    if (!configPath) {
+        throw new Error("Could not find a valid 'tsconfig.json'.");
+    }
+    console.log("Found tsconfig at:", configPath);
 
-  const constraint = typeChecker.getBaseConstraintOfType(type);
-  if (constraint) {
-    console.log(`${indent}Constraint:`);
-    exploreTypeExtended(constraint, indent + '  ');
-  }
+    const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
+    const { options, fileNames } = ts.parseJsonConfigFileContent(
+        config,
+        ts.sys,
+        path.dirname(configPath)
+    );
 
-  // ... rest of type exploration
-}
-  //
+    const program = ts.createProgram(fileNames, options);
+    const typeChecker = program.getTypeChecker();
 
-  // Start the analysis
-  analyzeNode(sourceFile);
-}
-
-// Usage
-// const filePath = path.join(__dirname, 'path', 'to', 'your', 'file.ts');
-// analyzeTypeScript(filePath);
-
-export async function generateReactHooks(configPath: string) {
-    const trpcRouter = path.join(path.dirname(configPath), "src", "api", "index.ts");
-    // const abis = await importABIFiles(abiDir);
-    // const ponderConfig = path.join(path.dirname(configPath), "ponder.config.ts");
-
-    // const abis = await importABIFiles(abiDir);
-    const projectConfig = await importPatchworkConfig(configPath);
-    if (!projectConfig) {
-        console.error('Error importing ProjectConfig');
-        return;
+    const sourceFile = program.getSourceFile(filePath);
+    if (!sourceFile) {
+        throw new Error(`Could not find source file: ${filePath}`);
     }
 
-    analyzeTypeScript(trpcRouter);
+    const apiStructure: APIStructure = {};
 
-    // tsConfigPaths.register({
-    //     baseUrl: '/tmp/patchworkApp',
-    //     paths: {
-    //         "@/*": ["./*"]
-    //     }
-    // });
+    function analyzeNode(node: ts.Node) {
+        if (ts.isVariableStatement(node)) {
+            const declaration = node.declarationList.declarations[0];
+            if (ts.isIdentifier(declaration.name) && declaration.name.text === 'appRouter') {
+                if (declaration.initializer && ts.isCallExpression(declaration.initializer)) {
+                    extractRouterStructure(declaration.initializer, apiStructure);
+                }
+            }
+        }
+        ts.forEachChild(node, analyzeNode);
+    }
 
-    // // Register ts-node to handle TypeScript files
-    // register({
-    //     transpileOnly: true,
-    //     compilerOptions: {
-    //         module: 'CommonJS',
-    //         moduleResolution: 'node',
-    //         baseUrl: '/tmp/patchworkApp',
-    //         rootDir: '/tmp/patchworkApp',
-    //         paths: {
-    //             "@/*": ["./*"]
-    //         },
-    //     }
-    // });
+    function extractRouterStructure(node: ts.CallExpression, structure: APIStructure) {
+        if (node.arguments.length > 0) {
+            const arg = node.arguments[0];
+            if (ts.isObjectLiteralExpression(arg)) {
+                arg.properties.forEach(prop => {
+                    if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
+                        const routerName = prop.name.text;
+                        extractRouterProcedures(prop.initializer, structure, routerName);
+                    }
+                });
+            }
+        }
+    }
 
-    // try {
-    //     const module = await import(trpcRouter);
-    //     console.log('Module:', module);
+    function extractRouterProcedures(node: ts.Expression, structure: APIStructure, routerName: string) {
+        if (ts.isIdentifier(node)) {
+            // The router might be a reference to a variable
+            const symbol = typeChecker.getSymbolAtLocation(node);
+            if (symbol && symbol.valueDeclaration) {
+                const declaration = symbol.valueDeclaration;
+                if (ts.isVariableDeclaration(declaration) && declaration.initializer) {
+                    extractRouterProcedures(declaration.initializer, structure, routerName);
+                }
+            }
+        } else if (ts.isCallExpression(node)) {
+            // The router might be a function call (like createTRPCRouter)
+            if (node.arguments.length > 0 && ts.isObjectLiteralExpression(node.arguments[0])) {
+                extractProcedures(node.arguments[0], structure, routerName);
+            }
+        }
+    }
 
-    //     if ('AppRouter' in module) {
-    //         console.log('AppRouter found in the imported module', module.AppRouter);
-    //         // return module.AppRouter;
-    //     } else {
-    //         throw new Error('AppRouter not found in the imported module');
-    //     }
-    // } catch (error) {
-    //     console.error('Error importing module:', error);
-    //     throw error;
-    // }
+    function extractProcedures(node: ts.ObjectLiteralExpression, structure: APIStructure, routerName: string) {
+        console.log(`Extracting procedures for router: ${routerName}`);
+        node.properties.forEach(prop => {
+            if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
+                const procedureName = prop.name.text;
+                const fullName = `${routerName}.${procedureName}`;
+                const procedureType = getProcedureType(prop.initializer);
+                const { inputType, outputType } = extractProcedureTypes(prop.initializer);
+                structure[fullName] = {
+                    name: procedureName,
+                    type: procedureType,
+                    inputType,
+                    outputType
+                };
+                console.log(`Added procedure: ${fullName}`);
+            }
+        });
+    }
 
+    function getProcedureType(node: ts.Expression): 'query' | 'mutation' | 'subscription' {
+        if (ts.isCallExpression(node)) {
+            const expression = node.expression;
+            if (ts.isPropertyAccessExpression(expression)) {
+                const name = expression.name.text;
+                if (name === 'query') return 'query';
+                if (name === 'mutation') return 'mutation';
+                if (name === 'subscription') return 'subscription';
+            }
+        }
+        return 'query'; // Default to query if we can't determine
+    }
+
+    function extractProcedureTypes(node: ts.Expression): { inputType: string; outputType: string } {
+        let inputType = 'unknown';
+        let outputType = 'unknown';
+
+        if (ts.isCallExpression(node)) {
+            const signature = typeChecker.getResolvedSignature(node);
+            if (signature) {
+                const returnType = typeChecker.getReturnTypeOfSignature(signature);
+                const typeString = typeChecker.typeToString(returnType);
+
+                const inputMatch = typeString.match(/input\s*:\s*([^;]+);/);
+                const outputMatch = typeString.match(/output\s*:\s*([^}]+)}/s);
+
+                if (inputMatch) {
+                    inputType = inputMatch[1].trim();
+                }
+                if (outputMatch) {
+                    outputType = outputMatch[1].trim();
+                }
+
+                // Clean up the types
+                inputType = cleanType(inputType);
+                outputType = cleanType(outputType);
+            }
+        }
+
+        return { inputType, outputType };
+    }
+
+    function cleanType(type: string): string {
+        // Handle template literal types
+        type = type.replace(/`0x\$\{string\}`/g, '"0x${string}"');
+
+        // Remove newlines and extra spaces
+        type = type.replace(/\s+/g, ' ').trim();
+
+        // Ensure object types are properly closed
+        let openBraces = 0;
+        for (let char of type) {
+            if (char === '{') openBraces++;
+            if (char === '}') openBraces--;
+        }
+        type += '}'.repeat(openBraces);
+
+        return type;
+    }
+
+    analyzeNode(sourceFile);
+    return apiStructure;
 }
