@@ -1,4 +1,7 @@
+import { ProjectConfig } from '@patchworkdev/common';
 import ts from 'typescript';
+import { Abi, AbiEvent, getAbiItem } from 'viem';
+import { Schema } from '../generateApi/ponderMocks';
 import { createImport, writeTsFile } from '../helpers/factories';
 
 // experiment with ts factory functions. Hard to make work with these more complex examples
@@ -40,8 +43,8 @@ export function createPonderEventFile(tsArray: ts.Statement[], fileName: string)
     writeTsFile([importDeclaration, ...tsArray], fileName);
 }
 
-export function generatePonderOnHandler(entity: string, event: string): ts.Statement {
-    const templateFunctions: Record<string, (args: { entity: string; event: string }) => string> = {
+export function generatePonderOnHandler(entity: string, event: AbiEvent, projectConfig: ProjectConfig, ponderSchema: Schema, abis: Record<string, Abi>): ts.Statement {
+    const templateFunctions: Record<string, (args: { entity: string; event: AbiEvent, projectConfig: ProjectConfig, ponderSchema: Schema, abis: Record<string, Abi> }) => string> = {
         "Frozen": frozenHandler,
         "Locked": lockedHandler,
         "Transfer": transferHandler,
@@ -49,7 +52,7 @@ export function generatePonderOnHandler(entity: string, event: string): ts.State
         "Thawed": thawedHandler,
     }
 
-    const handlerCode = templateFunctions[event]({ entity, event });
+    const handlerCode = templateFunctions[event.name]({ entity, event, projectConfig, ponderSchema, abis });
 
     return ts.factory.createExpressionStatement(
         ts.factory.createIdentifier(handlerCode)
@@ -58,8 +61,20 @@ export function generatePonderOnHandler(entity: string, event: string): ts.State
 
 
 // Below are the template functions. Could be moved to a separate file if there are too many.
-export function transferHandler({ entity, event }: { entity: string; event: string; }): string {
-    return `ponder.on('${entity}:${event}', async ({ event, context }) => {
+export function transferHandler({ entity, event, projectConfig, ponderSchema, abis }: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: Schema; abis: Record<string, Abi> }): string {
+    console.log(entity, event, ponderSchema);
+    console.log(projectConfig['contracts'][entity])
+
+    // check from address is 0. if so this is a mint. Need to create the entity
+
+    //fields
+    // id is contractAddress_tokenId
+    // owner is address of owner
+    // tokenId is tokenId
+    // for mints set mintTxId
+    // contractId set to contract address
+
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
     const { ${entity} } = context.db;
     // comment out for the moment. Need the event or model (maybe both) to know what fields to generate for the data object
     //if (parseInt(event.args.from, 16) === 0) {
@@ -73,26 +88,34 @@ export function transferHandler({ entity, event }: { entity: string; event: stri
 })`;
 }
 
-export function frozenHandler({ entity, event }: { entity: string; event: string; }): string {
-    return `ponder.on('${entity}:${event}', async ({ event, context }) => {
+export function loadMetadataHandler({ entity, event, projectConfig, ponderSchema, abis }: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: Schema; abis: Record<string, Abi> }): string {
+
+    const loadMetadata = getAbiItem({ abi: abis["Bubble"], name: 'loadMetadata' })
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
+
+    })`
+};
+
+export function frozenHandler({ entity, event }: { entity: string; event: AbiEvent; }): string {
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
 
     
 })`;
 }
-export function lockedHandler({ entity, event }: { entity: string; event: string; }): string {
-    return `ponder.on('${entity}:${event}', async ({ event, context }) => {
+export function lockedHandler({ entity, event }: { entity: string; event: AbiEvent; }): string {
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
 
     
 })`;
 }
-export function unlockedHandler({ entity, event }: { entity: string; event: string; }): string {
-    return `ponder.on('${entity}:${event}', async ({ event, context }) => {
+export function unlockedHandler({ entity, event }: { entity: string; event: AbiEvent; }): string {
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
 
     
 })`;
 }
-export function thawedHandler({ entity, event }: { entity: string; event: string; }): string {
-    return `ponder.on('${entity}:${event}', async ({ event, context }) => {
+export function thawedHandler({ entity, event }: { entity: string; event: AbiEvent; }): string {
+    return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
 
     
 })`;

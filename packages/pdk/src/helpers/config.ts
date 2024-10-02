@@ -1,9 +1,11 @@
 // import * as fs from 'fs';
 import { ProjectConfig } from '@patchworkdev/common';
 import fs from 'fs/promises';
+import Module from 'module';
 import * as path from 'path';
 import { register, } from 'ts-node';
 import { Abi } from "viem";
+import { Schema } from '../generateApi/ponderMocks';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
@@ -30,6 +32,45 @@ export async function findPonderSchema() {
     const schemaFileName = 'ponder.schema.ts';
     const currentDirectory = process.cwd();
     return findFileUpwards(currentDirectory, schemaFileName);
+}
+
+export async function loadPonderSchema(ponderSchema: string) {
+    try {
+        // Set up ts-node
+        register({
+            transpileOnly: true,
+            compilerOptions: {
+                module: 'CommonJS',
+                moduleResolution: 'node',
+            }
+        });
+        const originalRequire = Module.prototype.require;
+        const newRequire = function (this: NodeModule, id: string) {
+            if (id === '@ponder/core') {
+                return require(path.resolve(__dirname, '../generateApi/ponderMocks'));
+            }
+            return originalRequire.call(this, id);
+        } as NodeRequire;
+        Object.assign(newRequire, originalRequire);
+        Module.prototype.require = newRequire;
+        try {
+            const schemaModule = await import(ponderSchema);
+            const schema = schemaModule.default;
+            return schema as Schema;
+        } catch (error) {
+            if (error instanceof TypeError && error.message.includes('is not a function')) {
+                console.error("Error: It seems a method is missing from our mock implementation.");
+                console.error("Full error:", error);
+                console.error("Please add this method to the mockSchemaBuilder in ponderMocks.ts");
+            } else {
+                throw error;
+            }
+        } finally {
+            Module.prototype.require = originalRequire;
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
 }
 
 export async function importPatchworkConfig(config: string): Promise<ProjectConfig | undefined> {
