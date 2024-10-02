@@ -1,5 +1,5 @@
 type FieldType = 'bigint' | 'int' | 'hex' | 'boolean' | 'string' | 'many' | 'one';
-type FieldDefinition = {
+export type FieldDefinition = {
     type: FieldType;
     reference?: string;
     isOptional?: boolean;
