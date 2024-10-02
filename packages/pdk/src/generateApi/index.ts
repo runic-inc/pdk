@@ -1,8 +1,7 @@
 import fs from 'fs/promises';
-import Module from 'module';
 import path from 'path';
 import prettier from 'prettier';
-import { register } from 'ts-node';
+import { loadPonderSchema } from '../helpers/config';
 import { Schema } from './ponderMocks';
 
 // ToDo 
@@ -84,45 +83,19 @@ ponder.use(
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     try {
-        // Set up ts-node
-        register({
-            transpileOnly: true,
-            compilerOptions: {
-                module: 'CommonJS',
-                moduleResolution: 'node',
-            }
-        });
-        const originalRequire = Module.prototype.require;
-        const newRequire = function (this: NodeModule, id: string) {
-            if (id === '@ponder/core') {
-                return require(path.resolve(__dirname, './ponderMocks'));
-            }
-            return originalRequire.call(this, id);
-        } as NodeRequire;
-        Object.assign(newRequire, originalRequire);
-        Module.prototype.require = newRequire;
-        try {
-            const schemaModule = await import(ponderSchema);
-            const schema = schemaModule.default;
-
-            // Generate the tRPC API content
-            const apiContent = await generateTrpcApi(schema);
-
-            // Write the formatted API content to file
-            const outputPath = path.join(apiOutputDir, 'index.ts');
-            await fs.writeFile(outputPath, apiContent, 'utf8');
-            console.log("tRPC API generation completed.");
-        } catch (error) {
-            if (error instanceof TypeError && error.message.includes('is not a function')) {
-                console.error("Error: It seems a method is missing from our mock implementation.");
-                console.error("Full error:", error);
-                console.error("Please add this method to the mockSchemaBuilder in ponderMocks.ts");
-            } else {
-                throw error;
-            }
-        } finally {
-            Module.prototype.require = originalRequire;
+        const schema = await loadPonderSchema(ponderSchema);
+        if (schema === undefined) {
+            console.error('Error importing PonderSchema');
+            return;
         }
+
+        // Generate the tRPC API content
+        const apiContent = await generateTrpcApi(schema);
+
+        // Write the formatted API content to file
+        const outputPath = path.join(apiOutputDir, 'index.ts');
+        await fs.writeFile(outputPath, apiContent, 'utf8');
+        console.log("tRPC API generation completed.");
     } catch (err) {
         console.error('Error:', err);
     }
