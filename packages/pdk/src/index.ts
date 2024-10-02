@@ -1,4 +1,4 @@
-import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, UserContractGen, validateSchema } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -194,41 +194,52 @@ function generateSolidity(argv: any) {
     const contract = argv.contract;
 
     for (const configFile of configFiles) {
-        const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-
         if (configFile.endsWith(".json")) {
+            const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
             if (validateSchema(jsonData, CONTRACT_SCHEMA).isValid) {
                 // Contract config
                 generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
             } else if (validateSchema(jsonData, PROJECT_SCHEMA).isValid) {
                 // Project config
                 const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
-                if (contract) {
-                    const contractConfig = projectConfig.contracts[contract];
-                    if (!contractConfig) {
-                        console.error(`Contract '${contract}' not found in the project config.`);
-                        process.exit(1);
-                    }
-                    generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
-                } else {
-                    Object.entries(projectConfig.contracts).forEach(([key, value]) => {
-                        if (typeof value === "string") {
-                            generateContract(getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout), outputDir);
-                        } else {
-                            generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
-                        }
-                    });
-                }
+                processProjectConfig(projectConfig, contract, configFile, rootDir, tmpout, outputDir);
             } else {
                 console.error(`Invalid config file: ${configFile}`);
                 process.exit(1);
             }
         } else if (configFile.endsWith(".ts")) {
-            generateContract(getContractSchema(configFile, rootDir, tmpout), outputDir);
+            const tsConfig = getTSConfig(configFile, rootDir, tmpout);
+            if (tsConfig instanceof ContractSchemaImpl) {
+                generateContract(tsConfig, outputDir);
+            } else if (tsConfig.contracts) {
+                processProjectConfig(tsConfig, contract, configFile, rootDir, tmpout, outputDir);
+            } else {
+                console.error(`Invalid TS config file: ${configFile}`);
+                process.exit(1);
+            }
         } else {
             console.error(`Invalid config file: ${configFile}`);
             process.exit(1);
         }
+    }
+}
+
+function processProjectConfig(projectConfig: ProjectConfig, contract: string | undefined, configFile: string, rootDir: string, tmpout: string, outputDir: string) {
+    if (contract) {
+        const contractConfig = projectConfig.contracts[contract];
+        if (!contractConfig) {
+            console.error(`Contract '${contract}' not found in the project config.`);
+            process.exit(1);
+        }
+        generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
+    } else {
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                generateContract(getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout), outputDir);
+            } else {
+                generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
+            }
+        });
     }
 }
 
@@ -255,23 +266,40 @@ function generateContract(schema: ContractSchemaImpl, outputDir: string) {
     console.log(`JSON Schema file generated at ${outputPath}`);
 }
 
+function getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
+    // console.log("getTSConfig", configFile, rootDir, tmpout);
+    try {
+        const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
+        console.log("TSC compile success");
+        // console.log(result.toString());
+    } catch (err: any) {
+        console.log("Error", err.message);
+        console.log("output", err.stdout.toString());
+        console.log("stderr", err.stderr.toString());
+        throw err;
+    }
+    const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
+    // console.log(jsConfigFile);
+    const t = require(path.resolve(jsConfigFile)).default;
+    fs.rmSync(tmpout, { recursive: true });
+    
+    if (t.contracts) {
+        return t as ProjectConfig;
+    } else {
+        return new ContractSchemaImpl(t);
+    }
+}
+
 function getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
     let schema: ContractSchemaImpl;
 
     if (configFile.endsWith(".ts")) {
-        try {
-            const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
-            console.log("TSC compile success");
-            console.log(result.toString());
-        } catch (err: any) {
-            console.log("Error", err.message);
-            console.log("output", err.stdout.toString());
-            console.log("stderr", err.stderr.toString());
+        const tsConfig = getTSConfig(configFile, rootDir, tmpout);
+        if (tsConfig instanceof ContractSchemaImpl) {
+            schema = tsConfig;
+        } else {
+            throw new Error("Expected ContractConfig, but got ProjectConfig");
         }
-        const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
-        const t = require(path.resolve(jsConfigFile)).default;
-        schema = new ContractSchemaImpl(t);
-        fs.rmSync(tmpout, { recursive: true });
     } else {
         if (!configFile.endsWith(".json")) {
             throw new Error("Invalid file type. Please provide a JSON or TS file.");
