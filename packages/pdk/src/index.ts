@@ -267,7 +267,7 @@ function generateContract(schema: ContractSchemaImpl, outputDir: string) {
 }
 
 function getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
-    console.log("getTSConfig", configFile, rootDir, tmpout);
+    // console.log("getTSConfig", configFile, rootDir, tmpout);
     try {
         const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
         console.log("TSC compile success");
@@ -279,15 +279,13 @@ function getTSConfig(configFile: string, rootDir: string, tmpout: string): Contr
         throw err;
     }
     const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
-    console.log(jsConfigFile);
+    // console.log(jsConfigFile);
     const t = require(path.resolve(jsConfigFile)).default;
     fs.rmSync(tmpout, { recursive: true });
     
     if (t.contracts) {
-        // It's a ProjectConfig
         return t as ProjectConfig;
     } else {
-        // It's a ContractConfig
         return new ContractSchemaImpl(t);
     }
 }
