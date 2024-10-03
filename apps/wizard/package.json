@@ -5,7 +5,8 @@
     "description": "Patchwork Wizard",
     "main": "src/index.ts",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 0",
+        "test": "jest",
+        "test:coverage": "jest --coverage --passWithNoTests",
         "build": "vite build",
         "dev": "vite"
     },
@@ -56,6 +57,7 @@
         "autoprefixer": "^10.4.20",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
+        "jest": "^29.5.0",
         "postcss": "^8.4.41",
         "prettier-plugin-organize-imports": "^4.0.0",
         "tailwind-merge": "^2.5.2",
