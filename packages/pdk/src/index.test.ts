@@ -1,8 +1,6 @@
-import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-
-const CLI_PATH = path.resolve(__dirname, '../dist/index.js');
+import { validate, generate, generateTsABIs, generateSchema } from './index';
 
 describe('CLI', () => {
   const testDataDir = path.resolve(__dirname, '../../common/src/codegen/test_data');
@@ -25,26 +23,24 @@ describe('CLI', () => {
 
   test('validate command with valid contract config', () => {
     const configFile = path.join(testDataDir, 'Arrays.json');
-    const result = execSync(`node ${CLI_PATH} validate ${configFile}`).toString();
-    expect(result).toContain('The file is a valid Patchwork contract configuration.');
+    const result = validate(configFile);
+    expect(result).toBe(true);
   });
 
   test('validate command with valid project config', () => {
     const configFile = path.join(projectConfigsDir, 'project-config.json');
-    const result = execSync(`node ${CLI_PATH} validate ${configFile}`).toString();
-    expect(result).toContain('The file is a valid Patchwork project configuration.');
+    const result = validate(configFile);
+    expect(result).toBe(true);
   });
 
   test('validate command with invalid config', () => {
     const configFile = path.join(testDataDir, 'Arrays-schema.json');
-    expect(() => {
-      execSync(`node ${CLI_PATH} validate ${configFile}`);
-    }).toThrow();
+    expect(() => validate(configFile)).toThrow();
   });
 
   test('generate command with contract config', () => {
     const configFile = path.join(testDataDir, 'Arrays.json');
-    execSync(`node ${CLI_PATH} generate ${configFile} --output ${outputDir}`);
+    generate([configFile], outputDir);
     
     const generatedFiles = fs.readdirSync(outputDir);
     expect(generatedFiles).toContain('ArraysGenerated.sol');
@@ -54,7 +50,7 @@ describe('CLI', () => {
 
   test('generate command with project config', () => {
     const configFile = path.join(projectConfigsDir, 'project-config-contract-config.json');
-    execSync(`node ${CLI_PATH} generate ${configFile} --output ${outputDir}`);
+    generate([configFile], outputDir);
     
     const generatedFiles = fs.readdirSync(outputDir);
     expect(generatedFiles.length).toBeGreaterThan(0);
@@ -69,4 +65,19 @@ describe('CLI', () => {
   });
 
   // Add more tests for other commands like generateTsABIs, generateSchema, etc.
+  test('generateTsABIs command', async () => {
+    const configFile = path.join(testDataDir, 'Arrays.json');
+    await generateTsABIs(configFile);
+    
+    const generatedFiles = fs.readdirSync(outputDir);
+    expect(generatedFiles).toContain('Arrays.ts');
+  });
+
+  test('generateSchema command', async () => {
+    const configFile = path.join(testDataDir, 'Arrays.json');
+    await generateSchema(configFile);
+    
+    const generatedFiles = fs.readdirSync(outputDir);
+    expect(generatedFiles).toContain('Arrays-schema.json');
+  });
 });
