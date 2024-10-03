@@ -309,3 +309,6 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
     }
     return schema;
 }
+
+// Export functions for testing
+export { validateConfig, generateSolidity, getTSConfig, getContractSchema, generateContract, processProjectConfig };
