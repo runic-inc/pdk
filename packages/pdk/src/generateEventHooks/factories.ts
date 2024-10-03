@@ -65,27 +65,48 @@ export function transferHandler({ entity, event, projectConfig, ponderSchema, ab
     console.log(entity, event, ponderSchema);
     console.log(projectConfig['contracts'][entity])
 
-    // check from address is 0. if so this is a mint. Need to create the entity
-
-    //fields
-    // id is contractAddress_tokenId
-    // owner is address of owner
-    // tokenId is tokenId
-    // for mints set mintTxId
-    // contractId set to contract address
+    const data: Record<string, string> = {
+        "owner": "event.args.to",
+        "tokenId": "event.args.tokenId",
+        "mintTxId": "event.transaction.hash",
+        "contractId": "event.log.address",
+        "timestamp": "event.block.timestamp",
+    }
 
     return `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
     const { ${entity} } = context.db;
-    // comment out for the moment. Need the event or model (maybe both) to know what fields to generate for the data object
-    //if (parseInt(event.args.from, 16) === 0) {
-    //    await ${entity}.create({
-    //        id: event.args.tokenId,
-    //        data: {
-    //            name: '${entity} #' + (Number(event.args.tokenId) + 1),
-    //        },
-    //    });
-    //}
+    if (parseInt(event.args.from, 16) === 0) {
+       await ${entity}.create({
+           id: \`\${event.log.address}:\$\{event.args.tokenId}\`,
+           data: {
+               ${Object.keys(data).map((key) => { return `${key}: ${data[key]}` }).join(',')}
+           },
+       });
+    } else if (parseInt(event.args.to, 16) === 0) {
+        await ${entity}.update({
+            id: \`\${event.log.address}:\$\{event.args.tokenId}\`,
+            data: {
+                owner: event.args.to,
+                burnTxId: event.transaction.hash,
+            },
+        });
+    } else {
+        await ${entity}.update({
+            id: \`\${event.log.address}:\$\{event.args.tokenId}\`,
+            data: {
+                owner: event.args.to,
+            },
+        });
+    }
 })`;
+}
+
+function transferHandlerData(data: Record<string, string>) {
+    console.log(data);
+
+    const temp = Object.keys(data).map((key) => { return `${key}: ${data[key]}` }).join(',')
+    console.log(temp);
+    return temp;
 }
 
 export function loadMetadataHandler({ entity, event, projectConfig, ponderSchema, abis }: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: Schema; abis: Record<string, Abi> }): string {

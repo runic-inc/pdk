@@ -73,13 +73,13 @@ export async function generateSchema(configPath: string) {
 
                 additionalTables.push(createTableFromObject(refTableName, refFields));
             } else {
-                fields.push({ key: field.key, value: getFieldType(field.type) });
+                fields.push({ key: field.key, value: `${getFieldType(field.type)}.optional()` });
             }
         });
 
         if (fragmentRelationships[contractName]) {
             fragmentRelationships[contractName].forEach((relation) => {
-                fields.push({ key: camelCase(`${relation}Id`), value: `p.string().references('${relation}.id')` });
+                fields.push({ key: camelCase(`${relation}Id`), value: `p.string().references('${relation}.id').optional()` });
             });
         }
 
