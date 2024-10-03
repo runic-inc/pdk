@@ -166,11 +166,6 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
     return schema;
 }
 
-// Export functions for testing
-export {
-    generateSolidity as generate, generateSchema, generateABIs as generateTsABIs, validateConfig as validate
-};
-
 // CLI logic
 if (require.main === module) {
     const argv = yargs(hideBin(process.argv))
