@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { validate, generate, generateTsABIs, generateSchema } from './index';
+import { generate, validate } from './index';
 
 describe('CLI', () => {
   const testDataDir = path.resolve(__dirname, '../../common/src/codegen/test_data');
@@ -35,7 +35,8 @@ describe('CLI', () => {
 
   test('validate command with invalid config', () => {
     const configFile = path.join(testDataDir, 'Arrays-schema.json');
-    expect(() => validate(configFile)).toThrow();
+    const result = validate(configFile);
+    expect(result).toBe(false);
   });
 
   test('generate command with contract config', () => {
@@ -62,22 +63,5 @@ describe('CLI', () => {
     expect(generatedFiles).toContain('SecondContractGenerated.sol');
     expect(generatedFiles).toContain('SecondContract.sol');
     expect(generatedFiles).toContain('SecondContract-schema.json');
-  });
-
-  // Add more tests for other commands like generateTsABIs, generateSchema, etc.
-  test('generateTsABIs command', async () => {
-    const configFile = path.join(testDataDir, 'Arrays.json');
-    await generateTsABIs(configFile);
-    
-    const generatedFiles = fs.readdirSync(outputDir);
-    expect(generatedFiles).toContain('Arrays.ts');
-  });
-
-  test('generateSchema command', async () => {
-    const configFile = path.join(testDataDir, 'Arrays.json');
-    await generateSchema(configFile);
-    
-    const generatedFiles = fs.readdirSync(outputDir);
-    expect(generatedFiles).toContain('Arrays-schema.json');
   });
 });

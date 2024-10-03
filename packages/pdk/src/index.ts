@@ -13,8 +13,16 @@ import { generateSchema } from "./generateSchema";
 import { findConfig, findPonderSchema } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
-const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
-const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
+let CONTRACT_SCHEMA: string;
+let PROJECT_SCHEMA: string;
+
+if (require.main === module) {
+    CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
+    PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
+} else {
+    CONTRACT_SCHEMA = '../../schemas/patchwork-contract-config.schema.json';
+    PROJECT_SCHEMA = '../../schemas/patchwork-project-config.schema.json';
+}
 
 export function validateConfig(configFile: string): boolean {
     const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
@@ -167,15 +175,22 @@ export {
 if (require.main === module) {
     const argv = yargs(hideBin(process.argv))
         .command(
-            "validate <configFile>",
-            "Validate a JSON or TS config file",
+            "validate [configFiles..]",
+            "Validate Patchwork contract or project configuration files",
             (yargs) => {
-                yargs.positional("configFile", {
-                    describe: "Path to the JSON or TS file",
-                    type: "string",
-                });
+                yargs
+                    .positional("configFiles", {
+                        describe: "Path to the JSON files",
+                        type: "string",
+                    });
             },
-            (argv) => validateConfig(argv.configFile as string)
+            (argv) => {
+                for (const configFile of argv.configFiles as string[]) {
+                    if (!validateConfig(configFile)) {
+                        process.exit(1);
+                    }
+                }
+            }
         )
         .command(
             "generate [configFiles..]",
