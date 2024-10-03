@@ -8,6 +8,7 @@
         "test": "jest --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
         "test:features-build": "jest src/codegen/test/featurePermutationBuilds.test.ts",
         "test:fields-build": "jest src/codegen/test/fieldPermutationBuilds.test.ts",
+        "test:coverage": "jest --coverage --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
         "build": "tsc",
         "prepublishOnly": "pnpm build"
     },

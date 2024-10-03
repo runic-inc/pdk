@@ -130,6 +130,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      jest:
+        specifier: ^29.5.0
+        version: 29.7.0(@types/node@22.5.1)(ts-node@10.9.2(@types/node@22.5.1)(typescript@5.5.4))
       postcss:
         specifier: ^8.4.41
         version: 8.4.41
