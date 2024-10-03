@@ -92,9 +92,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generateSchema(configPath);
+            await generateSchema(configPath);
         }
-    ).command(
+    )
+    .command(
         "generateEventHooks",
         "Generate the ponder event code",
         {},
@@ -106,9 +107,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generateEventHooks(configPath);
+            await generateEventHooks(configPath);
         }
-    ).command(
+    )
+    .command(
         "generatePonderConfig",
         "Generate the ponder config code",
         {},
@@ -120,9 +122,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generatePonderConfig(configPath);
+            await generatePonderConfig(configPath);
         }
-    ).command(
+    )
+    .command(
         "generateReactHooks",
         "Generate the React hooks for app",
         {},
@@ -136,7 +139,8 @@ const argv = yargs(hideBin(process.argv))
             console.log("Using config file:", configPath);
             await generateReactHooks(configPath);
         }
-    ).command(
+    )
+    .command(
         "generateAPI",
         "Generate the trpc api",
         {},
@@ -154,6 +158,14 @@ const argv = yargs(hideBin(process.argv))
             }
             const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
             await generateAPI(schemaPath, apiOutputDir);
+        }
+    )
+    .command(
+        "generateAll",
+        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, and API)",
+        {},
+        async () => {
+            await generateAll();
         }
     )
     .demandCommand(1, "You must provide a valid command")
@@ -308,4 +320,46 @@ function getContractSchema(configFile: string, rootDir: string, tmpout: string):
         schema = new ContractSchemaImpl(parseJson(jsonData));
     }
     return schema;
+}
+
+async function generateAll() {
+    try {
+        console.log("Generating all components...");
+        const configPath = await findConfig();
+        if (!configPath) {
+            console.error("No config file found.");
+            return;
+        }
+        console.log("Using config file:", configPath);
+
+        // Generate TypeScript ABIs
+        console.log("Generating TypeScript ABIs...");
+        await generateABIs(configPath);
+
+        // Generate Ponder Schema
+        console.log("Generating Ponder Schema...");
+        await generateSchema(configPath);
+
+        // Generate Event Hooks
+        console.log("Generating Event Hooks...");
+        await generateEventHooks(configPath);
+
+        // Generate Ponder Config
+        console.log("Generating Ponder Config...");
+        await generatePonderConfig(configPath);
+
+        // Generate API
+        console.log("Generating API...");
+        const schemaPath = await findPonderSchema();
+        if (!schemaPath) {
+            console.error("No ponder schema file found.");
+            return;
+        }
+        const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
+        await generateAPI(schemaPath, apiOutputDir);
+
+        console.log("All components generated successfully!");
+    } catch (error) {
+        console.error("An error occurred during generation:", error);
+    }
 }

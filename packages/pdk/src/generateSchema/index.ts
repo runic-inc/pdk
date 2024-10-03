@@ -14,7 +14,7 @@ export async function generateSchema(configPath: string) {
     const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
     const abis = await importABIFiles(abiDir);
     const projectConfig = await importPatchworkConfig(configPath);
-    console.log('projectConfig', projectConfig);
+
     if (!projectConfig) {
         console.error('Error importing ProjectConfig');
         return;
@@ -22,7 +22,6 @@ export async function generateSchema(configPath: string) {
 
     const generalDB = generalDBStructure();
     const fragmentRelationships = getFragmentRelationships(projectConfig);
-    console.log('projectConfig.contracts', projectConfig.contracts);
 
     // Create Contract table
     const contractTable = createTableFromObject('Contract', [
@@ -42,10 +41,6 @@ export async function generateSchema(configPath: string) {
 
     Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
         if (typeof contractConfig === 'string') return;
-
-        console.log('contractName', contractName);
-        console.log('contractConfig', contractConfig);
-        console.log('relations ', projectConfig.contractRelations)
 
         const fields = [
             { key: "id", value: "p.string()" },

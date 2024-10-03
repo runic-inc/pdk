@@ -185,6 +185,9 @@ importers:
 
   packages/create-patchwork:
     dependencies:
+      '@patchworkdev/common':
+        specifier: workspace:*
+        version: link:../common
       cpy:
         specifier: 11.1.0
         version: 11.1.0
@@ -197,6 +200,9 @@ importers:
       picocolors:
         specifier: 1.1.0
         version: 1.1.0
+      ts-node:
+        specifier: 10.9.2
+        version: 10.9.2(@types/node@22.5.1)(typescript@5.5.4)
     devDependencies:
       '@types/node':
         specifier: ^22.4.2

@@ -62,9 +62,6 @@ export function generatePonderOnHandler(entity: string, event: AbiEvent, project
 
 // Below are the template functions. Could be moved to a separate file if there are too many.
 export function transferHandler({ entity, event, projectConfig, ponderSchema, abis }: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: Schema; abis: Record<string, Abi> }): string {
-    console.log(entity, event, ponderSchema);
-    console.log(projectConfig['contracts'][entity])
-
     const data: Record<string, string> = {
         "owner": "event.args.to",
         "tokenId": "event.args.tokenId",
