@@ -63,7 +63,13 @@ const argv = yargs(hideBin(process.argv))
                     description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
-        (argv) => cliProcessor.generateSolidity(argv.configFiles as string[], argv.output as string, argv.rootdir as string, argv.contract as string)
+        (argv) => {
+            try {
+                cliProcessor.generateSolidity(argv.configFiles as string[], argv.output as string, argv.rootdir as string, argv.contract as string);
+            } catch (e) {
+                process.exit(1);
+            }
+        }
     )
     .command(
         "wizard",
