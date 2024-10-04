@@ -1,5 +1,6 @@
-import { oraPromise } from 'ora';
 import { execa } from 'execa';
+import { oraPromise } from 'ora';
+import path from 'path';
 
 
 
@@ -72,5 +73,26 @@ export async function forgeBuild(targetDir: string): Promise<void> {
             failText: "Failed to build contracts",
             successText: `Contracts built successfully`,
         },
+    );
+}
+
+export async function generateContracts(targetDir: string): Promise<void> {
+    const configPath = path.join(targetDir, 'patchwork.config.ts');
+    const outputDir = path.join(targetDir, 'contracts', 'src');
+    const pdkPath = path.join(targetDir, 'node_modules', '.bin', 'pdk');
+
+    await oraPromise(
+        execa(pdkPath, [
+            'generate',
+            configPath,
+            '--output', outputDir
+        ], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Generating contracts`,
+            failText: "Failed to generate contracts",
+            successText: `Contracts generated successfully`,
+        }
     );
 }
