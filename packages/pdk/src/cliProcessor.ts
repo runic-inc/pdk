@@ -13,6 +13,10 @@ export class CLIProcessor {
     }
 
     validateConfig(configFile: string): boolean {
+        if (!configFile.endsWith(".json")) {
+            console.log("Invalid file type. Please provide a JSON file.");
+            return false;
+        }
         const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
     
         let result;
@@ -118,10 +122,10 @@ export class CLIProcessor {
             const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
             console.log("TSC compile success");
         } catch (err: any) {
-            console.log("Error", err.message);
-            console.log("output", err.stdout.toString());
-            console.log("stderr", err.stderr.toString());
-            throw err;
+            console.log("Error:", err.message);
+            console.log("Reason:", err.stdout.toString());
+            // console.log("stderr", err.stderr.toString());
+            throw new Error("Error compiling TS file");
         }
         const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
         const t = require(path.resolve(jsConfigFile)).default;
