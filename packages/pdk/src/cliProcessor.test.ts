@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { generateSolidity, validateConfig } from '.';
+import { CLIProcessor } from './cliProcessor';
+
+const CONTRACT_SCHEMA = '../../schemas/patchwork-contract-config.schema.json';
+const PROJECT_SCHEMA = '../../schemas/patchwork-project-config.schema.json';
+
+const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 
 describe('CLI', () => {
   const testDataDir = path.resolve(__dirname, '../../common/src/codegen/test_data');
@@ -23,25 +28,25 @@ describe('CLI', () => {
 
   test('validate command with valid contract config', () => {
     const configFile = path.join(testDataDir, 'Arrays.json');
-    const result = validateConfig(configFile);
+    const result = cliProcessor.validateConfig(configFile);
     expect(result).toBe(true);
   });
 
   test('validate command with valid project config', () => {
     const configFile = path.join(projectConfigsDir, 'project-config.json');
-    const result = validateConfig(configFile);
+    const result = cliProcessor.validateConfig(configFile);
     expect(result).toBe(true);
   });
 
   test('validate command with invalid config', () => {
     const configFile = path.join(testDataDir, 'Arrays-schema.json');
-    const result = validateConfig(configFile);
+    const result = cliProcessor.validateConfig(configFile);
     expect(result).toBe(false);
   });
 
   test('generate command with contract config', () => {
     const configFile = path.join(testDataDir, 'Arrays.json');
-    generateSolidity([configFile], outputDir);
+    cliProcessor.generateSolidity([configFile], outputDir);
     
     const generatedFiles = fs.readdirSync(outputDir);
     expect(generatedFiles).toContain('ArraysGenerated.sol');
@@ -51,7 +56,7 @@ describe('CLI', () => {
 
   test('generate command with project config', () => {
     const configFile = path.join(projectConfigsDir, 'project-config-contract-config.json');
-    generateSolidity([configFile], outputDir);
+    cliProcessor.generateSolidity([configFile], outputDir);
     
     const generatedFiles = fs.readdirSync(outputDir);
     expect(generatedFiles.length).toBeGreaterThan(0);
