@@ -25,5 +25,7 @@ export default function ClientLayout({
         }),
     );
 
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </trpc.Provider>;
 }
