@@ -137,10 +137,6 @@ const argv = yargs(hideBin(process.argv))
             console.log("Using config file:", configPath);
             await generateReactHooks(configPath);
         }
-<<<<<<< HEAD
-    )
-    .command(
-=======
     ).command(
         "generateReactComponents",
         "Generate the React components for app",
@@ -170,7 +166,6 @@ const argv = yargs(hideBin(process.argv))
             await generateDemoPage(configPath);
         }
     ).command(
->>>>>>> main
         "generateAPI",
         "Generate the trpc api",
         {},
