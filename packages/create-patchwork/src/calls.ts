@@ -76,16 +76,20 @@ export async function forgeBuild(targetDir: string): Promise<void> {
     );
 }
 
-export async function generateContracts(targetDir: string): Promise<void> {
-    const configPath = path.join(targetDir, 'patchwork.config.ts');
-    const outputDir = path.join(targetDir, 'contracts', 'src');
-    const pdkPath = path.join(targetDir, 'node_modules', '.bin', 'pdk');
+
+export async function generateContracts(targetDir: string, useLocalPackages: boolean): Promise<void> {
+    const configFile = './patchwork.config.ts';
+    const outputDir = './contracts/src';
+    const rootDir = './';
+
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
-        execa(pdkPath, [
+        execa(pdkCommand, [
             'generate',
-            configPath,
-            '--output', outputDir
+            configFile,
+            '-o', outputDir,
+            '-r', rootDir
         ], {
             cwd: targetDir,
         }),
@@ -93,6 +97,29 @@ export async function generateContracts(targetDir: string): Promise<void> {
             text: `Generating contracts`,
             failText: "Failed to generate contracts",
             successText: `Contracts generated successfully`,
+        }
+    );
+}
+
+export async function linkLocalPackages(targetDir: string): Promise<void> {
+    await oraPromise(
+        execa('pnpm', ['link', '--global', '@patchworkdev/pdk'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Linking @patchworkdev/pdk`,
+            failText: "Failed to link @patchworkdev/pdk",
+            successText: `@patchworkdev/pdk linked successfully`,
+        }
+    );
+    await oraPromise(
+        execa('pnpm', ['link', '--global', '@patchworkdev/common'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Linking @patchworkdev/common`,
+            failText: "Failed to link @patchworkdev/common",
+            successText: `@patchworkdev/common linked successfully`,
         }
     );
 }

@@ -2,7 +2,7 @@ import cpy from 'cpy';
 import path, { dirname } from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { generateContracts, installNodeDependencies } from './calls.js';
+import { generateContracts, installNodeDependencies, linkLocalPackages } from './calls.js';
 
 // Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -22,14 +22,23 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
         const targetDir = path.join(targetPath, 'patchworkApp');
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
 
+        // Check if we should use local packages
+        const useLocalPackages = process.env.USE_LOCAL_PACKAGES === 'true' || process.argv.includes('--use-local-packages');
+
         // Copy template files
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
 
         // Install dependencies (including @patchworkdev/common and pdk)
         await installNodeDependencies(targetDir);
 
-        // Generate contracts using the newly installed pdk
-        await generateContracts(targetDir);
+        // Link local packages if specified
+        if (useLocalPackages) {
+            console.log(pico.yellow("Using local packages..."));
+            await linkLocalPackages(targetDir);
+        }
+
+        // Generate contracts using the appropriate pdk version
+        await generateContracts(targetDir, useLocalPackages);
 
         // Initialize git repo
         //await initGitRepo(targetDir);

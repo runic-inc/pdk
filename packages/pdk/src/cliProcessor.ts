@@ -43,7 +43,7 @@ export class CLIProcessor {
     
     generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = "src", contract?: string) {
         const tmpout = "tmpout";
-    
+        console.log("Generating Solidity files...");
         for (const configFile of configFiles) {
             if (configFile.endsWith(".json")) {
                 const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
@@ -128,14 +128,22 @@ export class CLIProcessor {
             throw new Error("Error compiling TS file");
         }
         const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
-        const t = require(path.resolve(jsConfigFile)).default;
-        fs.rmSync(tmpout, { recursive: true });
-        
-        if (t.contracts) {
-            return t as ProjectConfig;
-        } else {
-            return new ContractSchemaImpl(t);
+        try {
+            console.log("JS Config File:", jsConfigFile);
+            const t = require(path.resolve(jsConfigFile)).default;
+            console.log(t);
+            fs.rmSync(tmpout, { recursive: true });
+            
+            if (t.contracts) {
+                return t as ProjectConfig;
+            } else {
+                return new ContractSchemaImpl(t);
+            }
+        } catch (err) {
+            console.log("Error:", err);
+            throw new Error("Error reading JS file");
         }
+
     }
     
     getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {

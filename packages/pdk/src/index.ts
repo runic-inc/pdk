@@ -215,6 +215,7 @@ const argv = yargs(hideBin(process.argv))
     .argv;
 
 
+    //TODO: move to cli processor
 async function generateAll() {
     try {
         console.log("Generating all components...");
