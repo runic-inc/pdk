@@ -1,6 +1,6 @@
 import { Feature, ProjectConfig } from "@patchworkdev/common";
 
-export const config: ProjectConfig = {
+const projectConfig: ProjectConfig = {
     name: "canvas",
     contracts: {
         "Canvas": {
@@ -97,3 +97,5 @@ export const config: ProjectConfig = {
         }
     ]
 };
+
+export default projectConfig;
