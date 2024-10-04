@@ -13,8 +13,6 @@ import { generateSchema } from "./generateSchema";
 import { findConfig, findPonderSchema } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
-// console.log(__dirname);
-
 const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
 const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
 
@@ -139,8 +137,40 @@ const argv = yargs(hideBin(process.argv))
             console.log("Using config file:", configPath);
             await generateReactHooks(configPath);
         }
+<<<<<<< HEAD
     )
     .command(
+=======
+    ).command(
+        "generateReactComponents",
+        "Generate the React components for app",
+        {},
+        async () => {
+            console.log("Generating React components for app");
+            const configPath = await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            await generateReactComponents(configPath);
+        }
+    ).command(
+        "generateDemoPage",
+        "Generate the demo app page",
+        {},
+        async () => {
+            console.log("Generating the demo app page");
+            const configPath = await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                return;
+            }
+            console.log("Using config file:", configPath);
+            await generateDemoPage(configPath);
+        }
+    ).command(
+>>>>>>> main
         "generateAPI",
         "Generate the trpc api",
         {},
@@ -294,7 +324,7 @@ function getTSConfig(configFile: string, rootDir: string, tmpout: string): Contr
     // console.log(jsConfigFile);
     const t = require(path.resolve(jsConfigFile)).default;
     fs.rmSync(tmpout, { recursive: true });
-    
+
     if (t.contracts) {
         return t as ProjectConfig;
     } else {
@@ -363,3 +393,6 @@ async function generateAll() {
         console.error("An error occurred during generation:", error);
     }
 }
+// Export functions for testing
+export { generateContract, generateSolidity, getContractSchema, getTSConfig, processProjectConfig, validateConfig };
+
