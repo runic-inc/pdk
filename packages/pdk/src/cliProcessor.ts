@@ -129,10 +129,6 @@ export class CLIProcessor {
         if (!configFile.startsWith(".") && !configFile.startsWith("/")) {
             configFile = `./${configFile}`;
         }
-        // console.log("Config File:", configFile);
-        // console.log("Root Dir:", rootDir);
-        // console.log("Tmp Out:", tmpout);
-        // console.log("Dir name:", path.dirname(configFile));
         
         const expectedJSFile = path.basename(configFile, ".ts") + ".js";
         const jsConfigFile = this.findJSConfigFile(tmpout, expectedJSFile);
