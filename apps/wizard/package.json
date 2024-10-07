@@ -5,7 +5,7 @@
     "description": "Patchwork Wizard",
     "main": "src/index.ts",
     "scripts": {
-        "test": "jest",
+        "test": "jest --passWithNoTests",
         "test:coverage": "jest --coverage --passWithNoTests",
         "build": "vite build",
         "dev": "vite"

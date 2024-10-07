@@ -124,31 +124,26 @@ export class CLIProcessor {
         } catch (err: any) {
             console.log("Error:", err.message);
             console.log("Reason:", err.stdout.toString());
-            // console.log("stderr", err.stderr.toString());
             throw new Error("Error compiling TS file");
         }
         if (!configFile.startsWith(".") && !configFile.startsWith("/")) {
             configFile = `./${configFile}`;
         }
-        console.log("Config File:", configFile);
-        console.log("Root Dir:", rootDir);
-        console.log("Tmp Out:", tmpout);
-        console.log("Dir name:", path.dirname(configFile));
+        // console.log("Config File:", configFile);
+        // console.log("Root Dir:", rootDir);
+        // console.log("Tmp Out:", tmpout);
+        // console.log("Dir name:", path.dirname(configFile));
         
-        let jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
+        const expectedJSFile = path.basename(configFile, ".ts") + ".js";
+        const jsConfigFile = this.findJSConfigFile(tmpout, expectedJSFile);
+        
+        if (!jsConfigFile) {
+            throw new Error(`JS config file not found for ${configFile}`);
+        }
+        
+        console.log("JS Config File Found:", jsConfigFile);
+        
         try {
-            if (!fs.existsSync(jsConfigFile)) {
-                // find it
-                const files = fs.readdirSync(tmpout);
-                const baseFilename = path.basename(configFile);
-                console.log(`Searching ${tmpout} for ${baseFilename}`);
-                const foundFile = files.find(file => path.basename(file) == baseFilename);
-                if (!foundFile) {
-                    throw new Error(`JS config file not found at ${jsConfigFile}`);
-                }
-                jsConfigFile = foundFile;
-                console.log("JS Config File Found:", jsConfigFile);
-            }
             const t = require(path.resolve(jsConfigFile)).default;
             
             if (t.contracts) {
@@ -160,9 +155,26 @@ export class CLIProcessor {
             console.log("Error:", err);
             throw new Error("Error reading JS file");
         } finally {
-            //fs.rmSync(tmpout, { recursive: true });
+            fs.rmSync(tmpout, { recursive: true });
         }
-
+    }
+    
+    findJSConfigFile(dir: string, filename: string): string | null {
+        const files = fs.readdirSync(dir);
+        
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+            
+            if (stat.isDirectory()) {
+                const result = this.findJSConfigFile(filePath, filename);
+                if (result) return result;
+            } else if (file === filename) {
+                return filePath;
+            }
+        }
+        
+        return null;
     }
     
     getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
@@ -185,4 +197,3 @@ export class CLIProcessor {
         return schema;
     }
 }
-
