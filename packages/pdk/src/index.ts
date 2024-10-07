@@ -4,6 +4,7 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from "./generateABIs";
+import { generateAll } from './generateAll';
 import { generateAPI } from "./generateApi";
 import { generateDemoPage } from './generateDemoPage';
 import { generateEventHooks } from "./generateEventHooks";
@@ -213,47 +214,3 @@ const argv = yargs(hideBin(process.argv))
     .help("h")
     .alias("h", "help")
     .argv;
-
-
-    //TODO: move to cli processor
-async function generateAll() {
-    try {
-        console.log("Generating all components...");
-        const configPath = await findConfig();
-        if (!configPath) {
-            console.error("No config file found.");
-            return;
-        }
-        console.log("Using config file:", configPath);
-
-        // Generate TypeScript ABIs
-        console.log("Generating TypeScript ABIs...");
-        await generateABIs(configPath);
-
-        // Generate Ponder Schema
-        console.log("Generating Ponder Schema...");
-        await generateSchema(configPath);
-
-        // Generate Event Hooks
-        console.log("Generating Event Hooks...");
-        await generateEventHooks(configPath);
-
-        // Generate Ponder Config
-        console.log("Generating Ponder Config...");
-        await generatePonderConfig(configPath);
-
-        // Generate API
-        console.log("Generating API...");
-        const schemaPath = await findPonderSchema();
-        if (!schemaPath) {
-            console.error("No ponder schema file found.");
-            return;
-        }
-        const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
-        await generateAPI(schemaPath, apiOutputDir);
-
-        console.log("All components generated successfully!");
-    } catch (error) {
-        console.error("An error occurred during generation:", error);
-    }
-}

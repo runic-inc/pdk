@@ -85,10 +85,8 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
     });
 
     try {
-
         const module = await import(config);
-
-        return module.config as ProjectConfig;
+        return module.default as ProjectConfig;
     } catch (error) {
         console.error('Error importing ProjectConfig', error);
         return undefined;

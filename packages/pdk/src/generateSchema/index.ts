@@ -12,9 +12,7 @@ const camelCase = (s: string) => s
 export async function generateSchema(configPath: string) {
     const abiDir = path.join(path.dirname(configPath), "", "abis");
     const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
-    const abis = await importABIFiles(abiDir);
     const projectConfig = await importPatchworkConfig(configPath);
-
     if (!projectConfig) {
         console.error('Error importing ProjectConfig');
         return;
