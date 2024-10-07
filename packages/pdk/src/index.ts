@@ -55,7 +55,7 @@ const argv = yargs(hideBin(process.argv))
                 .option("rootdir", {
                     alias: "r",
                     type: "string",
-                    description: "Root directory for the TS files (defaults to 'src')",
+                    description: "Root directory for the TS files (defaults to '.')",
                 })
                 .option("contract", {
                     alias: "c",

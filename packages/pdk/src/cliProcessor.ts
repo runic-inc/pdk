@@ -41,7 +41,7 @@ export class CLIProcessor {
         return true;
     }
     
-    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = "src", contract?: string) {
+    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = ".", contract?: string) {
         const tmpout = "tmpout";
         console.log("Generating Solidity files...");
         for (const configFile of configFiles) {
@@ -127,12 +127,29 @@ export class CLIProcessor {
             // console.log("stderr", err.stderr.toString());
             throw new Error("Error compiling TS file");
         }
-        const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
+        if (!configFile.startsWith(".") && !configFile.startsWith("/")) {
+            configFile = `./${configFile}`;
+        }
+        console.log("Config File:", configFile);
+        console.log("Root Dir:", rootDir);
+        console.log("Tmp Out:", tmpout);
+        console.log("Dir name:", path.dirname(configFile));
+        
+        let jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
         try {
-            console.log("JS Config File:", jsConfigFile);
+            if (!fs.existsSync(jsConfigFile)) {
+                // find it
+                const files = fs.readdirSync(tmpout);
+                const baseFilename = path.basename(configFile);
+                console.log(`Searching ${tmpout} for ${baseFilename}`);
+                const foundFile = files.find(file => path.basename(file) == baseFilename);
+                if (!foundFile) {
+                    throw new Error(`JS config file not found at ${jsConfigFile}`);
+                }
+                jsConfigFile = foundFile;
+                console.log("JS Config File Found:", jsConfigFile);
+            }
             const t = require(path.resolve(jsConfigFile)).default;
-            console.log(t);
-            fs.rmSync(tmpout, { recursive: true });
             
             if (t.contracts) {
                 return t as ProjectConfig;
@@ -142,6 +159,8 @@ export class CLIProcessor {
         } catch (err) {
             console.log("Error:", err);
             throw new Error("Error reading JS file");
+        } finally {
+            //fs.rmSync(tmpout, { recursive: true });
         }
 
     }
