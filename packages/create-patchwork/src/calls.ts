@@ -123,3 +123,17 @@ export async function linkLocalPackages(targetDir: string): Promise<void> {
         }
     );
 }
+
+export async function generateAllComponents(targetDir: string, useLocalPackages: boolean): Promise<void> {
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+    await oraPromise(
+        execa(pdkCommand, ['generateAll'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Generating abis, apis, poonder shcema, scripts, and hooks `,
+            failText: "Failed to generate all components",
+            successText: `All components generated successfully`,
+        }
+    );
+}

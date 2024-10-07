@@ -2,7 +2,7 @@ import cpy from 'cpy';
 import path, { dirname } from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { forgeBuild, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
+import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
 
 // Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -37,14 +37,17 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
             await linkLocalPackages(targetDir);
         }
 
+         // Initialize git repo
+         await initGitRepo(targetDir);
+
         // Generate contracts using the appropriate pdk version
         await generateContracts(targetDir, useLocalPackages);
 
-        // Initialize git repo
-        await initGitRepo(targetDir);
-
         // Build contracts with Forge
         await forgeBuild(targetDir);
+
+        // Generate all components using pdk
+        await generateAllComponents(targetDir, useLocalPackages);
 
         console.log(pico.green("Patchwork app created successfully!"));
     } catch (e) {
