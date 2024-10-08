@@ -34,6 +34,8 @@ export class PackFuncGen implements Generator {
                             conversion = `uint256(uint160(${conversion}${arrayIdxStr}))`;
                         } else if (field.type == `bool`) {
                             conversion = `uint256(${conversion}${arrayIdxStr} ? 1 : 0)`;
+                        } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                            conversion = `uint256(uint${field.elementBits}(${conversion}${arrayIdxStr}))`;
                         } else {
                             conversion = `uint256(${conversion}${arrayIdxStr})`;
                         }
@@ -106,6 +108,9 @@ export class PackFuncGen implements Generator {
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = address(uint160(slot${shift}));`);
                 } else if (field.type == `bool`) {
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = slot${shift} & 1 == 1;`);
+                } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                    let unpackedValue = `${field.solidityType}(uint${field.elementBits}(slot${shift}))`;
+                    unpackLines.push(`data.${field.key}${arrayIdxStr} = ${unpackedValue};`);
                 } else {
                     let unpackedValue = `${field.solidityType}(slot${shift})`;
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = ${unpackedValue};`);
