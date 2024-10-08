@@ -1,15 +1,39 @@
+import fs from 'fs/promises';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../helpers/config';
 import { createPonderEventFile, generatePonderOnHandler } from './factories';
 
 export async function generateEventHooks(configPath: string) {
+    // Resolve the full path of the config file
+    const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
+    const configDir = path.dirname(fullConfigPath);
 
-    const abiDir = path.join(path.dirname(configPath), "", "abis");
-    const eventDir = path.join(path.dirname(configPath), "src");
-    const ponderSchemaPath = path.join(path.dirname(configPath), "ponder.schema.ts");
+    // Define paths relative to the config file
+    const abiDir = path.join(configDir, "abis");
+    const eventDir = path.join(configDir, "src");
+    const ponderSchemaPath = path.join(configDir, "ponder.schema.ts");
+
+    // Check if the necessary directories and files exist
+    try {
+        await fs.access(abiDir);
+        await fs.access(eventDir);
+        await fs.access(ponderSchemaPath);
+    } catch (error) {
+        console.error(`Error: Unable to access required directories or files.`);
+        console.error(`Make sure the following paths exist:`);
+        console.error(`- ABI directory: ${abiDir}`);
+        console.error(`- Event directory: ${eventDir}`);
+        console.error(`- Ponder schema: ${ponderSchemaPath}`);
+        return;
+    }
 
     const abis = await importABIFiles(abiDir);
-    const projectConfig = await importPatchworkConfig(configPath);
+    if (Object.keys(abis).length === 0) {
+        console.error(`Error: No ABI files found in ${abiDir}`);
+        return;
+    }
+
+    const projectConfig = await importPatchworkConfig(fullConfigPath);
     if (!projectConfig) {
         console.error('Error importing ProjectConfig');
         return;
@@ -29,7 +53,8 @@ export async function generateEventHooks(configPath: string) {
 
     const ponderEventHandlers = Object.entries(projectConfig.contracts).flatMap(([contractName, contractConfig]) => {
         const filteredEvents = abis[contractName].filter((abiEvent) => abiEvent.type === 'event').filter((abiEvent) => entityEvents.includes(abiEvent.name));
-        return filteredEvents.map((event) => { return generatePonderOnHandler(contractName, event, projectConfig, ponderSchema, abis) }).filter((event) => event !== undefined);
+        return filteredEvents.map((event) => generatePonderOnHandler(contractName, event, projectConfig, ponderSchema, abis)).filter((event) => event !== undefined);
     });
+
     createPonderEventFile(ponderEventHandlers, path.join(eventDir, "ponder.events.ts"));
 }
