@@ -20,7 +20,7 @@ export enum FunctionConfig {
 
 export type FieldType =
     | 'empty'
-    | 'boolean'
+    | 'bool'
     | 'int8'
     | 'int16'
     | 'int32'
@@ -94,7 +94,7 @@ export type AssignmentNodeData = {
 
 export enum FieldTypeEnum {
     empty,
-    BOOLEAN,
+    BOOL,
     INT8,
     INT16,
     INT32,

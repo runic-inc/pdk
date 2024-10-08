@@ -30,8 +30,10 @@ export class PackFuncGen implements Generator {
                             const stringOffsetBits = 256 - field.elementBits;
                             const stringOffset = stringOffsetBits > 0 ? ` >> ${stringOffsetBits}` : "";
                             conversion = `PatchworkUtils.strToUint256(${conversion}${arrayIdxStr})${stringOffset}`;
-                        } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                        } else if (field.type == `address`) {
                             conversion = `uint256(uint160(${conversion}${arrayIdxStr}))`;
+                        } else if (field.type == `bool`) {
+                            conversion = `uint256(${conversion}${arrayIdxStr} == true ? 1 : 0)`;
                         } else {
                             conversion = `uint256(${conversion}${arrayIdxStr})`;
                         }
@@ -100,8 +102,10 @@ export class PackFuncGen implements Generator {
                         slotExpr = `uint${field.elementBits}(${slotExpr})`;
                     }
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = PatchworkUtils.toString${strBytes}(${slotExpr});`);
-                } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                } else if (field.type == `address`) {
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = address(uint160(slot${shift}));`);
+                } else if (field.type == `bool`) {
+                    unpackLines.push(`data.${field.key}${arrayIdxStr} = slot${shift} & 1 == 1;`);
                 } else {
                     let unpackedValue = `${field.solidityType}(slot${shift})`;
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = ${unpackedValue};`);
