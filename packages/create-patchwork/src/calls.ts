@@ -77,8 +77,7 @@ export async function forgeBuild(targetDir: string): Promise<void> {
 }
 
 
-export async function generateContracts(targetDir: string, useLocalPackages: boolean): Promise<void> {
-    const configFile = './patchwork.config.ts';
+export async function generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const outputDir = './contracts/src';
     const rootDir = './';
 
@@ -87,7 +86,7 @@ export async function generateContracts(targetDir: string, useLocalPackages: boo
     await oraPromise(
         execa(pdkCommand, [
             'generate',
-            configFile,
+            configPath,
             '-o', outputDir,
             '-r', rootDir
         ], {
@@ -124,14 +123,14 @@ export async function linkLocalPackages(targetDir: string): Promise<void> {
     );
 }
 
-export async function generateAllComponents(targetDir: string, useLocalPackages: boolean): Promise<void> {
+export async function generateAllComponents(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
     await oraPromise(
-        execa(pdkCommand, ['generateAll'], {
+        execa(pdkCommand, ['generateAll', configPath], {
             cwd: targetDir,
         }),
         {
-            text: `Generating abis, apis, poonder shcema, scripts, and hooks `,
+            text: `Generating abis, apis, ponder schema, scripts, and hooks`,
             failText: "Failed to generate all components",
             successText: `All components generated successfully`,
         }

@@ -1,12 +1,12 @@
 import cpy from 'cpy';
-import path, { dirname } from 'path';
+import { parseArgs } from 'node:util';
+import path from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
 import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
 
-// Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 async function copyFiles(src: string, dest: string, message: string = 'copying from src to dest') {
     console.log(message, src, dest);
@@ -15,8 +15,13 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
     });
 }
 
-(async () => {
+async function main() {
     try {
+        const { positionals } = parseArgs({
+            allowPositionals: true,
+        });
+
+        const customConfigPath = positionals[0];
         const templateProject = 'ponder_next';
         const targetPath = process.cwd();
         const targetDir = path.join(targetPath, 'patchworkApp');
@@ -37,20 +42,34 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
             await linkLocalPackages(targetDir);
         }
 
-         // Initialize git repo
-         await initGitRepo(targetDir);
+        // Initialize git repo
+        await initGitRepo(targetDir);
+
+        // Handle config file
+        let configPath: string;
+        if (customConfigPath) {
+            // Use the provided custom config file
+            configPath = customConfigPath;
+            const defaultConfigPath = path.join(targetDir, 'patchwork.config.ts');
+            await copyFiles(customConfigPath, defaultConfigPath, "Replacing default config with provided config:");
+        } else {
+            // Use the default config in the copied project
+            configPath = path.join(targetDir, 'patchwork.config.ts');
+        }
 
         // Generate contracts using the appropriate pdk version
-        await generateContracts(targetDir, useLocalPackages);
+        await generateContracts(targetDir, useLocalPackages, configPath);
 
         // Build contracts with Forge
         await forgeBuild(targetDir);
 
         // Generate all components using pdk
-        await generateAllComponents(targetDir, useLocalPackages);
+        await generateAllComponents(targetDir, useLocalPackages, configPath);
 
         console.log(pico.green("Patchwork app created successfully!"));
     } catch (e) {
         console.error(pico.red("Error creating Patchwork app:"), e);
     }
-})();
+}
+
+main();
