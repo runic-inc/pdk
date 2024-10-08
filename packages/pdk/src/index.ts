@@ -4,6 +4,7 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from "./generateABIs";
+import { generateAll } from './generateAll';
 import { generateAPI } from "./generateApi";
 import { generateDemoPage } from './generateDemoPage';
 import { generateEventHooks } from "./generateEventHooks";
@@ -55,7 +56,7 @@ const argv = yargs(hideBin(process.argv))
                 .option("rootdir", {
                     alias: "r",
                     type: "string",
-                    description: "Root directory for the TS files (defaults to 'src')",
+                    description: "Root directory for the TS files (defaults to '.')",
                 })
                 .option("contract", {
                     alias: "c",
@@ -106,9 +107,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generateSchema(configPath);
+            await generateSchema(configPath);
         }
-    ).command(
+    )
+    .command(
         "generateEventHooks",
         "Generate the ponder event code",
         {},
@@ -120,9 +122,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generateEventHooks(configPath);
+            await generateEventHooks(configPath);
         }
-    ).command(
+    )
+    .command(
         "generatePonderConfig",
         "Generate the ponder config code",
         {},
@@ -134,9 +137,10 @@ const argv = yargs(hideBin(process.argv))
                 return;
             }
             console.log("Using config file:", configPath);
-            generatePonderConfig(configPath);
+            await generatePonderConfig(configPath);
         }
-    ).command(
+    )
+    .command(
         "generateReactHooks",
         "Generate the React hooks for app",
         {},
@@ -196,6 +200,14 @@ const argv = yargs(hideBin(process.argv))
             }
             const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
             await generateAPI(schemaPath, apiOutputDir);
+        }
+    )
+    .command(
+        "generateAll",
+        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, and API)",
+        {},
+        async () => {
+            await generateAll();
         }
     )
     .demandCommand(1, "You must provide a valid command")

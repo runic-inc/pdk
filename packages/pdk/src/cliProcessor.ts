@@ -41,9 +41,9 @@ export class CLIProcessor {
         return true;
     }
     
-    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = "src", contract?: string) {
+    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = ".", contract?: string) {
         const tmpout = "tmpout";
-    
+        console.log("Generating Solidity files...");
         for (const configFile of configFiles) {
             if (configFile.endsWith(".json")) {
                 const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
@@ -124,18 +124,53 @@ export class CLIProcessor {
         } catch (err: any) {
             console.log("Error:", err.message);
             console.log("Reason:", err.stdout.toString());
-            // console.log("stderr", err.stderr.toString());
             throw new Error("Error compiling TS file");
         }
-        const jsConfigFile = path.dirname(configFile).replace(rootDir, tmpout) + path.sep + path.basename(configFile, ".ts") + ".js";
-        const t = require(path.resolve(jsConfigFile)).default;
-        fs.rmSync(tmpout, { recursive: true });
-        
-        if (t.contracts) {
-            return t as ProjectConfig;
-        } else {
-            return new ContractSchemaImpl(t);
+        if (!configFile.startsWith(".") && !configFile.startsWith("/")) {
+            configFile = `./${configFile}`;
         }
+        
+        const expectedJSFile = path.basename(configFile, ".ts") + ".js";
+        const jsConfigFile = this.findJSConfigFile(tmpout, expectedJSFile);
+        
+        if (!jsConfigFile) {
+            throw new Error(`JS config file not found for ${configFile}`);
+        }
+        
+        console.log("JS Config File Found:", jsConfigFile);
+        
+        try {
+            const t = require(path.resolve(jsConfigFile)).default;
+            
+            if (t.contracts) {
+                return t as ProjectConfig;
+            } else {
+                return new ContractSchemaImpl(t);
+            }
+        } catch (err) {
+            console.log("Error:", err);
+            throw new Error("Error reading JS file");
+        } finally {
+            fs.rmSync(tmpout, { recursive: true });
+        }
+    }
+    
+    findJSConfigFile(dir: string, filename: string): string | null {
+        const files = fs.readdirSync(dir);
+        
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+            
+            if (stat.isDirectory()) {
+                const result = this.findJSConfigFile(filePath, filename);
+                if (result) return result;
+            } else if (file === filename) {
+                return filePath;
+            }
+        }
+        
+        return null;
     }
     
     getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
@@ -158,4 +193,3 @@ export class CLIProcessor {
         return schema;
     }
 }
-

@@ -1,5 +1,6 @@
-import { oraPromise } from 'ora';
 import { execa } from 'execa';
+import { oraPromise } from 'ora';
+import path from 'path';
 
 
 
@@ -72,5 +73,67 @@ export async function forgeBuild(targetDir: string): Promise<void> {
             failText: "Failed to build contracts",
             successText: `Contracts built successfully`,
         },
+    );
+}
+
+
+export async function generateContracts(targetDir: string, useLocalPackages: boolean): Promise<void> {
+    const configFile = './patchwork.config.ts';
+    const outputDir = './contracts/src';
+    const rootDir = './';
+
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+
+    await oraPromise(
+        execa(pdkCommand, [
+            'generate',
+            configFile,
+            '-o', outputDir,
+            '-r', rootDir
+        ], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Generating contracts`,
+            failText: "Failed to generate contracts",
+            successText: `Contracts generated successfully`,
+        }
+    );
+}
+
+export async function linkLocalPackages(targetDir: string): Promise<void> {
+    await oraPromise(
+        execa('pnpm', ['link', '--global', '@patchworkdev/pdk'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Linking @patchworkdev/pdk`,
+            failText: "Failed to link @patchworkdev/pdk",
+            successText: `@patchworkdev/pdk linked successfully`,
+        }
+    );
+    await oraPromise(
+        execa('pnpm', ['link', '--global', '@patchworkdev/common'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Linking @patchworkdev/common`,
+            failText: "Failed to link @patchworkdev/common",
+            successText: `@patchworkdev/common linked successfully`,
+        }
+    );
+}
+
+export async function generateAllComponents(targetDir: string, useLocalPackages: boolean): Promise<void> {
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+    await oraPromise(
+        execa(pdkCommand, ['generateAll'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Generating abis, apis, poonder shcema, scripts, and hooks `,
+            failText: "Failed to generate all components",
+            successText: `All components generated successfully`,
+        }
     );
 }

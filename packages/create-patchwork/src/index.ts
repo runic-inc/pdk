@@ -1,10 +1,8 @@
 import cpy from 'cpy';
-import { oraPromise } from 'ora';
-import { execa } from 'execa';
 import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import pico from "picocolors";
-import { installNodeDependencies, initGitRepo, forgeBuild } from './calls.js';
+import { fileURLToPath } from 'url';
+import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
 
 // Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -19,44 +17,40 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
 
 (async () => {
     try {
-        // need to get some of these values from the user. Interactive prompt with defaults
         const templateProject = 'ponder_next';
         const targetPath = process.cwd();
         const targetDir = path.join(targetPath, 'patchworkApp');
-
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
+
+        // Check if we should use local packages
+        const useLocalPackages = process.env.USE_LOCAL_PACKAGES === 'true' || process.argv.includes('--use-local-packages');
+
+        // Copy template files
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
 
-        const exampleContracts = path.join(__dirname, '', 'templates', 'projects', 'canvas', 'contracts', 'src');
-        const targetContractDir = path.join(targetDir, 'contracts', 'src');
-        await copyFiles(exampleContracts, targetContractDir, "Copying example contracts to contracts path:");
-
-        // need to pnpm install
-
-        // await oraPromise(
-        //     execa('pnpm', ['install'], {
-        //         cwd: targetDir,
-        //         env: {
-        //             ...process.env,
-        //             ADBLOCK: '1',
-        //             // we set NODE_ENV to development as pnpm skips dev
-        //             // dependencies when production
-        //             NODE_ENV: 'development',
-        //             DISABLE_OPENCOLLECTIVE: '1',
-        //         },
-        //     }),
-        //     {
-        //         text: `Installing node dependencies`,
-        //         failText: "Failed to install node dependencies.",
-        //         successText: `Node dependencies installed successfully`,
-        //     },
-        // );
+        // Install dependencies (including @patchworkdev/common and pdk)
         await installNodeDependencies(targetDir);
-        await initGitRepo(targetDir);
+
+        // Link local packages if specified
+        if (useLocalPackages) {
+            console.log(pico.yellow("Using local packages..."));
+            await linkLocalPackages(targetDir);
+        }
+
+         // Initialize git repo
+         await initGitRepo(targetDir);
+
+        // Generate contracts using the appropriate pdk version
+        await generateContracts(targetDir, useLocalPackages);
+
+        // Build contracts with Forge
         await forgeBuild(targetDir);
-        // pdk deps install - foundry, solidity
-        // git init `git init` , `git add .`, `git commit -m "Initial commit"`
+
+        // Generate all components using pdk
+        await generateAllComponents(targetDir, useLocalPackages);
+
+        console.log(pico.green("Patchwork app created successfully!"));
     } catch (e) {
-        console.error(e);
+        console.error(pico.red("Error creating Patchwork app:"), e);
     }
 })();
