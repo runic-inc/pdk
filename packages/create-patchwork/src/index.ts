@@ -22,7 +22,7 @@ async function copyConfigFile(src: string, dest: string) {
         const content = await fs.readFile(src, 'utf8');
         await fs.writeFile(dest, content, 'utf8');
     } catch (error) {
-        console.error(pico.red(`Error copying config file: ${error.message}`));
+        console.error(pico.red(`Error copying config file: ${error}`));
         throw error;
     }
 }
