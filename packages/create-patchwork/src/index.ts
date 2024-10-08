@@ -1,4 +1,5 @@
 import cpy from 'cpy';
+import fs from 'fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'path';
 import pico from "picocolors";
@@ -15,20 +16,36 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
     });
 }
 
+async function copyConfigFile(src: string, dest: string) {
+    console.log(`Copying config file from ${src} to ${dest}`);
+    try {
+        const content = await fs.readFile(src, 'utf8');
+        await fs.writeFile(dest, content, 'utf8');
+    } catch (error) {
+        console.error(pico.red(`Error copying config file: ${error.message}`));
+        throw error;
+    }
+}
+
 async function main() {
     try {
-        const { positionals } = parseArgs({
+        const { values, positionals } = parseArgs({
+            options: {
+                'use-local-packages': {
+                    type: 'boolean',
+                },
+            },
             allowPositionals: true,
         });
 
-        const customConfigPath = positionals[0];
+        const configArg = positionals[0];
         const templateProject = 'ponder_next';
         const targetPath = process.cwd();
         const targetDir = path.join(targetPath, 'patchworkApp');
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
 
         // Check if we should use local packages
-        const useLocalPackages = process.env.USE_LOCAL_PACKAGES === 'true' || process.argv.includes('--use-local-packages');
+        const useLocalPackages = values['use-local-packages'] || process.env.USE_LOCAL_PACKAGES === 'true';
 
         // Copy template files
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
@@ -46,25 +63,31 @@ async function main() {
         await initGitRepo(targetDir);
 
         // Handle config file
-        let configPath: string;
-        if (customConfigPath) {
-            // Use the provided custom config file
-            configPath = customConfigPath;
-            const defaultConfigPath = path.join(targetDir, 'patchwork.config.ts');
-            await copyFiles(customConfigPath, defaultConfigPath, "Replacing default config with provided config:");
+        const defaultConfigPath = path.join(targetDir, 'patchwork.config.ts');
+        if (configArg) {
+            // Resolve the config path (supports both absolute and relative paths)
+            const resolvedConfigPath = path.resolve(process.cwd(), configArg);
+            
+            try {
+                await fs.access(resolvedConfigPath);
+                await copyConfigFile(resolvedConfigPath, defaultConfigPath);
+                console.log(pico.green(`Config file copied from ${resolvedConfigPath} to ${defaultConfigPath}`));
+            } catch (error) {
+                console.error(pico.red(`Error accessing or copying config file: ${error}`));
+                process.exit(1);
+            }
         } else {
-            // Use the default config in the copied project
-            configPath = path.join(targetDir, 'patchwork.config.ts');
+            console.log(pico.yellow(`Using default config file: ${defaultConfigPath}`));
         }
 
         // Generate contracts using the appropriate pdk version
-        await generateContracts(targetDir, useLocalPackages, configPath);
+        await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
 
         // Build contracts with Forge
         await forgeBuild(targetDir);
 
         // Generate all components using pdk
-        await generateAllComponents(targetDir, useLocalPackages, configPath);
+        await generateAllComponents(targetDir, useLocalPackages, defaultConfigPath);
 
         console.log(pico.green("Patchwork app created successfully!"));
     } catch (e) {
