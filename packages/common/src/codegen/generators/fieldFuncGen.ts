@@ -63,8 +63,8 @@ export class FieldFuncGen implements Generator {
                             storeArrayLines.push(`slot = slot | PatchworkUtils.strToUint256(${field.key}[${i}]) >> ${256 - field.elementBits} << ${offset};`);
                         } else if (field.type === "bool") {
                             // TODO fix
-                            loadArrayLines.push(`result[${i}] = ${field.solidityType}(slot${shift});`);
-                            storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}]) << ${offset};`);
+                            loadArrayLines.push(`result[${i}] = slot${shift} & 1 == 1;`);
+                            storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}] ? 1 : 0) << ${offset};`);
                         } else {
                             loadArrayLines.push(`result[${i}] = ${field.solidityType}(slot${shift});`);
                             storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}]) << ${offset};`);
@@ -133,7 +133,7 @@ export class FieldFuncGen implements Generator {
                         } else if (field.type == `address`) {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(uint160(${field.key})) & mask)${shift};\n`;
                         } else if (field.type == `bool`) {
-                            storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key} == true ? 1 : 0) & mask)${shift};\n`;
+                            storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key} ? 1 : 0) & mask)${shift};\n`;
                         } else {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key}) & mask)${shift};\n`;
                         }                    

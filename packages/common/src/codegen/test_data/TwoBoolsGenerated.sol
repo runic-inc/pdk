@@ -47,7 +47,7 @@ abstract contract TwoBoolsGenerated is Patchwork721 {
 
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {
         slots = new uint256[](1);
-        slots[0] = uint256(data.b1 == true ? 1 : 0) | uint256(data.b2 == true ? 1 : 0) << 1;
+        slots[0] = uint256(data.b1 ? 1 : 0) | uint256(data.b2 ? 1 : 0) << 1;
         return slots;
     }
 
@@ -71,7 +71,7 @@ abstract contract TwoBoolsGenerated is Patchwork721 {
         }
         uint256 mask = (1 << 1) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
-        _metadataStorage[tokenId][0] = cleared | (uint256(b1 == true ? 1 : 0) & mask);
+        _metadataStorage[tokenId][0] = cleared | (uint256(b1 ? 1 : 0) & mask);
     }
 
     // Load Only b2
@@ -87,6 +87,6 @@ abstract contract TwoBoolsGenerated is Patchwork721 {
         }
         uint256 mask = (1 << 1) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 1);
-        _metadataStorage[tokenId][0] = cleared | (uint256(b2 == true ? 1 : 0) & mask) << 1;
+        _metadataStorage[tokenId][0] = cleared | (uint256(b2 ? 1 : 0) & mask) << 1;
     }
 }

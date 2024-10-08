@@ -45,7 +45,7 @@ abstract contract OneBoolGenerated is Patchwork721 {
 
     function packMetadata(Metadata memory data) public pure returns (uint256[] memory slots) {
         slots = new uint256[](1);
-        slots[0] = uint256(data.b == true ? 1 : 0);
+        slots[0] = uint256(data.b ? 1 : 0);
         return slots;
     }
 
@@ -68,6 +68,6 @@ abstract contract OneBoolGenerated is Patchwork721 {
         }
         uint256 mask = (1 << 1) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
-        _metadataStorage[tokenId][0] = cleared | (uint256(b == true ? 1 : 0) & mask);
+        _metadataStorage[tokenId][0] = cleared | (uint256(b ? 1 : 0) & mask);
     }
 }

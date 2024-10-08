@@ -22,7 +22,7 @@ export class PackFuncGen implements Generator {
                     let arrayIdxStartInSlot = field.arrayLength == 1 ? 0 : (slotIdx - field.slot) * arrayElementsPerSlot;
                     let arrayIdxEndInSlot = field.arrayLength == 1 ? 1 : arrayIdxStartInSlot + arrayElementsPerSlot;
                     let offsetInSlot = field.slot == slotIdx ? field.offset : 0;
-                    for (let arrayIdx = arrayIdxStartInSlot; arrayIdx < arrayIdxEndInSlot; arrayIdx++) {
+                    for (let arrayIdx = arrayIdxStartInSlot; arrayIdx < arrayIdxEndInSlot && arrayIdx < field.arrayLength; arrayIdx++) {
                         // the starting offset in this slot - if not the starting slot for the field then 0
                         let arrayIdxStr = field.arrayLength > 1 ? `[${arrayIdx}]` : "";
                         let conversion = `data.${field.key}`;
@@ -33,7 +33,7 @@ export class PackFuncGen implements Generator {
                         } else if (field.type == `address`) {
                             conversion = `uint256(uint160(${conversion}${arrayIdxStr}))`;
                         } else if (field.type == `bool`) {
-                            conversion = `uint256(${conversion}${arrayIdxStr} == true ? 1 : 0)`;
+                            conversion = `uint256(${conversion}${arrayIdxStr} ? 1 : 0)`;
                         } else {
                             conversion = `uint256(${conversion}${arrayIdxStr})`;
                         }
