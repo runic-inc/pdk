@@ -1,6 +1,6 @@
 import path from "path";
+import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import yargs from "yargs/yargs";
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from "./generateABIs";
 import { generateAll } from './generateAll';
@@ -30,8 +30,8 @@ const argv = yargs(hideBin(process.argv))
                     type: "string",
                 });
         },
-        (argv) => {
-            for (const configFile of argv.configFiles as string[]) {
+        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[]}>) => {
+            for (const configFile of argv.configFiles || []) {
                 if (!cliProcessor.validateConfig(configFile)) {
                     process.exit(1);
                 }
@@ -63,9 +63,9 @@ const argv = yargs(hideBin(process.argv))
                     description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
-        (argv) => {
+        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[], output?: string, rootdir?: string, contract?: string}>) => {
             try {
-                cliProcessor.generateSolidity(argv.configFiles as string[], argv.output as string, argv.rootdir as string, argv.contract as string);
+                cliProcessor.generateSolidity(argv.configFiles || [], argv.output, argv.rootdir, argv.contract);
             } catch (e) {
                 process.exit(1);
             }
@@ -88,7 +88,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating TypeScript ABIs...");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -108,7 +108,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder Schema");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -128,7 +128,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder event code");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -148,7 +148,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder config code");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -168,7 +168,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating React hooks for app");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -188,7 +188,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating React components for app");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -208,7 +208,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating the demo app page");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -228,7 +228,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating API");
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
@@ -253,7 +253,7 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv) => {
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
