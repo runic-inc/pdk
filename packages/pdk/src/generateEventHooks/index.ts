@@ -1,11 +1,18 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../helpers/config';
-import { createPonderEventFile, generatePonderOnHandler } from './factories';
+import fs from "fs/promises";
+import path from "path";
+import {
+    getFragmentRelationships,
+    importABIFiles,
+    importPatchworkConfig,
+    loadPonderSchema,
+} from "../helpers/config";
+import { createPonderEventFile, generatePonderOnHandler } from "./factories";
 
 export async function generateEventHooks(configPath: string) {
     // Resolve the full path of the config file
-    const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
+    const fullConfigPath = path.isAbsolute(configPath)
+        ? configPath
+        : path.resolve(process.cwd(), configPath);
     const configDir = path.dirname(fullConfigPath);
 
     // Define paths relative to the config file
@@ -35,26 +42,43 @@ export async function generateEventHooks(configPath: string) {
 
     const projectConfig = await importPatchworkConfig(fullConfigPath);
     if (!projectConfig) {
-        console.error('Error importing ProjectConfig');
+        console.error("Error importing ProjectConfig");
         return;
     }
 
     // begin process config
-    // ToDo 
+    // ToDo
     // Currently only getting entity events. need to get some patchwork protocol events too
     const fragmentRelationships = getFragmentRelationships(projectConfig);
     const entityEvents = ["Frozen", "Locked", "Transfer", "Unlocked", "Thawed"];
 
     const ponderSchema = await loadPonderSchema(ponderSchemaPath);
     if (ponderSchema === undefined) {
-        console.error('Error importing PonderSchema');
+        console.error("Error importing PonderSchema");
         return;
     }
 
-    const ponderEventHandlers = Object.entries(projectConfig.contracts).flatMap(([contractName, contractConfig]) => {
-        const filteredEvents = abis[contractName].filter((abiEvent) => abiEvent.type === 'event').filter((abiEvent) => entityEvents.includes(abiEvent.name));
-        return filteredEvents.map((event) => generatePonderOnHandler(contractName, event, projectConfig, ponderSchema, abis)).filter((event) => event !== undefined);
-    });
+    const ponderEventHandlers = Object.entries(projectConfig.contracts).flatMap(
+        ([contractName, contractConfig]) => {
+            const filteredEvents = abis[contractName]
+                .filter((abiEvent) => abiEvent.type === "event")
+                .filter((abiEvent) => entityEvents.includes(abiEvent.name));
+            return filteredEvents
+                .map((event) =>
+                    generatePonderOnHandler(
+                        contractName,
+                        event,
+                        projectConfig,
+                        ponderSchema,
+                        abis
+                    )
+                )
+                .filter((event) => event !== undefined);
+        }
+    );
 
-    createPonderEventFile(ponderEventHandlers, path.join(eventDir, "ponder.events.ts"));
+    createPonderEventFile(
+        ponderEventHandlers,
+        path.join(eventDir, "ponder.events.ts")
+    );
 }
