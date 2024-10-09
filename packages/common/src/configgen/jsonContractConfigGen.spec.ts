@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
+import { ContractSchemaImpl } from "../codegen/contractSchema";
 import { parseJson } from "../codegen/contractSchemaJsonParser";
 import { JSONContractConfigGen } from "./jsonContractConfigGen";
-import { ContractSchemaImpl } from "../codegen/contractSchema";
 
 type GroupedFiles = {
     [key: string]: {
