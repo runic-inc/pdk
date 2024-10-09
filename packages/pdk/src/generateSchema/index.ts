@@ -1,6 +1,7 @@
+import fs from 'fs/promises';
 import path from 'path';
 import ts from 'typescript';
-import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
+import { getFragmentRelationships, importPatchworkConfig } from '../helpers/config';
 import { createSchemaFile, createTableFromObject, generalDBStructure } from './factories';
 
 const camelCase = (s: string) => s
@@ -10,84 +11,96 @@ const camelCase = (s: string) => s
     .replace(/\s+/g, '');
 
 export async function generateSchema(configPath: string) {
-    const abiDir = path.join(path.dirname(configPath), "", "abis");
-    const ponderSchema = path.join(path.dirname(configPath), "ponder.schema.ts");
-    const projectConfig = await importPatchworkConfig(configPath);
-    if (!projectConfig) {
-        console.error('Error importing ProjectConfig');
-        return;
-    }
+    try {
+        const configDir = path.dirname(configPath);
+        const abiDir = path.join(configDir, "abis");
+        const ponderSchema = path.join(configDir, "ponder.schema.ts");
 
-    const generalDB = generalDBStructure();
-    const fragmentRelationships = getFragmentRelationships(projectConfig);
+        // Check if ABI directory exists
+        try {
+            await fs.access(abiDir);
+        } catch (error) {
+            console.error(`Error: Unable to access ABI directory at ${abiDir}`);
+            return;
+        }
 
-    // Create Contract table
-    const contractTable = createTableFromObject('Contract', [
-        { key: "id", value: "p.string()" },
-        { key: "name", value: "p.string()" },
-        { key: "symbol", value: "p.string()" },
-        { key: "chainId", value: "p.string().references('Chain.id')" },
-        { key: "address", value: "p.hex()" },
-        { key: "baseURI", value: "p.string()" },
-        { key: "schemaURI", value: "p.string()" },
-        { key: "imageURI", value: "p.string()" },
-        { key: "timestamp", value: "p.bigint()" },
-    ]);
+        const projectConfig = await importPatchworkConfig(configPath);
+        if (!projectConfig) {
+            console.error('Error importing ProjectConfig');
+            return;
+        }
 
-    const contractDBEntities = [contractTable];
-    const additionalTables: ts.PropertyAssignment[] = [];
+        const generalDB = generalDBStructure();
+        const fragmentRelationships = getFragmentRelationships(projectConfig);
 
-    Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
-        if (typeof contractConfig === 'string') return;
-
-        const fields = [
+        // Create Contract table
+        const contractTable = createTableFromObject('Contract', [
             { key: "id", value: "p.string()" },
-            { key: "owner", value: "p.hex()" },
-            { key: "tokenId", value: "p.bigint()" },
-            { key: "mintTxId", value: "p.string().references('Tx.id')" },
-            { key: "burnTxId", value: "p.string().references('Tx.id').optional()" },
-            { key: "mintTx", value: "p.one('mintTxId')" },
-            { key: "burnTx", value: "p.one('burnTxId')" },
-            { key: "contractId", value: "p.string().references('Contract.id')" },
-        ];
+            { key: "name", value: "p.string()" },
+            { key: "symbol", value: "p.string()" },
+            { key: "chainId", value: "p.string().references('Chain.id')" },
+            { key: "address", value: "p.hex()" },
+            { key: "baseURI", value: "p.string()" },
+            { key: "schemaURI", value: "p.string()" },
+            { key: "imageURI", value: "p.string()" },
+            { key: "timestamp", value: "p.bigint()" },
+        ]);
 
-        contractConfig.fields.forEach((field) => {
-            if (field.type === 'literef' || field.arrayLength) {
-                // Create a separate table for literef or array fields
-                const refTableName = `${contractName}${camelCase(field.key)}`;
-                fields.push({ key: field.key, value: `p.many('${refTableName}.${camelCase(contractName)}Id')` });
+        const contractDBEntities = [contractTable];
+        const additionalTables: ts.PropertyAssignment[] = [];
 
-                const refFields = [
-                    { key: "id", value: "p.string()" },
-                    { key: `${camelCase(contractName)}Id`, value: `p.string().references('${contractName}.id')` },
-                    { key: "value", value: getFieldType(field.type) },
-                    { key: "timestamp", value: "p.bigint()" },
-                ];
+        Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
+            if (typeof contractConfig === 'string') return;
 
-                additionalTables.push(createTableFromObject(refTableName, refFields));
-            } else {
-                fields.push({ key: field.key, value: `${getFieldType(field.type)}.optional()` });
+            const fields = [
+                { key: "id", value: "p.string()" },
+                { key: "owner", value: "p.hex()" },
+                { key: "tokenId", value: "p.bigint()" },
+                { key: "mintTxId", value: "p.string().references('Tx.id')" },
+                { key: "burnTxId", value: "p.string().references('Tx.id').optional()" },
+                { key: "mintTx", value: "p.one('mintTxId')" },
+                { key: "burnTx", value: "p.one('burnTxId')" },
+                { key: "contractId", value: "p.string().references('Contract.id')" },
+            ];
+
+            contractConfig.fields.forEach((field) => {
+                if (field.type === 'literef' || field.arrayLength) {
+                    // Create a separate table for literef or array fields
+                    const refTableName = `${contractName}${camelCase(field.key)}`;
+                    fields.push({ key: field.key, value: `p.many('${refTableName}.${camelCase(contractName)}Id')` });
+                    const refFields = [
+                        { key: "id", value: "p.string()" },
+                        { key: `${camelCase(contractName)}Id`, value: `p.string().references('${contractName}.id')` },
+                        { key: "value", value: getFieldType(field.type) },
+                        { key: "timestamp", value: "p.bigint()" },
+                    ];
+                    additionalTables.push(createTableFromObject(refTableName, refFields));
+                } else {
+                    fields.push({ key: field.key, value: `${getFieldType(field.type)}.optional()` });
+                }
+            });
+
+            if (fragmentRelationships[contractName]) {
+                fragmentRelationships[contractName].forEach((relation) => {
+                    fields.push({ key: camelCase(`${relation}Id`), value: `p.string().references('${relation}.id').optional()` });
+                });
             }
+
+            if (projectConfig.contractRelations[contractName]?.fragments.length > 0) {
+                projectConfig.contractRelations[contractName].fragments.forEach((fragment) => {
+                    fields.push({ key: camelCase(`${fragment}`), value: `p.many('${fragment}.${camelCase(contractName)}Id')` });
+                });
+            }
+
+            fields.push({ key: "timestamp", value: "p.bigint()" });
+            contractDBEntities.push(createTableFromObject(contractName, fields));
         });
 
-        if (fragmentRelationships[contractName]) {
-            fragmentRelationships[contractName].forEach((relation) => {
-                fields.push({ key: camelCase(`${relation}Id`), value: `p.string().references('${relation}.id').optional()` });
-            });
-        }
-
-        if (projectConfig.contractRelations[contractName]?.fragments.length > 0) {
-            projectConfig.contractRelations[contractName].fragments.forEach((fragment) => {
-                fields.push({ key: camelCase(`${fragment}`), value: `p.many('${fragment}.${camelCase(contractName)}Id')` });
-            });
-        }
-
-        fields.push({ key: "timestamp", value: "p.bigint()" });
-
-        contractDBEntities.push(createTableFromObject(contractName, fields));
-    });
-
-    await createSchemaFile([...generalDB, ...contractDBEntities, ...additionalTables], ponderSchema);
+        await createSchemaFile([...generalDB, ...contractDBEntities, ...additionalTables], ponderSchema);
+        console.log(`Ponder schema generated successfully at ${ponderSchema}`);
+    } catch (error) {
+        console.error('Error generating Ponder schema:', error);
+    }
 }
 
 function getFieldType(type: string): string {

@@ -14,10 +14,37 @@ import { generateSchema } from "./generateSchema";
 import { findConfig, findPonderSchema } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
+// Define types for command line arguments
+type ValidateArgs = {
+    configFiles?: string[];
+};
+
+type GenerateArgs = {
+    configFiles?: string[];
+    output?: string;
+    rootdir?: string;
+    contract?: string;
+};
+
+type ConfigFileArg = {
+    configFile?: string;
+};
+
 const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
 const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
 
 const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
+
+// Utility function to get and validate config path
+async function getConfigPath(configFile?: string): Promise<string> {
+    const configPath = configFile || await findConfig();
+    if (!configPath) {
+        console.error("No config file found.");
+        process.exit(1);
+    }
+    console.log("Using config file:", configPath);
+    return configPath;
+}
 
 const argv = yargs(hideBin(process.argv))
     .command(
@@ -30,7 +57,7 @@ const argv = yargs(hideBin(process.argv))
                     type: "string",
                 });
         },
-        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[]}>) => {
+        (argv: yargs.ArgumentsCamelCase<ValidateArgs>) => {
             for (const configFile of argv.configFiles || []) {
                 if (!cliProcessor.validateConfig(configFile)) {
                     process.exit(1);
@@ -63,7 +90,7 @@ const argv = yargs(hideBin(process.argv))
                     description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
-        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[], output?: string, rootdir?: string, contract?: string}>) => {
+        (argv: yargs.ArgumentsCamelCase<GenerateArgs>) => {
             try {
                 cliProcessor.generateSolidity(argv.configFiles || [], argv.output, argv.rootdir, argv.contract);
             } catch (e) {
@@ -88,14 +115,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating TypeScript ABIs...");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateABIs(configPath);
         }
     )
@@ -108,14 +130,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating Ponder Schema");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateSchema(configPath);
         }
     )
@@ -128,14 +145,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating Ponder event code");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateEventHooks(configPath);
         }
     )
@@ -148,14 +160,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating Ponder config code");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generatePonderConfig(configPath);
         }
     )
@@ -168,14 +175,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating React hooks for app");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateReactHooks(configPath);
         }
     )
@@ -188,14 +190,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating React components for app");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateReactComponents(configPath);
         }
     )
@@ -208,14 +205,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating the demo app page");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
-            console.log("Using config file:", configPath);
+            const configPath = await getConfigPath(argv.configFile);
             await generateDemoPage(configPath);
         }
     )
@@ -228,13 +220,9 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating API");
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
+            const configPath = await getConfigPath(argv.configFile);
             const schemaPath = await findPonderSchema();
             if (!schemaPath) {
                 console.error("No ponder schema file found.");
@@ -253,12 +241,8 @@ const argv = yargs(hideBin(process.argv))
                 type: "string",
             });
         },
-        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
-            const configPath = argv.configFile || await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                process.exit(1);
-            }
+        async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
+            const configPath = await getConfigPath(argv.configFile);
             await generateAll(configPath);
         }
     )
