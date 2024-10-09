@@ -22,7 +22,7 @@ export class PackFuncGen implements Generator {
                     let arrayIdxStartInSlot = field.arrayLength == 1 ? 0 : (slotIdx - field.slot) * arrayElementsPerSlot;
                     let arrayIdxEndInSlot = field.arrayLength == 1 ? 1 : arrayIdxStartInSlot + arrayElementsPerSlot;
                     let offsetInSlot = field.slot == slotIdx ? field.offset : 0;
-                    for (let arrayIdx = arrayIdxStartInSlot; arrayIdx < arrayIdxEndInSlot; arrayIdx++) {
+                    for (let arrayIdx = arrayIdxStartInSlot; arrayIdx < arrayIdxEndInSlot && arrayIdx < field.arrayLength; arrayIdx++) {
                         // the starting offset in this slot - if not the starting slot for the field then 0
                         let arrayIdxStr = field.arrayLength > 1 ? `[${arrayIdx}]` : "";
                         let conversion = `data.${field.key}`;
@@ -30,8 +30,12 @@ export class PackFuncGen implements Generator {
                             const stringOffsetBits = 256 - field.elementBits;
                             const stringOffset = stringOffsetBits > 0 ? ` >> ${stringOffsetBits}` : "";
                             conversion = `PatchworkUtils.strToUint256(${conversion}${arrayIdxStr})${stringOffset}`;
-                        } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                        } else if (field.type == `address`) {
                             conversion = `uint256(uint160(${conversion}${arrayIdxStr}))`;
+                        } else if (field.type == `bool`) {
+                            conversion = `uint256(${conversion}${arrayIdxStr} ? 1 : 0)`;
+                        } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                            conversion = `uint256(uint${field.elementBits}(${conversion}${arrayIdxStr}))`;
                         } else {
                             conversion = `uint256(${conversion}${arrayIdxStr})`;
                         }
@@ -100,8 +104,13 @@ export class PackFuncGen implements Generator {
                         slotExpr = `uint${field.elementBits}(${slotExpr})`;
                     }
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = PatchworkUtils.toString${strBytes}(${slotExpr});`);
-                } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                } else if (field.type == `address`) {
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = address(uint160(slot${shift}));`);
+                } else if (field.type == `bool`) {
+                    unpackLines.push(`data.${field.key}${arrayIdxStr} = slot${shift} & 1 == 1;`);
+                } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                    let unpackedValue = `${field.solidityType}(uint${field.elementBits}(slot${shift}))`;
+                    unpackLines.push(`data.${field.key}${arrayIdxStr} = ${unpackedValue};`);
                 } else {
                     let unpackedValue = `${field.solidityType}(slot${shift})`;
                     unpackLines.push(`data.${field.key}${arrayIdxStr} = ${unpackedValue};`);

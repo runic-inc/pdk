@@ -73,7 +73,7 @@
                         "type": "string",
                         "description": "Field type",
                         "enum": [
-                            "boolean",
+                            "bool",
                             "int8",
                             "int16",
                             "int32",

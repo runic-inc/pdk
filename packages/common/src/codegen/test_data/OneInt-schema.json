@@ -1,0 +1,20 @@
+{
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
+  "scopeName": "test",
+  "name": "OneInt",
+  "symbol": "ONEINT",
+  "schemaURI": "https://basic.xyz/schema/basic.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+      "id": 1,
+      "key": "i8",
+      "type": "int8",
+      "arrayLength": 1,
+      "description": "Short Name",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    }
+  ]
+}
