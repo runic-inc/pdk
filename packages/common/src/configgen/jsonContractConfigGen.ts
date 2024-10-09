@@ -48,6 +48,8 @@ export class JSONContractConfigGen implements Generator {
             });
             out += fields.join(",\n");
             out += "\n  ]\n";
+        } else {
+            out += `  "fields": []\n`;
         }
         out += "}\n";
         return out;
