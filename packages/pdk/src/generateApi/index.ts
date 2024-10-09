@@ -1,27 +1,92 @@
-import { register } from 'ts-node';
-import Module from 'module';
-import path from 'path';
-import fs from 'fs/promises';
-import prettier from 'prettier';
+import fs from "fs/promises";
+import path from "path";
+import prettier from "prettier";
+import { loadPonderSchema } from "../helpers/config";
+import { FieldDefinition, Schema } from "./ponderMocks";
 
-interface TableDefinition {
-  [key: string]: 'bigint' | 'int' | 'hex' | 'boolean' | 'string';
+function getZodType(fieldDef: FieldDefinition): string {
+    switch (fieldDef.type) {
+        case "bigint":
+            return "z.bigint()";
+        case "int":
+            return "z.number().int()";
+        case "hex":
+            return "z.string().regex(/^0x[a-fA-F0-9]+$/)";
+        case "boolean":
+            return "z.boolean()";
+        case "string":
+            return "z.string()";
+        default:
+            return "z.unknown()";
+    }
 }
 
-interface Schema {
-  [tableName: string]: TableDefinition;
+function generateFilterInput(
+    tableName: string,
+    tableDefinition: Record<string, FieldDefinition>
+): string {
+    const filterFields = Object.entries(tableDefinition)
+        .filter(
+            ([_, fieldDef]) =>
+                fieldDef.type !== "many" && fieldDef.type !== "one"
+        )
+        .map(([fieldName, fieldDef]) => {
+            const zodType = getZodType(fieldDef);
+            return `${fieldName}: ${zodType}.optional(),`;
+        })
+        .join("\n        ");
+
+    return `z.object({
+        limit: z.number().min(1).max(100).default(10),
+        lastTimestamp: z.number().optional(),
+        ${filterFields}
+    })`;
+}
+
+function generateWhereClause(
+    tableName: string,
+    tableDefinition: Record<string, FieldDefinition>
+): string {
+    const filterConditions = Object.entries(tableDefinition)
+        .filter(
+            ([_, fieldDef]) =>
+                fieldDef.type !== "many" && fieldDef.type !== "one"
+        )
+        .map(([fieldName, fieldDef]) => {
+            if (fieldDef.type === "hex") {
+                return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName} as \`0x\${string}\`) : undefined`;
+            }
+            return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName}) : undefined`;
+        })
+        .join(",\n          ");
+
+    return `
+        and(
+          lastTimestamp ? gt(${tableName.toLowerCase()}.timestamp, BigInt(lastTimestamp)) : undefined,
+          ${filterConditions}
+        )
+    `;
 }
 
 async function generateTrpcApi(schema: Schema): Promise<string> {
-  let apiContent = `
+    let apiContent = `
 import { ponder } from '@/generated';
 import { trpcServer } from '@hono/trpc-server';
-import { eq } from '@ponder/core';
+import { eq, gt, and } from '@ponder/core';
 import { z } from 'zod';
 import { publicProcedure, router } from './trpc';
 
 const appRouter = router({
-${Object.entries(schema).map(([tableName, tableDefinition]) => `
+${Object.entries(schema)
+    .map(([tableName, entity]) => {
+        if (entity.type === "enum") {
+            return "";
+        }
+        const tableDefinition = entity.tableDefinition!;
+        const filterInput = generateFilterInput(tableName, tableDefinition);
+        const whereClause = generateWhereClause(tableName, tableDefinition);
+
+        return `
   ${tableName}: router({
     getById: publicProcedure
       .input(z.string())
@@ -29,37 +94,39 @@ ${Object.entries(schema).map(([tableName, tableDefinition]) => `
         const result = await ctx.db
           .select()
           .from(ctx.tables.${tableName})
-          .where(eq(ctx.tables.${tableName}.id, input))
+          .where((${tableName.toLowerCase()}) => eq(${tableName.toLowerCase()}.id, input))
           .limit(1);
         return result[0] || null;
       }),
     
     getPaginated: publicProcedure
-      .input(z.object({
-        limit: z.number().min(1).max(100).default(10),
-        cursor: z.string().optional(),
-      }))
+      .input(${filterInput})
       .query(async ({ input, ctx }) => {
-        const { limit, cursor } = input;
-        const items = await ctx.db
+        const { limit, lastTimestamp, ...filters } = input;
+        
+        const query = ctx.db
           .select()
           .from(ctx.tables.${tableName})
-          .limit(limit + 1)
-          .cursor(cursor ? { id: cursor } : undefined);
-
-        let nextCursor: string | undefined = undefined;
+          .where((${tableName.toLowerCase()}) => 
+            ${whereClause}
+          )
+          .orderBy(ctx.tables.${tableName}.timestamp)
+          .limit(limit + 1);
+        const items = await query;
+        let nextTimestamp: number | undefined = undefined;
         if (items.length > limit) {
           const nextItem = items.pop();
-          nextCursor = nextItem?.id;
+          nextTimestamp = nextItem?.timestamp ? Number(nextItem.timestamp) : undefined;
         }
-
         return {
           items,
-          nextCursor,
+          nextTimestamp,
         };
       }),
   }),
-`).join('')}
+`;
+    })
+    .join("")}
 });
 
 export type AppRouter = typeof appRouter;
@@ -72,53 +139,50 @@ ponder.use(
   }),
 );
 `;
-
-
-  return await prettier.format(apiContent, { parser: "typescript" });
+    return await prettier.format(apiContent, {
+        parser: "typescript",
+        tabWidth: 4,
+    });
 }
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     try {
-        // Set up ts-node
-        register({
-            transpileOnly: true,
-            compilerOptions: {
-                module: 'CommonJS',
-                moduleResolution: 'node',
-            }
-        });
-        const originalRequire = Module.prototype.require;
-        const newRequire = function(this: NodeModule, id: string) {
-            if (id === '@ponder/core') {
-                return require(path.resolve(__dirname, './ponderMocks'));
-            }
-            return originalRequire.call(this, id);
-        } as NodeRequire;
-        Object.assign(newRequire, originalRequire);
-        Module.prototype.require = newRequire;
+        // Check if the ponder schema file exists
         try {
-            const schemaModule = await import(ponderSchema);
-            const schema = schemaModule.default;
-            
-            // Generate the tRPC API content
-            const apiContent = await generateTrpcApi(schema);
-            
-            // Write the formatted API content to file
-            const outputPath = path.join(apiOutputDir, 'index.ts');
-            await fs.writeFile(outputPath, apiContent, 'utf8');
-            console.log("tRPC API generation completed.");
+            await fs.access(ponderSchema);
         } catch (error) {
-            if (error instanceof TypeError && error.message.includes('is not a function')) {
-                console.error("Error: It seems a method is missing from our mock implementation.");
-                console.error("Full error:", error);
-                console.error("Please add this method to the mockSchemaBuilder in ponderMocks.ts");
-            } else {
-                throw error;
-            }
-        } finally {
-            Module.prototype.require = originalRequire;
+            console.error(
+                `Error: Unable to access Ponder schema file at ${ponderSchema}`
+            );
+            return;
         }
+
+        const schema = await loadPonderSchema(ponderSchema);
+        if (schema === undefined) {
+            console.error("Error importing PonderSchema");
+            return;
+        }
+
+        // Check if the API output directory exists, create it if it doesn't
+        try {
+            await fs.access(apiOutputDir);
+        } catch (error) {
+            console.log(
+                `API output directory does not exist. Creating ${apiOutputDir}`
+            );
+            await fs.mkdir(apiOutputDir, { recursive: true });
+        }
+
+        // Generate the tRPC API content
+        const apiContent = await generateTrpcApi(schema);
+
+        // Write the formatted API content to file
+        const outputPath = path.join(apiOutputDir, "index.ts");
+        await fs.writeFile(outputPath, apiContent, "utf8");
+        console.log(
+            `tRPC API generation completed. Output written to ${outputPath}`
+        );
     } catch (err) {
-        console.error('Error:', err);
+        console.error("Error:", err);
     }
 }

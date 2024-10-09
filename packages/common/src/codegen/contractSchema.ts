@@ -115,8 +115,25 @@ export class ContractSchemaImpl implements ContractSchema {
         return newFields;
     }
 
-    buildStorage(entries: FieldConfig[]): ContractStorage {
+    buildStorage(rawEntries: FieldConfig[]): ContractStorage {
+        // work on a copy to leave the original config alone, only storage will represent augmentation
+        let entries: FieldConfig[] = [...rawEntries];
         // console.log(entries);
+        let highestID = 0;
+        let staticCount = 0;
+        // count static entries
+        for (let i = 0; i < entries.length; i++) {
+            const arrayLength = entries[i].arrayLength;
+            if ((arrayLength === undefined || arrayLength > 0) && entries[i].type !== "string") {
+                staticCount++;
+            }
+            if (entries[i].id > highestID) {
+                highestID = entries[i].id;
+            }
+        }
+        if (staticCount === 0) {
+            entries.push({ id: highestID + 1, permissionId: 0, type: "uint256", arrayLength: 1, visibility: "public", key: "reserved", description: "Reserved", functionConfig: FunctionConfig.NONE });
+        }
         let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.type);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
+  "scopeName": "test",
+  "name": "TwoBools",
+  "symbol": "TWOBOOLS",
+  "schemaURI": "https://basic.xyz/schema/basic.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+      "id": 1,
+      "key": "b1",
+      "type": "bool",
+      "arrayLength": 1,
+      "description": "Short Name",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    },
+    {
+      "id": 2,
+      "key": "b2",
+      "type": "bool",
+      "arrayLength": 1,
+      "description": "Short Name",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 1
+    }
+  ]
+}

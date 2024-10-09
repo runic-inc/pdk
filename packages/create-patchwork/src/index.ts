@@ -1,14 +1,13 @@
 import cpy from 'cpy';
-import { oraPromise } from 'ora';
-import { execa } from 'execa';
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import { parseArgs } from 'node:util';
+import path from 'path';
 import pico from "picocolors";
-import { installNodeDependencies, initGitRepo, forgeBuild } from './calls.js';
+import { fileURLToPath } from 'url';
+import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
 
-// Convert `import.meta.url` to `__dirname` equivalent
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 async function copyFiles(src: string, dest: string, message: string = 'copying from src to dest') {
     console.log(message, src, dest);
@@ -17,46 +16,83 @@ async function copyFiles(src: string, dest: string, message: string = 'copying f
     });
 }
 
-(async () => {
+async function copyConfigFile(src: string, dest: string) {
+    console.log(`Copying config file from ${src} to ${dest}`);
     try {
-        // need to get some of these values from the user. Interactive prompt with defaults
+        const content = await fs.readFile(src, 'utf8');
+        await fs.writeFile(dest, content, 'utf8');
+    } catch (error) {
+        console.error(pico.red(`Error copying config file: ${error}`));
+        throw error;
+    }
+}
+
+async function main() {
+    try {
+        const { values, positionals } = parseArgs({
+            options: {
+                'use-local-packages': {
+                    type: 'boolean',
+                },
+            },
+            allowPositionals: true,
+        });
+
+        const configArg = positionals[0];
         const templateProject = 'ponder_next';
         const targetPath = process.cwd();
         const targetDir = path.join(targetPath, 'patchworkApp');
-
         const templatePath = path.join(__dirname, '', 'templates', templateProject);
+
+        // Check if we should use local packages
+        const useLocalPackages = values['use-local-packages'] || process.env.USE_LOCAL_PACKAGES === 'true';
+
+        // Copy template files
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
 
-        const exampleContracts = path.join(__dirname, '', 'templates', 'projects', 'canvas', 'contracts', 'src');
-        const targetContractDir = path.join(targetDir, 'contracts', 'src');
-        await copyFiles(exampleContracts, targetContractDir, "Copying example contracts to contracts path:");
-
-        // need to pnpm install
-
-        // await oraPromise(
-        //     execa('pnpm', ['install'], {
-        //         cwd: targetDir,
-        //         env: {
-        //             ...process.env,
-        //             ADBLOCK: '1',
-        //             // we set NODE_ENV to development as pnpm skips dev
-        //             // dependencies when production
-        //             NODE_ENV: 'development',
-        //             DISABLE_OPENCOLLECTIVE: '1',
-        //         },
-        //     }),
-        //     {
-        //         text: `Installing node dependencies`,
-        //         failText: "Failed to install node dependencies.",
-        //         successText: `Node dependencies installed successfully`,
-        //     },
-        // );
+        // Install dependencies (including @patchworkdev/common and pdk)
         await installNodeDependencies(targetDir);
+
+        // Link local packages if specified
+        if (useLocalPackages) {
+            console.log(pico.yellow("Using local packages..."));
+            await linkLocalPackages(targetDir);
+        }
+
+        // Initialize git repo
         await initGitRepo(targetDir);
+
+        // Handle config file
+        const defaultConfigPath = path.join(targetDir, 'patchwork.config.ts');
+        if (configArg) {
+            // Resolve the config path (supports both absolute and relative paths)
+            const resolvedConfigPath = path.resolve(process.cwd(), configArg);
+            
+            try {
+                await fs.access(resolvedConfigPath);
+                await copyConfigFile(resolvedConfigPath, defaultConfigPath);
+                console.log(pico.green(`Config file copied from ${resolvedConfigPath} to ${defaultConfigPath}`));
+            } catch (error) {
+                console.error(pico.red(`Error accessing or copying config file: ${error}`));
+                process.exit(1);
+            }
+        } else {
+            console.log(pico.yellow(`Using default config file: ${defaultConfigPath}`));
+        }
+
+        // Generate contracts using the appropriate pdk version
+        await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
+
+        // Build contracts with Forge
         await forgeBuild(targetDir);
-        // pdk deps install - foundry, solidity
-        // git init `git init` , `git add .`, `git commit -m "Initial commit"`
+
+        // Generate all components using pdk
+        await generateAllComponents(targetDir, useLocalPackages, defaultConfigPath);
+
+        console.log(pico.green("Patchwork app created successfully!"));
     } catch (e) {
-        console.error(e);
+        console.error(pico.red("Error creating Patchwork app:"), e);
     }
-})();
+}
+
+main();

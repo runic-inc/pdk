@@ -7,27 +7,25 @@ import superjson from 'superjson';
 import { trpc } from './utils/trpc';
 
 export default function ClientLayout({
-  children,
+    children,
+    apiUrl,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
+    apiUrl: string;
 }>) {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: `${process.env.NEXT_PUBLIC_SYNC_API_URL}/trpc`,
-          transformer: superjson,
-          // You can pass any HTTP headers you wish here
-          // async headers() {
-          //     return {
-          //         // authorization: getAuthCookie(),
-          //     };
-          // },
+    const [queryClient] = useState(() => new QueryClient());
+    const [trpcClient] = useState(() =>
+        trpc.createClient({
+            links: [
+                httpBatchLink({
+                    url: `${apiUrl}/trpc`,
+                    transformer: superjson,
+                }),
+            ],
         }),
-      ],
-    }),
-  );
+    );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </trpc.Provider>;
 }

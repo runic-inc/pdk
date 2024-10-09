@@ -1,0 +1,20 @@
+{
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
+  "scopeName": "test",
+  "name": "LiteRef4",
+  "symbol": "LR4",
+  "schemaURI": "https://example.com/schema",
+  "imageURI": "https://example.com/image",
+  "fields": [
+    {
+      "id": 1,
+      "key": "array_literef",
+      "type": "literef",
+      "arrayLength": 4,
+      "description": "An array of literef fields",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { ProjectConfig } from '@patchworkdev/common/types';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { Button } from '../primitives/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
 import Icon from '../primitives/icon';
 import { Input } from '../primitives/input';
 import { Separator } from '../primitives/separator';
@@ -44,14 +44,15 @@ const Toolbar = () => {
     const handleImportProjectConfig = async () => {
         if (projectConfigJsonData) {
             setEditor(null);
+            const scope = Object.values(projectConfigJsonData.scopes)[0]!;
             updateScopeConfig({
-                ...Object.values(projectConfigJsonData.scopes)[0],
+                ...scope,
                 name: projectConfigJsonData.name,
             });
             const contracts: Record<string, UContractConfig> = {};
-            Object.values(projectConfigJsonData.contracts).forEach((contractConfig) => {
+            Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
                 if (typeof contractConfig === 'string') return;
-                const _uid = nanoid();
+                const fragments = new Set<string>(projectConfigJsonData.contractRelations[_uid]?.fragments ?? []);
                 contracts[_uid] = {
                     ...(contractConfig as unknown as UContractConfig),
                     _uid,
@@ -61,6 +62,10 @@ const Toolbar = () => {
                             _uid: nanoid(),
                         } as UFieldConfig;
                     }),
+                    fragments,
+                    mintFee: (scope.mintConfigs && scope.mintConfigs[_uid]?.flatFee.toString()) ?? '',
+                    patchFee: '',
+                    assignFee: '',
                 };
             });
             updateContractsConfig(contracts);
@@ -109,10 +114,12 @@ const Toolbar = () => {
                                 <Input type='file' accept='.json' onChange={validateProjectConfig} />
                             </div>
                             <DialogFooter className='pt-4'>
-                                <Button disabled={!valid} className='gap-2' onClick={() => handleImportProjectConfig()}>
-                                    <Icon icon='fa-file-import' />
-                                    Import project config
-                                </Button>
+                                <DialogClose asChild>
+                                    <Button disabled={!valid} className='gap-2' onClick={() => handleImportProjectConfig()}>
+                                        <Icon icon='fa-file-import' />
+                                        Import project config
+                                    </Button>
+                                </DialogClose>
                             </DialogFooter>
                         </DialogHeader>
                     </DialogContent>

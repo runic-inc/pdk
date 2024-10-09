@@ -1,12 +1,13 @@
 {
     "name": "@patchworkdev/pdk",
-    "version": "0.1.11",
+    "version": "0.2.1",
     "description": "Patchwork Development Kit",
     "main": "src/index.ts",
     "scripts": {
         "start": "node dist/index.js",
-        "test": "echo \"Error: no test specified\" && exit 0",
-        "build": "tsc --build",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "build": "tsc --build && cp -r ../../schemas dist",
         "build:wizard": "cd ../../apps/wizard && BUILD_OUT_DIR=../../packages/pdk/dist/wizard vite build",
         "build:all": "pnpm build && pnpm build:wizard"
     },
@@ -20,10 +21,11 @@
     "dependencies": {
       "@hono/node-server": "1.12.2",
       "@patchworkdev/common": "workspace:*",
-      "hono": "4.5.9",
+      "hono": "4.6.3",
       "@ponder/core": "^0.5.17",
       "prettier": "3.3.3",
       "ts-node": "10.9.2",
+      "tsconfig-paths": "4.2.0",
       "typescript": "5.5.4",
       "viem": "2.21.9",
       "yargs": "17.7.2"
@@ -40,4 +42,3 @@
       "vite": "5.4.2"
     }
   }
-  

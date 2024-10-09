@@ -1,4 +1,17 @@
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '../primitives/alert-dialog';
+import { Button } from '../primitives/button';
 import DynamicInputGroup from '../primitives/dynamic-input-group';
+import Icon from '../primitives/icon';
 import { Input } from '../primitives/input';
 import { Label } from '../primitives/label';
 import { Switch } from '../primitives/switch';
@@ -6,7 +19,7 @@ import useStore, { Store } from '../store';
 import sanitizeName from '../utils/sanitizeName';
 
 const ScopeEditor = () => {
-    const { scopeConfig, updateScopeConfig, setEditor } = useStore();
+    const { scopeConfig, updateScopeConfig, setEditor, resetWorkspace } = useStore();
     const scopeName = useStore((state: Store) => sanitizeName(state.scopeConfig.name));
 
     const checkInvalidChar = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -127,6 +140,36 @@ const ScopeEditor = () => {
                         Allows accounts to directly make protocol calls to mint Patches. Usually you'll leave this unchecked and handle Patching logic in your
                         contracts.
                     </p>
+                </div>
+            </div>
+
+            <div className='flex flex-col gap-4'>
+                <h3 className='font-medium -mx-6 text-[14px] border-b border-muted-foreground/50 dottedd px-6 py-3 bg-background sticky top-0 z-[1]'>Danger</h3>
+                <div className='flex justify-between items-center'>
+                    <Label>Start over with new project</Label>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant={'destructive'}>
+                                <Icon icon='fa-rotate-reverse' />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className='border-destructive'>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to start over?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. If you want to save your existing project, export the project config before continuing.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction asChild>
+                                    <Button variant={'destructive'} className='bg-destructive hover:bg-destructive/90' onClick={() => resetWorkspace()}>
+                                        New Project
+                                    </Button>
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
         </div>

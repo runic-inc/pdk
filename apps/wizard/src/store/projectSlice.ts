@@ -18,6 +18,7 @@ export type ProjectStore = {
     updateContractsOrder: (order: string[]) => void;
     addNewContract: () => string;
     deleteContract: (id: string) => void;
+    resetWorkspace: () => void;
 };
 
 export const createProjectSlice: StateCreator<Store, [], [], ProjectStore> = (set, get) => ({
@@ -57,5 +58,15 @@ export const createProjectSlice: StateCreator<Store, [], [], ProjectStore> = (se
                 delete store.contractsConfig[id];
             }),
         );
+    },
+    resetWorkspace: () => {
+        set({
+            scopeConfig: defaultScope,
+            contractsConfig: {
+                [defaultContract._uid]: defaultContract,
+            },
+            contractsOrder: [defaultContract._uid],
+            editor: null,
+        });
     },
 });

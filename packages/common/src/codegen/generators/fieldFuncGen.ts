@@ -61,6 +61,12 @@ export class FieldFuncGen implements Generator {
                             }
                             loadArrayLines.push(`result[${i}] = PatchworkUtils.toString${field.elementBits / 8}(${conversion});`);
                             storeArrayLines.push(`slot = slot | PatchworkUtils.strToUint256(${field.key}[${i}]) >> ${256 - field.elementBits} << ${offset};`);
+                        } else if (field.type === "bool") {
+                            loadArrayLines.push(`result[${i}] = slot${shift} & 1 == 1;`);
+                            storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}] ? 1 : 0) << ${offset};`);
+                        } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                            loadArrayLines.push(`result[${i}] = ${field.solidityType}(uint${field.elementBits}(slot${shift}));`);
+                            storeArrayLines.push(`slot = slot | uint256(uint${field.elementBits}(${field.key}[${i}])) << ${offset};`);
                         } else {
                             loadArrayLines.push(`result[${i}] = ${field.solidityType}(slot${shift});`);
                             storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}]) << ${offset};`);
@@ -108,8 +114,12 @@ export class FieldFuncGen implements Generator {
                             value = `uint${field.elementBits}(${value})`;
                         }
                         loadFunction += `    return PatchworkUtils.toString${field.elementBits / 8}(${value});\n`;
-                    } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                    } else if (field.type == `address`) {
                         loadFunction += `    return address(uint160(value));\n`;
+                    } else if (field.type == `bool`) {
+                        loadFunction += `    return value & 1 == 1;\n`;
+                    } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                        loadFunction += `    return ${field.solidityType}(uint${field.elementBits}(value));\n`;
                     } else {
                         loadFunction += `    return ${field.solidityType}(value);\n`;
                     }
@@ -124,11 +134,15 @@ export class FieldFuncGen implements Generator {
                         storeFunction += `    uint256 cleared = uint256(_metadataStorage[tokenId][${field.slot}]) & ~(mask${shift});\n`;
                         if (field.isString) {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (PatchworkUtils.strToUint256(${field.key}) >> ${256 - field.elementBits} & mask)${shift};\n`;
-                        } else if (field.fieldTypeSolidityEnum == `ADDRESS`) {
+                        } else if (field.type == `address`) {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(uint160(${field.key})) & mask)${shift};\n`;
+                        } else if (field.type == `bool`) {
+                            storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key} ? 1 : 0) & mask)${shift};\n`;
+                        } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
+                            storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(uint${field.elementBits}(${field.key})) & mask)${shift};\n`;
                         } else {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = cleared | (uint256(${field.key}) & mask)${shift};\n`;
-                        }                    
+                        }
                     } else {
                         if (field.isString) {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = PatchworkUtils.strToUint256(${field.key});\n`;

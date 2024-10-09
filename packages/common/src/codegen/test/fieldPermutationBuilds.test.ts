@@ -28,7 +28,7 @@ function generateFieldPermutations(): FieldConfig[][] {
   let permutations: FieldConfig[][] = [];
 
   fieldTypes.forEach((fieldType, index) => {
-    let actualFieldType: FieldType = (fieldType === 'BOOLEAN' ? 'bool' : fieldType.toLowerCase()) as FieldType;
+    let actualFieldType: FieldType = (fieldType.toLowerCase()) as FieldType;
     actualFieldType = actualFieldType.toLowerCase() as FieldType;
     
     // Single field

@@ -8,7 +8,7 @@ export type FeatureFlag = {
     optional?: boolean;
     description?: string;
     autoToggle?: boolean;
-    validator?: (value: ContractConfig) => boolean;
+    validator?: (value: UContractConfig) => boolean;
     validatorMessage?: string;
 };
 
@@ -29,7 +29,7 @@ export type FeatureConfig = {
     description: string | ReactNode;
     icon: `fa-${string}`;
     autoToggle?: boolean;
-    validator?: (value: ContractConfig) => boolean;
+    validator?: (value: UContractConfig) => boolean;
     validatorMessage?: string;
     featureSet: [FeatureFlag, ...FeatureFlag[]];
     options: FeatureOption[];
@@ -38,7 +38,6 @@ export type FeatureConfig = {
 export type UContractConfig = Omit<ContractConfig, 'fields' | 'scopeName'> & {
     _uid: string;
     fields: UFieldConfig[];
-    featureOptions: Partial<Record<keyof typeof Feature, FeatureFlagConfig>>;
     mintFee?: string;
     patchFee?: string;
     assignFee?: string;

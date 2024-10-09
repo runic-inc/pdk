@@ -27,14 +27,14 @@ export class StaticRefFuncGen implements Generator {
                         if (offset >= 256) {
                             offset = 64;
                             slot++;
-                            indent = 1;
                             if (i < entry.arrayLength-2) {
-                              addReferenceLines.push(`{\n` +
-                              `        slot = mdStorage[${slot}];\n` +
-                              `        if (uint64(slot) == 0) {\n` +
-                              `            mdStorage[${slot}] = slot | uint256(liteRef);\n` +
-                              `        }`);
-                              i++;
+                                indent = 1;
+                                addReferenceLines.push(`{\n` +
+                                `        slot = mdStorage[${slot}];\n` +
+                                `        if (uint64(slot) == 0) {\n` +
+                                `            mdStorage[${slot}] = slot | uint256(liteRef);\n` +
+                                `        }`);
+                                i++;
                             }
                         }
                     }

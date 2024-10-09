@@ -1,12 +1,13 @@
 {
   "name": "@patchworkdev/pdk",
-  "version": "0.1.11",
+  "version": "0.2.1",
   "description": "Patchwork Development Kit",
   "main": "src/index.ts",
   "scripts": {
     "clean": "pnpm run -r clean",
     "build": "pnpm run -r build",
-    "test": "pnpm run -r test"
+    "test": "pnpm run -r test",
+    "test:coverage": "pnpm run --filter @patchworkdev/pdk test:coverage && pnpm run --filter @patchworkdev/common test:coverage && pnpm run --filter @patchworkdev/wizard test:coverage"
   },
   "keywords": [
     "solidity",
