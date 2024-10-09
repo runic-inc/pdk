@@ -1,37 +1,101 @@
-import fs from 'fs/promises';
-import path from 'path';
-import prettier from 'prettier';
-import { Schema } from '../generateApi/ponderMocks';
-import { analyzeAPI } from '../helpers/api';
-import { loadPonderSchema } from '../helpers/config';
+import fs from "fs/promises";
+import path from "path";
+import prettier from "prettier";
+import { Schema } from "../generateApi/ponderMocks";
+import { analyzeAPI } from "../helpers/api";
+import { loadPonderSchema } from "../helpers/config";
 
-const trpcRouteToHookName = (route: string) => "use" + route.split(".").map((word, index) => index === 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word).join("");
+const trpcRouteToHookName = (route: string) =>
+    "use" +
+    route
+        .split(".")
+        .map((word, index) =>
+            index === 1 ? word.charAt(0).toUpperCase() + word.slice(1) : word
+        )
+        .join("");
 
 export async function generateReactComponents(configPath: string) {
-    const trpcRouter = path.join(path.dirname(configPath), "src", "api", "index.ts");
-    const componentsDir = path.join(path.dirname(configPath), "app", "components");
-    const ponderSchemaPath = path.join(path.dirname(configPath), "ponder.schema.ts");
-    const ponderSchema = await loadPonderSchema(ponderSchemaPath);
-    if (ponderSchema === undefined) {
-        console.error('Error importing PonderSchema');
-        return;
-    }
+    try {
+        const configDir = path.dirname(configPath);
+        const trpcRouter = path.join(configDir, "src", "api", "index.ts");
+        const componentsDir = path.join(configDir, "app", "components");
+        const ponderSchemaPath = path.join(configDir, "ponder.schema.ts");
 
-    const apiStructure = analyzeAPI(trpcRouter);
-
-    for (let key in apiStructure) {
-        if (key.includes("getPaginated")) {
-            const hook = trpcRouteToHookName(key);
-            const entity = key.split(".")[0];
-            const template = generateComponent("getPaginated", entity, hook, ponderSchema);
-            const formatted = await prettier.format(template, { parser: 'typescript', tabWidth: 4, printWidth: 120 });
-            const componentFile = path.join(componentsDir, `${entity}List.tsx`);
-            await fs.writeFile(componentFile, formatted, 'utf-8');
+        // Check if necessary files exist
+        try {
+            await fs.access(trpcRouter);
+            await fs.access(ponderSchemaPath);
+        } catch (error) {
+            console.error(`Error: Unable to access required files.`);
+            console.error(`Make sure the following files exist:`);
+            console.error(`- tRPC Router: ${trpcRouter}`);
+            console.error(`- Ponder Schema: ${ponderSchemaPath}`);
+            return;
         }
+
+        // Ensure components directory exists
+        try {
+            await fs.mkdir(componentsDir, { recursive: true });
+        } catch (error) {
+            console.error(
+                `Error creating components directory at ${componentsDir}:`,
+                error
+            );
+            return;
+        }
+
+        const ponderSchema = await loadPonderSchema(ponderSchemaPath);
+        if (ponderSchema === undefined) {
+            console.error("Error importing PonderSchema");
+            return;
+        }
+
+        const apiStructure = analyzeAPI(trpcRouter);
+
+        for (let key in apiStructure) {
+            if (key.includes("getPaginated")) {
+                const hook = trpcRouteToHookName(key);
+                const entity = key.split(".")[0];
+                const template = generateComponent(
+                    "getPaginated",
+                    entity,
+                    hook,
+                    ponderSchema
+                );
+
+                try {
+                    const formatted = await prettier.format(template, {
+                        parser: "typescript",
+                        tabWidth: 4,
+                        printWidth: 120,
+                    });
+                    const componentFile = path.join(
+                        componentsDir,
+                        `${entity}List.tsx`
+                    );
+                    await fs.writeFile(componentFile, formatted, "utf-8");
+                    console.log(`Generated component: ${componentFile}`);
+                } catch (error) {
+                    console.error(
+                        `Error generating component for ${entity}:`,
+                        error
+                    );
+                }
+            }
+        }
+
+        console.log("React components generation completed successfully.");
+    } catch (error) {
+        console.error("Error generating React components:", error);
     }
 }
 
-function generateComponent(template: string, entity: string, hook: string, ponderSchema: Schema) {
+function generateComponent(
+    template: string,
+    entity: string,
+    hook: string,
+    ponderSchema: Schema
+) {
     const td = ponderSchema[entity].tableDefinition ?? {};
     const vars: string[] = [];
     const varOutputs: string[] = [];
@@ -43,7 +107,9 @@ function generateComponent(template: string, entity: string, hook: string, ponde
             continue;
         }
         if (v === "timestamp") {
-            varOutputs.push(`<p>Timestamp: {new Date(Number(timestamp)).toLocaleString()}</p>`);
+            varOutputs.push(
+                `<p>Timestamp: {new Date(Number(timestamp)).toLocaleString()}</p>`
+            );
             vars.push(v);
             continue;
         }
@@ -51,7 +117,6 @@ function generateComponent(template: string, entity: string, hook: string, ponde
             optional = "|| ''";
             if (td[v].type === "bigint") {
                 bigint = "?.toString()";
-
             }
         } else if (td[v].type === "bigint") {
             bigint = ".toString()";
@@ -86,5 +151,5 @@ const ${entity}List: React.FC = () => (
 );
 
 export default ${entity}List;
-`
+`;
 }
