@@ -4,16 +4,11 @@ import { generateAPI } from '../generateApi';
 import { generateEventHooks } from '../generateEventHooks';
 import { generatePonderConfig } from '../generatePonderConfig';
 import { generateSchema } from '../generateSchema';
-import { findConfig, findPonderSchema } from '../helpers/config';
+import { findPonderSchema } from '../helpers/config';
 
-export async function generateAll() {
+export async function generateAll(configPath: string) {
     try {
         console.log("Generating all components...");
-        const configPath = await findConfig();
-        if (!configPath) {
-            console.error("No config file found.");
-            return;
-        }
         console.log("Using config file:", configPath);
 
         // Generate TypeScript ABIs
@@ -23,7 +18,6 @@ export async function generateAll() {
         // Generate Ponder Schema
         console.log("Generating Ponder Schema...");
         await generateSchema(configPath);
-
 
         // Generate Event Hooks
         console.log("Generating Event Hooks...");

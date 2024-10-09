@@ -4,25 +4,31 @@ import path from 'path';
 import prettier from 'prettier';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
 
-// config
-// networks needs to be any network that we have deployed to
-// contracts needs to be
-//      any entities
-//      patchwork
-// questions
-//      how do we handle test and mainnets. do we put all the networks in the
-//      config or do we populate things via env vars like patchwork explorer
-//      alternatively do we have an env var that switches between test and mainnets
-
-
 export async function generatePonderConfig(configPath: string) {
+    // Resolve the full path of the config file
+    const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
+    const configDir = path.dirname(fullConfigPath);
 
-    const abiDir = path.join(path.dirname(configPath), "", "abis");
+    // Define paths relative to the config file
+    const abiDir = path.join(configDir, "abis");
+    const ponderConfigPath = path.join(configDir, "ponder.config.ts");
+
+    // Check if the necessary directories exist
+    try {
+        await fs.access(abiDir);
+    } catch (error) {
+        console.error(`Error: Unable to access ABI directory: ${abiDir}`);
+        console.error(`Make sure the ABI directory exists relative to the config file.`);
+        return;
+    }
+
     const abis = await importABIFiles(abiDir);
-    const ponderConfig = path.join(path.dirname(configPath), "ponder.config.ts");
+    if (Object.keys(abis).length === 0) {
+        console.error(`Error: No ABI files found in ${abiDir}`);
+        return;
+    }
 
-    // const abis = await importABIFiles(abiDir);
-    const projectConfig = await importPatchworkConfig(configPath);
+    const projectConfig = await importPatchworkConfig(fullConfigPath);
     if (!projectConfig) {
         console.error('Error importing ProjectConfig');
         return;
@@ -30,14 +36,13 @@ export async function generatePonderConfig(configPath: string) {
 
     if (projectConfig.networks === undefined) {
         console.log(`No networks found so can't build network config`);
-        return
+        return;
     }
 
     const fragmentRelationships = getFragmentRelationships(projectConfig);
 
     const entityEvents = ["Frozen", "Locked", "Transfer", "Unlocked", "Thawed"];
     const imports: Set<string> = new Set();
-
 
     // ToDo
     // Need to add in the contract config for the Patchwork Protocol. Config needs to be added to the contracts array either before or after the entities
@@ -56,7 +61,8 @@ export async function generatePonderConfig(configPath: string) {
 
     const config = configTemplate(imports, networks.join(), contracts.join());
 
-    await fs.writeFile(ponderConfig, await prettier.format(config, { parser: "typescript", tabWidth: 4 }), 'utf-8');
+    await fs.writeFile(ponderConfigPath, await prettier.format(config, { parser: "typescript", tabWidth: 4 }), 'utf-8');
+    console.log(`Ponder config generated: ${ponderConfigPath}`);
 }
 
 function configTemplate(imports: Set<string>, networkConfig: string, contractConfig: string): string {

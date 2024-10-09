@@ -74,7 +74,6 @@ export async function loadPonderSchema(ponderSchema: string) {
 }
 
 export async function importPatchworkConfig(config: string): Promise<ProjectConfig | undefined> {
-
     // Register ts-node to handle TypeScript files
     register({
         transpileOnly: true,
@@ -85,10 +84,21 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
     });
 
     try {
-        const module = await import(config);
+        // Resolve the full path
+        const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
+
+        // Check if the file exists
+        await fs.access(fullPath);
+
+        // Import the config file
+        const module = await import(fullPath);
         return module.default as ProjectConfig;
     } catch (error) {
-        console.error('Error importing ProjectConfig', error);
+        if (error instanceof Error) {
+            console.error('Error importing ProjectConfig:', error.message);
+        } else {
+            console.error('An unknown error occurred while importing ProjectConfig');
+        }
         return undefined;
     }
 }

@@ -1,7 +1,6 @@
-
 import path from "path";
+import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import yargs from "yargs/yargs";
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from "./generateABIs";
 import { generateAll } from './generateAll';
@@ -31,8 +30,8 @@ const argv = yargs(hideBin(process.argv))
                     type: "string",
                 });
         },
-        (argv) => {
-            for (const configFile of argv.configFiles as string[]) {
+        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[]}>) => {
+            for (const configFile of argv.configFiles || []) {
                 if (!cliProcessor.validateConfig(configFile)) {
                     process.exit(1);
                 }
@@ -64,9 +63,9 @@ const argv = yargs(hideBin(process.argv))
                     description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
-        (argv) => {
+        (argv: yargs.ArgumentsCamelCase<{configFiles?: string[], output?: string, rootdir?: string, contract?: string}>) => {
             try {
-                cliProcessor.generateSolidity(argv.configFiles as string[], argv.output as string, argv.rootdir as string, argv.contract as string);
+                cliProcessor.generateSolidity(argv.configFiles || [], argv.output, argv.rootdir, argv.contract);
             } catch (e) {
                 process.exit(1);
             }
@@ -81,133 +80,186 @@ const argv = yargs(hideBin(process.argv))
         }
     )
     .command(
-        "generateTsABIs",
+        "generateTsABIs [configFile]",
         "Generate TypeScript ABIs for ponder",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating TypeScript ABIs...");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateABIs(configPath);
         }
     )
     .command(
-        "generateSchema",
+        "generateSchema [configFile]",
         "Generate the ponder schema",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder Schema");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateSchema(configPath);
         }
     )
     .command(
-        "generateEventHooks",
+        "generateEventHooks [configFile]",
         "Generate the ponder event code",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder event code");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateEventHooks(configPath);
         }
     )
     .command(
-        "generatePonderConfig",
+        "generatePonderConfig [configFile]",
         "Generate the ponder config code",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating Ponder config code");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generatePonderConfig(configPath);
         }
     )
     .command(
-        "generateReactHooks",
+        "generateReactHooks [configFile]",
         "Generate the React hooks for app",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating React hooks for app");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateReactHooks(configPath);
         }
-    ).command(
-        "generateReactComponents",
+    )
+    .command(
+        "generateReactComponents [configFile]",
         "Generate the React components for app",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating React components for app");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateReactComponents(configPath);
         }
-    ).command(
-        "generateDemoPage",
+    )
+    .command(
+        "generateDemoPage [configFile]",
         "Generate the demo app page",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating the demo app page");
-            const configPath = await findConfig();
+            const configPath = argv.configFile || await findConfig();
             if (!configPath) {
                 console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             console.log("Using config file:", configPath);
             await generateDemoPage(configPath);
         }
-    ).command(
-        "generateAPI",
+    )
+    .command(
+        "generateAPI [configFile]",
         "Generate the trpc api",
-        {},
-        async () => {
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
             console.log("Generating API");
+            const configPath = argv.configFile || await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                process.exit(1);
+            }
             const schemaPath = await findPonderSchema();
             if (!schemaPath) {
                 console.error("No ponder schema file found.");
-                return;
-            }
-            const configPath = await findConfig();
-            if (!configPath) {
-                console.error("No config file found.");
-                return;
+                process.exit(1);
             }
             const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
             await generateAPI(schemaPath, apiOutputDir);
         }
     )
     .command(
-        "generateAll",
+        "generateAll [configFile]",
         "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, and API)",
-        {},
-        async () => {
-            await generateAll();
+        (yargs) => {
+            yargs.positional("configFile", {
+                describe: "Path to the config file",
+                type: "string",
+            });
+        },
+        async (argv: yargs.ArgumentsCamelCase<{configFile?: string}>) => {
+            const configPath = argv.configFile || await findConfig();
+            if (!configPath) {
+                console.error("No config file found.");
+                process.exit(1);
+            }
+            await generateAll(configPath);
         }
     )
     .demandCommand(1, "You must provide a valid command")
