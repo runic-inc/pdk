@@ -10,7 +10,7 @@ export class OverrideFuncGen implements Generator {
         `    return Patchwork721._checkWriteAuth();\n` +
         `}\n` : "";
         // TODO make this work for all patch + fragment permutations
-        if (features.some((feature: Feature) => feature === Feature.PATCH) && features.some((feature: Feature) => feature === Feature.FRAGMENTSINGLE)) {
+        if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTSINGLE)) {
             out += `\n`;
             out += `function setLocked(uint256 tokenId, bool locked_) public view virtual override(PatchworkPatch, PatchworkFragmentSingle) {\n`;
             out += `    return PatchworkPatch.setLocked(tokenId, locked_);\n`;
@@ -28,7 +28,7 @@ export class OverrideFuncGen implements Generator {
             out += `    PatchworkPatch.updateOwnership(tokenId);\n`;
             out += `}\n`;
         }
-        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH) && features.some((feature: Feature) => feature === Feature.FRAGMENTSINGLE)) {
+        if ((features.includes(Feature.ACCOUNTPATCH) || features.includes(Feature['1155PATCH'])) && features.includes(Feature.FRAGMENTSINGLE)) {
             out += `\n`;
             out += `function setLocked(uint256 tokenId, bool locked_) public virtual override(Patchwork721, PatchworkFragmentSingle) {\n`;
             out += `    PatchworkFragmentSingle.setLocked(tokenId, locked_);\n`;
