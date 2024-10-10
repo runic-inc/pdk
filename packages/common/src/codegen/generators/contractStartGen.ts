@@ -1,7 +1,7 @@
+import { Feature } from "../../types";
 import { ContractSchema } from "../contractSchema";
 import { Generator, ind } from "../generator";
 import { cleanAndCapitalizeFirstLetter } from "../utils";
-import { Feature } from "../../types";
 
 export class ContractStartGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -28,19 +28,19 @@ export class ContractStartGen implements Generator {
 
     getBaseInheritance(features: Feature[]): string[] {
         let inheritance: string[] = [];
-        if (features.some((feature: Feature) => feature === Feature.PATCH)) {
-            inheritance.push(`PatchworkPatch`);
+        if (features.includes(Feature.PATCH)) {
+            inheritance.push(features.includes(Feature.REVERSIBLE) ? `PatchworkReversiblePatch` : `PatchworkPatch`);
         }
-        if (features.some((feature: Feature) => feature === Feature['1155PATCH'])) {
-            inheritance.push(`Patchwork1155Patch`);
+        if (features.includes(Feature['1155PATCH'])) {
+            inheritance.push(features.includes(Feature.REVERSIBLE) ? `PatchworkReversible1155Patch` : `Patchwork1155Patch`);
         }
-        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH)) {
-            inheritance.push(`PatchworkAccountPatch`);
+        if (features.includes(Feature.ACCOUNTPATCH)) {
+            inheritance.push(features.includes(Feature.REVERSIBLE) ? `PatchworkReversibleAccountPatch` : `PatchworkAccountPatch`);
         }
-        if (features.some((feature: Feature) => feature === Feature.FRAGMENTMULTI)) {
+        if (features.includes(Feature.FRAGMENTMULTI)) {
             inheritance.push(`PatchworkFragmentMulti`);
         }
-        if (features.some((feature: Feature) => feature === Feature.FRAGMENTSINGLE)) {
+        if (features.includes(Feature.FRAGMENTSINGLE)) {
             inheritance.push(`PatchworkFragmentSingle`);
         }
         // If no specific feature is found, default to Patchwork721

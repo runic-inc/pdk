@@ -1,0 +1,21 @@
+{
+    "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+    "scopeName": "test",
+    "name": "PatchFragmentMulti",
+    "symbol": "TST",
+    "baseURI": "https://example.com/",
+    "schemaURI": "https://example.com/schema",
+    "imageURI": "https://mything/my/{tokenID}.png",
+    "features": [
+        "patch",
+        "fragmentmulti"
+    ],
+    "fields": [
+        {
+            "id": 1,
+            "key": "single_char_field",
+            "type": "char16",
+            "description": "A single char field"
+        }
+    ]
+}
