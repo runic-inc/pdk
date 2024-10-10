@@ -1,6 +1,6 @@
+import { Feature } from "../../types";
 import { ContractSchema } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { Feature } from "../../types";
 
 export class OverrideFuncGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -26,6 +26,20 @@ export class OverrideFuncGen implements Generator {
             out += `\n`;
             out += `function updateOwnership(uint256 tokenId) public virtual override(PatchworkPatch, PatchworkFragmentSingle) {\n`;
             out += `    PatchworkPatch.updateOwnership(tokenId);\n`;
+            out += `}\n`;
+        }
+        if (features.some((feature: Feature) => feature === Feature.ACCOUNTPATCH) && features.some((feature: Feature) => feature === Feature.FRAGMENTSINGLE)) {
+            out += `\n`;
+            out += `function setLocked(uint256 tokenId, bool locked_) public virtual override(Patchwork721, PatchworkFragmentSingle) {\n`;
+            out += `    PatchworkFragmentSingle.setLocked(tokenId, locked_);\n`;
+            out += `}\n`;
+            out += `\n`;
+            out += `function locked(uint256 tokenId) public view virtual override(Patchwork721, PatchworkFragmentSingle) returns (bool) {\n`;
+            out += `    return PatchworkFragmentSingle.locked(tokenId);\n`;
+            out += `}\n`;
+            out += `\n`;
+            out += `function ownerOf(uint256 tokenId) public view virtual override(ERC721, IERC721, PatchworkFragmentSingle) returns (address) {\n`;
+            out += `    return PatchworkFragmentSingle.ownerOf(tokenId);\n`;
             out += `}\n`;
         }
         if (features.includes(Feature.WEAKREF)) {
