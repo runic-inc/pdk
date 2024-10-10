@@ -1,8 +1,12 @@
+import fs from "fs/promises";
 import path from "path";
 import { generateABIs } from "../generateABIs";
 import { generateAPI } from "../generateApi";
+import { generateDemoPage } from "../generateDemoPage";
 import { generateEventHooks } from "../generateEventHooks";
 import { generatePonderConfig } from "../generatePonderConfig";
+import { generateReactComponents } from "../generateReactComponents";
+import { generateReactHooks } from "../generateReactHooks";
 import { generateSchema } from "../generateSchema";
 import { findPonderSchema } from "../helpers/config";
 
@@ -35,7 +39,25 @@ export async function generateAll(configPath: string) {
             return;
         }
         const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
+        try {
+            await fs.access(apiOutputDir);
+        } catch (error) {
+            console.log(`API output directory does not exist. Creating ${apiOutputDir}`);
+            await fs.mkdir(apiOutputDir, { recursive: true });
+        }
         await generateAPI(schemaPath, apiOutputDir);
+
+        // Generate React Hooks
+        console.log("Generating React Hooks...");
+        await generateReactHooks(configPath);
+
+        // Generate React Components
+        console.log("Generating React Components...");
+        await generateReactComponents(configPath);
+
+        // Generate Demo Page
+        console.log("Generating Demo Page...");
+        await generateDemoPage(configPath);
 
         console.log("All components generated successfully!");
     } catch (error) {

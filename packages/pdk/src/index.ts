@@ -234,7 +234,7 @@ const argv = yargs(hideBin(process.argv))
     )
     .command(
         "generateAll [configFile]",
-        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, and API)",
+        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, API, React Hooks, React Components, and Demo Page)",
         (yargs) => {
             yargs.positional("configFile", {
                 describe: "Path to the config file",
