@@ -1,0 +1,20 @@
+{
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
+  "scopeName": "test",
+  "name": "AddressArray",
+  "symbol": "AARR",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
+  "fields": [
+    {
+      "id": 1,
+      "key": "addresses",
+      "type": "address",
+      "arrayLength": 4,
+      "description": "addresses",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    }
+  ]
+}

@@ -61,6 +61,9 @@ export class FieldFuncGen implements Generator {
                             }
                             loadArrayLines.push(`result[${i}] = PatchworkUtils.toString${field.elementBits / 8}(${conversion});`);
                             storeArrayLines.push(`slot = slot | PatchworkUtils.strToUint256(${field.key}[${i}]) >> ${256 - field.elementBits} << ${offset};`);
+                        } else if (field.type == `address`) {
+                            loadArrayLines.push(`result[${i}] = address(uint160(slot${shift}));`);
+                            storeArrayLines.push(`slot = slot | uint256(uint160(${field.key}[${i}])) << ${offset};`);
                         } else if (field.type === "bool") {
                             loadArrayLines.push(`result[${i}] = slot${shift} & 1 == 1;`);
                             storeArrayLines.push(`slot = slot | uint256(${field.key}[${i}] ? 1 : 0) << ${offset};`);
