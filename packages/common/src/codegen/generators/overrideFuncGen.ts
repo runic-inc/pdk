@@ -11,6 +11,7 @@ export class OverrideFuncGen implements Generator {
         `}\n` : "";
         // TODO make this work for all patch + fragment permutations
         if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTSINGLE)) {
+            let IPatchworkPatch = features.includes(Feature.REVERSIBLE) ? 'IPatchworkPatch, ' : '';
             let parentContract = 'PatchworkPatch';
             out += `\n`;
             out += `function setLocked(uint256 tokenId, bool locked_) public view virtual override(${parentContract}, PatchworkFragmentSingle) {\n`;
@@ -25,7 +26,7 @@ export class OverrideFuncGen implements Generator {
             out += `    return ${parentContract}.ownerOf(tokenId);\n`;
             out += `}\n`;
             out += `\n`;
-            out += `function updateOwnership(uint256 tokenId) public virtual override(${parentContract}, PatchworkFragmentSingle) {\n`;
+            out += `function updateOwnership(uint256 tokenId) public virtual override(${parentContract}, ${IPatchworkPatch}PatchworkFragmentSingle) {\n`;
             out += `    ${parentContract}.updateOwnership(tokenId);\n`;
             out += `}\n`;
         }
