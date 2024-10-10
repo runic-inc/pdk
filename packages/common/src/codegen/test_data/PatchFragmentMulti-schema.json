@@ -1,0 +1,20 @@
+{
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
+  "scopeName": "test",
+  "name": "PatchFragmentMulti",
+  "symbol": "TST",
+  "schemaURI": "https://example.com/schema",
+  "imageURI": "https://example.com/image",
+  "fields": [
+    {
+      "id": 1,
+      "key": "single_char_field",
+      "type": "char16",
+      "arrayLength": 1,
+      "description": "A single char field",
+      "visibility": "public",
+      "slot": 0,
+      "offset": 0
+    }
+  ]
+}

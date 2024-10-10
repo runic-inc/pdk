@@ -28,6 +28,20 @@ export class OverrideFuncGen implements Generator {
             out += `    PatchworkPatch.updateOwnership(tokenId);\n`;
             out += `}\n`;
         }
+        if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTMULTI)) {
+            out += `\n`;
+            out += `function setLocked(uint256 tokenId, bool locked_) public view virtual override(PatchworkPatch, Patchwork721) {\n`;
+            out += `    return PatchworkPatch.setLocked(tokenId, locked_);\n`;
+            out += `}\n`;
+            out += `\n`;
+            out += `function locked(uint256 /* tokenId */) public pure virtual override(PatchworkPatch, Patchwork721) returns (bool) {\n`;
+            out += `    return false;\n`;
+            out += `}\n`;
+            out += `\n`;
+            out += `function ownerOf(uint256 tokenId) public view virtual override(PatchworkPatch, ERC721, IERC721) returns (address) {\n`;
+            out += `    return PatchworkPatch.ownerOf(tokenId);\n`;
+            out += `}\n`;
+        }
         if ((features.includes(Feature.ACCOUNTPATCH) || features.includes(Feature['1155PATCH'])) && features.includes(Feature.FRAGMENTSINGLE)) {
             out += `\n`;
             out += `function setLocked(uint256 tokenId, bool locked_) public virtual override(Patchwork721, PatchworkFragmentSingle) {\n`;
