@@ -17,8 +17,8 @@ export async function generatePonderConfig(configPath: string) {
         const configDir = path.dirname(fullConfigPath);
 
         // Define paths relative to the config file
-        const abiDir = path.join(configDir, "abis");
-        const ponderConfigPath = path.join(configDir, "ponder.config.ts");
+        const abiDir = path.join(configDir, "ponder", "abis");
+        const ponderConfigPath = path.join(configDir, "ponder", "ponder.config.ts");
 
         // Check if the necessary directories exist
         try {
@@ -147,16 +147,16 @@ export function contractTemplate(
     return `${name}: {
             network: {
                 ${Object.entries(network)
-                    .map(([networkName, network]) =>
-                        contractNetworkTemplate(
-                            name,
-                            networkName,
-                            deployments,
-                            network
-                        )
-                    )
-                    .filter((s) => s !== undefined)
-                    .join(",")}
+            .map(([networkName, network]) =>
+                contractNetworkTemplate(
+                    name,
+                    networkName,
+                    deployments,
+                    network
+                )
+            )
+            .filter((s) => s !== undefined)
+            .join(",")}
  
             },
             abi: mergeAbis([${name}]),

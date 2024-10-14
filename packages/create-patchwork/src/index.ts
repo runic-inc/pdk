@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import path from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
+import { forgeBuild, generateAllComponents, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,6 +50,10 @@ async function main() {
         // Copy template files
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
 
+        const exampleContracts = path.join(__dirname, '', 'templates', 'projects', 'canvas', 'contracts', 'src');
+        const targetContractDir = path.join(targetDir, 'contracts', 'src');
+        await copyFiles(exampleContracts, targetContractDir, "Copying example contracts to contracts path:");
+
         // Install dependencies (including @patchworkdev/common and pdk)
         await installNodeDependencies(targetDir);
 
@@ -67,7 +71,7 @@ async function main() {
         if (configArg) {
             // Resolve the config path (supports both absolute and relative paths)
             const resolvedConfigPath = path.resolve(process.cwd(), configArg);
-            
+
             try {
                 await fs.access(resolvedConfigPath);
                 await copyConfigFile(resolvedConfigPath, defaultConfigPath);
@@ -81,7 +85,7 @@ async function main() {
         }
 
         // Generate contracts using the appropriate pdk version
-        await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
+        // await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
 
         // Build contracts with Forge
         await forgeBuild(targetDir);

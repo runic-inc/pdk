@@ -21,8 +21,8 @@ const camelCase = (s: string) =>
 export async function generateSchema(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const abiDir = path.join(configDir, "abis");
-        const ponderSchema = path.join(configDir, "ponder.schema.ts");
+        const abiDir = path.join(configDir, "ponder", "abis");
+        const ponderSchema = path.join(configDir, "ponder", "ponder.schema.ts");
 
         // Check if ABI directory exists
         try {

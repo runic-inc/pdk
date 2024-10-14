@@ -8,7 +8,6 @@ import { generatePonderConfig } from "../generatePonderConfig";
 import { generateReactComponents } from "../generateReactComponents";
 import { generateReactHooks } from "../generateReactHooks";
 import { generateSchema } from "../generateSchema";
-import { findPonderSchema } from "../helpers/config";
 
 export async function generateAll(configPath: string) {
     try {
@@ -33,12 +32,8 @@ export async function generateAll(configPath: string) {
 
         // Generate API
         console.log("Generating API...");
-        const schemaPath = await findPonderSchema();
-        if (!schemaPath) {
-            console.error("No ponder schema file found.");
-            return;
-        }
-        const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
+        const schemaPath = path.join(path.dirname(configPath), "ponder", "ponder.schema.ts");
+        const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "api");
         try {
             await fs.access(apiOutputDir);
         } catch (error) {
