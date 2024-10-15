@@ -29,7 +29,7 @@ export async function generateDemoPage(configPath: string) {
                 const component = `${entity}List`;
                 components.push(component);
                 demoFileArray.push(
-                    `import ${component} from "../components/${component}";\n`
+                    `import ${component} from "../../generated/components/${component}";\n`
                 );
             }
         }

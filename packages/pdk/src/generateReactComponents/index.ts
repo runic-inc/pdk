@@ -18,7 +18,7 @@ export async function generateReactComponents(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
         const trpcRouter = path.join(configDir, "ponder", "src", "api", "index.ts");
-        const componentsDir = path.join(configDir, "www", "app", "components");
+        const componentsDir = path.join(configDir, "www", "generated", "components");
         const ponderSchemaPath = path.join(configDir, "ponder", "ponder.schema.ts");
 
         // Check if necessary files exist

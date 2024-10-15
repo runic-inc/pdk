@@ -7,7 +7,7 @@ export async function generateReactHooks(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
         const trpcRouter = path.join(configDir, "ponder", "src", "api", "index.ts");
-        const hooksDir = path.join(configDir, "www", "app", "hooks");
+        const hooksDir = path.join(configDir, "www", "generated", "hooks");
         const hooksFile = path.join(hooksDir, "index.ts");
 
         // Check if tRPC router file exists
