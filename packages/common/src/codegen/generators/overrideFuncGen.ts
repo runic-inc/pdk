@@ -18,6 +18,9 @@ export class OverrideFuncGen implements Generator {
             if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTSINGLE)) {
                 overrideParents = '(PatchworkFragmentSingle, PatchworkPatch)';
             }
+            if ((features.includes(Feature.ACCOUNTPATCH) || features.includes(Feature['1155PATCH'])) && features.includes(Feature.FRAGMENTSINGLE)) {
+                overrideParents = '(ERC721, IERC721, PatchworkFragmentSingle)';
+            }
             out += `\n`;
             out += `/**\n`;
             out += `@dev See {IERC721-ownerOf}\n`;
@@ -26,6 +29,9 @@ export class OverrideFuncGen implements Generator {
             out += `    // Weak assignment uses normal ownership\n`;
             out += `    return ${ownerOfParent}.ownerOf(tokenId);\n`;
             out += `}\n`;
+            if ((features.includes(Feature.ACCOUNTPATCH) || features.includes(Feature['1155PATCH'])) && features.includes(Feature.FRAGMENTSINGLE)) {
+                overrideParents = '(Patchwork721, PatchworkFragmentSingle)';
+            }
             out += `\n`;
             out += `/**\n`;
             out += `@dev See {IPatchwork721-locked}\n`;
