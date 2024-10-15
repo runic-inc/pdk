@@ -93,7 +93,7 @@ abstract contract PatchFragmentGenerated is PatchworkPatch, PatchworkFragmentSin
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
     }
 
-    function setLocked(uint256 tokenId, bool locked_) public view virtual override(PatchworkPatch, PatchworkFragmentSingle) {
+    function setLocked(uint256 tokenId, bool locked_) public virtual override(PatchworkPatch, PatchworkFragmentSingle) {
         return PatchworkPatch.setLocked(tokenId, locked_);
     }
 

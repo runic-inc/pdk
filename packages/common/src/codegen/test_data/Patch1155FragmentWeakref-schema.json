@@ -1,7 +1,7 @@
 {
   "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
-  "scopeName": "test",
-  "name": "Patch1155FragmentSingle",
+  "scopeName": "TestScope",
+  "name": "Patch1155FragmentWeakref",
   "symbol": "TST",
   "schemaURI": "https://mything/my-metadata.json",
   "imageURI": "https://mything/my/{tokenID}.png",

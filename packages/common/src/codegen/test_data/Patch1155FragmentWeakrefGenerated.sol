@@ -2,11 +2,11 @@
 pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@patchwork/PatchworkFragmentMulti.sol";
-import "@patchwork/PatchworkPatch.sol";
+import "@patchwork/PatchworkFragmentSingle.sol";
+import "@patchwork/Patchwork1155Patch.sol";
 import "@patchwork/PatchworkUtils.sol";
 
-abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePatch, PatchworkFragmentMulti {
+abstract contract Patch1155FragmentWeakrefGenerated is Patchwork1155Patch, PatchworkFragmentSingle {
 
     struct Metadata {
         string single_char_field;
@@ -15,11 +15,11 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
     uint256 internal _nextTokenId;
 
     constructor(address _manager, address _owner)
-        Patchwork721("test", "PatchFragmentMultiReversible", "TST", _manager, _owner)
+        Patchwork721("TestScope", "Patch1155FragmentWeakref", "TST", _manager, _owner)
     {}
 
     function schemaURI() pure external override returns (string memory) {
-        return "https://example.com/schema";
+        return "https://mything/my-metadata.json";
     }
 
     function imageURI(uint256 tokenId) pure external override returns (string memory) {
@@ -27,12 +27,12 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
     }
 
     function _baseURI() internal pure virtual override returns (string memory) {
-        return "https://example.com/";
+        return "https://mything/my/";
     }
 
-    function supportsInterface(bytes4 interfaceID) public view virtual override(PatchworkFragmentMulti, PatchworkReversiblePatch) returns (bool) {
-        return PatchworkFragmentMulti.supportsInterface(interfaceID) ||
-            PatchworkReversiblePatch.supportsInterface(interfaceID);
+    function supportsInterface(bytes4 interfaceID) public view virtual override(PatchworkFragmentSingle, Patchwork1155Patch) returns (bool) {
+        return PatchworkFragmentSingle.supportsInterface(interfaceID) ||
+            Patchwork1155Patch.supportsInterface(interfaceID);
     }
 
     function storeMetadata(uint256 tokenId, Metadata memory data) public {
@@ -54,11 +54,7 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
 
     function mintPatch(address owner, PatchTarget memory target) external payable returns (uint256 tokenId) {
         if (msg.sender != _manager) {
-            return IPatchworkProtocol(_manager).patch{value: msg.value}(owner, target.addr, target.tokenId, address(this));
-        }
-        // require inherited ownership
-        if (IERC721(target.addr).ownerOf(target.tokenId) != owner) {
-            revert IPatchworkProtocol.NotAuthorized(owner);
+            return IPatchworkProtocol(_manager).patch1155{value: msg.value}(owner, target.addr, target.tokenId, target.account, address(this));
         }
         tokenId = _nextTokenId++;
         _storePatch(tokenId, target);
@@ -95,15 +91,49 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(single_char_field) >> 128 & mask);
     }
 
-    function setLocked(uint256 tokenId, bool locked_) public virtual override(PatchworkPatch, Patchwork721) {
-        return PatchworkPatch.setLocked(tokenId, locked_);
+    /**
+    @dev See {IERC721-ownerOf}
+    */
+    function ownerOf(uint256 tokenId) public view virtual override(ERC721, IERC721, PatchworkFragmentSingle) returns (address) {
+        // Weak assignment uses normal ownership
+        return ERC721.ownerOf(tokenId);
     }
 
-    function locked(uint256 /* tokenId */) public pure virtual override(PatchworkPatch, Patchwork721) returns (bool) {
-        return false;
+    /**
+    @dev See {IPatchwork721-locked}
+    */
+    function locked(uint256 tokenId) public view virtual override(Patchwork721, PatchworkFragmentSingle) returns (bool) {
+        // Weak assignment uses base 721 locking behavior
+        return Patchwork721.locked(tokenId);
     }
 
-    function ownerOf(uint256 tokenId) public view virtual override(PatchworkPatch, ERC721, IERC721) returns (address) {
-        return PatchworkPatch.ownerOf(tokenId);
+    /**
+    @dev See {IPatchwork721-setLocked}
+    */
+    function setLocked(uint256 tokenId, bool locked_) public virtual override(Patchwork721, PatchworkFragmentSingle) {
+        // Weak assignment uses base 721 locking behavior
+        Patchwork721.setLocked(tokenId, locked_);
+    }
+
+    /**
+    @dev See {IERC721-transferFrom}.
+    */
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
+        if (locked(tokenId)) {
+            revert IPatchworkProtocol.Locked(address(this), tokenId);
+        }
+        ERC721.transferFrom(from, to, tokenId);
+    }
+
+    /**
+    @dev See {IERC721-safeTransferFrom}.
+    */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
+        // Weak assignment skips calling PatchworkProtocol.applyTransfer()
+        if (locked(tokenId)) {
+            revert IPatchworkProtocol.Locked(address(this), tokenId);
+        }
+        ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 }

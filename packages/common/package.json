@@ -20,7 +20,7 @@
     "license": "MIT",
     "dependencies": {
         "@openzeppelin/contracts": "^5.0.2",
-        "@patchworkdev/contracts": "2.0.3-beta.0",
+        "@patchworkdev/contracts": "2.0.4",
         "ajv": "8.17.1",
         "nanoid": "5.0.7",
         "typescript": "5.5.4",

@@ -1,14 +1,15 @@
 {
     "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
-    "scopeName": "test",
-    "name": "AccountPatchFragmentSingle",
+    "scopeName": "TestScope",
+    "name": "Patch1155FragmentWeakref",
     "symbol": "TST",
     "baseURI": "https://mything/my/",
     "schemaURI": "https://mything/my-metadata.json",
     "imageURI": "https://mything/my/{tokenID}.png",
     "features": [
-        "accountpatch",
-        "fragmentsingle"
+        "1155patch",
+        "fragmentsingle",
+        "weakref"
     ],
     "fields": [
       {
