@@ -3,7 +3,7 @@
     "description": "Patchwork Development Kit",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "scripts": {
         "test": "jest --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
         "test:features-build": "jest src/codegen/test/featurePermutationBuilds.test.ts",
