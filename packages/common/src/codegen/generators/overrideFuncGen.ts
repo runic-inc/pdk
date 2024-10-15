@@ -44,10 +44,14 @@ export class OverrideFuncGen implements Generator {
             out += `}\n`;
             out += `\n`;
             if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTSINGLE)) {
+                let _overrideParents = '(PatchworkFragmentSingle, PatchworkPatch)';
+                if (features.includes(Feature.REVERSIBLE)) {
+                    _overrideParents += '(PatchworkFragmentSingle, PatchworkPatch, IPatchworkPatch)';
+                }
                 out += `/**\n`
                 out += `@dev See {IPatchworkAssignableNFT-updateOwnership}\n`
                 out += `*/\n`
-                out += `function updateOwnership(uint256 tokenId) public virtual override(PatchworkFragmentSingle, PatchworkPatch) {\n`
+                out += `function updateOwnership(uint256 tokenId) public virtual override${_overrideParents} {\n`
                 out += `    // Weak assignment uses normal ownership updater\n`
                 out += `    PatchworkFragmentSingle.updateOwnership(tokenId);\n`
                 out += `}\n`;
