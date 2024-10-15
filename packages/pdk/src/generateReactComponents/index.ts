@@ -17,9 +17,9 @@ const trpcRouteToHookName = (route: string) =>
 export async function generateReactComponents(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, "src", "api", "index.ts");
-        const componentsDir = path.join(configDir, "app", "components");
-        const ponderSchemaPath = path.join(configDir, "ponder.schema.ts");
+        const trpcRouter = path.join(configDir, "ponder", "src", "generated", "api.ts");
+        const componentsDir = path.join(configDir, "www", "generated", "components");
+        const ponderSchemaPath = path.join(configDir, "ponder", "ponder.schema.ts");
 
         // Check if necessary files exist
         try {
@@ -130,7 +130,7 @@ import React from 'react';
 import { ${hook} } from '../hooks';
 import PaginatedList from './PaginatedList';
 import { inferProcedureOutput } from '@trpc/server';
-import { AppRouter } from '../../src/api';
+import { AppRouter } from '../../../ponder/src/api';
 
 
 type ${entity}Item = inferProcedureOutput<AppRouter['${entity}']['getPaginated']>['items'][number];

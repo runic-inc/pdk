@@ -1,7 +1,7 @@
 import { TRPCClientErrorLike } from '@trpc/client';
 import { UseTRPCQueryResult } from '@trpc/react-query/shared';
 import React, { useState } from 'react';
-import { AppRouter } from '../../src/api'; // Adjust this import path
+import { AppRouter } from '../../../ponder/src/api'; // Adjust this import path
 
 interface PaginatedItem {
     id: string;
