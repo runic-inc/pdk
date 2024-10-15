@@ -33,7 +33,7 @@ export async function generateAll(configPath: string) {
         // Generate API
         console.log("Generating API...");
         const schemaPath = path.join(path.dirname(configPath), "ponder", "ponder.schema.ts");
-        const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "api");
+        const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "generated");
         try {
             await fs.access(apiOutputDir);
         } catch (error) {

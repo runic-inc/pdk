@@ -70,23 +70,21 @@ function generateWhereClause(
 
 async function generateTrpcApi(schema: Schema): Promise<string> {
     let apiContent = `
-import { ponder } from '@/generated';
-import { trpcServer } from '@hono/trpc-server';
-import { eq, gt, and } from '@ponder/core';
-import { z } from 'zod';
-import { publicProcedure, router } from './trpc';
+import { eq, gt, and } from "@ponder/core";
+import { publicProcedure, router } from "./trpc";
+import { z } from "zod";
 
-const appRouter = router({
+export const api = {
 ${Object.entries(schema)
-    .map(([tableName, entity]) => {
-        if (entity.type === "enum") {
-            return "";
-        }
-        const tableDefinition = entity.tableDefinition!;
-        const filterInput = generateFilterInput(tableName, tableDefinition);
-        const whereClause = generateWhereClause(tableName, tableDefinition);
+            .map(([tableName, entity]) => {
+                if (entity.type === "enum") {
+                    return "";
+                }
+                const tableDefinition = entity.tableDefinition!;
+                const filterInput = generateFilterInput(tableName, tableDefinition);
+                const whereClause = generateWhereClause(tableName, tableDefinition);
 
-        return `
+                return `
   ${tableName}: router({
     getById: publicProcedure
       .input(z.string())
@@ -125,19 +123,9 @@ ${Object.entries(schema)
       }),
   }),
 `;
-    })
-    .join("")}
-});
-
-export type AppRouter = typeof appRouter;
-
-ponder.use(
-  '/trpc/*',
-  trpcServer({
-    router: appRouter,
-    createContext: (_, c) => c.var,
-  }),
-);
+            })
+            .join("")}
+};
 `;
     return await prettier.format(apiContent, {
         parser: "typescript",
@@ -177,7 +165,7 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
         const apiContent = await generateTrpcApi(schema);
 
         // Write the formatted API content to file
-        const outputPath = path.join(apiOutputDir, "index.ts");
+        const outputPath = path.join(apiOutputDir, "api.ts");
         await fs.writeFile(outputPath, apiContent, "utf8");
         console.log(
             `tRPC API generation completed. Output written to ${outputPath}`

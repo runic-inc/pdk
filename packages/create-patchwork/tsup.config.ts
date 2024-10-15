@@ -31,7 +31,7 @@ export default defineConfig({
             [
                 path.join(examplesPath, '**', '*'),
                 '!**/node_modules/**',
-                '!**/generated/**',
+                '!**/ponder/generated/**',
                 '!**/.ponder/**',
                 '!**/.next/**',
                 '!**/next-env.d.ts',

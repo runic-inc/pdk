@@ -6,7 +6,7 @@ import { analyzeAPI } from "../helpers/api";
 export async function generateDemoPage(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, "ponder", "src", "api", "index.ts");
+        const trpcRouter = path.join(configDir, "ponder", "src", "generated", "api.ts");
         const demoFile = path.join(configDir, "www", "app", "demo", "page.tsx");
 
         // Check if the trpcRouter file exists

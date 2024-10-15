@@ -229,7 +229,7 @@ const argv = yargs(hideBin(process.argv))
                 console.error("No ponder schema file found.");
                 process.exit(1);
             }
-            const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "api");
+            const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "generated");
             await generateAPI(schemaPath, apiOutputDir);
         }
     )

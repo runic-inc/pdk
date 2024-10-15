@@ -17,7 +17,7 @@ const trpcRouteToHookName = (route: string) =>
 export async function generateReactComponents(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, "ponder", "src", "api", "index.ts");
+        const trpcRouter = path.join(configDir, "ponder", "src", "generated", "api.ts");
         const componentsDir = path.join(configDir, "www", "generated", "components");
         const ponderSchemaPath = path.join(configDir, "ponder", "ponder.schema.ts");
 

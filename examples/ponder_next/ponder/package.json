@@ -2,7 +2,7 @@
   "name": "ponder",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "ponder dev",
     "start": "ponder start",
