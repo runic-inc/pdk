@@ -46,7 +46,7 @@ export class OverrideFuncGen implements Generator {
             if (features.includes(Feature.PATCH) && features.includes(Feature.FRAGMENTSINGLE)) {
                 let _overrideParents = '(PatchworkFragmentSingle, PatchworkPatch)';
                 if (features.includes(Feature.REVERSIBLE)) {
-                    _overrideParents += '(PatchworkFragmentSingle, PatchworkPatch, IPatchworkPatch)';
+                    _overrideParents = '(PatchworkFragmentSingle, PatchworkPatch, IPatchworkPatch)';
                 }
                 out += `/**\n`
                 out += `@dev See {IPatchworkAssignableNFT-updateOwnership}\n`
