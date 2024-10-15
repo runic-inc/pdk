@@ -3,8 +3,8 @@
   "scopeName": "test",
   "name": "Patch1155FragmentSingle",
   "symbol": "TST",
-  "schemaURI": "https://example.com/schema",
-  "imageURI": "https://example.com/image",
+  "schemaURI": "https://mything/my-metadata.json",
+  "imageURI": "https://mything/my/{tokenID}.png",
   "fields": [
     {
       "id": 1,

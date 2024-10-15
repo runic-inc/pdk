@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@patchwork/PatchworkFragmentSingle.sol";
 import "@patchwork/Patchwork1155Patch.sol";
 import "@patchwork/PatchworkUtils.sol";
@@ -18,15 +19,15 @@ abstract contract Patch1155FragmentSingleGenerated is Patchwork1155Patch, Patchw
     {}
 
     function schemaURI() pure external override returns (string memory) {
-        return "https://example.com/schema";
+        return "https://mything/my-metadata.json";
     }
 
     function imageURI(uint256 tokenId) pure external override returns (string memory) {
-        return "https://example.com/image";
+        return string.concat("https://mything/my/", Strings.toString(tokenId), ".png");
     }
 
     function _baseURI() internal pure virtual override returns (string memory) {
-        return "https://example.com/";
+        return "https://mything/my/";
     }
 
     function supportsInterface(bytes4 interfaceID) public view virtual override(PatchworkFragmentSingle, Patchwork1155Patch) returns (bool) {

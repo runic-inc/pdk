@@ -3,9 +3,9 @@
     "scopeName": "test",
     "name": "AccountPatchFragmentSingle",
     "symbol": "TST",
-    "baseURI": "https://example.com/",
-    "schemaURI": "https://example.com/schema",
-    "imageURI": "https://example.com/image",
+    "baseURI": "https://mything/my/",
+    "schemaURI": "https://mything/my-metadata.json",
+    "imageURI": "https://mything/my/{tokenID}.png",
     "features": [
         "accountpatch",
         "fragmentsingle"
