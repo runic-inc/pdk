@@ -118,8 +118,26 @@ export class CLIProcessor {
     }
     
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
+        const useProject = this.isPatchworkDevCommon(rootDir);
+        let command = `tsc --outdir ${tmpout} ${configFile}`;
+        if (useProject) {
+            // Only if we're in common project...
+            // TODO - allow from other dirs
+            const tsConfig = `{
+                "compilerOptions": {
+                    "outDir": "${tmpout}",
+                    "paths": {
+                        "@patchworkdev/common/*": ["./src/*"],
+                    }
+                },
+                "include": ["${configFile}",
+                            "src/types/**/*.ts"]
+                }`;
+            fs.writeFileSync(`tsconfig-tmp.json`, tsConfig);
+            command = `tsc -p tsconfig-tmp.json`;
+        }
         try {
-            const result = execSync(`tsc --outdir ${tmpout} ${configFile}`);
+            const result = execSync(command);
             console.log("TSC compile success");
         } catch (err: any) {
             console.log("Error:", err.message);
@@ -138,7 +156,13 @@ export class CLIProcessor {
         }
         
         console.log("JS Config File Found:", jsConfigFile);
-        
+        // Now substitute "@patchworkdev/common/types" with "types" in the generated JS file so it will resolve
+        let jsContent = fs.readFileSync(jsConfigFile, 'utf8');
+        // get the relative path difference of the JS file and the tmpout directory
+        const relativePath = path.relative(path.dirname(jsConfigFile), path.resolve(tmpout));
+        jsContent = jsContent.replace("@patchworkdev/common/types", `${relativePath}/types`);
+        fs.writeFileSync(jsConfigFile, jsContent);
+
         try {
             const t = require(path.resolve(jsConfigFile)).default;
             
@@ -152,9 +176,30 @@ export class CLIProcessor {
             throw new Error("Error reading JS file");
         } finally {
             fs.rmSync(tmpout, { recursive: true });
+            if (useProject) {
+                fs.rmSync("tsconfig-tmp.json");
+            }
         }
     }
     
+    isPatchworkDevCommon(rootDir: string): boolean {
+        // walk up the directory tree to find package.json and see if the package is packworkdev/common
+        let currentDir = rootDir;
+        let found = false;
+        while (currentDir !== "/") {
+            console.log("Checking", currentDir);
+            if (fs.existsSync(path.join(currentDir, "package.json"))) {
+                const packageJson = JSON.parse(fs.readFileSync(path.join(currentDir, "package.json"), 'utf8'));
+                if (packageJson.name === "@patchworkdev/common") {
+                    found = true;
+                    break;
+                }
+            }
+            currentDir = path.resolve(currentDir, "..");
+        }
+        return found;
+    }
+
     findJSConfigFile(dir: string, filename: string): string | null {
         const files = fs.readdirSync(dir);
         

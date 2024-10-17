@@ -6,7 +6,7 @@ export class TSContractConfigGen implements Generator {
     constructor() { }
 
     gen(schema: ContractSchema): string {
-        let out = `import { ContractConfig, Feature, FunctionConfig } from '../../types';\n\n`;
+        let out = `import { ContractConfig, Feature, FunctionConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const config: ContractConfig = {\n`;
 
         if (schema.scopeName) {
