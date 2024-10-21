@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import path from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies, linkLocalPackages } from './calls.js';
+import { forgeBuild, generateAllComponents, initGitRepo } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -95,34 +95,34 @@ async function main() {
         await copyFiles(templatePath, targetDir, "Copying example app to templates path:");
 
         // Copy or use the provided config file
-        const targetConfigPath = path.join(targetDir, 'patchwork.config.ts');
+        const defaultConfigPath = path.join(targetDir, 'patchwork.config.ts');
         if (configArg) {
-            await copyConfigFile(configPath, targetConfigPath);
-            console.log(pico.green(`Config file copied from ${configPath} to ${targetConfigPath}`));
+            // Resolve the config path (supports both absolute and relative paths)
+            const resolvedConfigPath = path.resolve(process.cwd(), configArg);
+
+            try {
+                await fs.access(resolvedConfigPath);
+                await copyConfigFile(resolvedConfigPath, defaultConfigPath);
+                console.log(pico.green(`Config file copied from ${resolvedConfigPath} to ${defaultConfigPath}`));
+            } catch (error) {
+                console.error(pico.red(`Error accessing or copying config file: ${error}`));
+                process.exit(1);
+            }
         } else {
-            console.log(pico.yellow(`Using default config file: ${targetConfigPath}`));
-        }
-
-        // Install dependencies (including @patchworkdev/common and pdk)
-        await installNodeDependencies(targetDir);
-
-        // Link local packages if specified
-        if (useLocalPackages) {
-            console.log(pico.yellow("Using local packages..."));
-            await linkLocalPackages(targetDir);
+            console.log(pico.yellow(`Using default config file: ${defaultConfigPath}`));
         }
 
         // Initialize git repo
         await initGitRepo(targetDir);
 
         // Generate contracts using the appropriate pdk version
-        await generateContracts(targetDir, useLocalPackages, targetConfigPath);
+        // await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
 
         // Build contracts with Forge
         await forgeBuild(targetDir);
 
         // Generate all components using pdk
-        await generateAllComponents(targetDir, useLocalPackages, targetConfigPath);
+        await generateAllComponents(targetDir, useLocalPackages, defaultConfigPath);
 
         console.log(pico.green(`Patchwork app "${projectName}" created successfully in directory "${sanitizedProjectName}"!`));
     } catch (e) {

@@ -11,7 +11,7 @@ import { generatePonderConfig } from './generatePonderConfig';
 import { generateReactComponents } from './generateReactComponents';
 import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from "./generateSchema";
-import { findConfig, findPonderSchema } from "./helpers/config";
+import { findConfig } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
 // Define types for command line arguments
@@ -223,18 +223,19 @@ const argv = yargs(hideBin(process.argv))
         async (argv: yargs.ArgumentsCamelCase<ConfigFileArg>) => {
             console.log("Generating API");
             const configPath = await getConfigPath(argv.configFile);
-            const schemaPath = await findPonderSchema();
+            const schemaPath = path.join(path.dirname(configPath), "ponder", "ponder.schema.ts");
+            // const schemaPath = await findPonderSchema();
             if (!schemaPath) {
                 console.error("No ponder schema file found.");
                 process.exit(1);
             }
-            const apiOutputDir = path.join(path.dirname(configPath), "src", "api");
+            const apiOutputDir = path.join(path.dirname(configPath), "ponder", "src", "generated");
             await generateAPI(schemaPath, apiOutputDir);
         }
     )
     .command(
         "generateAll [configFile]",
-        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, and API)",
+        "Generate all components (TypeScript ABIs, Ponder Schema, Event Hooks, Ponder Config, API, React Hooks, React Components, and Demo Page)",
         (yargs) => {
             yargs.positional("configFile", {
                 describe: "Path to the config file",

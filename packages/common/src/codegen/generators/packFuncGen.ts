@@ -18,7 +18,8 @@ export class PackFuncGen implements Generator {
                     if (field.totalBits === 0) {
                         continue;
                     }
-                    let arrayElementsPerSlot = 256 / field.elementBits;
+                    let elementBits = field.elementBits;
+                    let arrayElementsPerSlot = 256 / elementBits;
                     let arrayIdxStartInSlot = field.arrayLength == 1 ? 0 : (slotIdx - field.slot) * arrayElementsPerSlot;
                     let arrayIdxEndInSlot = field.arrayLength == 1 ? 1 : arrayIdxStartInSlot + arrayElementsPerSlot;
                     let offsetInSlot = field.slot == slotIdx ? field.offset : 0;
@@ -27,7 +28,7 @@ export class PackFuncGen implements Generator {
                         let arrayIdxStr = field.arrayLength > 1 ? `[${arrayIdx}]` : "";
                         let conversion = `data.${field.key}`;
                         if (field.isString) {
-                            const stringOffsetBits = 256 - field.elementBits;
+                            const stringOffsetBits = 256 - elementBits;
                             const stringOffset = stringOffsetBits > 0 ? ` >> ${stringOffsetBits}` : "";
                             conversion = `PatchworkUtils.strToUint256(${conversion}${arrayIdxStr})${stringOffset}`;
                         } else if (field.type == `address`) {
@@ -35,12 +36,12 @@ export class PackFuncGen implements Generator {
                         } else if (field.type == `bool`) {
                             conversion = `uint256(${conversion}${arrayIdxStr} ? 1 : 0)`;
                         } else if (['int8', 'int16', 'int32', 'int64', 'int128', 'int256'].indexOf(field.type) >= 0) {
-                            conversion = `uint256(uint${field.elementBits}(${conversion}${arrayIdxStr}))`;
+                            conversion = `uint256(uint${elementBits}(${conversion}${arrayIdxStr}))`;
                         } else {
                             conversion = `uint256(${conversion}${arrayIdxStr})`;
                         }
                         if (offsetInSlot > 0 || arrayIdx > 0) {
-                            let offset = field.offset + field.elementBits * (arrayIdx % arrayElementsPerSlot);
+                            let offset = field.offset + elementBits * (arrayIdx % arrayElementsPerSlot);
                             if (offset !== 0) {
                                 conversion += ` << ${offset}`;
                             }

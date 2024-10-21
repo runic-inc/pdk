@@ -1,0 +1,31 @@
+{
+  "name": "ponder",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "codegen": "ponder codegen",
+    "lint": "eslint .",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@hono/trpc-server":"0.3.2",
+    "@trpc/server": "11.0.0-rc.482",
+    "@ponder/core": "0.6.15",
+    "hono": "4.6.4",
+    "superjson": "2.2.1",
+    "viem": "2.21.25",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "eslint": "^8.53.0",
+    "eslint-config-ponder": "^0.5.17",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.14"
+  }
+}

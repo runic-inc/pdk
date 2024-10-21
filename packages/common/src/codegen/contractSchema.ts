@@ -137,7 +137,13 @@ export class ContractSchemaImpl implements ContractSchema {
         let fields: ContractStorageField[] = entries.map((entry: FieldConfig, index: number) => {
             const fieldTypeEnum = this.getFieldTypeEnum(entry.type);
             const fieldArrayLength = entry.arrayLength === undefined ? 1 : entry.arrayLength;
-            const bits = fieldTypeEnum.bits * fieldArrayLength;
+            let bits = fieldTypeEnum.bits * fieldArrayLength;
+            let elementBits = fieldTypeEnum.bits;
+            // Address arrays have bad alignment so we will waste space to avoid 2-slot IO
+            if (entry.type === "address" && fieldArrayLength > 1) {
+                bits = 256 * fieldArrayLength;
+                elementBits = 256;
+            }
 
             const field: ContractStorageField = {
                 id: entry.id,
@@ -148,7 +154,7 @@ export class ContractSchemaImpl implements ContractSchema {
                 arrayLength: fieldArrayLength,
                 visibility: "public",
                 isString: fieldTypeEnum.isString,
-                elementBits: fieldTypeEnum.bits,
+                elementBits: elementBits,
                 totalBits: bits,
                 key: entry.key,
                 slot: -1,

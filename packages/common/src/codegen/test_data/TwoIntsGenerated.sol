@@ -32,6 +32,7 @@ abstract contract TwoIntsGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -72,6 +73,7 @@ abstract contract TwoIntsGenerated is Patchwork721 {
         uint256 mask = (1 << 16) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(uint16(i16)) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only i8
@@ -88,5 +90,6 @@ abstract contract TwoIntsGenerated is Patchwork721 {
         uint256 mask = (1 << 8) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 16);
         _metadataStorage[tokenId][0] = cleared | (uint256(uint8(i8)) & mask) << 16;
+        emit MetadataUpdate(tokenId);
     }
 }

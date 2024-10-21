@@ -47,6 +47,7 @@ abstract contract LiteRef4Generated is Patchwork721, PatchworkLiteRef, IPatchwor
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -124,6 +125,7 @@ abstract contract LiteRef4Generated is Patchwork721, PatchworkLiteRef, IPatchwor
         slot = slot | uint256(array_literef[2]) << 128;
         slot = slot | uint256(array_literef[3]) << 192;
         _metadataStorage[tokenId][0] = slot;
+        emit MetadataUpdate(tokenId);
     }
 
     function addReference(uint256 tokenId, uint64 liteRef) public override {

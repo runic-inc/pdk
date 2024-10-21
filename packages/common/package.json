@@ -3,7 +3,7 @@
     "description": "Patchwork Development Kit",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "scripts": {
         "test": "jest --testPathIgnorePatterns=src/codegen/test/featurePermutationBuilds.test.ts --testPathIgnorePatterns=src/codegen/test/fieldPermutationBuilds.test.ts",
         "test:features-build": "jest src/codegen/test/featurePermutationBuilds.test.ts",
@@ -20,7 +20,7 @@
     "license": "MIT",
     "dependencies": {
         "@openzeppelin/contracts": "^5.0.2",
-        "@patchworkdev/contracts": "2.0.3-beta.0",
+        "@patchworkdev/contracts": "2.0.4",
         "ajv": "8.17.1",
         "nanoid": "5.0.7",
         "typescript": "5.5.4",

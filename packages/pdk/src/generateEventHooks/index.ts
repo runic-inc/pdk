@@ -16,9 +16,9 @@ export async function generateEventHooks(configPath: string) {
     const configDir = path.dirname(fullConfigPath);
 
     // Define paths relative to the config file
-    const abiDir = path.join(configDir, "abis");
-    const eventDir = path.join(configDir, "src");
-    const ponderSchemaPath = path.join(configDir, "ponder.schema.ts");
+    const abiDir = path.join(configDir, "ponder", "abis");
+    const eventDir = path.join(configDir, "ponder", "src", "generated");
+    const ponderSchemaPath = path.join(configDir, "ponder", "ponder.schema.ts");
 
     // Check if the necessary directories and files exist
     try {
@@ -79,6 +79,6 @@ export async function generateEventHooks(configPath: string) {
 
     createPonderEventFile(
         ponderEventHandlers,
-        path.join(eventDir, "ponder.events.ts")
+        path.join(eventDir, "events.ts")
     );
 }

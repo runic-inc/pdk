@@ -188,7 +188,7 @@ describe("Generate and Build Contract Schema Permutations", () => {
           exec('forge build', { cwd: outputDir }, (error, stdout, stderr) => {
             if (error) {
               console.error(`forge build failed for contract ${index}:`);
-              console.error(stderr);
+              console.error(error);
               fs.writeFileSync(path.join(schemaNoBuildDir, `schema_${index}.json`), JSON.stringify(config, null, 2));
               errors.push(`forge build failed for contract ${index}: ${stderr}`);
               resolve(); // Resolve even on error to continue processing

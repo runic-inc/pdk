@@ -66,18 +66,26 @@ describe('generateSolidityCodeFromTS', () => {
     if (solFiles.includes(baseName + '.sol')) {
       it(`should generate the correct Solidity code for ${baseName}.ts`, () => {
         const solidityExpected = fs.readFileSync(files.sol, 'utf8');
+        // Copy the ts file to tmpout
+        // preserve the path of the original file
+        const tmpTsFile = files.ts.replace('src/', 'tmpsrc/');
+        fs.mkdirSync(path.dirname(tmpTsFile), { recursive: true });
+        // Replace @patchworkdev/common/types with ../../types
+        const tsContent = fs.readFileSync(files.ts, 'utf8');
+        fs.writeFileSync(tmpTsFile, tsContent.replace("@patchworkdev/common/types", "../../../src/types"));
         try {
-          const result = execSync(`tsc --outdir tmpout ${files.ts}`);
+          const result = execSync(`tsc --outdir tmpout ${tmpTsFile}`);
           console.log("TSC compile success")
           console.log(result.toString())
         } catch (err: any) { 
-          console.log("output", err)
-          console.log("sdterr", err.stderr.toString())
+          console.log("Error:", err.message);
+          console.log("Reason:", err.stdout.toString());
         }
-        const t2 = files.js.replace('src', 'tmpout');
+        const t2 = files.js.replace('src', 'tmpout/tmpsrc');
         console.log("requiring ", t2)
         const t = require("../../" + t2).default;
         const solidityGenerated = gen.gen(new ContractSchemaImpl(t));
+        fs.rmSync("tmpsrc", { recursive: true });
         fs.rmSync("tmpout", { recursive: true });
         expect(solidityGenerated).toEqual(solidityExpected);
       });

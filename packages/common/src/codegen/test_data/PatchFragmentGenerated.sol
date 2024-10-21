@@ -40,6 +40,7 @@ abstract contract PatchFragmentGenerated is PatchworkPatch, PatchworkFragmentSin
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -91,9 +92,10 @@ abstract contract PatchFragmentGenerated is PatchworkPatch, PatchworkFragmentSin
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
+        emit MetadataUpdate(tokenId);
     }
 
-    function setLocked(uint256 tokenId, bool locked_) public view virtual override(PatchworkPatch, PatchworkFragmentSingle) {
+    function setLocked(uint256 tokenId, bool locked_) public virtual override(PatchworkPatch, PatchworkFragmentSingle) {
         return PatchworkPatch.setLocked(tokenId, locked_);
     }
 

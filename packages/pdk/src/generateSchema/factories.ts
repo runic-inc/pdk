@@ -170,7 +170,7 @@ function createTableProcessInputs(inputs: AbiEvent['inputs'], prefix = ''): ts.P
 function createTableProperty(tableName: string, columns: ts.PropertyAssignment[], indexes?: Record<string, ts.PropertyAssignment>) {
     const factory = ts.factory;
     const tableDefinition = factory.createObjectLiteralExpression(columns, true);
-    
+
     let args: ts.Expression[] = [tableDefinition];
 
     if (indexes && Object.keys(indexes).length > 0) {
@@ -261,7 +261,7 @@ export function generalDBStructure(): ts.PropertyAssignment[] {
         Tx: [
             { key: "id", value: "p.string()" },
             { key: "blockId", value: "p.string().references('Block.id')" },
-            { key: "timestamp", value: "p.string()" },
+            { key: "timestamp", value: "p.bigint()" },
             { key: "fromId", value: "p.string().references('Address.id')" },
             { key: "nonce", value: "p.int()" },
             { key: "toId", value: "p.string().references('Address.id').optional()" },
