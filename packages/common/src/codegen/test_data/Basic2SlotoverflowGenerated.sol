@@ -32,6 +32,7 @@ abstract contract Basic2SlotoverflowGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -74,6 +75,7 @@ abstract contract Basic2SlotoverflowGenerated is Patchwork721 {
         uint256 mask = (1 << 160) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(uint160(addr)) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu128a
@@ -90,5 +92,6 @@ abstract contract Basic2SlotoverflowGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu128a) & mask);
+        emit MetadataUpdate(tokenId);
     }
 }

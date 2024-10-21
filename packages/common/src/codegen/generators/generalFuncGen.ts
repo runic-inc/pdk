@@ -1,6 +1,6 @@
+import { Feature } from "../../types";
 import { ContractSchema } from "../contractSchema";
 import { Generator, ind } from "../generator";
-import { Feature } from "../../types";
 
 export class GeneralFuncGen implements Generator {
     gen(schema: ContractSchema): string {
@@ -32,6 +32,7 @@ export class GeneralFuncGen implements Generator {
         `        revert IPatchworkProtocol.NotAuthorized(msg.sender);\n` +
         `    }\n` +
         `    _metadataStorage[tokenId] = packMetadata(data);\n` +
+        `    emit MetadataUpdate(tokenId);\n` +
         `}\n`;
     
         const loadMetadataFunction = `` +

@@ -31,6 +31,7 @@ abstract contract IntArrayGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -95,5 +96,6 @@ abstract contract IntArrayGenerated is Patchwork721 {
         slot = slot | uint256(uint8(i8[6])) << 48;
         slot = slot | uint256(uint8(i8[7])) << 56;
         _metadataStorage[tokenId][0] = slot;
+        emit MetadataUpdate(tokenId);
     }
 }

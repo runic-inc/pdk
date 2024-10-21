@@ -37,6 +37,7 @@ abstract contract ArraysGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -123,6 +124,7 @@ abstract contract ArraysGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu128b
@@ -139,6 +141,7 @@ abstract contract ArraysGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 128);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128b) & mask) << 128;
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only c8
@@ -172,6 +175,7 @@ abstract contract ArraysGenerated is Patchwork721 {
         slot = slot | PatchworkUtils.strToUint256(names[2]) >> 192 << 128;
         slot = slot | PatchworkUtils.strToUint256(names[3]) >> 192 << 192;
         _metadataStorage[tokenId][2] = slot;
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Array for u16array
@@ -258,5 +262,6 @@ abstract contract ArraysGenerated is Patchwork721 {
         slot = slot | uint256(u16array[30]) << 224;
         slot = slot | uint256(u16array[31]) << 240;
         _metadataStorage[tokenId][4] = slot;
+        emit MetadataUpdate(tokenId);
     }
 }

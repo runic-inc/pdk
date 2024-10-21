@@ -34,6 +34,7 @@ abstract contract OneStringGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -70,5 +71,6 @@ abstract contract OneStringGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _dynamicStringStorage[tokenId] = s;
+        emit MetadataUpdate(tokenId);
     }
 }

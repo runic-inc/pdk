@@ -38,6 +38,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -92,6 +93,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 160) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(uint160(addr)) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only c8
@@ -108,6 +110,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 64) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 160);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(c8) >> 192 & mask) << 160;
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu32
@@ -124,6 +127,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 32) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask << 224);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu32) & mask) << 224;
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only name
@@ -140,6 +144,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask);
         _metadataStorage[tokenId][1] = cleared | (PatchworkUtils.strToUint256(name) >> 128 & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu128a
@@ -156,6 +161,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][1]) & ~(mask << 128);
         _metadataStorage[tokenId][1] = cleared | (uint256(fieldu128a) & mask) << 128;
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu128b
@@ -172,6 +178,7 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][2]) & ~(mask);
         _metadataStorage[tokenId][2] = cleared | (uint256(fieldu128b) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only fieldu16
@@ -188,5 +195,6 @@ abstract contract Basic1ComplexNameGenerated is Patchwork721 {
         uint256 mask = (1 << 16) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][2]) & ~(mask << 128);
         _metadataStorage[tokenId][2] = cleared | (uint256(fieldu16) & mask) << 128;
+        emit MetadataUpdate(tokenId);
     }
 }
