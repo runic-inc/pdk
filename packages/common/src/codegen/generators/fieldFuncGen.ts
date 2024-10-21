@@ -32,6 +32,7 @@ export class FieldFuncGen implements Generator {
                     `function store${capName}(uint256 tokenId, string memory ${field.key}) public {\n` +
                     `${ind(4, permissionLine)}\n` +
                     `    _dynamicStringStorage[tokenId] = ${field.key};\n` +
+                    `    emit MetadataUpdate(tokenId);\n` +
                     `}\n`;
         
                     if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
@@ -98,6 +99,7 @@ export class FieldFuncGen implements Generator {
                     `    }\n` +
                     `    uint256 slot = 0;\n` +
                     `    ${storeArrayLines.join("\n    ")}\n` +
+                    `    emit MetadataUpdate(tokenId);\n` +
                     `}\n`;
                     if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
                         loadStoreFunctions.push(loadFunction);
@@ -153,7 +155,7 @@ export class FieldFuncGen implements Generator {
                             storeFunction += `    _metadataStorage[tokenId][${field.slot}] = uint256(${field.key});\n`;
                         }
                     }
-
+                    storeFunction += `    emit MetadataUpdate(tokenId);\n`;
                     storeFunction += `}\n`;
                     if (field.functionConfig === FunctionConfig.ALL || field.functionConfig === FunctionConfig.LOAD) {
                         loadStoreFunctions.push(loadFunction);

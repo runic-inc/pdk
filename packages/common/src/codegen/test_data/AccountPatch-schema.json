@@ -1,4 +1,5 @@
 {
+  "$schema": "https://patchwork.dev/schema/patchwork-metadata.schema.json",
   "scopeName": "test",
   "name": "AccountPatch",
   "symbol": "AP",

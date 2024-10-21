@@ -32,6 +32,7 @@ abstract contract FragmentMultiGenerated is PatchworkFragmentMulti {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -68,5 +69,6 @@ abstract contract FragmentMultiGenerated is PatchworkFragmentMulti {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId][0] = PatchworkUtils.strToUint256(name);
+        emit MetadataUpdate(tokenId);
     }
 }

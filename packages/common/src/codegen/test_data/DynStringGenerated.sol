@@ -34,6 +34,7 @@ abstract contract DynStringGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -73,6 +74,7 @@ abstract contract DynStringGenerated is Patchwork721 {
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (uint256(fieldu128a) & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     // Load Only str
@@ -86,5 +88,6 @@ abstract contract DynStringGenerated is Patchwork721 {
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _dynamicStringStorage[tokenId] = str;
+        emit MetadataUpdate(tokenId);
     }
 }

@@ -40,6 +40,7 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -93,6 +94,7 @@ abstract contract PatchFragmentMultiReversibleGenerated is PatchworkReversiblePa
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(single_char_field) >> 128 & mask);
+        emit MetadataUpdate(tokenId);
     }
 
     function setLocked(uint256 tokenId, bool locked_) public virtual override(PatchworkPatch, Patchwork721) {

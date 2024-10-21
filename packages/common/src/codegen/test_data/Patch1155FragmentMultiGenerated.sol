@@ -40,6 +40,7 @@ abstract contract Patch1155FragmentMultiGenerated is Patchwork1155Patch, Patchwo
             revert IPatchworkProtocol.NotAuthorized(msg.sender);
         }
         _metadataStorage[tokenId] = packMetadata(data);
+        emit MetadataUpdate(tokenId);
     }
 
     function loadMetadata(uint256 tokenId) public view returns (Metadata memory data) {
@@ -89,5 +90,6 @@ abstract contract Patch1155FragmentMultiGenerated is Patchwork1155Patch, Patchwo
         uint256 mask = (1 << 128) - 1;
         uint256 cleared = uint256(_metadataStorage[tokenId][0]) & ~(mask);
         _metadataStorage[tokenId][0] = cleared | (PatchworkUtils.strToUint256(single_char_field) >> 128 & mask);
+        emit MetadataUpdate(tokenId);
     }
 }
