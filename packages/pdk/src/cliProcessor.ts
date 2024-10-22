@@ -1,7 +1,7 @@
 import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
-import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
+import { register } from 'ts-node';
 
 export class CLIProcessor {
     contractSchema: string;
@@ -118,67 +118,36 @@ export class CLIProcessor {
     }
     
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
-        const useProject = this.isPatchworkDevCommon(rootDir);
-        let command = `tsc --outdir ${tmpout} ${configFile}`;
-        if (useProject) {
-            // Only if we're in common project...
-            // TODO - allow from other dirs
-            const tsConfig = `{
-                "compilerOptions": {
-                    "outDir": "${tmpout}",
-                    "paths": {
-                        "@patchworkdev/common/*": ["./src/*"],
-                    }
-                },
-                "include": ["${configFile}",
-                            "src/types/**/*.ts"]
-                }`;
-            fs.writeFileSync(`tsconfig-tmp.json`, tsConfig);
-            command = `tsc -p tsconfig-tmp.json`;
-        }
+        const tsNode = register({
+            "compilerOptions": {
+                "rootDir": "src",
+                "outDir": "dist",
+            },
+        });
+        console.log("cwd", process.cwd());
         try {
-            const result = execSync(command);
+            const absoluteConfigFile = path.resolve(configFile);
+            console.log("ts-node start", absoluteConfigFile);
+            // const result = tsNode.compile("", configFile);
+            const result = require(absoluteConfigFile);
             console.log("TSC compile success");
+            /*
+            console.log(result);
+            return new ContractSchemaImpl({
+                scopeName: "",
+                name: "",
+                symbol: "",
+                baseURI: "",
+                schemaURI: "",
+                imageURI: "",
+                fields: [],
+                features: []
+            })
+                */
+            return result.default;
         } catch (err: any) {
             console.log("Error:", err.message);
-            console.log("Reason:", err.stdout.toString());
             throw new Error("Error compiling TS file");
-        }
-        if (!configFile.startsWith(".") && !configFile.startsWith("/")) {
-            configFile = `./${configFile}`;
-        }
-        
-        const expectedJSFile = path.basename(configFile, ".ts") + ".js";
-        const jsConfigFile = this.findJSConfigFile(tmpout, expectedJSFile);
-        
-        if (!jsConfigFile) {
-            throw new Error(`JS config file not found for ${configFile}`);
-        }
-        
-        console.log("JS Config File Found:", jsConfigFile);
-        // Now substitute "@patchworkdev/common/types" with "types" in the generated JS file so it will resolve
-        let jsContent = fs.readFileSync(jsConfigFile, 'utf8');
-        // get the relative path difference of the JS file and the tmpout directory
-        const relativePath = path.relative(path.dirname(jsConfigFile), path.resolve(tmpout));
-        jsContent = jsContent.replace("@patchworkdev/common/types", `${relativePath}/types`);
-        fs.writeFileSync(jsConfigFile, jsContent);
-
-        try {
-            const t = require(path.resolve(jsConfigFile)).default;
-            
-            if (t.contracts) {
-                return t as ProjectConfig;
-            } else {
-                return new ContractSchemaImpl(t);
-            }
-        } catch (err) {
-            console.log("Error:", err);
-            throw new Error("Error reading JS file");
-        } finally {
-            fs.rmSync(tmpout, { recursive: true });
-            if (useProject) {
-                fs.rmSync("tsconfig-tmp.json");
-            }
         }
     }
     
