@@ -118,9 +118,7 @@ export class CLIProcessor {
     }
     
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
-        console.log(`dirname is ${__dirname}`);
-        // TODO - check if we're in the pdk repo anywhere
-        const useProject = this.isPatchworkDevCommon(rootDir);
+        const pdkRepoRoot = this.isPDKRepo(process.cwd());
 
         const tsNode = register({
             "compilerOptions": {
@@ -129,47 +127,52 @@ export class CLIProcessor {
             },
         });
         try {
+            let result;
             const absoluteConfigFile = path.resolve(configFile);
             console.log("ts-node start", absoluteConfigFile);
             // const result = tsNode.compile("", configFile);
-            const result = require(absoluteConfigFile);
-            console.log("TSC compile success");
-            /*
-            console.log(result);
-            return new ContractSchemaImpl({
-                scopeName: "",
-                name: "",
-                symbol: "",
-                baseURI: "",
-                schemaURI: "",
-                imageURI: "",
-                fields: [],
-                features: []
-            })
-                */
-            return result.default;
+            if (pdkRepoRoot !== null) {
+                console.log("PDK repository found at", pdkRepoRoot);
+                const fileContent = fs.readFileSync(absoluteConfigFile, 'utf8');
+                const relativePath = path.relative(path.dirname(absoluteConfigFile), path.resolve(process.cwd(), path.join(pdkRepoRoot, "packages/common/src")));
+                const updatedContent = fileContent.replace("@patchworkdev/common/types", path.join(relativePath, "types"));
+                const tmpFile = absoluteConfigFile.replace(".ts", '.tmp.ts');
+                fs.writeFileSync(tmpFile, updatedContent);
+                // console.log(`Rewritten types in ${tmpFile}`);
+                try {
+                    result = require(tmpFile).default;
+                } finally {
+                    fs.unlinkSync(tmpFile);
+                }
+            } else {
+                result = require(absoluteConfigFile).default;
+            }
+            console.log("ts-node compile success");
+            if (result.contracts) {
+                return result as ProjectConfig
+            } else {
+                return new ContractSchemaImpl(result);
+            }
         } catch (err: any) {
             console.log("Error:", err.message);
             throw new Error("Error compiling TS file");
         }
     }
     
-    isPatchworkDevCommon(rootDir: string): boolean {
+    isPDKRepo(rootDir: string): string | null {
         // walk up the directory tree to find package.json and see if the package is packworkdev/common
         let currentDir = rootDir;
-        let found = false;
         while (currentDir !== "/") {
-            console.log("Checking", currentDir);
+            // console.log("Checking", currentDir);
             if (fs.existsSync(path.join(currentDir, "package.json"))) {
                 const packageJson = JSON.parse(fs.readFileSync(path.join(currentDir, "package.json"), 'utf8'));
-                if (packageJson.name === "@patchworkdev/pdk") {
-                    found = true;
-                    break;
+                if (packageJson.name === "@patchworkdev/pdkmonorepo") {
+                    return currentDir;
                 }
             }
             currentDir = path.resolve(currentDir, "..");
         }
-        return found;
+        return null;
     }
 
     findJSConfigFile(dir: string, filename: string): string | null {
