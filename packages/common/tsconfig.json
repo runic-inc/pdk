@@ -1,6 +1,7 @@
 {
   // "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "sourceMap": true,
     "target": "ES2020",
     "module": "CommonJS",
     "moduleResolution": "Node",
@@ -11,13 +12,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true, // Enable type declaration generation
+    "declarationMap": true,
     // Other compiler options...
     "composite": true,
-    "paths": {
-        "@patchworkdev/common/*": ["./src/*"],
-    }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test-d.ts"],
   // "references": [{ "path": "../../apps/wizard/tsconfig.node.json" }]
 }

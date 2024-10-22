@@ -118,7 +118,8 @@ export class CLIProcessor {
     }
     
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
-        const tsNode = register({
+        // use ts-node register to transpile ts configurations on-the-fly
+        register({
             "compilerOptions": {
                 "rootDir": "src",
                 "outDir": "dist",
@@ -127,27 +128,13 @@ export class CLIProcessor {
         console.log("cwd", process.cwd());
         try {
             const absoluteConfigFile = path.resolve(configFile);
-            console.log("ts-node start", absoluteConfigFile);
-            // const result = tsNode.compile("", configFile);
             const result = require(absoluteConfigFile);
-            console.log("TSC compile success");
-            /*
-            console.log(result);
-            return new ContractSchemaImpl({
-                scopeName: "",
-                name: "",
-                symbol: "",
-                baseURI: "",
-                schemaURI: "",
-                imageURI: "",
-                fields: [],
-                features: []
-            })
-                */
-            return result.default;
+            console.log("Configuration imported successfully. Attempting to parse schema...");
+            // TODO: add logic here to return the correct schema impl (proj vs contract)
+            return new ContractSchemaImpl(result.default);
         } catch (err: any) {
             console.log("Error:", err.message);
-            throw new Error("Error compiling TS file");
+            throw new Error("Error importing configuration file.");
         }
     }
     

@@ -1,4 +1,4 @@
-import { ContractConfig, Feature, FunctionConfig } from "@patchworkdev/common/types";
+import { ContractConfig, Feature, FunctionConfig } from "../../types";
 
 const config: ContractConfig = {
     "scopeName": "test",

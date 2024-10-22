@@ -14,7 +14,7 @@ import { generateSchema } from "./generateSchema";
 import { findConfig } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
-export * from "@patchworkdev/common/types";
+export * from "@patchworkdev/common";
 
 // Define types for command line arguments
 type ValidateArgs = {

@@ -1,4 +1,4 @@
-import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
+import { ProjectConfig } from "../../../types";
 
 
 
