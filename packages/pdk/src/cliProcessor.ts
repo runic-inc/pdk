@@ -118,13 +118,16 @@ export class CLIProcessor {
     }
     
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
+        console.log(`dirname is ${__dirname}`);
+        // TODO - check if we're in the pdk repo anywhere
+        const useProject = this.isPatchworkDevCommon(rootDir);
+
         const tsNode = register({
             "compilerOptions": {
                 "rootDir": "src",
                 "outDir": "dist",
             },
         });
-        console.log("cwd", process.cwd());
         try {
             const absoluteConfigFile = path.resolve(configFile);
             console.log("ts-node start", absoluteConfigFile);
@@ -159,7 +162,7 @@ export class CLIProcessor {
             console.log("Checking", currentDir);
             if (fs.existsSync(path.join(currentDir, "package.json"))) {
                 const packageJson = JSON.parse(fs.readFileSync(path.join(currentDir, "package.json"), 'utf8'));
-                if (packageJson.name === "@patchworkdev/common") {
+                if (packageJson.name === "@patchworkdev/pdk") {
                     found = true;
                     break;
                 }
