@@ -14,6 +14,7 @@ import { generateSchema } from "./generateSchema";
 import { findConfig } from "./helpers/config";
 import { launchWizardApp } from "./wizardServer";
 
+// reexport the whole kit
 export * from "@patchworkdev/common";
 
 // Define types for command line arguments
