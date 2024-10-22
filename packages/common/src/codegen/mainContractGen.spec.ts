@@ -1,6 +1,6 @@
-import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { register } from 'ts-node';
 import { ContractSchemaImpl } from './contractSchema';
 import { parseJson } from "./contractSchemaJsonParser";
 import { MainContractGen } from './mainContractGen';
@@ -41,6 +41,12 @@ describe('generateSolidityCodeFromJSON', () => {
 });
 
 describe('generateSolidityCodeFromTS', () => {
+  register({
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist"
+    }
+  });
   const testDirectory = './src/codegen/test_data';
   const files = fs.readdirSync(testDirectory);
 
@@ -53,7 +59,7 @@ describe('generateSolidityCodeFromTS', () => {
     (acc, tsFile) => {
       const baseName = path.basename(tsFile, '.ts');
       acc[baseName] = {
-        ts: path.join(testDirectory, tsFile),
+        ts: path.join(testDirectory, tsFile).replace('src/codegen/', './'),
         js: path.join(testDirectory, baseName + '.js'),
         sol: path.join(testDirectory, baseName + 'Generated.sol'),
       };
@@ -66,28 +72,18 @@ describe('generateSolidityCodeFromTS', () => {
     if (solFiles.includes(baseName + '.sol')) {
       it(`should generate the correct Solidity code for ${baseName}.ts`, () => {
         const solidityExpected = fs.readFileSync(files.sol, 'utf8');
-        // Copy the ts file to tmpout
-        // preserve the path of the original file
-        const tmpTsFile = files.ts.replace('src/', 'tmpsrc/');
-        fs.mkdirSync(path.dirname(tmpTsFile), { recursive: true });
-        // Replace @patchworkdev/common/types with ../../types
-        const tsContent = fs.readFileSync(files.ts, 'utf8');
-        fs.writeFileSync(tmpTsFile, tsContent.replace("@patchworkdev/common/types", "../../../src/types"));
+        let result;
         try {
-          const result = execSync(`tsc --outdir tmpout ${tmpTsFile}`);
-          console.log("TSC compile success")
-          console.log(result.toString())
+          console.log("ts-node compile start", files.ts)
+          result = require(files.ts);
+          console.log("ts-node compile success")
+          const t = result.default;
+          const solidityGenerated = gen.gen(new ContractSchemaImpl(t));
+          expect(solidityGenerated).toEqual(solidityExpected);
         } catch (err: any) { 
           console.log("Error:", err.message);
-          console.log("Reason:", err.stdout.toString());
+          throw new Error("ts-node compile failed");
         }
-        const t2 = files.js.replace('src', 'tmpout/tmpsrc');
-        console.log("requiring ", t2)
-        const t = require("../../" + t2).default;
-        const solidityGenerated = gen.gen(new ContractSchemaImpl(t));
-        fs.rmSync("tmpsrc", { recursive: true });
-        fs.rmSync("tmpout", { recursive: true });
-        expect(solidityGenerated).toEqual(solidityExpected);
       });
     }
   }
