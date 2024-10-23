@@ -103,6 +103,7 @@ export class CLIProcessor {
         const solidityUserCode = new UserContractGen().gen(schema);
         const jsonSchema = new JSONSchemaGen().gen(schema);
         let outputPath = path.join(outputDir, solidityGenFilename);
+        // TODO check the path to make sure it's not a file instead of a writeable directory
         fs.writeFileSync(outputPath, solidityCode);
         console.log(`Solidity gen file generated at ${outputPath}`);
         outputPath = path.join(outputDir, solidityUserFilename);
@@ -122,6 +123,9 @@ export class CLIProcessor {
 
         const tsNode = register({
             "compilerOptions": {
+                "target": "ES2020",
+                "module": "CommonJS",
+                "moduleResolution": "Node",
                 "rootDir": "src",
                 "outDir": "dist",
             },
@@ -149,8 +153,10 @@ export class CLIProcessor {
             }
             console.log("ts-node compile success");
             if (result.contracts) {
-                return result as ProjectConfig
+                console.log("ProjectConfig detected");
+                return result as ProjectConfig;
             } else {
+                console.log("Individual contract config detected");
                 return new ContractSchemaImpl(result);
             }
         } catch (err: any) {
