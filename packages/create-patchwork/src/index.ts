@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import path from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { forgeBuild, generateAllComponents, generateContracts, initGitRepo } from './calls.js';
+import { forgeBuild, generateAllComponents, generateContracts, initGitRepo, installNodeDependencies } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,6 +111,9 @@ async function main() {
         } else {
             console.log(pico.yellow(`Using default config file: ${defaultConfigPath}`));
         }
+
+        // Install dependencies (including @patchworkdev/common and pdk)
+        await installNodeDependencies(targetDir);
 
         // Initialize git repo
         await initGitRepo(targetDir);

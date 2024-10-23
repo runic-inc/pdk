@@ -1,4 +1,4 @@
-import { Feature, ProjectConfig } from "@patchworkdev/common";
+import { Feature, ProjectConfig } from "@patchworkdev/common/types";
 
 const projectConfig: ProjectConfig = {
     name: "canvas",
