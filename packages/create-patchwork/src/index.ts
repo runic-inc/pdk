@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import path from 'path';
 import pico from "picocolors";
 import { fileURLToPath } from 'url';
-import { forgeBuild, generateAllComponents, initGitRepo } from './calls.js';
+import { forgeBuild, generateAllComponents, generateContracts, initGitRepo } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,7 +116,7 @@ async function main() {
         await initGitRepo(targetDir);
 
         // Generate contracts using the appropriate pdk version
-        // await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
+        await generateContracts(targetDir, useLocalPackages, defaultConfigPath);
 
         // Build contracts with Forge
         await forgeBuild(targetDir);
