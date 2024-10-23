@@ -122,6 +122,9 @@ export class CLIProcessor {
 
         const tsNode = register({
             "compilerOptions": {
+                "target": "ES2020",
+                "module": "CommonJS",
+                "moduleResolution": "Node",
                 "rootDir": "src",
                 "outDir": "dist",
             },
