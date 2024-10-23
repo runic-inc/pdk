@@ -13,7 +13,7 @@
   "dependencies": {
     "@hono/trpc-server":"0.3.2",
     "@trpc/server": "11.0.0-rc.482",
-    "@ponder/core": "0.6.15",
+    "@ponder/core": "0.7.0-next.2",
     "hono": "4.6.4",
     "superjson": "2.2.1",
     "viem": "2.21.25",
