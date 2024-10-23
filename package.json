@@ -1,7 +1,7 @@
 {
   "name": "@patchworkdev/pdkmonorepo",
-  "version": "0.2.3",
   "description": "Patchwork Development Kit Monorepo",
+  "version": "0.2.4",
   "main": "src/index.ts",
   "scripts": {
     "clean": "pnpm run -r clean",
