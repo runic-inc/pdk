@@ -1,18 +1,24 @@
-import { ContractConfig, ProjectConfig } from "../types";
+import { cleanAndCapitalizeFirstLetter } from '../codegen/utils';
+import { ContractConfig, ProjectConfig, ScopeConfig } from "../types";
+
 
 export class DeployScriptGen {
     constructor() { }
 
+    // This generator requires a fully loaded project config, no string-file references
     gen(projectConfig: ProjectConfig): string {
         // Start building the script
         let script = `// SPDX-License-Identifier: UNLICENSED\n`;
         script += `pragma solidity ^0.8.13;\n\n`;
         script += `import "forge-std/Script.sol";\n`;
         script += `import "forge-std/console.sol";\n`;
-        // console.log(Object.keys(projectConfig.contracts));
         Object.values(projectConfig.contracts).forEach((value: string | ContractConfig) => {
             if (typeof value === "string") {
-                script += `import "./${value.replace(".json", ".sol")}";\n`;
+                throw new Error("DeployScriptGen requires fully loaded contract config");
+            } else {
+                const contractConfig = value as ContractConfig;
+                const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
+                script += `import "./${contractName}.sol";\n`;
             }
         });
 
@@ -35,19 +41,19 @@ export class DeployScriptGen {
 
         // Iterate through each scope in the project configuration
         for (const scopeConfig of projectConfig.scopes) {
-            script += `        pp.claimScope("${scopeConfig.name}");\n`;
-            script += `        pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
+            script += `        if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
+            script += `            pp.claimScope("${scopeConfig.name}");\n`;
+            script += `            pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
+            script += `        }\n`;
         }
 
         // deploy each contract
 
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
-            const contractName = key;
-            if (typeof value === "string") {
-                script += `        ${contractName} ${contractName.toLowerCase()} = new ${contractName}(ppAddress, ownerAddress);\n`;
-            } else {
-            // Handle ContractConfig logic here
-            }
+            const contractKeyName = key.toLowerCase();
+            const contractConfig = value as ContractConfig;
+            const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
+            script += `        ${contractName} ${contractKeyName} = new ${contractName}(ppAddress, ownerAddress);\n`;
         });
 
         // register fragments
@@ -63,11 +69,12 @@ export class DeployScriptGen {
         // whitelist
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
-            // TODO FIX - load contract config to get scope name
-            // Additional logic for whitelisting if applicable
-            //if (scopeConfig.whitelist) {
-                script += `        pp.addWhitelist("${projectConfig.scopes[0].name}", address(${contractName.toLowerCase()}));\n`;
-            //}
+            const contractConfig = value as ContractConfig;
+            const scopeName = contractConfig.scopeName;
+            const scopeConfig = this.findScope(scopeName, projectConfig);
+            if (scopeConfig.whitelist) {
+                script += `        pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
+            }
         });
         script += `        vm.stopBroadcast();\n`;
 
@@ -76,4 +83,14 @@ export class DeployScriptGen {
 
         return script;
     }
+
+    findScope(scopeName: string, projectConfig: ProjectConfig): ScopeConfig {
+        for (const scopeConfig of projectConfig.scopes) {
+            if (scopeConfig.name === scopeName) {
+                return scopeConfig;
+            }
+        }
+        throw new Error(`Scope ${scopeName} not found in project config`);
+    }
+
 }

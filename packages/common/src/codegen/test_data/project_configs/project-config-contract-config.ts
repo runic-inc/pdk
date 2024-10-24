@@ -4,7 +4,7 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
     name: "Contract Config Project",
     scopes: [
         {
-            name: "MyScope",
+            name: "test",
             owner: "0x222222cf1046e68e36E1aA2E0E07105eDDD1f08E",
             whitelist: true,
             userAssign: false,

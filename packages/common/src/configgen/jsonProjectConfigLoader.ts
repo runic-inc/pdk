@@ -1,5 +1,5 @@
 import { parseJson } from '../codegen/contractSchemaJsonParser';
-import { ContractConfig, ContractRelation, Feature, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigLoader {
     constructor() { }
@@ -33,7 +33,7 @@ export class JSONProjectConfigLoader {
 
     loadScopeConfig(name: string, scopeConfig: any): ScopeConfig {
         return {
-            name: name,
+            name: scopeConfig.name,
             owner: scopeConfig.owner,
             whitelist: scopeConfig.whitelist,
             userAssign: scopeConfig.userAssign,

@@ -17,13 +17,15 @@ contract SampleProjectDeploy is Script {
 
         vm.startBroadcast();
         PatchworkProtocol pp = PatchworkProtocol(ppAddress);
-        pp.claimScope("MyScope");
-        pp.setScopeRules("MyScope", false, false, true);
+        if (pp.getScopeOwner("test") == address(0)) {
+            pp.claimScope("test");
+            pp.setScopeRules("test", false, false, true);
+        }
         LiteRef8 literef8 = new LiteRef8(ppAddress, ownerAddress);
         FragmentSingle fragmentsingle = new FragmentSingle(ppAddress, ownerAddress);
         literef8.registerFragment(fragmentsingle);
-        pp.addWhitelist("MyScope", address(literef8));
-        pp.addWhitelist("MyScope", address(fragmentsingle));
+        pp.addWhitelist("test", address(literef8));
+        pp.addWhitelist("test", address(fragmentsingle));
         vm.stopBroadcast();
     }
 }
