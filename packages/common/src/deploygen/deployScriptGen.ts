@@ -1,7 +1,6 @@
 import { cleanAndCapitalizeFirstLetter } from '../codegen/utils';
 import { ContractConfig, ProjectConfig, ScopeConfig } from "../types";
 
-
 export class DeployScriptGen {
     constructor() { }
 
@@ -29,7 +28,6 @@ export class DeployScriptGen {
         script += `\ncontract ${mainContractName}Deploy is Script {\n`;
         script += `    function run() external {\n`;
 
-
         script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
         script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`
         script += `        console.log("Deployer starting");\n`;
@@ -48,7 +46,6 @@ export class DeployScriptGen {
         }
 
         // deploy each contract
-
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
@@ -56,12 +53,12 @@ export class DeployScriptGen {
             script += `        ${contractName} ${contractKeyName} = new ${contractName}(ppAddress, ownerAddress);\n`;
         });
 
-        // register fragments
+        // register references
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
                 for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
-                    script += `        ${contractName.toLowerCase()}.registerFragment(${fragment.toLowerCase()});\n`;
+                    script += `        ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
                 }
             }
         });
@@ -92,5 +89,4 @@ export class DeployScriptGen {
         }
         throw new Error(`Scope ${scopeName} not found in project config`);
     }
-
 }
