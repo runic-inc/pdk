@@ -9,7 +9,7 @@ cache_path = 'contracts/cache'
 remappings = [
     '@patchwork/=./node_modules/@patchworkdev/contracts/src/',
     '@openzeppelin/=./node_modules/@openzeppelin/',
-    'forge-std/=lib/forge-std/src/'
+    'forge-std/=./node_modules/forge-std/src'
 ]
 allow_paths = [
     "./node_modules/@patchworkdev/contracts/src/",

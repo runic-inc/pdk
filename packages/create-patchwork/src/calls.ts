@@ -63,19 +63,6 @@ export async function initGitRepo(targetDir: string): Promise<void> {
 
 }
 
-export async function forgeInit(targetDir: string): Promise<void> {
-    await oraPromise(
-        execa('forge', ['init', '--force'], {
-            cwd: targetDir,
-        }),
-        {
-            text: `Initializing forge project`,
-            failText: "Failed to initialize forge project",
-            successText: `Forge project initialized successfully`,
-        },
-    );
-}
-
 export async function forgeBuild(targetDir: string): Promise<void> {
     await oraPromise(
         execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {

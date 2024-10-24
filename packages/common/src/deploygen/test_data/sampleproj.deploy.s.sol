@@ -23,7 +23,7 @@ contract SampleProjectDeploy is Script {
         }
         LiteRef8 literef8 = new LiteRef8(ppAddress, ownerAddress);
         FragmentSingle fragmentsingle = new FragmentSingle(ppAddress, ownerAddress);
-        literef8.registerFragment(fragmentsingle);
+        literef8.registerReferenceAddress(address(fragmentsingle));
         pp.addWhitelist("test", address(literef8));
         pp.addWhitelist("test", address(fragmentsingle));
         vm.stopBroadcast();
