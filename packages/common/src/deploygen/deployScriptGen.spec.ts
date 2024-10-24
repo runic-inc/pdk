@@ -1,5 +1,7 @@
 import fs from 'fs';
+import path, { dirname } from 'path';
 import { JSONProjectConfigLoader } from '../configgen/jsonProjectConfigLoader';
+import { ContractConfig, ProjectConfig } from '../types';
 import { DeployScriptGen } from './deployScriptGen';
 
 describe('generateDeployerScript', () => {
@@ -18,7 +20,7 @@ describe('generateDeployerScript', () => {
         const jsonData = fs.readFileSync(`${fullBaseName}.json`, 'utf8');
         const solidityExpected = fs.readFileSync(`${fullBaseName}.deploy.s.sol`, 'utf8');
 
-        const projectConfig = jsonConfigLoader.load(jsonData);
+        const projectConfig = loadFullProjectConfig(jsonConfigLoader.load(jsonData), dirname(fullBaseName));
         // console.log(projectConfig);
         const solidityGenerated = gen.gen(projectConfig);
 
@@ -26,3 +28,24 @@ describe('generateDeployerScript', () => {
       });
   }
 });
+
+function loadFullProjectConfig(projectConfig: ProjectConfig, baseDir: string): ProjectConfig {
+    const fullProjectConfig = { ...projectConfig };
+    for (const contractName of Object.keys(projectConfig.contracts)) {
+        const contractConfig = projectConfig.contracts[contractName];
+        if (typeof contractConfig === "string") {
+            const config = loadContractConfig(contractConfig, baseDir);
+            fullProjectConfig.contracts[contractName] = config;
+        }
+    }
+    return fullProjectConfig;
+}
+
+function loadContractConfig(contractName: string, baseDir: string): ContractConfig {
+    // TODO load TS files
+    const configPath = path.resolve(baseDir, contractName);
+    const configFile = fs.readFileSync(configPath, 'utf8');
+    const config: ContractConfig = JSON.parse(configFile);
+
+    return config;
+}

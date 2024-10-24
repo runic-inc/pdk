@@ -1,4 +1,4 @@
-import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, DeployScriptGen, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
 import fs from "fs";
 import path from "path";
 import { register } from 'ts-node';
@@ -84,40 +84,66 @@ export class CLIProcessor {
             }
             this.generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
         } else {
+            // Fully load this config then process
+            const fullProjectConfig = { ...projectConfig };
             Object.entries(projectConfig.contracts).forEach(([key, value]) => {
                 if (typeof value === "string") {
-                    this.generateContract(this.getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout), outputDir);
+                    const config = this.getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout);
+                    fullProjectConfig.contracts[key] = config;
                 } else {
-                    this.generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
+                    fullProjectConfig.contracts[key] = new ContractSchemaImpl(value as ContractConfig);
                 }
             });
+            Object.entries(fullProjectConfig.contracts).forEach(([key, value]) => {
+                this.generateContract(value as ContractSchemaImpl, outputDir);
+            });
+            this.generateDeployScript(fullProjectConfig, outputDir);
         }
     }
     
     generateContract(schema: ContractSchemaImpl, outputDir: string) {
-        schema.validate();
-        const solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
-        const solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
-        const jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
-        const solidityCode = new MainContractGen().gen(schema);
-        const solidityUserCode = new UserContractGen().gen(schema);
-        const jsonSchema = new JSONSchemaGen().gen(schema);
-        let outputPath = path.join(outputDir, solidityGenFilename);
-        // TODO check the path to make sure it's not a file instead of a writeable directory
-        fs.writeFileSync(outputPath, solidityCode);
-        console.log(`Solidity gen file generated at ${outputPath}`);
-        outputPath = path.join(outputDir, solidityUserFilename);
-        if (fs.existsSync(outputPath)) {
-            console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
-        } else {
-            fs.writeFileSync(outputPath, solidityUserCode);
-            console.log(`Solidity user file generated at ${outputPath}`);
+        try {
+            schema.validate();
+            const solidityGenFilename = cleanAndCapitalizeFirstLetter(schema.name) + "Generated.sol";
+            const solidityUserFilename = cleanAndCapitalizeFirstLetter(schema.name) + ".sol";
+            const jsonFilename = cleanAndCapitalizeFirstLetter(schema.name) + "-schema.json";
+            const solidityCode = new MainContractGen().gen(schema);
+            const solidityUserCode = new UserContractGen().gen(schema);
+            const jsonSchema = new JSONSchemaGen().gen(schema);
+            let outputPath = path.join(outputDir, solidityGenFilename);
+            // TODO check the path to make sure it's not a file instead of a writeable directory
+            console.log("trying to write to", outputPath);
+            fs.writeFileSync(outputPath, solidityCode);
+            console.log(`Solidity gen file generated at ${outputPath}`);
+            outputPath = path.join(outputDir, solidityUserFilename);
+            if (fs.existsSync(outputPath)) {
+                console.log(`Output file ${outputPath} already exists. Skipping overwrite.`);
+            } else {
+                fs.writeFileSync(outputPath, solidityUserCode);
+                console.log(`Solidity user file generated at ${outputPath}`);
+            }
+            outputPath = path.join(outputDir, jsonFilename);
+            fs.writeFileSync(outputPath, jsonSchema);
+            console.log(`JSON Schema file generated at ${outputPath}`);
+        } catch (err: any) {
+            console.error("Error:", err.message);
+            throw new Error("Error generating contract");
         }
-        outputPath = path.join(outputDir, jsonFilename);
-        fs.writeFileSync(outputPath, jsonSchema);
-        console.log(`JSON Schema file generated at ${outputPath}`);
     }
     
+    generateDeployScript(projectConfig: ProjectConfig, outputDir: string) {
+        try {
+            const deployScriptCode = new DeployScriptGen().gen(projectConfig);
+            const deployerFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + "-deploy.s.sol";
+            const outputPath = path.join(outputDir, deployerFilename);
+            fs.writeFileSync(outputPath, deployScriptCode);
+            console.log(`Deploy script generated at ${outputPath}`);
+        } catch (err: any) {
+            console.error("Error:", err.message);
+            throw new Error("Error generating deploy script");
+        }
+    }
+
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
         const pdkRepoRoot = this.isPDKRepo(process.cwd());
 
