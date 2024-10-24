@@ -9,7 +9,7 @@ export class DeployScriptGen {
         script += `pragma solidity ^0.8.13;\n\n`;
         script += `import "forge-std/Script.sol";\n`;
         script += `import "forge-std/console.sol";\n`;
-        console.log(Object.keys(projectConfig.contracts));
+        // console.log(Object.keys(projectConfig.contracts));
         Object.values(projectConfig.contracts).forEach((value: string | ContractConfig) => {
             if (typeof value === "string") {
                 script += `import "./${value.replace(".json", ".sol")}";\n`;

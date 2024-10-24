@@ -1,4 +1,4 @@
-import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, DeployScriptGen, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
 import fs from "fs";
 import path from "path";
 import { register } from 'ts-node';
@@ -91,6 +91,7 @@ export class CLIProcessor {
                     this.generateContract(new ContractSchemaImpl(value as ContractConfig), outputDir);
                 }
             });
+            this.generateDeployScript(projectConfig, outputDir);
         }
     }
     
@@ -118,6 +119,14 @@ export class CLIProcessor {
         console.log(`JSON Schema file generated at ${outputPath}`);
     }
     
+    generateDeployScript(projectConfig: ProjectConfig, outputDir: string) {
+        const deployScriptCode = new DeployScriptGen().gen(projectConfig);
+        const deployerFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + "-deploy.s.sol";
+        const outputPath = path.join(outputDir, deployerFilename);
+        fs.writeFileSync(outputPath, deployScriptCode);
+        console.log(`Deploy script generated at ${outputPath}`);
+    }
+
     getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
         const pdkRepoRoot = this.isPDKRepo(process.cwd());
 
