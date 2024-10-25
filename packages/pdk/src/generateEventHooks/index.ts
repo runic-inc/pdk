@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../helpers/config';
-import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './factories';
+import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
 export async function generateEventHooks(configPath: string) {
     // Resolve the full path of the config file
