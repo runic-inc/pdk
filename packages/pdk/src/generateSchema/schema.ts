@@ -80,6 +80,7 @@ function coreTableStructure(): TableStructure {
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'namespace', value: 'p.text().notNull()' },
                 { key: 'patchworkAddress', value: 'p.evmHex().notNull()' },
+                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
             ],
             relations: {
                 block: {
@@ -155,6 +156,7 @@ function coreTableStructure(): TableStructure {
             fields: [
                 { key: 'id', value: 'p.text().notNull()' },
                 { key: 'address', value: 'p.evmHex().notNull()' },
+                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
             ],
             relations: {
                 address: {
@@ -172,6 +174,7 @@ function coreTableStructure(): TableStructure {
                 { key: 'chainId', value: 'p.text().notNull()' },
                 { key: 'type', value: 'p.text().notNull()' },
                 { key: 'searchable', value: 'p.text()' },
+                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
             ],
             relations: {
                 address: {
@@ -209,6 +212,7 @@ function coreTableStructure(): TableStructure {
                 { key: 'addressId', value: 'p.text().notNull()' },
                 { key: 'txId', value: 'p.text().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
+                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
             ],
             relations: {
                 address: {

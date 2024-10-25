@@ -1,22 +1,21 @@
-import fs from "fs/promises";
-import path from "path";
-import prettier from "prettier";
-import { analyzeAPI } from "../helpers/api";
+import fs from 'fs/promises';
+import path from 'path';
+import prettier from 'prettier';
+import { analyzeAPI } from '../helpers/api';
+import { pascalCase } from '../helpers/text';
 
 export async function generateReactHooks(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, "ponder", "src", "generated", "api.ts");
-        const hooksDir = path.join(configDir, "www", "generated", "hooks");
-        const hooksFile = path.join(hooksDir, "index.ts");
+        const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
+        const hooksDir = path.join(configDir, 'www', 'generated', 'hooks');
+        const hooksFile = path.join(hooksDir, 'index.ts');
 
         // Check if tRPC router file exists
         try {
             await fs.access(trpcRouter);
         } catch (error) {
-            console.error(
-                `Error: Unable to access tRPC router file at ${trpcRouter}`
-            );
+            console.error(`Error: Unable to access tRPC router file at ${trpcRouter}`);
             return;
         }
 
@@ -24,10 +23,7 @@ export async function generateReactHooks(configPath: string) {
         try {
             await fs.mkdir(hooksDir, { recursive: true });
         } catch (error) {
-            console.error(
-                `Error creating hooks directory at ${hooksDir}:`,
-                error
-            );
+            console.error(`Error creating hooks directory at ${hooksDir}:`, error);
             return;
         }
 
@@ -38,30 +34,22 @@ export async function generateReactHooks(configPath: string) {
         ];
 
         for (let key in apiStructure) {
-            const varname = key
-                .split(".")
-                .map((word, index) =>
-                    index === 1
-                        ? word.charAt(0).toUpperCase() + word.slice(1)
-                        : word
-                )
-                .join("");
-            hooksFileArray.push(`export const use${varname} = trpc.${key}.useQuery;
+            hooksFileArray.push(`export const use${pascalCase(key)} = trpc.${key}.useQuery;
             `);
         }
 
         try {
-            const formatted = await prettier.format(hooksFileArray.join(""), {
-                parser: "typescript",
+            const formatted = await prettier.format(hooksFileArray.join(''), {
+                parser: 'typescript',
                 tabWidth: 4,
                 printWidth: 120,
             });
-            await fs.writeFile(hooksFile, formatted, "utf-8");
+            await fs.writeFile(hooksFile, formatted, 'utf-8');
             console.log(`React hooks generated successfully at ${hooksFile}`);
         } catch (error) {
-            console.error("Error formatting or writing hooks file:", error);
+            console.error('Error formatting or writing hooks file:', error);
         }
     } catch (error) {
-        console.error("Error generating React hooks:", error);
+        console.error('Error generating React hooks:', error);
     }
 }
