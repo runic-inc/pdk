@@ -1,14 +1,86 @@
-import fs from 'fs';
-import Ajv2019 from "ajv/dist/2019";
 import { ErrorObject } from "ajv";
-import { parseJson } from './contractSchemaJsonParser';
-import { ContractSchemaImpl } from './contractSchema';
+import Ajv2019 from "ajv/dist/2019";
+import fs from 'fs';
 import { JSONProjectConfigLoader } from '../configgen/jsonProjectConfigLoader';
 import { ContractConfig, ProjectConfig } from '../types';
+import { ContractSchemaImpl } from './contractSchema';
+import { parseJson } from './contractSchemaJsonParser';
 
 interface ValidationResult {
   isValid: boolean;
   errors: ErrorObject[];
+}
+
+function isValidNameIdentifier(name: string): boolean {
+  return /^[^0-9].*$/.test(name);
+}
+
+function createErrorObject(keyword: string, message: string, params: Record<string, any>): ErrorObject {
+  return {
+    keyword,
+    instancePath: "",
+    schemaPath: `#/${keyword}`,
+    params,
+    message
+  };
+}
+
+function validateContractConfig(jsonData: unknown): ValidationResult {
+  try {
+    if (typeof jsonData !== 'object' || jsonData === null) {
+      throw new Error('Invalid contract config format');
+    }
+
+    const config = jsonData as ContractConfig;
+    
+    if (!isValidNameIdentifier(config.name)) {
+      throw new Error('Contract name must not start with a number');
+    }
+    
+    const contractSchema = parseJson(jsonData);
+    new ContractSchemaImpl(contractSchema).validate();
+    return { isValid: true, errors: [] };
+  } catch (error) {
+    return {
+      isValid: false,
+      errors: [createErrorObject("contractSchema", (error as Error).message, {})]
+    };
+  }
+}
+
+function validateProjectConfig(jsonData: unknown): ValidationResult {
+  try {
+    if (typeof jsonData !== 'object' || jsonData === null) {
+      throw new Error('Invalid project config format');
+    }
+
+    const config = jsonData as ProjectConfig;
+    
+    if (!isValidNameIdentifier(config.name)) {
+      throw new Error('Project name must not start with a number');
+    }
+    
+    // Also validate names of all contracts within the project config
+    if (config.contracts) {
+      for (const [contractName, contractConfig] of Object.entries(config.contracts)) {
+        if (typeof contractConfig === 'object') {
+          if (!isValidNameIdentifier(contractConfig.name)) {
+            throw new Error(`Contract "${contractName}" name must not start with a number`);
+          }
+        }
+      }
+    }
+    
+    const projectConfigLoader = new JSONProjectConfigLoader();
+    const projectConfig = projectConfigLoader.load(JSON.stringify(jsonData)) as ProjectConfig;
+    
+    return { isValid: true, errors: [] };
+  } catch (error) {
+    return {
+      isValid: false,
+      errors: [createErrorObject("projectConfig", (error as Error).message, {})]
+    };
+  }
 }
 
 export function validateSchema(jsonData: unknown, schemaFile: string): ValidationResult {
@@ -68,42 +140,5 @@ export function validateSchema(jsonData: unknown, schemaFile: string): Validatio
   return {
     isValid: true,
     errors: []
-  };
-}
-
-function validateContractConfig(jsonData: unknown): ValidationResult {
-  try {
-    const contractSchema = parseJson(jsonData);
-    new ContractSchemaImpl(contractSchema).validate();
-    return { isValid: true, errors: [] };
-  } catch (error) {
-    return {
-      isValid: false,
-      errors: [createErrorObject("contractSchema", (error as Error).message, {})]
-    };
-  }
-}
-
-function validateProjectConfig(jsonData: unknown): ValidationResult {
-  try {
-    const projectConfigLoader = new JSONProjectConfigLoader();
-    const projectConfig = projectConfigLoader.load(JSON.stringify(jsonData)) as ProjectConfig;
-    
-    return { isValid: true, errors: [] };
-  } catch (error) {
-    return {
-      isValid: false,
-      errors: [createErrorObject("projectConfig", (error as Error).message, {})]
-    };
-  }
-}
-
-function createErrorObject(keyword: string, message: string, params: Record<string, any>): ErrorObject {
-  return {
-    keyword,
-    instancePath: "",
-    schemaPath: `#/${keyword}`,
-    params,
-    message
   };
 }
