@@ -1,4 +1,4 @@
-import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, DeployScriptGen, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
+import { cleanAndCapitalizeFirstLetter, ContractConfig, ContractSchemaImpl, DeployScriptGen, DeployShellScriptGen, JSONProjectConfigLoader, JSONSchemaGen, MainContractGen, parseJson, ProjectConfig, UserContractGen, validateSchema } from "@patchworkdev/common";
 import fs from "fs";
 import path from "path";
 import { register } from 'ts-node';
@@ -97,7 +97,7 @@ export class CLIProcessor {
             Object.entries(fullProjectConfig.contracts).forEach(([key, value]) => {
                 this.generateContract(value as ContractSchemaImpl, outputDir);
             });
-            this.generateDeployScript(fullProjectConfig, outputDir);
+            this.generateDeployScripts(fullProjectConfig, outputDir);
         }
     }
     
@@ -131,13 +131,18 @@ export class CLIProcessor {
         }
     }
     
-    generateDeployScript(projectConfig: ProjectConfig, outputDir: string) {
+    generateDeployScripts(projectConfig: ProjectConfig, outputDir: string) {
         try {
             const deployScriptCode = new DeployScriptGen().gen(projectConfig);
             const deployerFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + "-deploy.s.sol";
-            const outputPath = path.join(outputDir, deployerFilename);
+            let outputPath = path.join(outputDir, deployerFilename);
             fs.writeFileSync(outputPath, deployScriptCode);
             console.log(`Deploy script generated at ${outputPath}`);
+            const deployShellScriptCode = new DeployShellScriptGen().gen(projectConfig);
+            const deployShellScriptFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + "-deploy.sh";
+            outputPath = path.join(outputDir, deployShellScriptFilename);
+            fs.writeFileSync(outputPath, deployShellScriptCode);
+            console.log(`Deploy shell script generated at ${outputPath}`);
         } catch (err: any) {
             console.error("Error:", err.message);
             throw new Error("Error generating deploy script");
