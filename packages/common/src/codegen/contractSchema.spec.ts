@@ -25,7 +25,7 @@ describe('contractSchemas', () => {
     it(`should leave well ordered fields in place`, () => {
         let config: ContractConfig = {
             scopeName: "test",
-            name: "a3n)ame",
+            name: "aname",
             symbol: "SYM",
             baseURI: "https://testthing.xyz",
             schemaURI: "https://testthing.xyz",
