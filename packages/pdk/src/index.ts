@@ -19,11 +19,16 @@ type ValidateArgs = {
     configFiles?: string[];
 };
 
-type GenerateArgs = {
+type GenerateContractArgs = {
     configFiles?: string[];
     output?: string;
-    rootdir?: string;
     contract?: string;
+};
+
+type GenerateDeployScriptArgs = {
+    configFiles?: string[];
+    output?: string;
+    contractsDir?: string;
 };
 
 type ConfigFileArg = {
@@ -66,7 +71,7 @@ const argv = yargs(hideBin(process.argv))
         }
     )
     .command(
-        "generate [configFiles..]",
+        "generateContracts [configFiles..]",
         "Generate patchwork contracts",
         (yargs) => {
             yargs
@@ -79,20 +84,43 @@ const argv = yargs(hideBin(process.argv))
                     type: "string",
                     description: "Output directory for the generated Solidity files",
                 })
-                .option("rootdir", {
-                    alias: "r",
-                    type: "string",
-                    description: "Root directory for the TS files (defaults to '.')",
-                })
                 .option("contract", {
                     alias: "c",
                     type: "string",
                     description: "Name of the specific contract to generate (optional for project configs)"
                 });
         },
-        (argv: yargs.ArgumentsCamelCase<GenerateArgs>) => {
+        (argv: yargs.ArgumentsCamelCase<GenerateContractArgs>) => {
             try {
-                cliProcessor.generateSolidity(argv.configFiles || [], argv.output, argv.rootdir, argv.contract);
+                cliProcessor.generateSolidity(argv.configFiles || [], argv.output, argv.contract);
+            } catch (e) {
+                process.exit(1);
+            }
+        }
+    )
+    .command(
+        "generateDeployScripts [configFiles..]",
+        "Generate deploy scripts",
+        (yargs) => {
+            yargs
+                .positional("configFiles", {
+                    describe: "Path to the JSON or TS files",
+                    type: "string",
+                })
+                .option("contractsDir", {
+                    alias: "c",
+                    type: "string",
+                    description: "Directory containing the source Solidity files to deploy (relative to where deploy script will run)",
+                })
+                .option("output", {
+                    alias: "o",
+                    type: "string",
+                    description: "Output directory for the generated Solidity files",
+                });
+        },
+        (argv: yargs.ArgumentsCamelCase<GenerateDeployScriptArgs>) => {
+            try {
+                cliProcessor.generateDeployScripts(argv.configFiles || [], argv.contractsDir, argv.output);
             } catch (e) {
                 process.exit(1);
             }
