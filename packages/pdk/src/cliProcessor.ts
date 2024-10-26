@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { register } from 'ts-node';
 
+
 export class CLIProcessor {
     contractSchema: string;
     projectSchema: string;
@@ -41,29 +42,28 @@ export class CLIProcessor {
         return true;
     }
     
-    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), rootDir: string = ".", contract?: string) {
-        const tmpout = "tmpout";
+    generateSolidity(configFiles: string[], outputDir: string = process.cwd(), contract?: string) {
         console.log("Generating Solidity files...");
         for (const configFile of configFiles) {
             if (configFile.endsWith(".json")) {
                 const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
                 if (validateSchema(jsonData, this.contractSchema).isValid) {
                     // Contract config
-                    this.generateContract(this.getContractSchema(configFile, rootDir, tmpout), outputDir);
+                    this.generateContract(this.loadContractConfigFromFile(configFile), outputDir);
                 } else if (validateSchema(jsonData, this.projectSchema).isValid) {
                     // Project config
                     const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
-                    this.processProjectConfig(projectConfig, contract, configFile, rootDir, tmpout, outputDir);
+                    this.generateProjectContracts(projectConfig, contract, configFile, outputDir);
                 } else {
                     console.error(`Invalid config file: ${configFile}`);
                     throw new Error(`Invalid config file: ${configFile}`);
                 }
             } else if (configFile.endsWith(".ts")) {
-                const tsConfig = this.getTSConfig(configFile, rootDir, tmpout);
+                const tsConfig = this.loadTSConfigFile(configFile);
                 if (tsConfig instanceof ContractSchemaImpl) {
                     this.generateContract(tsConfig, outputDir);
                 } else if (tsConfig.contracts) {
-                    this.processProjectConfig(tsConfig, contract, configFile, rootDir, tmpout, outputDir);
+                    this.generateProjectContracts(tsConfig, contract, configFile, outputDir);
                 } else {
                     console.error(`Invalid TS config file: ${configFile}`);
                     throw new Error(`Invalid TS config file: ${configFile}`);
@@ -75,7 +75,7 @@ export class CLIProcessor {
         }
     }
     
-    processProjectConfig(projectConfig: ProjectConfig, contract: string | undefined, configFile: string, rootDir: string, tmpout: string, outputDir: string) {
+    generateProjectContracts(projectConfig: ProjectConfig, contract: string | undefined, configFile: string, outputDir: string) {
         if (contract) {
             const contractConfig = projectConfig.contracts[contract];
             if (!contractConfig) {
@@ -84,23 +84,34 @@ export class CLIProcessor {
             }
             this.generateContract(new ContractSchemaImpl(contractConfig as ContractConfig), outputDir);
         } else {
-            // Fully load this config then process
-            const fullProjectConfig = { ...projectConfig };
-            Object.entries(projectConfig.contracts).forEach(([key, value]) => {
-                if (typeof value === "string") {
-                    const config = this.getContractSchema(`${path.dirname(configFile)}/${value}`, rootDir, tmpout);
-                    fullProjectConfig.contracts[key] = config;
-                } else {
-                    fullProjectConfig.contracts[key] = new ContractSchemaImpl(value as ContractConfig);
-                }
-            });
+            const fullProjectConfig = this.loadFullProjectConfig(projectConfig, configFile);
             Object.entries(fullProjectConfig.contracts).forEach(([key, value]) => {
                 this.generateContract(value as ContractSchemaImpl, outputDir);
             });
-            this.generateDeployScripts(fullProjectConfig, outputDir);
         }
     }
-    
+
+    /**
+     * Loads the full project configuration by resolving and loading all contract configurations
+     * referenced in the given project configuration.
+     *
+     * @param projectConfig - The initial project configuration containing contract references or full contracts
+     * @param configFile - The path to the original project config file - needed to find relative contract config paths.
+     * @returns The full project configuration with all contract configurations loaded.
+     */
+    loadFullProjectConfig(projectConfig: ProjectConfig, configFile: string): ProjectConfig {
+        const fullProjectConfig = { ...projectConfig };
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                const config = this.loadContractConfigFromFile(`${path.dirname(configFile)}/${value}`);
+                fullProjectConfig.contracts[key] = config;
+            } else {
+                fullProjectConfig.contracts[key] = new ContractSchemaImpl(value as ContractConfig);
+            }
+        });
+        return fullProjectConfig;
+    }
+
     generateContract(schema: ContractSchemaImpl, outputDir: string) {
         try {
             schema.validate();
@@ -131,9 +142,47 @@ export class CLIProcessor {
         }
     }
     
-    generateDeployScripts(projectConfig: ProjectConfig, outputDir: string) {
+    generateDeployScripts(configFiles: string[], contractsDir: string | undefined, outputDir: string = process.cwd()) {
+        console.log("Generating Deploy scripts...");
+        for (const configFile of configFiles) {
+            if (configFile.endsWith(".json")) {
+                const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+                if (validateSchema(jsonData, this.contractSchema).isValid) {
+                    // Contract config
+                    console.error("Contract config not supported for deploy script generation");
+                    throw new Error("Contract config not supported for deploy script generation");
+                } else if (validateSchema(jsonData, this.projectSchema).isValid) {
+                    // Project config
+                    const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
+                    this.generateDeployScript(projectConfig, configFile, contractsDir, outputDir);
+                } else {
+                    console.error(`Invalid config file: ${configFile}`);
+                    throw new Error(`Invalid config file: ${configFile}`);
+                }
+            } else if (configFile.endsWith(".ts")) {
+                const tsConfig = this.loadTSConfigFile(configFile);
+                if (tsConfig instanceof ContractSchemaImpl) {
+                    // Contract config
+                    console.error("Contract config not supported for deploy script generation");
+                    throw new Error("Contract config not supported for deploy script generation");
+                } else if (tsConfig.contracts) {
+                    this.generateDeployScript(tsConfig, configFile, contractsDir, outputDir);
+                } else {
+                    console.error(`Invalid TS config file: ${configFile}`);
+                    throw new Error(`Invalid TS config file: ${configFile}`);
+                }
+            } else {
+                console.error(`Invalid config file: ${configFile}`);
+                throw new Error(`Invalid config file: ${configFile}`);
+            }
+        }
+
+    }
+
+    generateDeployScript(_projectConfig: ProjectConfig, configFile: string, contractsDir: string | undefined, outputDir: string) {
+        const projectConfig = this.loadFullProjectConfig(_projectConfig, configFile);
         try {
-            const deployScriptCode = new DeployScriptGen().gen(projectConfig);
+            const deployScriptCode = new DeployScriptGen().gen(projectConfig, contractsDir);
             const deployerFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + "-deploy.s.sol";
             let outputPath = path.join(outputDir, deployerFilename);
             fs.writeFileSync(outputPath, deployScriptCode);
@@ -149,7 +198,7 @@ export class CLIProcessor {
         }
     }
 
-    getTSConfig(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl | ProjectConfig {
+    loadTSConfigFile(configFile: string): ContractSchemaImpl | ProjectConfig {
         const pdkRepoRoot = this.isPDKRepo(process.cwd());
 
         const tsNode = register({
@@ -230,11 +279,11 @@ export class CLIProcessor {
         return null;
     }
     
-    getContractSchema(configFile: string, rootDir: string, tmpout: string): ContractSchemaImpl {
+    loadContractConfigFromFile(configFile: string): ContractSchemaImpl {
         let schema: ContractSchemaImpl;
     
         if (configFile.endsWith(".ts")) {
-            const tsConfig = this.getTSConfig(configFile, rootDir, tmpout);
+            const tsConfig = this.loadTSConfigFile(configFile);
             if (tsConfig instanceof ContractSchemaImpl) {
                 schema = tsConfig;
             } else {

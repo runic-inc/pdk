@@ -5,7 +5,12 @@ export class DeployScriptGen {
     constructor() { }
 
     // This generator requires a fully loaded project config, no string-file references
-    gen(projectConfig: ProjectConfig): string {
+    gen(projectConfig: ProjectConfig, contractsDir: string | undefined): string {
+        if (contractsDir === undefined) {
+            contractsDir = "./";
+        } else {
+            contractsDir = contractsDir + "/";
+        }
         // Start building the script
         let script = `// SPDX-License-Identifier: UNLICENSED\n`;
         script += `pragma solidity ^0.8.13;\n\n`;
@@ -17,7 +22,7 @@ export class DeployScriptGen {
             } else {
                 const contractConfig = value as ContractConfig;
                 const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
-                script += `import "./${contractName}.sol";\n`;
+                script += `import "${contractsDir}${contractName}.sol";\n`;
             }
         });
 

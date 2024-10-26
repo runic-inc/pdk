@@ -42,6 +42,13 @@
                         "type": "char32",
                         "description": "Name",
                         "functionConfig": "all"
+                    },
+                    {
+                        "id": 2,
+                        "key": "patches",
+                        "type": "literef",
+                        "description": "Contract2",
+                        "arrayLength": 4
                     }
                 ]
             },
@@ -58,7 +65,7 @@
                 "baseURI": "https://mysecondthing/my/",
                 "schemaURI": "https://mysecondthing/my-metadata.json",
                 "imageURI": "https://mysecondthing/my/{tokenID}.png",
-                "features": ["patch"],
+                "features": ["patch", "fragmentsingle"],
                 "fields": [
                     {
                         "id": 1,

@@ -22,7 +22,7 @@ describe('generateDeployerScript', () => {
 
         const projectConfig = loadFullProjectConfig(jsonConfigLoader.load(jsonData), dirname(fullBaseName));
         // console.log(projectConfig);
-        const solidityGenerated = gen.gen(projectConfig);
+        const solidityGenerated = gen.gen(projectConfig, undefined);
 
         expect(solidityGenerated).toEqual(solidityExpected);
       });

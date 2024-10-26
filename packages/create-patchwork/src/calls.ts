@@ -79,16 +79,14 @@ export async function forgeBuild(targetDir: string): Promise<void> {
 
 export async function generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const outputDir = './contracts/src';
-    const rootDir = './';
 
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
         execa(pdkCommand, [
-            'generate',
+            'generateContracts',
             configPath,
-            '-o', outputDir,
-            '-r', rootDir
+            '-o', outputDir
         ], {
             cwd: targetDir,
         }),
@@ -96,6 +94,28 @@ export async function generateContracts(targetDir: string, useLocalPackages: boo
             text: `Generating contracts`,
             failText: "Failed to generate contracts",
             successText: `Contracts generated successfully`,
+        }
+    );
+}
+
+export async function generateDeployScripts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
+    const outputDir = './contracts/script';
+
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+
+    await oraPromise(
+        execa(pdkCommand, [
+            'generateDeployScripts',
+            configPath,
+            '-o', outputDir,
+            '-c', '../src'
+        ], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Generating deploy scripts`,
+            failText: "Failed to generate deploy scripts",
+            successText: `Deploy scripts generated successfully`,
         }
     );
 }
