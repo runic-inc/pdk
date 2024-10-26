@@ -97,6 +97,7 @@ export class TSProjectConfigGen {
             fieldStr += `                    key: "${field.key}",\n`;
             fieldStr += `                    type: "${field.type}",\n`;
             if (field.description) fieldStr += `                    description: "${field.description}",\n`;
+            if (field.arrayLength !== undefined && field.arrayLength !== 1) fieldStr += `                    arrayLength: ${field.arrayLength},\n`;
             if (field.functionConfig) fieldStr += `                    functionConfig: FunctionConfig.${field.functionConfig},\n`;
             fieldStr += '                }';
             return fieldStr;

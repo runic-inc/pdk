@@ -36,6 +36,13 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                     type: "char32",
                     description: "Name",
                     functionConfig: FunctionConfig.ALL,
+                },
+                {
+                    id: 2,
+                    key: "patches",
+                    type: "literef",
+                    description: "Contract2",
+                    arrayLength: 4,
                 }
             ],
             features: [Feature.ACCOUNTPATCH]
@@ -56,7 +63,7 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                     functionConfig: FunctionConfig.ALL,
                 }
             ],
-            features: [Feature.PATCH]
+            features: [Feature.PATCH, Feature.FRAGMENTSINGLE]
         }
     },
     contractRelations: {
