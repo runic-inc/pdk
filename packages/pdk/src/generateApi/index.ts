@@ -1,11 +1,9 @@
 import fs from 'fs/promises';
-import _ from 'lodash';
 import path from 'path';
 import { loadPonderSchema } from '../helpers/config';
 // import { FieldDefinition, Schema } from "./ponderMocks";
 import { formatAndSaveFile } from '../helpers/file';
 import { FieldDefinition, SchemaModule, TableDefinition } from '../helpers/ponderSchemaMock';
-import { pascalCase } from '../helpers/text';
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     try {
@@ -118,7 +116,7 @@ ${Object.entries(schema)
         const filterInput = generateFilterInput(tableName, tableDefinition);
         const whereClause = generateWhereClause(tableName, tableDefinition);
         imports.add(tableName);
-        const typeName = pascalCase(tableName);
+        // const typeName = pascalCase(tableName);
 
         return `
   ${tableName}: router({
@@ -135,7 +133,7 @@ ${Object.entries(schema)
     
     getPaginated: publicProcedure
       .input(${filterInput})
-      .query(async ({ input, ctx }): Promise<GetPaginatedOutput<${typeName}>> => {
+      .query(async ({ input, ctx }) => {
         const { limit, lastTimestamp, ...filters } = input;
         
         const query = ctx.db
@@ -164,10 +162,10 @@ ${Object.entries(schema)
 };
 `;
     apiContent.push(`import {${[...imports].sort().join(',')}} from "../../ponder.schema"`);
-    apiContent.push(`type GetPaginatedOutput<T> = { items: T[], nextTimestamp: number | undefined }`);
-    [...imports].forEach((i) => {
-        apiContent.push(`type ${_.upperFirst(_.camelCase(i))} = typeof ${i}.$inferSelect;`);
-    });
+    // apiContent.push(`type GetPaginatedOutput<T> = { items: T[], nextTimestamp: number | undefined }`);
+    // [...imports].forEach((i) => {
+    //     apiContent.push(`type ${_.upperFirst(_.camelCase(i))} = typeof ${i}.$inferSelect;`);
+    // });
     apiContent.push();
     apiContent.push(apiObject);
     return apiContent;
