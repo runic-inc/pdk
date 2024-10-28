@@ -1,21 +1,20 @@
-import fs from "fs/promises";
-import path from "path";
-import prettier from "prettier";
-import { analyzeAPI } from "../helpers/api";
+import fs from 'fs/promises';
+import path from 'path';
+import { analyzeAPI } from '../helpers/api';
+import { formatAndSaveFile } from '../helpers/file';
+import { pascalCase } from '../helpers/text';
 
 export async function generateDemoPage(configPath: string) {
     try {
         const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, "ponder", "src", "generated", "api.ts");
-        const demoFile = path.join(configDir, "www", "app", "demo", "page.tsx");
+        const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
+        const demoFile = path.join(configDir, 'www', 'app', 'demo', 'page.tsx');
 
         // Check if the trpcRouter file exists
         try {
             await fs.access(trpcRouter);
         } catch (error) {
-            console.error(
-                `Error: Unable to access tRPC router file at ${trpcRouter}`
-            );
+            console.error(`Error: Unable to access tRPC router file at ${trpcRouter}`);
             return;
         }
 
@@ -24,13 +23,11 @@ export async function generateDemoPage(configPath: string) {
         const components = [];
 
         for (let key in apiStructure) {
-            if (key.includes("getPaginated")) {
-                const entity = key.split(".")[0];
-                const component = `${entity}List`;
+            if (key.includes('getPaginated')) {
+                const entity = key.split('.')[0];
+                const component = `${pascalCase(entity)}List`;
                 components.push(component);
-                demoFileArray.push(
-                    `import ${component} from "../../generated/components/${component}";\n`
-                );
+                demoFileArray.push(`import ${component} from "../../generated/components/${component}";\n`);
             }
         }
 
@@ -48,28 +45,18 @@ export default function Home() {
     );
 }`);
 
-        const formatted = await prettier.format(demoFileArray.join(""), {
-            parser: "typescript",
-            tabWidth: 4,
-            printWidth: 120,
-        });
-
         // Ensure the demo directory exists
         const demoDir = path.dirname(demoFile);
         try {
             await fs.mkdir(demoDir, { recursive: true });
         } catch (error) {
-            console.error(
-                `Error creating demo directory at ${demoDir}:`,
-                error
-            );
+            console.error(`Error creating demo directory at ${demoDir}:`, error);
             return;
         }
 
-        // Write the formatted content to the demo file
-        await fs.writeFile(demoFile, formatted, "utf-8");
+        await formatAndSaveFile(demoFile, demoFileArray.join(''));
         console.log(`Demo page generated successfully at ${demoFile}`);
     } catch (error) {
-        console.error("Error generating demo page:", error);
+        console.error('Error generating demo page:', error);
     }
 }
