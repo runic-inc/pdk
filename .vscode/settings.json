@@ -12,7 +12,6 @@
     "editor.wordWrapColumn": 160,
     "editor.formatOnSave": true,
     "prettier.enable": true,
-    // the following prettier options are superceded by .prettierrc
     "prettier.singleQuote": true,
     "prettier.tabWidth": 4,
     "prettier.trailingComma": "all",
