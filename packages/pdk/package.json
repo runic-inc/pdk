@@ -3,6 +3,7 @@
     "description": "Patchwork Development Kit",
     "version": "0.2.4",
     "main": "src/index.ts",
+    "type": "commonjs",
     "scripts": {
         "start": "node dist/index.js",
         "test": "jest",
@@ -12,35 +13,36 @@
         "build:all": "pnpm build && pnpm build:wizard"
     },
     "keywords": [
-      "solidity",
-      "patchwork",
-      "codegen"
+        "solidity",
+        "patchwork",
+        "codegen"
     ],
     "author": "Runic Labs, Inc",
     "license": "MIT",
     "dependencies": {
-      "@hono/node-server": "1.12.2",
-      "@patchworkdev/common": "workspace:*",
-      "hono": "4.6.3",
-      "@ponder/core": "^0.5.17",
-      "lodash":"4.17.21",
-      "prettier": "3.3.3",
-      "ts-node": "10.9.2",
-      "tsconfig-paths": "4.2.0",
-      "typescript": "5.5.4",
-      "viem": "2.21.9",
-      "yargs": "17.7.2"
+        "@hono/node-server": "1.12.2",
+        "@patchworkdev/common": "workspace:*",
+        "hono": "4.6.3",
+        "@ponder/core": "^0.5.17",
+        "lodash": "4.17.21",
+        "execa": "9.5.0",
+        "prettier": "3.3.3",
+        "ts-node": "10.9.2",
+        "tsconfig-paths": "4.2.0",
+        "typescript": "5.5.4",
+        "viem": "2.21.9",
+        "yargs": "17.7.2"
     },
     "bin": {
-      "pdk": "dist/index.js"
+        "pdk": "dist/index.js"
     },
     "devDependencies": {
-      "@types/jest": "29.5.12",
-      "@types/lodash": "4.17.12",
-      "@types/node": "22.5.1",
-      "@types/yargs": "17.0.33",
-      "jest": "29.7.0",
-      "ts-jest": "29.2.5",
-      "vite": "5.4.2"
+        "@types/jest": "29.5.12",
+        "@types/lodash": "4.17.12",
+        "@types/node": "22.5.1",
+        "@types/yargs": "17.0.33",
+        "jest": "29.7.0",
+        "ts-jest": "29.2.5",
+        "vite": "5.4.2"
     }
-  }
+}
