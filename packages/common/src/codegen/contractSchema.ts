@@ -1,4 +1,4 @@
-import { ContractConfig, Feature, FieldConfig, FieldType, FunctionConfig, Visibility } from '../types';
+import { ContractConfig, Feature, FieldConfig, FieldType, FunctionConfig, ValidNameIdentifier, Visibility } from '../types';
 
 export type ContractFieldType = {
     solidityType: string;
@@ -53,7 +53,7 @@ export interface ContractSchema extends ContractConfig {
 // ContractConfig from user or file ->> ContractSchemaImpl
 export class ContractSchemaImpl implements ContractSchema {
     scopeName!: string;
-    name!: string;
+    name!: ValidNameIdentifier;
     symbol!: string;
     baseURI!: string;
     schemaURI!: string;
