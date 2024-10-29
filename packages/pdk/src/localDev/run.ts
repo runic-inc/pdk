@@ -12,6 +12,27 @@ interface DeploymentAddresses {
     [contractName: string]: string;
 }
 
+async function writeEnvFile(targetDir: string, deployConfig: DeployConfig, deployedContracts: DeploymentAddresses) {
+    // Build .env content
+    const envContent =
+        [
+            `RPC_URL=${deployConfig.rpcUrl}`,
+            'NETWORK=8453',
+            `PATCHWORK_PROTOCOL=${deployConfig.patchworkProtocol}`,
+            // Add CONTRACT_ADDRESS entries for each deployed contract
+            ...Object.entries(deployedContracts).map(([contract, address]) => {
+                // Capitalize contract name and add _CONTRACT_ADDRESS
+                const envVarName = `${contract.toUpperCase()}_CONTRACT_ADDRESS`;
+                return `${envVarName}=${address}`;
+            }),
+        ].join('\n') + '\n'; // Add final newline
+
+    // Write the .env file
+    const envPath = path.join(targetDir, '.env');
+    await fs.writeFile(envPath, envContent);
+    console.log('\nWrote environment variables to:', envPath);
+}
+
 async function extractContractNamesFromScript(scriptPath: string): Promise<string[]> {
     const content = await fs.readFile(scriptPath, 'utf-8');
 
@@ -151,6 +172,9 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
             console.log(contract.padEnd(20), '│', address);
         });
         console.log('═══════════════════════════════════════════════');
+
+        // Write .env file
+        await writeEnvFile(targetDir, deployConfig, deployedContracts);
 
         return deployedContracts;
     } catch (error) {
