@@ -8,23 +8,76 @@ interface DeployConfig {
     patchworkProtocol?: string;
 }
 
-async function extractContractName(scriptPath: string): Promise<string> {
-    const content = await fs.readFile(scriptPath, 'utf-8');
-    // Look for "contract <name> is Script"
-    const contractMatch = content.match(/contract\s+(\w+)\s+is\s+Script/);
-    if (!contractMatch) {
-        throw new Error('Could not find deploy contract in script file');
-    }
-    return contractMatch[1];
+interface DeploymentAddresses {
+    [contractName: string]: string;
 }
 
-export async function localDevRun(configPath: string, config: DeployConfig = {}) {
+async function extractContractNamesFromScript(scriptPath: string): Promise<string[]> {
+    const content = await fs.readFile(scriptPath, 'utf-8');
+
+    // Find the struct definition
+    const structMatch = content.match(/struct\s+DeploymentAddresses\s*{([^}]+)}/s);
+    if (!structMatch) {
+        throw new Error('Could not find DeploymentAddresses struct in script');
+    }
+
+    // Extract contract names from the struct definition
+    const structContent = structMatch[1];
+    const contractNames = structContent
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith('address'))
+        .map((line) => line.split(/\s+/)[1].replace(';', ''));
+
+    return contractNames;
+}
+
+async function parseDeploymentOutput(output: string, contractNames: string[]): Promise<DeploymentAddresses> {
+    // Find the return value line which contains the struct
+    const lines = output.split('\n');
+    const returnLine = lines.find((line) => line.includes('DeploymentAddresses({') && line.includes('0x'));
+
+    if (!returnLine) {
+        // If we can't find the return line, log relevant output for debugging
+        const relevantLines = lines.filter((line) => line.includes('Return') || line.includes('DeploymentAddresses') || line.includes('0x'));
+        console.error('Could not find return value. Relevant output:', relevantLines);
+        throw new Error('Could not find contract addresses in deployment output');
+    }
+
+    // Extract the struct content between curly braces
+    const structMatch = returnLine.match(/DeploymentAddresses\({(.+?)}\)/);
+    if (!structMatch) {
+        throw new Error('Could not parse deployment addresses struct from output');
+    }
+
+    const structContent = structMatch[1];
+
+    // Parse the comma-separated key-value pairs
+    const pairs = structContent.split(',').map((pair) => pair.trim());
+    const deployedContracts: DeploymentAddresses = {};
+
+    pairs.forEach((pair) => {
+        const [name, address] = pair.split(':').map((s) => s.trim());
+        if (name && address) {
+            deployedContracts[name] = address;
+        }
+    });
+
+    // Verify we found all expected contracts
+    const missingContracts = contractNames.filter((name) => !deployedContracts[name]);
+    if (missingContracts.length > 0) {
+        throw new Error(`Missing addresses for contracts: ${missingContracts.join(', ')}`);
+    }
+
+    return deployedContracts;
+}
+
+export async function localDevRun(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
     console.log('Running local development environment...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
 
-    // Default configuration
     const deployConfig = {
         rpcUrl: config.rpcUrl || 'http://localhost:8545',
         privateKey: config.privateKey || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -33,7 +86,6 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
     };
 
     try {
-        // Dynamically import execa
         const { execa } = await import('execa');
 
         // Start Docker services
@@ -42,12 +94,12 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
             cwd: targetDir,
         });
 
-        // Find the deploy script
+        // Find deploy script
         const files = await fs.readdir(scriptDir);
         const deployScripts = files.filter((file) => file.endsWith('-deploy.s.sol'));
 
         if (deployScripts.length === 0) {
-            throw new Error('No deploy script found in ' + scriptDir);
+            throw new Error(`No deploy script found in ${scriptDir}`);
         }
         if (deployScripts.length > 1) {
             throw new Error(`Multiple deploy scripts found in ${scriptDir}: ${deployScripts.join(', ')}`);
@@ -56,46 +108,53 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
         const deployScript = deployScripts[0];
         const scriptPath = path.join(scriptDir, deployScript);
 
-        // Extract the actual contract name from the file
-        const contractName = await extractContractName(scriptPath);
-        console.log(`Found deploy contract: ${contractName}`);
+        // Extract contract names and validate script
+        const contractNames = await extractContractNamesFromScript(scriptPath);
+        console.log('\nFound contracts to deploy:', contractNames.join(', '));
 
-        // Build forge command arguments
-        const forgeArgs = [
-            'script',
-            '--optimize',
-            '--optimizer-runs=200',
-            '--broadcast',
-            '-vvv',
-            `${deployScript}:${contractName}`,
-            '--rpc-url',
-            deployConfig.rpcUrl,
-            '--private-key',
-            deployConfig.privateKey,
-        ];
+        // Run forge script
+        console.log('\nRunning deployment script...');
+        const { stdout } = await execa(
+            'forge',
+            [
+                'script',
+                '--optimize',
+                '--optimizer-runs=200',
+                '--broadcast',
+                '-vvv',
+                deployScript,
+                '--rpc-url',
+                deployConfig.rpcUrl,
+                '--private-key',
+                deployConfig.privateKey,
+            ],
+            {
+                cwd: scriptDir,
+                env: {
+                    ...process.env,
+                    OWNER: deployConfig.owner,
+                    PATCHWORK_PROTOCOL: deployConfig.patchworkProtocol,
+                },
+                stdio: ['inherit', 'pipe', 'inherit'],
+            },
+        );
 
-        // Set environment variables for the script
-        const env = {
-            ...process.env,
-            OWNER: deployConfig.owner,
-            PATCHWORK_PROTOCOL: deployConfig.patchworkProtocol,
-        };
+        // Parse deployment addresses
+        const deployedContracts = await parseDeploymentOutput(stdout, contractNames);
 
-        // Log the command being executed (for debugging)
-        console.log('Executing command:', 'forge', forgeArgs.join(' '));
-        console.log('Working directory:', scriptDir);
-
-        // Execute forge script
-        console.log('Running deployment script...');
-        await execa('forge', forgeArgs, {
-            cwd: scriptDir,
-            stdio: 'inherit',
-            env,
+        // Print results in a nicely formatted table
+        console.log('\nDeployment Results:');
+        console.log('═══════════════════════════════════════════════');
+        console.log('Contract Name'.padEnd(20), '│', 'Address');
+        console.log('─'.repeat(20), '┼', '─'.repeat(42));
+        Object.entries(deployedContracts).forEach(([contract, address]) => {
+            console.log(contract.padEnd(20), '│', address);
         });
+        console.log('═══════════════════════════════════════════════');
 
-        console.log('Local development environment is ready!');
+        return deployedContracts;
     } catch (error) {
-        console.error('Error during startup:', error);
+        console.error('Deployment failed:', error);
         throw error;
     }
 }
