@@ -29,10 +29,10 @@ class LockFileManager {
     protected lockData: LockFile;
     protected excludePatterns: string[];
 
-    constructor(lockFilePath: string = '.deploy.lock', excludePatterns: string[] = []) {
-        this.lockFilePath = path.resolve(lockFilePath);
-        this.rootDir = path.dirname(this.lockFilePath);
+    constructor(configPath: string, excludePatterns: string[] = []) {
         this.excludePatterns = excludePatterns;
+        this.rootDir = path.dirname(configPath);
+        this.lockFilePath = path.join(this.rootDir, '.deploy.lock');
         this.lockData = this.readLockFile();
     }
 
