@@ -1,40 +1,50 @@
 import { cleanAndCapitalizeFirstLetter } from '../codegen/utils';
-import { ContractConfig, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ProjectConfig, ScopeConfig } from '../types';
 
 export class DeployScriptGen {
-    constructor() { }
+    constructor() {}
 
-    // This generator requires a fully loaded project config, no string-file references
     gen(projectConfig: ProjectConfig, contractsDir: string | undefined): string {
         if (contractsDir === undefined) {
-            contractsDir = "./";
+            contractsDir = './';
         } else {
-            contractsDir = contractsDir + "/";
+            contractsDir = contractsDir + '/';
         }
+
+        const contractNames = Object.keys(projectConfig.contracts);
+
         // Start building the script
         let script = `// SPDX-License-Identifier: UNLICENSED\n`;
         script += `pragma solidity ^0.8.13;\n\n`;
         script += `import "forge-std/Script.sol";\n`;
         script += `import "forge-std/console.sol";\n`;
+
+        // Import contracts
         Object.values(projectConfig.contracts).forEach((value: string | ContractConfig) => {
-            if (typeof value === "string") {
-                throw new Error("DeployScriptGen requires fully loaded contract config");
+            if (typeof value === 'string') {
+                throw new Error('DeployScriptGen requires fully loaded contract config');
             } else {
                 const contractConfig = value as ContractConfig;
                 const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
                 script += `import "${contractsDir}${contractName}.sol";\n`;
             }
         });
+        script += `import "@patchwork/PatchworkProtocol.sol";\n\n`;
 
-        script += `import "@patchwork/PatchworkProtocol.sol";\n`;
+        // Define the DeploymentAddresses struct
+        script += `struct DeploymentAddresses {\n`;
+        contractNames.forEach((name) => {
+            script += `    address ${name.toLowerCase()};\n`;
+        });
+        script += `}\n\n`;
 
-        // Assuming the first contract in the config is the main deployer contract
-        const mainContractName = projectConfig.name.replace(/\s/g, "");
-        script += `\ncontract ${mainContractName}Deploy is Script {\n`;
-        script += `    function run() external {\n`;
+        // Main contract
+        const mainContractName = projectConfig.name.replace(/\s/g, '');
+        script += `contract ${mainContractName}Deploy is Script {\n`;
+        script += `    function run() external returns (DeploymentAddresses memory) {\n`;
 
         script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
-        script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`
+        script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
         script += `        console.log("Deployer starting");\n`;
         script += `        console.log("owner: ", ownerAddress);\n`;
         script += `        console.log("patchwork protocol: ", ppAddress);\n\n`;
@@ -42,7 +52,7 @@ export class DeployScriptGen {
         script += `        vm.startBroadcast();\n`;
         script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
 
-        // Iterate through each scope in the project configuration
+        // Scope configuration
         for (const scopeConfig of projectConfig.scopes) {
             script += `        if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
             script += `            pp.claimScope("${scopeConfig.name}");\n`;
@@ -50,7 +60,7 @@ export class DeployScriptGen {
             script += `        }\n`;
         }
 
-        // deploy each contract
+        // Deploy contracts
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
@@ -58,7 +68,7 @@ export class DeployScriptGen {
             script += `        ${contractName} ${contractKeyName} = new ${contractName}(ppAddress, ownerAddress);\n`;
         });
 
-        // register references
+        // Register references
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
@@ -68,7 +78,7 @@ export class DeployScriptGen {
             }
         });
 
-        // whitelist
+        // Whitelist
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             const contractConfig = value as ContractConfig;
@@ -78,7 +88,16 @@ export class DeployScriptGen {
                 script += `        pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
             }
         });
-        script += `        vm.stopBroadcast();\n`;
+
+        script += `        vm.stopBroadcast();\n\n`;
+
+        // Return the deployment addresses
+        script += `        return DeploymentAddresses({\n`;
+        contractNames.forEach((name, index) => {
+            const isLast = index === contractNames.length - 1;
+            script += `            ${name.toLowerCase()}: address(${name.toLowerCase()})${isLast ? '' : ','}\n`;
+        });
+        script += `        });\n`;
 
         script += `    }\n`;
         script += `}\n`;

@@ -7,8 +7,13 @@ import "./LiteRef8.sol";
 import "./FragmentSingle.sol";
 import "@patchwork/PatchworkProtocol.sol";
 
+struct DeploymentAddresses {
+    address literef8;
+    address fragmentsingle;
+}
+
 contract SampleProjectDeploy is Script {
-    function run() external {
+    function run() external returns (DeploymentAddresses memory) {
         address ownerAddress = vm.envAddress("OWNER");
         address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");
         console.log("Deployer starting");
@@ -27,5 +32,10 @@ contract SampleProjectDeploy is Script {
         pp.addWhitelist("test", address(literef8));
         pp.addWhitelist("test", address(fragmentsingle));
         vm.stopBroadcast();
+
+        return DeploymentAddresses({
+            literef8: address(literef8),
+            fragmentsingle: address(fragmentsingle)
+        });
     }
 }
