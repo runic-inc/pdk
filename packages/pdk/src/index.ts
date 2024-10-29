@@ -12,7 +12,7 @@ import { generateReactComponents } from './generateReactComponents';
 import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
 import { findConfig } from './helpers/config';
-import { localDevRun } from './localDev/run';
+import { localDevRun, localDevStop } from './localDev';
 import { launchWizardApp } from './wizardServer';
 type ValidateArgs = {
     configFiles?: string[];
@@ -269,11 +269,17 @@ const argv = yargs(hideBin(process.argv))
         },
     )
     .command('localDev', 'local dev commands', (yargs) => {
-        return yargs.command('run', 'Run docker compose for local dev', {}, async () => {
-            console.log('Running docker compose for local dev');
-            const configPath = await getConfigPath();
-            await localDevRun(configPath);
-        });
+        return yargs
+            .command('run', 'Run docker compose for local dev', {}, async () => {
+                console.log('Running docker compose for local dev');
+                const configPath = await getConfigPath();
+                await localDevRun(configPath);
+            })
+            .command('stop', 'Stop docker compose for local dev', {}, async () => {
+                console.log('Stopping docker compose for local dev');
+                const configPath = await getConfigPath();
+                await localDevStop(configPath);
+            });
     })
     .demandCommand(1, 'You must provide a valid command')
     .help('h')
