@@ -54,7 +54,8 @@ export async function loadPonderSchema(ponderSchema: string) {
         Object.assign(newRequire, originalRequire);
         Module.prototype.require = newRequire;
         try {
-            const schemaModule = await import(ponderSchema);
+            // const schemaModule = await import(ponderSchema);
+            const schemaModule = await require(ponderSchema);
             return schemaModule as SchemaModule;
         } catch (error) {
             if (error instanceof TypeError && error.message.includes('is not a function')) {
@@ -90,7 +91,8 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
         await fs.access(fullPath);
 
         // Import the config file
-        const module = await import(fullPath);
+        // const module = await import(fullPath);
+        const module = require(fullPath);
         return module.default as ProjectConfig;
     } catch (error) {
         if (error instanceof Error) {
@@ -123,7 +125,8 @@ export async function importABIFiles(abiDir: string) {
                 const filePath = path.join(abiDir, file);
 
                 // Import the TypeScript file
-                const module = await import(filePath);
+                // const module = await import(filePath);
+                const module = await require(filePath);
                 const baseName = path.basename(file, '.abi.ts');
                 abiObjects[baseName] = module[baseName];
 

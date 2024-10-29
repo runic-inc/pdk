@@ -13,6 +13,7 @@ import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
 import { findConfig } from './helpers/config';
 import { localDevRun, localDevStop } from './localDev';
+import { networkList, networkSwitch } from './network';
 import { launchWizardApp } from './wizardServer';
 type ValidateArgs = {
     configFiles?: string[];
@@ -46,7 +47,6 @@ async function getConfigPath(configFile?: string): Promise<string> {
         console.error('No config file found.');
         process.exit(1);
     }
-    console.log('Using config file:', configPath);
     return configPath;
 }
 
@@ -280,6 +280,28 @@ const argv = yargs(hideBin(process.argv))
                 const configPath = await getConfigPath();
                 await localDevStop(configPath);
             });
+    })
+    .command('network', 'network commands', (yargs) => {
+        return yargs
+            .command('list', 'list configured networks', {}, async () => {
+                const configPath = await getConfigPath();
+                await networkList(configPath);
+            })
+            .command(
+                'switch <network>',
+                'switch selected network',
+                {
+                    network: {
+                        description: 'Network to switch to',
+                        type: 'string',
+                        demandOption: true,
+                    },
+                },
+                async (argv) => {
+                    const configPath = await getConfigPath();
+                    await networkSwitch(configPath, argv.network);
+                },
+            );
     })
     .demandCommand(1, 'You must provide a valid command')
     .help('h')
