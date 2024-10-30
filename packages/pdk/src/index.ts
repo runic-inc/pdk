@@ -304,5 +304,6 @@ const argv = yargs(hideBin(process.argv))
             );
     })
     .demandCommand(1, 'You must provide a valid command')
+    .scriptName("pdk")
     .help('h')
     .alias('h', 'help').argv;
