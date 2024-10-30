@@ -23,7 +23,7 @@ export async function generateSchema(configPath: string) {
             return;
         }
 
-        generateSchemaFile(projectConfig, ponderSchema);
+        await generateSchemaFile(projectConfig, ponderSchema);
 
         console.log(`Ponder schema generated successfully at ${ponderSchema}`);
     } catch (error) {
