@@ -134,7 +134,7 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
     // Print results in a nicely formatted table
     console.log('\nDeployment Results:');
     console.log('═══════════════════════════════════════════════════════════════════════════');
-    console.log('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode Hash');
+    console.log('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
     console.log('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
     Object.entries(deployedContracts).forEach(([contract, info]) => {
         console.log(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
