@@ -2,8 +2,36 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "always"
     },
+    "editor.indentSize": 4,
     "editor.tabSize": 4,
     "editor.detectIndentation": false,
     "javascript.preferences.quoteStyle": "single",
     "typescript.preferences.quoteStyle": "single",
+    "editor.rulers": [160],
+    "editor.wordWrap": "on",
+    "editor.wordWrapColumn": 160,
+    "editor.formatOnSave": true,
+    "prettier.enable": true,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 4,
+    "prettier.trailingComma": "all",
+    "prettier.printWidth": 160,
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsx-tags]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
 }

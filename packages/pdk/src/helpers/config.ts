@@ -3,9 +3,9 @@ import { ProjectConfig } from '@patchworkdev/common';
 import fs from 'fs/promises';
 import Module from 'module';
 import * as path from 'path';
-import { register, } from 'ts-node';
-import { Abi } from "viem";
-import { Schema } from '../generateApi/ponderMocks';
+import { register } from 'ts-node';
+import { Abi } from 'viem';
+import { SchemaModule } from './ponderSchemaMock';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
@@ -42,26 +42,26 @@ export async function loadPonderSchema(ponderSchema: string) {
             compilerOptions: {
                 module: 'CommonJS',
                 moduleResolution: 'node',
-            }
+            },
         });
         const originalRequire = Module.prototype.require;
         const newRequire = function (this: NodeModule, id: string) {
-            if (id === '@ponder/core') {
-                return require(path.resolve(__dirname, '../generateApi/ponderMocks'));
+            if (id === '@ponder/core/db') {
+                return require(path.resolve(__dirname, './ponderSchemaMock'));
             }
             return originalRequire.call(this, id);
         } as NodeRequire;
         Object.assign(newRequire, originalRequire);
         Module.prototype.require = newRequire;
         try {
-            const schemaModule = await import(ponderSchema);
-            const schema = schemaModule.default;
-            return schema as Schema;
+            // const schemaModule = await import(ponderSchema);
+            const schemaModule = await require(ponderSchema);
+            return schemaModule as SchemaModule;
         } catch (error) {
             if (error instanceof TypeError && error.message.includes('is not a function')) {
-                console.error("Error: It seems a method is missing from our mock implementation.");
-                console.error("Full error:", error);
-                console.error("Please add this method to the mockSchemaBuilder in ponderMocks.ts");
+                console.error('Error: It seems a method is missing from our mock implementation.');
+                console.error('Full error:', error);
+                console.error('Please add this method to the mockSchemaBuilder in ponderMocks.ts');
             } else {
                 throw error;
             }
@@ -80,7 +80,7 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
         compilerOptions: {
             module: 'CommonJS',
             moduleResolution: 'node',
-        }
+        },
     });
 
     try {
@@ -91,7 +91,8 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
         await fs.access(fullPath);
 
         // Import the config file
-        const module = await import(fullPath);
+        // const module = await import(fullPath);
+        const module = require(fullPath);
         return module.default as ProjectConfig;
     } catch (error) {
         if (error instanceof Error) {
@@ -104,14 +105,13 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
 }
 
 export async function importABIFiles(abiDir: string) {
-
     // Register ts-node to handle TypeScript files
     register({
         transpileOnly: true,
         compilerOptions: {
             module: 'CommonJS',
             moduleResolution: 'node',
-        }
+        },
     });
 
     const abiObjects: Record<string, Abi> = {};
@@ -125,15 +125,15 @@ export async function importABIFiles(abiDir: string) {
                 const filePath = path.join(abiDir, file);
 
                 // Import the TypeScript file
-                const module = await import(filePath);
+                // const module = await import(filePath);
+                const module = await require(filePath);
                 const baseName = path.basename(file, '.abi.ts');
                 abiObjects[baseName] = module[baseName];
 
                 // Return the exported constant
                 return { name: baseName, abi: module[baseName] };
-            })
+            }),
         );
-
 
         // Filter out any null results and return the ABI objects
         // return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);

@@ -1,6 +1,6 @@
+import { ErrorObject } from "ajv";
 import fs from "fs";
 import path from "path";
-import { ErrorObject } from "ajv";
 import { validateSchema } from "./validateSchema";
 
 const schemaFile: string = "../../schemas/patchwork-contract-config.schema.json";
@@ -227,6 +227,98 @@ describe("validateSchema", () => {
     const result = validateSchema(validJson, schemaFile);
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
+  });
+
+  describe("name validation for contract configs", () => {
+    it("should fail validation when contract name starts with a number", () => {
+      const invalidJson = {
+        $schema: "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+        scopeName: "test",
+        name: "4contract",
+        symbol: "TST",
+        baseURI: "https://test.com/",
+        schemaURI: "https://test.com/schema.json",
+        imageURI: "https://test.com/image.png",
+        fields: [],
+        features: ["patch"]
+      };
+      const result = validateSchema(invalidJson, schemaFile);
+      
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toEqual(
+        expect.objectContaining({
+          keyword: "contractSchema",
+          message: "Contract name must not start with a number"
+        })
+      );
+    });
+
+    it("should pass validation with valid contract name", () => {
+      const validJson = {
+        $schema: "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+        scopeName: "test",
+        name: "Contract_123!@#",
+        symbol: "TST",
+        baseURI: "https://test.com/",
+        schemaURI: "https://test.com/schema.json",
+        imageURI: "https://test.com/image.png",
+        fields: [],
+        features: ["patch"]
+      };
+      const result = validateSchema(validJson, schemaFile);
+      
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+  });
+
+  describe("name validation for project configs", () => {
+    it("should fail validation when project name starts with a number", () => {
+      const invalidJson = {
+        $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+        name: "4project",
+        scopes: {},
+        contracts: {},
+        contractRelations: {}
+      };
+      const result = validateSchema(invalidJson, projectSchemaFile);
+      
+      expect(result.isValid).toBe(false);
+      expect(result.errors[0]).toEqual(
+        expect.objectContaining({
+          keyword: "projectConfig",
+          message: "Project name must not start with a number"
+        })
+      );
+    });
+
+    it("should pass validation when project name contains special characters", () => {
+      const validJson = {
+        $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+        name: "project!@#",
+        scopes: {},
+        contracts: {},
+        contractRelations: {}
+      };
+      const result = validateSchema(validJson, projectSchemaFile);
+      
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it("should pass validation with valid project name", () => {
+      const validJson = {
+        $schema: "https://patchwork.dev/schema/patchwork-project-config.schema.json",
+        name: "Project_123!@#",
+        scopes: {},
+        contracts: {},
+        contractRelations: {}
+      };
+      const result = validateSchema(validJson, projectSchemaFile);
+      
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
   });
 });
 
