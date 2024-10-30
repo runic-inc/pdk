@@ -22,6 +22,7 @@ const projectConfig: ProjectConfig = {
                     id: 1,
                     key: 'bubbleRefs',
                     type: 'literef',
+                    arrayLength: 0,
                 },
             ],
             features: [Feature.MINTABLE],
@@ -42,18 +43,18 @@ const projectConfig: ProjectConfig = {
                 },
                 {
                     // 1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 1, 0, "decorations"
-                    id: 0,
+                    id: 1,
                     key: 'decorations',
                     type: 'char8',
                 },
                 {
                     // 2, 0, FieldType.ADDRESS, 1, FieldVisibility.PUBLIC, 2, 0, "minter"
-                    id: 0,
+                    id: 2,
                     key: 'minter',
                     type: 'address',
                 },
             ],
-            features: [Feature.MINTABLE],
+            features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE, Feature.WEAKREF],
         },
     },
     contractRelations: {
