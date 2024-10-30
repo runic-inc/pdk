@@ -1,27 +1,29 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { Address } from 'viem';
 
-interface LockFile {
+type Deployment = {
+    contract: string;
+    hash: string;
+    address: Address;
+    network: string;
+    timestamp: string;
+    block: number;
+};
+
+type LockFile = {
     currentNetwork: string;
-    lastDeployment: {
-        timestamp: string;
-        version: string;
-        network: string;
-    } | null;
+    lastDeployment: Deployment | null;
     fileHashes: {
         [filepath: string]: string;
     };
     directoryHashes: {
         [dirpath: string]: string;
     };
-    deploymentHistory: Array<{
-        timestamp: string;
-        version: string;
-        network: string;
-    }>;
+    deploymentHistory: Array<Deployment>;
     projectHash: string;
-}
+};
 
 class LockFileManager {
     protected lockFilePath: string;
@@ -80,11 +82,14 @@ class LockFileManager {
         this.saveLockFile();
     }
 
-    public logDeployment(version: string, network: string): void {
+    public logDeployment(contract: string, hash: string, address: Address, network: string, timestamp: string, block: number): void {
         const deploymentInfo = {
-            timestamp: new Date().toISOString(),
-            version,
+            contract,
+            hash,
+            address,
             network,
+            timestamp,
+            block,
         };
 
         this.lockData.lastDeployment = deploymentInfo;
@@ -206,7 +211,7 @@ class LockFileManager {
         };
     }
 
-    public getDeploymentHistory(): Array<{ timestamp: string; version: string; network: string }> {
+    public getDeploymentHistory(): Array<Deployment> {
         return this.lockData.deploymentHistory;
     }
 
@@ -214,7 +219,7 @@ class LockFileManager {
         return this.lockData.currentNetwork;
     }
 
-    public getLastDeployment(): { timestamp: string; version: string; network: string } | null {
+    public getLastDeployment(): Deployment | null {
         return this.lockData.lastDeployment;
     }
 
