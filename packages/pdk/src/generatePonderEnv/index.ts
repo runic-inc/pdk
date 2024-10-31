@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import _ from 'lodash';
 import path from 'path';
 import { importPatchworkConfig } from '../helpers/config';
-import LockFileManager from '../lockFile';
+import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderEnv(configPath: string) {
     try {

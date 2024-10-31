@@ -15,7 +15,7 @@ import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
 import { localDevRun, localDevStop } from './localDev';
-import { networkList, networkSwitch } from './network';
+import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
 type ValidateArgs = {
     configFiles?: string[];
