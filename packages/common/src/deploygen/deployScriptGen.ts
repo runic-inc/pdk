@@ -40,7 +40,7 @@ export class DeployScriptGen {
         // Define the DeploymentAddresses struct with extended info
         script += `struct DeploymentAddresses {\n`;
         contractNames.forEach((name) => {
-            script += `    DeploymentInfo ${name.toLowerCase()};\n`;
+            script += `    DeploymentInfo ${name};\n`;
         });
         script += `}\n\n`;
 
@@ -109,7 +109,7 @@ export class DeployScriptGen {
         script += `        return DeploymentAddresses({\n`;
         contractNames.forEach((name, index) => {
             const isLast = index === contractNames.length - 1;
-            script += `            ${name.toLowerCase()}: DeploymentInfo({\n`;
+            script += `            ${name}: DeploymentInfo({\n`;
             script += `                deployedAddress: address(${name.toLowerCase()}),\n`;
             script += `                bytecodeHash: ${name.toLowerCase()}BytecodeHash\n`;
             script += `            })${isLast ? '' : ','}\n`;

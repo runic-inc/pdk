@@ -13,8 +13,8 @@ struct DeploymentInfo {
 }
 
 struct DeploymentAddresses {
-    DeploymentInfo literef8;
-    DeploymentInfo fragmentsingle;
+    DeploymentInfo LiteRef8;
+    DeploymentInfo FragmentSingle;
 }
 
 contract SampleProjectDeploy is Script {
@@ -53,11 +53,11 @@ contract SampleProjectDeploy is Script {
         vm.stopBroadcast();
 
         return DeploymentAddresses({
-            literef8: DeploymentInfo({
+            LiteRef8: DeploymentInfo({
                 deployedAddress: address(literef8),
                 bytecodeHash: literef8BytecodeHash
             }),
-            fragmentsingle: DeploymentInfo({
+            FragmentSingle: DeploymentInfo({
                 deployedAddress: address(fragmentsingle),
                 bytecodeHash: fragmentsingleBytecodeHash
             })
