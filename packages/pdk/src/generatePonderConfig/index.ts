@@ -1,5 +1,6 @@
 import { Deployment, Network } from '@patchworkdev/common';
 import fs from 'fs/promises';
+import _ from 'lodash';
 import path from 'path';
 import prettier from 'prettier';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
@@ -81,7 +82,7 @@ export async function generatePonderConfig(configPath: string) {
 function configTemplate(imports: Set<string>, networkConfig: string, contractConfig: string): string {
     return `
         import { createConfig, mergeAbis } from '@ponder/core';
-        import { http } from 'viem';
+        import { Address, http } from 'viem';
         import { ${Array.from(imports).join(', ')} } from './abis/index';
             export default createConfig({
     database:{
@@ -106,7 +107,7 @@ function configTemplate(imports: Set<string>, networkConfig: string, contractCon
 export function networkTemplate(name: string, network: Network): string {
     return ` ${name}: {
             chainId: ${network.chainId},
-            transport: http("${network.rpc}"),
+            transport: http(process.env.${_.upperCase(name)}_RPC),
         }`;
 }
 export function contractTemplate(name: string, deployments: Deployment<string>[], network: Record<string, Network>): string {
@@ -128,7 +129,7 @@ function contractNetworkTemplate(name: string, networkName: string, deployments:
         return undefined;
     }
     return `${networkName}: {
-                    startBlock: ${deployment.contracts[name].block},
-                    address: "${deployment.contracts[name].address}" as \`0x\${ string } \`,
+                    startBlock: Number(process.env.${_.upperCase(name)}_BLOCK),
+                    address: process.env.${_.upperCase(name)}_ADDRESS as Address,
                 }`;
 }

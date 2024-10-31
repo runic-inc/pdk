@@ -8,8 +8,8 @@ import "./FragmentSingle.sol";
 import "@patchwork/PatchworkProtocol.sol";
 
 struct DeploymentAddresses {
-    address literef8;
-    address fragmentsingle;
+    address LiteRef8;
+    address FragmentSingle;
 }
 
 contract SampleProjectDeploy is Script {
@@ -34,8 +34,8 @@ contract SampleProjectDeploy is Script {
         vm.stopBroadcast();
 
         return DeploymentAddresses({
-            literef8: address(literef8),
-            fragmentsingle: address(fragmentsingle)
+            LiteRef8: address(literef8),
+            FragmentSingle: address(fragmentsingle)
         });
     }
 }
