@@ -8,9 +8,70 @@ export type DeployConfig = {
     patchworkProtocol?: string;
 };
 
-export type DeploymentAddresses = {
-    [contractName: string]: string;
+export type DeploymentInfo = {
+    deployedAddress: string;
+    bytecodeHash: string;
 };
+
+export type DeploymentAddresses = {
+    [contractName: string]: DeploymentInfo;
+};
+
+async function parseDeploymentOutput(output: string, contractNames: string[]): Promise<DeploymentAddresses> {
+    const deployedContracts: DeploymentAddresses = {};
+    const lines = output.split('\n');
+
+    // Find the return value line
+    const returnLine = lines.find((line) => line.includes('DeploymentAddresses({'));
+    if (!returnLine) {
+        console.error('Deployment output:', output);
+        throw new Error('Could not find deployment addresses in output');
+    }
+
+    // Parse each contract's deployment info
+    for (const contractName of contractNames) {
+        const regex = new RegExp(
+            `${contractName}:\\s*DeploymentInfo\\({\\s*deployedAddress:\\s*(0x[a-fA-F0-9]{40}),\\s*bytecodeHash:\\s*(0x[a-fA-F0-9]{64})\\s*}`,
+        );
+        const match = returnLine.match(regex);
+
+        if (match) {
+            deployedContracts[contractName] = {
+                deployedAddress: match[1],
+                bytecodeHash: match[2],
+            };
+        }
+    }
+
+    // Verify we found all expected contracts
+    const missingContracts = contractNames.filter((name) => !deployedContracts[name]);
+    if (missingContracts.length > 0) {
+        console.error('Deployment output:', output);
+        throw new Error(`Missing addresses for contracts: ${missingContracts.join(', ')}`);
+    }
+
+    return deployedContracts;
+}
+
+async function extractContractNamesFromScript(scriptPath: string): Promise<string[]> {
+    const content = await fs.readFile(scriptPath, 'utf-8');
+
+    // Find the struct definition
+    const structMatch = content.match(/struct\s+DeploymentAddresses\s*{([^}]+)}/s);
+    if (!structMatch) {
+        throw new Error('Could not find DeploymentAddresses struct in script');
+    }
+
+    // Extract contract names from the struct definition
+    const structContent = structMatch[1];
+    const contractNames = structContent
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.startsWith('DeploymentInfo'))
+        .map((line) => line.split(/\s+/)[1].replace(';', ''));
+
+    return contractNames;
+}
 
 export async function deployContracts(deployConfig: DeployConfig, scriptDir: string) {
     if (
@@ -72,72 +133,12 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
 
     // Print results in a nicely formatted table
     console.log('\nDeployment Results:');
-    console.log('═══════════════════════════════════════════════');
-    console.log('Contract Name'.padEnd(20), '│', 'Address');
-    console.log('─'.repeat(20), '┼', '─'.repeat(42));
-    Object.entries(deployedContracts).forEach(([contract, address]) => {
-        console.log(contract.padEnd(20), '│', address);
+    console.log('═══════════════════════════════════════════════════════════════════════════');
+    console.log('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
+    console.log('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
+    Object.entries(deployedContracts).forEach(([contract, info]) => {
+        console.log(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
     });
-    console.log('═══════════════════════════════════════════════');
-    return deployedContracts;
-}
-
-async function extractContractNamesFromScript(scriptPath: string): Promise<string[]> {
-    const content = await fs.readFile(scriptPath, 'utf-8');
-
-    // Find the struct definition
-    const structMatch = content.match(/struct\s+DeploymentAddresses\s*{([^}]+)}/s);
-    if (!structMatch) {
-        throw new Error('Could not find DeploymentAddresses struct in script');
-    }
-
-    // Extract contract names from the struct definition
-    const structContent = structMatch[1];
-    const contractNames = structContent
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.startsWith('address'))
-        .map((line) => line.split(/\s+/)[1].replace(';', ''));
-
-    return contractNames;
-}
-
-async function parseDeploymentOutput(output: string, contractNames: string[]): Promise<DeploymentAddresses> {
-    // Find the return value line which contains the struct
-    const lines = output.split('\n');
-    const returnLine = lines.find((line) => line.includes('DeploymentAddresses({') && line.includes('0x'));
-
-    if (!returnLine) {
-        // If we can't find the return line, log relevant output for debugging
-        const relevantLines = lines.filter((line) => line.includes('Return') || line.includes('DeploymentAddresses') || line.includes('0x'));
-        console.error('Could not find return value. Relevant output:', relevantLines);
-        throw new Error('Could not find contract addresses in deployment output');
-    }
-
-    // Extract the struct content between curly braces
-    const structMatch = returnLine.match(/DeploymentAddresses\({(.+?)}\)/);
-    if (!structMatch) {
-        throw new Error('Could not parse deployment addresses struct from output');
-    }
-
-    const structContent = structMatch[1];
-
-    // Parse the comma-separated key-value pairs
-    const pairs = structContent.split(',').map((pair) => pair.trim());
-    const deployedContracts: DeploymentAddresses = {};
-
-    pairs.forEach((pair) => {
-        const [name, address] = pair.split(':').map((s) => s.trim());
-        if (name && address) {
-            deployedContracts[name] = address;
-        }
-    });
-
-    // Verify we found all expected contracts
-    const missingContracts = contractNames.filter((name) => !deployedContracts[name]);
-    if (missingContracts.length > 0) {
-        throw new Error(`Missing addresses for contracts: ${missingContracts.join(', ')}`);
-    }
-
+    console.log('═══════════════════════════════════════════════════════════════════════════');
     return deployedContracts;
 }

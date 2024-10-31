@@ -31,10 +31,16 @@ export class DeployScriptGen {
         });
         script += `import "@patchwork/PatchworkProtocol.sol";\n\n`;
 
-        // Define the DeploymentAddresses struct
+        // Define the DeploymentInfo struct to include bytecode
+        script += `struct DeploymentInfo {\n`;
+        script += `    address deployedAddress;\n`;
+        script += `    bytes32 bytecodeHash;\n`;
+        script += `}\n\n`;
+
+        // Define the DeploymentAddresses struct with extended info
         script += `struct DeploymentAddresses {\n`;
         contractNames.forEach((name) => {
-            script += `    address ${name};\n`;
+            script += `    DeploymentInfo ${name};\n`;
         });
         script += `}\n\n`;
 
@@ -45,9 +51,11 @@ export class DeployScriptGen {
 
         script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
         script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
+        script += `        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
         script += `        console.log("Deployer starting");\n`;
         script += `        console.log("owner: ", ownerAddress);\n`;
-        script += `        console.log("patchwork protocol: ", ppAddress);\n\n`;
+        script += `        console.log("patchwork protocol: ", ppAddress);\n`;
+        script += `        console.log("deployment salt: ", vm.toString(salt));\n\n`;
 
         script += `        vm.startBroadcast();\n`;
         script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
@@ -60,12 +68,18 @@ export class DeployScriptGen {
             script += `        }\n`;
         }
 
-        // Deploy contracts
+        // Deploy contracts using CREATE2
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
             const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
-            script += `        ${contractName} ${contractKeyName} = new ${contractName}(ppAddress, ownerAddress);\n`;
+
+            script += `        bytes memory ${contractKeyName}CreationCode = type(${contractName}).creationCode;\n`;
+            script += `        bytes memory ${contractKeyName}CreationBytecode = abi.encodePacked(${contractKeyName}CreationCode, abi.encode(ppAddress, ownerAddress));\n`;
+            script += `        bytes32 ${contractKeyName}BytecodeHash = keccak256(${contractKeyName}CreationBytecode);\n`;
+            script += `        console.log("${contractName} codehash: ", Strings.toHexString(uint256(${contractKeyName}BytecodeHash)));\n`;
+            script += `        ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
+            script += `        console.log("${contractName} deployed at: ", address(${contractKeyName}));\n\n`;
         });
 
         // Register references
@@ -91,11 +105,14 @@ export class DeployScriptGen {
 
         script += `        vm.stopBroadcast();\n\n`;
 
-        // Return the deployment addresses
+        // Return the deployment addresses and bytecode hashes
         script += `        return DeploymentAddresses({\n`;
         contractNames.forEach((name, index) => {
             const isLast = index === contractNames.length - 1;
-            script += `            ${name}: address(${name.toLowerCase()})${isLast ? '' : ','}\n`;
+            script += `            ${name}: DeploymentInfo({\n`;
+            script += `                deployedAddress: address(${name.toLowerCase()}),\n`;
+            script += `                bytecodeHash: ${name.toLowerCase()}BytecodeHash\n`;
+            script += `            })${isLast ? '' : ','}\n`;
         });
         script += `        });\n`;
 
