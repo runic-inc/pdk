@@ -34,7 +34,7 @@ export class DeployScriptGen {
         // Define the DeploymentAddresses struct
         script += `struct DeploymentAddresses {\n`;
         contractNames.forEach((name) => {
-            script += `    address ${name.toLowerCase()};\n`;
+            script += `    address ${name};\n`;
         });
         script += `}\n\n`;
 
@@ -95,7 +95,7 @@ export class DeployScriptGen {
         script += `        return DeploymentAddresses({\n`;
         contractNames.forEach((name, index) => {
             const isLast = index === contractNames.length - 1;
-            script += `            ${name.toLowerCase()}: address(${name.toLowerCase()})${isLast ? '' : ','}\n`;
+            script += `            ${name}: address(${name.toLowerCase()})${isLast ? '' : ','}\n`;
         });
         script += `        });\n`;
 

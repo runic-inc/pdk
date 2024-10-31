@@ -97,6 +97,16 @@ class LockFileManager {
         this.saveLockFile();
     }
 
+    public getLatestDeploymentForContract(contract: string, network: string): Deployment | null {
+        // Filter deployments for the specified network and contract, then sort by block number
+        const networkDeployments = this.lockData.deploymentHistory
+            .filter((deployment) => deployment.network === network && deployment.contract === contract)
+            .sort((a, b) => b.block - a.block);
+
+        // Return the first (most recent) deployment or null if none found
+        return networkDeployments[0] || null;
+    }
+
     public calculateFileHash(filepath: string): string {
         const absolutePath = path.isAbsolute(filepath) ? filepath : this.getAbsolutePath(filepath);
         const content = fs.readFileSync(absolutePath);

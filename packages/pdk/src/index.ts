@@ -8,9 +8,11 @@ import { generateAPI } from './generateApi';
 import { generateDemoPage } from './generateDemoPage';
 import { generateEventHooks } from './generateEventHooks';
 import { generatePonderConfig } from './generatePonderConfig';
+import { generatePonderEnv } from './generatePonderEnv';
 import { generateReactComponents } from './generateReactComponents';
 import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
+import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
 import { localDevRun, localDevStop } from './localDev';
 import { networkList, networkSwitch } from './network';
@@ -188,6 +190,36 @@ const argv = yargs(hideBin(process.argv))
         },
     )
     .command(
+        'generatePonderEnv [configFile]',
+        'Generate ponder env file',
+        (yargs) => {
+            yargs.positional('configFile', {
+                describe: 'Path to the config file',
+                type: 'string',
+            });
+        },
+        async (argv: ArgumentsCamelCase<ConfigFileArg>) => {
+            console.log('Generating Ponder env file');
+            const configPath = await getConfigPath(argv.configFile);
+            await generatePonderEnv(configPath);
+        },
+    )
+    .command(
+        'generateWWWEnv [configFile]',
+        'Generate www env file',
+        (yargs) => {
+            yargs.positional('configFile', {
+                describe: 'Path to the config file',
+                type: 'string',
+            });
+        },
+        async (argv: ArgumentsCamelCase<ConfigFileArg>) => {
+            console.log('Generating WWW env file');
+            const configPath = await getConfigPath(argv.configFile);
+            await generateWWWEnv(configPath);
+        },
+    )
+    .command(
         'generateReactHooks [configFile]',
         'Generate the React hooks for app',
         (yargs) => {
@@ -304,6 +336,6 @@ const argv = yargs(hideBin(process.argv))
             );
     })
     .demandCommand(1, 'You must provide a valid command')
-    .scriptName("pdk")
+    .scriptName('pdk')
     .help('h')
     .alias('h', 'help').argv;
