@@ -311,7 +311,11 @@ const argv = yargs(hideBin(process.argv))
                 console.log('Stopping docker compose for local dev');
                 const configPath = await getConfigPath();
                 await localDevStop(configPath);
-            });
+            })
+            .demandCommand(1, 'You must provide a valid command')
+            .strict()
+            .help('h')
+            .alias('h', 'help').argv;
     })
     .command('network', 'network commands', (yargs) => {
         return yargs
@@ -333,9 +337,14 @@ const argv = yargs(hideBin(process.argv))
                     const configPath = await getConfigPath();
                     await networkSwitch(configPath, argv.network);
                 },
-            );
+            )
+            .demandCommand(1, 'You must provide a valid command')
+            .strict()
+            .help('h')
+            .alias('h', 'help').argv;
     })
     .demandCommand(1, 'You must provide a valid command')
     .scriptName('pdk')
+    .strict()
     .help('h')
     .alias('h', 'help').argv;
