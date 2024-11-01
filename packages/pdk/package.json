@@ -22,6 +22,7 @@
     "dependencies": {
         "@hono/node-server": "1.12.2",
         "@patchworkdev/common": "workspace:*",
+        "@commander-js/extra-typings": "12.1.0",
         "hono": "4.6.3",
         "@ponder/core": "^0.5.17",
         "commander": "12.1.0",
@@ -31,8 +32,7 @@
         "ts-node": "10.9.2",
         "tsconfig-paths": "4.2.0",
         "typescript": "5.5.4",
-        "viem": "2.21.9",
-        "yargs": "17.7.2"
+        "viem": "2.21.9"
     },
     "bin": {
         "pdk": "dist/index.js"

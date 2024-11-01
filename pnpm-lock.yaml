@@ -216,6 +216,9 @@ importers:
 
   packages/pdk:
     dependencies:
+      '@commander-js/extra-typings':
+        specifier: 12.1.0
+        version: 12.1.0(commander@12.1.0)
       '@hono/node-server':
         specifier: 1.12.2
         version: 1.12.2(hono@4.6.3)
@@ -252,9 +255,6 @@ importers:
       viem:
         specifier: 2.21.9
         version: 2.21.9(typescript@5.5.4)
-      yargs:
-        specifier: 17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/jest':
         specifier: 29.5.12
