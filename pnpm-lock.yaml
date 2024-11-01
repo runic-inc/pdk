@@ -225,6 +225,9 @@ importers:
       '@ponder/core':
         specifier: ^0.5.17
         version: 0.5.24(@opentelemetry/api@1.9.0)(@types/node@22.5.1)(@types/react@18.3.5)(hono@4.6.3)(typescript@5.5.4)(viem@2.21.9(typescript@5.5.4))
+      commander:
+        specifier: 12.1.0
+        version: 12.1.0
       execa:
         specifier: 9.5.0
         version: 9.5.0
