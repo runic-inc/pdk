@@ -52,23 +52,17 @@ export class DeployScriptGen {
         script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
         script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
         script += `        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
+        script += `        bool bytecodeOnly = vm.envOr("BYTECODE_ONLY", false);\n\n`;
+
         script += `        console.log("Deployer starting");\n`;
         script += `        console.log("owner: ", ownerAddress);\n`;
         script += `        console.log("patchwork protocol: ", ppAddress);\n`;
-        script += `        console.log("deployment salt: ", vm.toString(salt));\n\n`;
+        script += `        console.log("deployment salt: ", vm.toString(salt));\n`;
+        script += `        console.log("bytecode only mode: ", bytecodeOnly);\n\n`;
 
-        script += `        vm.startBroadcast();\n`;
-        script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
+        script += `        DeploymentAddresses memory deployments;\n\n`;
 
-        // Scope configuration
-        for (const scopeConfig of projectConfig.scopes) {
-            script += `        if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
-            script += `            pp.claimScope("${scopeConfig.name}");\n`;
-            script += `            pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
-            script += `        }\n`;
-        }
-
-        // Deploy contracts using CREATE2
+        // Calculate bytecode hashes for all contracts
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
@@ -78,44 +72,61 @@ export class DeployScriptGen {
             script += `        bytes memory ${contractKeyName}CreationBytecode = abi.encodePacked(${contractKeyName}CreationCode, abi.encode(ppAddress, ownerAddress));\n`;
             script += `        bytes32 ${contractKeyName}BytecodeHash = keccak256(${contractKeyName}CreationBytecode);\n`;
             script += `        console.log("${contractName} codehash: ", Strings.toHexString(uint256(${contractKeyName}BytecodeHash)));\n`;
-            script += `        ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
-            script += `        console.log("${contractName} deployed at: ", address(${contractKeyName}));\n\n`;
+            script += `        deployments.${key} = DeploymentInfo({\n`;
+            script += `            deployedAddress: address(0),\n`;
+            script += `            bytecodeHash: ${contractKeyName}BytecodeHash\n`;
+            script += `        });\n\n`;
         });
 
-        // Register references
+        script += `        if (!bytecodeOnly) {\n`;
+        script += `            vm.startBroadcast();\n`;
+        script += `            PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n\n`;
+
+        // Scope configuration (inside if block)
+        for (const scopeConfig of projectConfig.scopes) {
+            script += `            if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
+            script += `                pp.claimScope("${scopeConfig.name}");\n`;
+            script += `                pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
+            script += `            }\n`;
+        }
+
+        // Deploy contracts using CREATE2 (inside if block)
+        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+            const contractKeyName = key.toLowerCase();
+            const contractConfig = value as ContractConfig;
+            const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
+
+            script += `            ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
+            script += `            console.log("${contractName} deployed at: ", address(${contractKeyName}));\n`;
+            script += `            deployments.${key}.deployedAddress = address(${contractKeyName});\n\n`;
+        });
+
+        // Register references (inside if block)
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
                 for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
-                    script += `        ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
+                    script += `            ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
                 }
             }
         });
 
-        // Whitelist
+        // Whitelist (inside if block)
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             const contractConfig = value as ContractConfig;
             const scopeName = contractConfig.scopeName;
             const scopeConfig = this.findScope(scopeName, projectConfig);
             if (scopeConfig.whitelist) {
-                script += `        pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
+                script += `            pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
             }
         });
 
-        script += `        vm.stopBroadcast();\n\n`;
+        script += `            vm.stopBroadcast();\n`;
+        script += `        }\n\n`;
 
         // Return the deployment addresses and bytecode hashes
-        script += `        return DeploymentAddresses({\n`;
-        contractNames.forEach((name, index) => {
-            const isLast = index === contractNames.length - 1;
-            script += `            ${name}: DeploymentInfo({\n`;
-            script += `                deployedAddress: address(${name.toLowerCase()}),\n`;
-            script += `                bytecodeHash: ${name.toLowerCase()}BytecodeHash\n`;
-            script += `            })${isLast ? '' : ','}\n`;
-        });
-        script += `        });\n`;
-
+        script += `        return deployments;\n`;
         script += `    }\n`;
         script += `}\n`;
 
