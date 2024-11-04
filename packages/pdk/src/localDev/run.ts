@@ -137,6 +137,10 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
         }
 
         generatePonderEnv(configPath);
+        // restart ponder to pick up new .env file
+        await execa('docker', ['container', 'restart', 'canvas-ponder-1'], {
+            cwd: targetDir,
+        });
         generateWWWEnv(configPath);
 
         return deployedContracts;
