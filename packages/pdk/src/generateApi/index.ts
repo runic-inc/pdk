@@ -6,40 +6,24 @@ import { formatAndSaveFile } from '../helpers/file';
 import { FieldDefinition, SchemaModule, TableDefinition } from '../helpers/ponderSchemaMock';
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
+    const schema = await loadPonderSchema(ponderSchema);
+
+    // Check if the API output directory exists, create it if it doesn't
     try {
-        // Check if the ponder schema file exists
-        try {
-            await fs.access(ponderSchema);
-        } catch (error) {
-            console.error(`Error: Unable to access Ponder schema file at ${ponderSchema}`);
-            return;
-        }
-
-        const schema = await loadPonderSchema(ponderSchema);
-        if (schema === undefined) {
-            console.error('Error importing PonderSchema');
-            return;
-        }
-
-        // Check if the API output directory exists, create it if it doesn't
-        try {
-            await fs.access(apiOutputDir);
-        } catch (error) {
-            console.log(`API output directory does not exist. Creating ${apiOutputDir}`);
-            await fs.mkdir(apiOutputDir, { recursive: true });
-        }
-
-        // Generate the tRPC API content
-        const output = await generateTrpcApi(schema);
-
-        // Write the formatted API content to file
-        const outputPath = path.join(apiOutputDir, 'api.ts');
-        // await fs.writeFile(outputPath, apiContent, 'utf8');
-        await formatAndSaveFile(outputPath, output.join('\n'));
-        console.log(`tRPC API generation completed. Output written to ${outputPath}`);
-    } catch (err) {
-        console.error('Error:', err);
+        await fs.access(apiOutputDir);
+    } catch (error) {
+        console.log(`API output directory does not exist. Creating ${apiOutputDir}`);
+        await fs.mkdir(apiOutputDir, { recursive: true });
     }
+
+    // Generate the tRPC API content
+    const output = await generateTrpcApi(schema);
+
+    // Write the formatted API content to file
+    const outputPath = path.join(apiOutputDir, 'api.ts');
+    // await fs.writeFile(outputPath, apiContent, 'utf8');
+    await formatAndSaveFile(outputPath, output.join('\n'));
+    console.log(`tRPC API generation completed. Output written to ${outputPath}`);
 }
 
 function getZodType(fieldDef: FieldDefinition): string {

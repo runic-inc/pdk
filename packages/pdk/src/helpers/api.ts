@@ -1,5 +1,6 @@
 import path from 'path';
 import * as ts from 'typescript';
+import { ErrorCode, PDKError } from './error';
 
 interface APIRoute {
     name: string;
@@ -13,41 +14,32 @@ interface APIStructure {
 }
 
 export function analyzeAPI(filePath: string): APIStructure {
-    const configPath = ts.findConfigFile(
-        path.dirname(filePath),
-        ts.sys.fileExists,
-        'tsconfig.json'
-    );
-
+    const configPath = ts.findConfigFile(path.dirname(filePath), ts.sys.fileExists, 'tsconfig.json');
     if (!configPath) {
-        throw new Error("Could not find a valid 'tsconfig.json'.");
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Could not find a valid 'tsconfig.json' at ${configPath}`);
     }
-    console.log("Found tsconfig at:", configPath);
+    console.log('Found tsconfig at:', configPath);
 
     const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
-    const { options, fileNames } = ts.parseJsonConfigFileContent(
-        config,
-        ts.sys,
-        path.dirname(configPath)
-    );
+    const { options, fileNames } = ts.parseJsonConfigFileContent(config, ts.sys, path.dirname(configPath));
 
     const program = ts.createProgram(fileNames, options);
     const typeChecker = program.getTypeChecker();
 
     const sourceFile = program.getSourceFile(filePath);
     if (!sourceFile) {
-        throw new Error(`Could not find source file: ${filePath}`);
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Could not find source file at ${filePath}`);
     }
 
     const apiStructure: APIStructure = {};
 
-    console.log("Starting analysis of file:", filePath);
+    console.log('Starting analysis of file:', filePath);
 
     function analyzeNode(node: ts.Node) {
         if (ts.isVariableStatement(node)) {
             const declaration = node.declarationList.declarations[0];
             if (ts.isIdentifier(declaration.name) && declaration.name.text === 'api') {
-                console.log("Found api variable declaration");
+                console.log('Found api variable declaration');
                 if (declaration.initializer && ts.isObjectLiteralExpression(declaration.initializer)) {
                     extractAPIStructure(declaration.initializer, apiStructure);
                 }
@@ -57,14 +49,12 @@ export function analyzeAPI(filePath: string): APIStructure {
     }
 
     function extractAPIStructure(node: ts.ObjectLiteralExpression, structure: APIStructure) {
-        console.log("Extracting API structure");
-        node.properties.forEach(prop => {
+        console.log('Extracting API structure');
+        node.properties.forEach((prop) => {
             if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
                 const routerName = prop.name.text;
-                console.log("Found router:", routerName);
-                if (ts.isCallExpression(prop.initializer) &&
-                    ts.isIdentifier(prop.initializer.expression) &&
-                    prop.initializer.expression.text === 'router') {
+                console.log('Found router:', routerName);
+                if (ts.isCallExpression(prop.initializer) && ts.isIdentifier(prop.initializer.expression) && prop.initializer.expression.text === 'router') {
                     extractRouterProcedures(prop.initializer, structure, routerName);
                 }
             }
@@ -72,18 +62,18 @@ export function analyzeAPI(filePath: string): APIStructure {
     }
 
     function extractRouterProcedures(node: ts.CallExpression, structure: APIStructure, routerName: string) {
-        console.log("Extracting procedures for router:", routerName);
+        console.log('Extracting procedures for router:', routerName);
         if (node.arguments.length > 0 && ts.isObjectLiteralExpression(node.arguments[0])) {
             extractProcedures(node.arguments[0], structure, routerName);
         }
     }
 
     function extractProcedures(node: ts.ObjectLiteralExpression, structure: APIStructure, routerName: string) {
-        node.properties.forEach(prop => {
+        node.properties.forEach((prop) => {
             if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
                 const procedureName = prop.name.text;
                 const fullName = `${routerName}.${procedureName}`;
-                console.log("Found procedure:", fullName);
+                console.log('Found procedure:', fullName);
                 const procedureType = getProcedureType(prop.initializer);
                 structure[fullName] = {
                     name: procedureName,
@@ -91,7 +81,7 @@ export function analyzeAPI(filePath: string): APIStructure {
                     // inputType: 'unknown', // We'll skip detailed type extraction for now
                     // outputType: 'unknown'
                 };
-                console.log("Added procedure:", fullName, "with type:", procedureType);
+                console.log('Added procedure:', fullName, 'with type:', procedureType);
             }
         });
     }
@@ -112,8 +102,7 @@ export function analyzeAPI(filePath: string): APIStructure {
         return 'query'; // Default to query if we can't determine
     }
 
-
     analyzeNode(sourceFile);
-    console.log("API Structure:", apiStructure);
+    // console.log("API Structure:", apiStructure);
     return apiStructure;
 }

@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { analyzeAPI } from '../helpers/api';
 import { loadPonderSchema } from '../helpers/config';
+import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
 import { SchemaModule } from '../helpers/ponderSchemaMock';
 import { pascalCase } from '../helpers/text';
@@ -9,60 +10,35 @@ import { pascalCase } from '../helpers/text';
 const trpcRouteToHookName = (route: string) => 'use' + pascalCase(route);
 
 export async function generateReactComponents(configPath: string) {
+    const configDir = path.dirname(configPath);
+    const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
+    const componentsDir = path.join(configDir, 'www', 'generated', 'components');
+    const ponderSchemaPath = path.join(configDir, 'ponder', 'ponder.schema.ts');
+
+    // Ensure components directory exists
     try {
-        const configDir = path.dirname(configPath);
-        const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
-        const componentsDir = path.join(configDir, 'www', 'generated', 'components');
-        const ponderSchemaPath = path.join(configDir, 'ponder', 'ponder.schema.ts');
-
-        // Check if necessary files exist
-        try {
-            await fs.access(trpcRouter);
-            await fs.access(ponderSchemaPath);
-        } catch (error) {
-            console.error(`Error: Unable to access required files.`);
-            console.error(`Make sure the following files exist:`);
-            console.error(`- tRPC Router: ${trpcRouter}`);
-            console.error(`- Ponder Schema: ${ponderSchemaPath}`);
-            return;
-        }
-
-        // Ensure components directory exists
-        try {
-            await fs.mkdir(componentsDir, { recursive: true });
-        } catch (error) {
-            console.error(`Error creating components directory at ${componentsDir}:`, error);
-            return;
-        }
-
-        const ponderSchema = await loadPonderSchema(ponderSchemaPath);
-        if (ponderSchema === undefined) {
-            console.error('Error importing PonderSchema');
-            return;
-        }
-
-        const apiStructure = analyzeAPI(trpcRouter);
-
-        for (let key in apiStructure) {
-            if (key.includes('getPaginated')) {
-                const hook = trpcRouteToHookName(key);
-                const entity = key.split('.')[0];
-                const template = generateComponent('getPaginated', entity, hook, ponderSchema);
-
-                try {
-                    const componentFile = path.join(componentsDir, `${pascalCase(entity)}List.tsx`);
-                    await formatAndSaveFile(componentFile, template);
-                    console.log(`Generated component: ${componentFile}`);
-                } catch (error) {
-                    console.error(`Error generating component for ${entity}:`, error);
-                }
-            }
-        }
-
-        console.log('React components generation completed successfully.');
+        await fs.mkdir(componentsDir, { recursive: true });
     } catch (error) {
-        console.error('Error generating React components:', error);
+        throw new PDKError(ErrorCode.DIR_NOT_FOUND, `Error creating components directory at  ${componentsDir}`);
     }
+
+    const ponderSchema = await loadPonderSchema(ponderSchemaPath);
+
+    const apiStructure = analyzeAPI(trpcRouter);
+
+    for (let key in apiStructure) {
+        if (key.includes('getPaginated')) {
+            const hook = trpcRouteToHookName(key);
+            const entity = key.split('.')[0];
+            const template = generateComponent('getPaginated', entity, hook, ponderSchema);
+
+            const componentFile = path.join(componentsDir, `${pascalCase(entity)}List.tsx`);
+            await formatAndSaveFile(componentFile, template);
+            console.log(`Generated component: ${componentFile}`);
+        }
+    }
+
+    console.log('React components generation completed successfully.');
 }
 
 function generateComponent(template: string, entity: string, hook: string, ponderSchema: SchemaModule) {
