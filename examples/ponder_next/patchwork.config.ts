@@ -70,7 +70,7 @@ const projectConfig: ProjectConfig = {
     networks: {
         base: {
             chainId: 8453,
-            rpc: 'http://localhost:8545',
+            rpc: 'http://anvil:8545',
         },
     },
     deployments: [
