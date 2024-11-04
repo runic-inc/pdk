@@ -5,6 +5,7 @@ import Module from 'module';
 import * as path from 'path';
 import { register } from 'ts-node';
 import { Abi } from 'viem';
+import { ErrorCode, PDKError } from './error';
 import { SchemaModule } from './ponderSchemaMock';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
@@ -34,46 +35,49 @@ export async function findPonderSchema() {
     return findFileUpwards(currentDirectory, schemaFileName);
 }
 
-export async function loadPonderSchema(ponderSchema: string) {
+export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModule> {
     try {
-        // Set up ts-node
-        register({
-            transpileOnly: true,
-            compilerOptions: {
-                module: 'CommonJS',
-                moduleResolution: 'node',
-            },
-        });
-        const originalRequire = Module.prototype.require;
-        const newRequire = function (this: NodeModule, id: string) {
-            if (id === '@ponder/core/db') {
-                return require(path.resolve(__dirname, './ponderSchemaMock'));
-            }
-            return originalRequire.call(this, id);
-        } as NodeRequire;
-        Object.assign(newRequire, originalRequire);
-        Module.prototype.require = newRequire;
-        try {
-            // const schemaModule = await import(ponderSchema);
-            const schemaModule = await require(ponderSchema);
-            return schemaModule as SchemaModule;
-        } catch (error) {
-            if (error instanceof TypeError && error.message.includes('is not a function')) {
-                console.error('Error: It seems a method is missing from our mock implementation.');
-                console.error('Full error:', error);
-                console.error('Please add this method to the mockSchemaBuilder in ponderMocks.ts');
-            } else {
-                throw error;
-            }
-        } finally {
-            Module.prototype.require = originalRequire;
-        }
-    } catch (err) {
-        console.error('Error:', err);
+        await fs.access(ponderSchema);
+    } catch (error) {
+        // console.error(`Error: Unable to access Ponder schema file at ${ponderSchema}`);
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Unable to access Ponder schema file at  ${ponderSchema}`);
     }
+    let schemaModule: SchemaModule = {};
+    // Set up ts-node
+    register({
+        transpileOnly: true,
+        compilerOptions: {
+            module: 'CommonJS',
+            moduleResolution: 'node',
+        },
+    });
+    const originalRequire = Module.prototype.require;
+    const newRequire = function (this: NodeModule, id: string) {
+        if (id === '@ponder/core/db') {
+            return require(path.resolve(__dirname, './ponderSchemaMock'));
+        }
+        return originalRequire.call(this, id);
+    } as NodeRequire;
+    Object.assign(newRequire, originalRequire);
+    Module.prototype.require = newRequire;
+    try {
+        schemaModule = await require(ponderSchema);
+        return schemaModule as SchemaModule;
+    } catch (error) {
+        if (error instanceof TypeError && error.message.includes('is not a function')) {
+            console.error('Error: It seems a method is missing from our mock implementation.');
+            console.error('Full error:', error);
+            console.error('Please add this method to the mockSchemaBuilder in ponderSchemaMocks.ts');
+        } else {
+            throw new PDKError(ErrorCode.MOCK_NOT_FOUND, `Missing mock implementation in ponderSchemaMocks.ts`);
+        }
+    } finally {
+        Module.prototype.require = originalRequire;
+    }
+    return schemaModule as SchemaModule;
 }
 
-export async function importPatchworkConfig(config: string): Promise<ProjectConfig | undefined> {
+export async function importPatchworkConfig(config: string): Promise<ProjectConfig> {
     // Register ts-node to handle TypeScript files
     register({
         transpileOnly: true,
@@ -100,11 +104,17 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
         } else {
             console.error('An unknown error occurred while importing ProjectConfig');
         }
-        return undefined;
+        throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`);
     }
 }
 
 export async function importABIFiles(abiDir: string) {
+    try {
+        await fs.access(abiDir);
+    } catch (error) {
+        console.error(`- ABI directory not found: ${abiDir}`);
+        throw new PDKError(ErrorCode.DIR_NOT_FOUND, `ABI directory not found at ${abiDir}`);
+    }
     // Register ts-node to handle TypeScript files
     register({
         transpileOnly: true,
@@ -137,11 +147,17 @@ export async function importABIFiles(abiDir: string) {
 
         // Filter out any null results and return the ABI objects
         // return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);
-        return abiObjects;
+        // return abiObjects;
     } catch (error) {
         console.error('Error importing ABI files:', error);
-        return abiObjects;
+        throw new PDKError(ErrorCode.ABI_IMPORT_ERROR, `Error importing ABIs at ${abiDir}`);
     }
+
+    if (Object.keys(abiObjects).length === 0) {
+        console.error(`Error: No ABI files found in ${abiDir}`);
+        throw new PDKError(ErrorCode.ABI_IMPORT_ERROR, `Error: No ABI files found in  ${abiDir}`);
+    }
+    return abiObjects;
 }
 
 export function getFragmentRelationships(projectConfig: ProjectConfig): Record<string, string[]> {

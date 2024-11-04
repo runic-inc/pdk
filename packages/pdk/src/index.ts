@@ -1,4 +1,5 @@
-import { Command } from '@commander-js/extra-typings';
+import { Command } from 'commander';
+// import { Command } from '@commander-js/extra-typings';
 import path from 'path';
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from './generateABIs';
@@ -13,6 +14,7 @@ import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
+import { PDKError } from './helpers/error';
 import { localDevRun, localDevStop } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
@@ -34,6 +36,12 @@ async function getConfigPath(configFile?: string): Promise<string> {
 const program = new Command();
 
 program.name('pdk').version('1.0.0');
+
+// Global error handler
+program.on('error', (err) => {
+    console.error('Global error:', err.message);
+    process.exit(1);
+});
 
 program
     .command('validate')
@@ -240,6 +248,11 @@ network
     try {
         await program.parseAsync();
     } catch (error) {
+        if (error instanceof PDKError) {
+            console.error(`PDK error ${error.code}: `, error.message);
+        } else {
+            console.error('Unknown Error:', error);
+        }
         process.exit(1);
     }
 })();

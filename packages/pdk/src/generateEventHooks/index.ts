@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../helpers/config';
+import { ErrorCode, PDKError } from '../helpers/error';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
 export async function generateEventHooks(configPath: string) {
@@ -13,31 +14,17 @@ export async function generateEventHooks(configPath: string) {
     const eventDir = path.join(configDir, 'ponder', 'src', 'generated');
     const ponderSchemaPath = path.join(configDir, 'ponder', 'ponder.schema.ts');
 
-    // Check if the necessary directories and files exist
+    // Check if output directory exists
     try {
-        await fs.access(abiDir);
         await fs.access(eventDir);
-        await fs.access(ponderSchemaPath);
     } catch (error) {
-        console.error(`Error: Unable to access required directories or files.`);
-        console.error(`Make sure the following paths exist:`);
-        console.error(`- ABI directory: ${abiDir}`);
-        console.error(`- Event directory: ${eventDir}`);
-        console.error(`- Ponder schema: ${ponderSchemaPath}`);
-        return;
+        console.error(`Error: Unable to access Event directory at ${eventDir}`);
+        throw new PDKError(ErrorCode.DIR_NOT_FOUND, `Unable to access Event directory at ${eventDir}`);
     }
 
     const abis = await importABIFiles(abiDir);
-    if (Object.keys(abis).length === 0) {
-        console.error(`Error: No ABI files found in ${abiDir}`);
-        return;
-    }
 
     const projectConfig = await importPatchworkConfig(fullConfigPath);
-    if (!projectConfig) {
-        console.error('Error importing ProjectConfig');
-        return;
-    }
 
     // begin process config
     // ToDo
@@ -46,11 +33,6 @@ export async function generateEventHooks(configPath: string) {
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
 
     const ponderSchema = await loadPonderSchema(ponderSchemaPath);
-    // console.log('PonderSchema:', ponderSchema);
-    if (ponderSchema === undefined) {
-        console.error('Error importing PonderSchema');
-        return;
-    }
 
     const handlers: GeneratedHandlers = { imports: new Set(), handlers: [] };
 
