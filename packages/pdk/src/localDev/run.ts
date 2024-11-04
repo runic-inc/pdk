@@ -1,5 +1,7 @@
 import path from 'path';
 import { Address } from 'viem';
+import { generatePonderEnv } from '../generatePonderEnv';
+import { generateWWWEnv } from '../generateWWWEnv';
 import { calculateBytecode } from './bytecode';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
 import LockFileManager from './lockFile';
@@ -133,6 +135,9 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
                 }),
             );
         }
+
+        generatePonderEnv(configPath);
+        generateWWWEnv(configPath);
 
         return deployedContracts;
     } catch (error) {
