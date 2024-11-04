@@ -1,5 +1,4 @@
-import { Command } from 'commander';
-// import { Command } from '@commander-js/extra-typings';
+import { Command } from '@commander-js/extra-typings';
 import path from 'path';
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from './generateABIs';
@@ -14,7 +13,7 @@ import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
-import { PDKError } from './helpers/error';
+import { ErrorCode, PDKError } from './helpers/error';
 import { localDevRun, localDevStop } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
@@ -27,8 +26,7 @@ const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 async function getConfigPath(configFile?: string): Promise<string> {
     const configPath = configFile || (await findConfig());
     if (!configPath) {
-        console.error('No config file found.');
-        process.exit(1);
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `No config file found:`);
     }
     return configPath;
 }
@@ -50,7 +48,7 @@ program
     .action(async (configFiles) => {
         for (const configFile of configFiles || []) {
             if (!cliProcessor.validateConfig(configFile)) {
-                process.exit(1);
+                throw new PDKError(ErrorCode.PDK_ERROR, `Error validating config ${configFile}`);
             }
         }
     });
@@ -65,7 +63,7 @@ program
         try {
             cliProcessor.generateSolidity(configFiles, options.output, options.contract);
         } catch (e) {
-            process.exit(1);
+            throw new PDKError(ErrorCode.PDK_ERROR, `Error generating solidity`, { configFiles, options });
         }
     });
 
@@ -79,7 +77,7 @@ program
         try {
             cliProcessor.generateDeployScripts(configFiles, options.contractsDir, options.output);
         } catch (e) {
-            process.exit(1);
+            throw new PDKError(ErrorCode.PDK_ERROR, `Error generating deploy scripts`, { configFiles, options });
         }
     });
 
@@ -188,10 +186,6 @@ program
         console.log('Generating API');
         const configPath = await getConfigPath(configFile);
         const schemaPath = path.join(path.dirname(configPath), 'ponder', 'ponder.schema.ts');
-        if (!schemaPath) {
-            console.error('No ponder schema file found.');
-            process.exit(1);
-        }
         const apiOutputDir = path.join(path.dirname(configPath), 'ponder', 'src', 'generated');
         await generateAPI(schemaPath, apiOutputDir);
     });
