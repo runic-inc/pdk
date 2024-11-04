@@ -59,7 +59,7 @@ function configTemplate(imports: Set<string>, networkConfig: string, contractCon
             export default createConfig({
     database:{
         kind:"postgres",
-        connectionString:"postgres://postgres:password@localhost:5432/ponder"
+        connectionString:"postgres://postgres:password@postgres:5432/ponder"
     },
     networks: {
         ${networkConfig}
