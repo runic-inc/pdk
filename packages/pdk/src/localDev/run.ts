@@ -4,6 +4,7 @@ import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
 import { getDeploymentBlockNumber } from './blocknumber';
 import { calculateBytecode } from './bytecode';
+import { DependencyManager } from './dependencies';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
 import LockFileManager from './lockFile';
 
@@ -74,12 +75,19 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
         console.log('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        // Calculate bytecode after Docker is running
-        const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
-
-        // Initialize lock file manager
         const lockFileManager = new LockFileManager(configPath);
+        const dependencyManager = new DependencyManager(configPath, lockFileManager);
         const network = lockFileManager.getCurrentNetwork();
+
+        // Get and run required generators first
+        const requiredGenerators = await dependencyManager.getRequiredGenerators();
+        if (requiredGenerators.length > 0) {
+            console.log('Running required generators:', requiredGenerators);
+            await dependencyManager.runGenerators(requiredGenerators);
+        }
+
+        // Calculate bytecode after running generators
+        const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
 
         // Compare bytecode with previous deployment
         const comparison = await compareWithPreviousDeployment(lockFileManager, network, bytecodeInfo);
@@ -117,7 +125,7 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
                     deploymentInfo.deployedAddress as Address,
                     network,
                     new Date().toISOString(),
-                    Number(blockNumber), // Convert bigint to number
+                    Number(blockNumber),
                 );
             }
         } else {
