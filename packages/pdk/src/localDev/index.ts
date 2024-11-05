@@ -1,2 +1,2 @@
-export { localDevRun } from './run';
-export { localDevStop } from './stop';
+export { localDevDown } from './down';
+export { localDevUp } from './up';
