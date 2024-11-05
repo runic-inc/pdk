@@ -2,6 +2,7 @@ import path from 'path';
 import { Address } from 'viem';
 import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
+import { getDeploymentBlockNumber } from './blocknumber';
 import { calculateBytecode } from './bytecode';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
 import LockFileManager from './lockFile';
@@ -106,7 +107,7 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
         if (comparison.needsDeployment) {
             console.log(`Deploying contracts to ${network}...`);
             deployedContracts = await deployContracts(deployConfig, scriptDir);
-
+            const blockNumber = await getDeploymentBlockNumber(deployConfig.rpcUrl);
             // Update lock file with new deployments
             for (const contractName in deployedContracts) {
                 const deploymentInfo = deployedContracts[contractName];
@@ -116,7 +117,7 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
                     deploymentInfo.deployedAddress as Address,
                     network,
                     new Date().toISOString(),
-                    1, // You might want to get the actual block number here
+                    Number(blockNumber), // Convert bigint to number
                 );
             }
         } else {
