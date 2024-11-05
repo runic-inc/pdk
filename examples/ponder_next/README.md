@@ -16,8 +16,8 @@ Docker Containers:
 
 ## Running Services
 
--   To Start: run `pdk localDev run`
--   To Stop: run `pdk localDev stop`
+-   To set up: run `pdk localDev up`
+-   To tear down: run `pdk localDev down`
 
 ## Connecting
 
