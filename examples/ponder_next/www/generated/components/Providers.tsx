@@ -8,7 +8,7 @@ import { useState } from "react";
 import superjson from "superjson";
 import { type State, WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
-import { trpc } from "../generated/utils/trpc";
+import { trpc } from "../utils/trpc.client";
 
 export default function ClientLayout({
 	children,
