@@ -1,6 +1,6 @@
 import path from 'path';
 
-export async function localDevStop(configPath: string) {
+export async function localDevDown(configPath: string) {
     console.log('Stopping local development environment...');
     const targetDir = path.dirname(configPath);
     try {

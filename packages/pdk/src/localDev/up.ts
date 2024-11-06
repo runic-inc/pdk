@@ -51,7 +51,7 @@ async function compareWithPreviousDeployment(lockFileManager: LockFileManager, n
     return { needsDeployment, changes };
 }
 
-export async function localDevRun(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
+export async function localDevUp(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
     console.log('Running local development environment...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
@@ -152,6 +152,11 @@ export async function localDevRun(configPath: string, config: DeployConfig = {})
         });
         generateWWWEnv(configPath);
 
+        const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
+            cwd: targetDir,
+        });
+        console.log('Docker containers and network ports:');
+        console.log(stdout);
         return deployedContracts;
     } catch (error) {
         console.error('Deployment failed:', error);
