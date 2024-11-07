@@ -4,8 +4,8 @@ import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
 import { getDeploymentBlockNumber } from './blocknumber';
 import { calculateBytecode } from './bytecode';
-import { DependencyManager } from './dependencies';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
+import { GeneratorManager } from './generators';
 import LockFileManager from './lockFile';
 
 interface BytecodeComparison {
@@ -76,11 +76,11 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const lockFileManager = new LockFileManager(configPath);
-        const dependencyManager = new DependencyManager(configPath, lockFileManager);
+        const dependencyManager = new GeneratorManager(configPath, lockFileManager);
         const network = lockFileManager.getCurrentNetwork();
 
         // Run all generators in sequence
-        await dependencyManager.runAllGenerators();
+        await dependencyManager.processGenerators();
 
         // Calculate bytecode after running generators
         const bytecodeInfo = await calculateBytecode(configPath, deployConfig);

@@ -102,7 +102,7 @@ async function runForgeBuild(configPath: string): Promise<void> {
     );
 }
 
-export class DependencyManager {
+export class GeneratorManager {
     private lockFile: LockFileManager;
     private configPath: string;
     private generators: Record<GeneratorType, GeneratorConfig>;
@@ -218,7 +218,7 @@ export class DependencyManager {
         return currentInputHash !== previousHash;
     }
 
-    public async runAllGenerators(): Promise<void> {
+    public async processGenerators(): Promise<void> {
         for (const generator of this.generatorOrder) {
             if (await this.hasInputsChanged(generator)) {
                 console.log(`Running generator: ${generator}`);
