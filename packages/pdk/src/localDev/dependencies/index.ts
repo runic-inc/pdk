@@ -23,10 +23,9 @@ export type GeneratorType =
     | 'reactComponents'
     | 'demoPage';
 
-export interface GeneratorConfig {
+interface GeneratorConfig {
     inputs: string[];
     outputs: string[];
-    requires: GeneratorType[];
     run: (configPath: string) => Promise<void>;
 }
 
@@ -107,11 +106,25 @@ export class DependencyManager {
     private lockFile: LockFileManager;
     private configPath: string;
     private generators: Record<GeneratorType, GeneratorConfig>;
+    private generatorOrder: GeneratorType[];
 
     constructor(configPath: string, lockFile: LockFileManager) {
         this.configPath = configPath;
         this.lockFile = lockFile;
         this.generators = this.initializeGenerators();
+        this.generatorOrder = [
+            'contracts',
+            'deployScripts',
+            'forgeBuild',
+            'abis',
+            'schema',
+            'eventHooks',
+            'ponderConfig',
+            'api',
+            'reactHooks',
+            'reactComponents',
+            'demoPage',
+        ];
     }
 
     private initializeGenerators(): Record<GeneratorType, GeneratorConfig> {
@@ -119,89 +132,75 @@ export class DependencyManager {
             contracts: {
                 inputs: ['patchwork.config.ts'],
                 outputs: ['contracts/src/**/*.sol'],
-                requires: [],
                 run: runGenerateContracts,
             },
             deployScripts: {
                 inputs: ['patchwork.config.ts', 'contracts/src/**/*.sol'],
                 outputs: ['contracts/script/**/*.sol'],
-                requires: ['contracts'],
                 run: runGenerateDeployScripts,
             },
             forgeBuild: {
                 inputs: ['contracts/src/**/*.sol', 'contracts/script/**/*.sol'],
                 outputs: ['contracts/out/**/*.json'],
-                requires: ['contracts', 'deployScripts'],
                 run: runForgeBuild,
             },
             abis: {
                 inputs: ['contracts/out/**/*.abi.json'],
                 outputs: ['ponder/abis/**/*.ts'],
-                requires: ['forgeBuild'],
                 run: generateABIs,
             },
             schema: {
                 inputs: ['ponder/abis/**/*.ts', 'patchwork.config.ts'],
                 outputs: ['ponder/ponder.schema.ts'],
-                requires: ['abis'],
                 run: generateSchema,
             },
             eventHooks: {
                 inputs: ['ponder/abis/**/*.ts', 'ponder/ponder.schema.ts', 'patchwork.config.ts'],
                 outputs: ['ponder/src/generated/events.ts'],
-                requires: ['abis', 'schema'],
                 run: generateEventHooks,
             },
             ponderConfig: {
                 inputs: ['ponder/abis/**/*.ts', 'ponder/ponder.schema.ts'],
                 outputs: ['ponder/ponder.config.ts'],
-                requires: ['abis', 'schema'],
                 run: generatePonderConfig,
             },
             api: {
                 inputs: ['ponder/ponder.schema.ts'],
                 outputs: ['ponder/src/generated/api.ts'],
-                requires: ['schema'],
                 run: runGenerateAPI,
             },
             reactHooks: {
                 inputs: ['ponder/src/generated/api.ts'],
                 outputs: ['www/generated/hooks/index.ts'],
-                requires: ['api'],
                 run: generateReactHooks,
             },
             reactComponents: {
                 inputs: ['ponder/src/generated/api.ts', 'ponder/ponder.schema.ts'],
                 outputs: ['www/generated/components/**/*.tsx'],
-                requires: ['api', 'schema'],
                 run: generateReactComponents,
             },
             demoPage: {
                 inputs: ['ponder/src/generated/api.ts'],
                 outputs: ['www/app/demo/page.tsx'],
-                requires: ['reactComponents'],
                 run: generateDemoPage,
             },
         };
     }
 
-    
-    private async calculateFilesHash(patterns: string[], generator?: GeneratorType): Promise<string> {
+    private async calculateFilesHash(patterns: string[]): Promise<string> {
         const hash = crypto.createHash('sha256');
 
         for (const pattern of patterns) {
             const files = await this.lockFile.getMatchingFiles(pattern);
-            const sortedFiles = files.sort(); // Sort for consistent ordering
+            const sortedFiles = files.sort();
 
             for (const file of sortedFiles) {
                 const content = await this.lockFile.calculateFileHash(file);
-
                 hash.update(`${file}:${content}`);
             }
         }
 
-        const finalHash = hash.digest('hex');
-        return finalHash;
+        return hash.digest('hex');
     }
 
     private getGeneratorStateKey(generator: GeneratorType): string {
@@ -213,82 +212,23 @@ export class DependencyManager {
         const stateKey = this.getGeneratorStateKey(generator);
         const previousHash = this.lockFile.getFileHash(stateKey);
 
-        //if (generator === 'contracts') {
-        //    console.log(stateKey, previousHash);
-        // }
         if (!previousHash) return true;
 
-        const currentInputHash = await this.calculateFilesHash(config.inputs, generator);
-
-        //if (generator === 'contracts') {
-        //   console.log(currentInputHash);
-        //    console.log(config.inputs);
-        // }
+        const currentInputHash = await this.calculateFilesHash(config.inputs);
         return currentInputHash !== previousHash;
     }
 
-    public async getRequiredGenerators(): Promise<GeneratorType[]> {
-        const required = new Set<GeneratorType>();
-
-        const checkGenerator = async (generator: GeneratorType) => {
-            if (required.has(generator)) return;
-
-            // Check required generators first
-            for (const req of this.generators[generator].requires) {
-                await checkGenerator(req);
-            }
-
+    public async runAllGenerators(): Promise<void> {
+        for (const generator of this.generatorOrder) {
             if (await this.hasInputsChanged(generator)) {
-                required.add(generator);
+                console.log(`Running generator: ${generator}`);
+                const config = this.generators[generator];
+                await config.run(this.configPath);
 
-                // Add dependent generators
-                for (const [dependent, config] of Object.entries(this.generators)) {
-                    if (config.requires.includes(generator)) {
-                        await checkGenerator(dependent as GeneratorType);
-                    }
-                }
+                const inputHash = await this.calculateFilesHash(config.inputs);
+                const stateKey = this.getGeneratorStateKey(generator);
+                this.lockFile.updateFileHash(stateKey, inputHash);
             }
-        };
-
-        for (const generator of Object.keys(this.generators) as GeneratorType[]) {
-            await checkGenerator(generator);
-        }
-
-        return this.sortByDependencies(Array.from(required));
-    }
-
-    private sortByDependencies(generators: GeneratorType[]): GeneratorType[] {
-        const visited = new Set<GeneratorType>();
-        const sorted: GeneratorType[] = [];
-
-        const visit = (generator: GeneratorType) => {
-            if (visited.has(generator)) return;
-            visited.add(generator);
-
-            for (const required of this.generators[generator].requires) {
-                if (generators.includes(required)) {
-                    visit(required);
-                }
-            }
-
-            sorted.push(generator);
-        };
-
-        generators.forEach(visit);
-        return sorted;
-    }
-
-    public async runGenerators(generators: GeneratorType[]) {
-        for (const generator of generators) {
-            console.log(`Running generator: ${generator}`);
-
-            const config = this.generators[generator];
-            await config.run(this.configPath);
-
-            // Update state after successful run
-            const inputHash = await this.calculateFilesHash(config.inputs);
-            const stateKey = this.getGeneratorStateKey(generator);
-            this.lockFile.updateFileHash(stateKey, inputHash);
         }
     }
 }

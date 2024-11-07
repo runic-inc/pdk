@@ -79,12 +79,8 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         const dependencyManager = new DependencyManager(configPath, lockFileManager);
         const network = lockFileManager.getCurrentNetwork();
 
-        // Get and run required generators first
-        const requiredGenerators = await dependencyManager.getRequiredGenerators();
-        if (requiredGenerators.length > 0) {
-            console.log('Running required generators:', requiredGenerators);
-            await dependencyManager.runGenerators(requiredGenerators);
-        }
+        // Run all generators in sequence
+        await dependencyManager.runAllGenerators();
 
         // Calculate bytecode after running generators
         const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
@@ -159,8 +155,6 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         console.log('Docker containers and network ports:');
         console.log(stdout);
 
-        //        let deployedContracts: DeploymentAddresses;
-        //        deployedContracts = {};
         return deployedContracts;
     } catch (error) {
         console.error('Deployment failed:', error);
