@@ -155,8 +155,12 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
             cwd: targetDir,
         });
+
         console.log('Docker containers and network ports:');
         console.log(stdout);
+
+        //        let deployedContracts: DeploymentAddresses;
+        //        deployedContracts = {};
         return deployedContracts;
     } catch (error) {
         console.error('Deployment failed:', error);

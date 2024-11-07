@@ -50,7 +50,7 @@ class LockFileManager {
                 fileHashes: {},
                 directoryHashes: {},
                 deploymentHistory: [],
-                projectHash: ''
+                projectHash: '',
             };
         }
     }
@@ -89,7 +89,7 @@ class LockFileManager {
             address,
             network,
             timestamp,
-            block
+            block,
         };
 
         this.lockData.lastDeployment = deploymentInfo;
@@ -107,7 +107,7 @@ class LockFileManager {
 
     public calculateFileHash(filepath: string): string {
         const absolutePath = path.isAbsolute(filepath) ? filepath : this.getAbsolutePath(filepath);
-        
+
         // Handle virtual files (like generator states) that don't exist on disk
         if (!fs.existsSync(absolutePath)) {
             return this.lockData.fileHashes[this.getRelativePath(filepath)] || '';
@@ -133,17 +133,15 @@ class LockFileManager {
     }
 
     public async getMatchingFiles(pattern: string): Promise<string[]> {
-        const absolutePattern = path.isAbsolute(pattern) 
-            ? pattern 
-            : path.join(this.rootDir, pattern);
+        const absolutePattern = path.isAbsolute(pattern) ? pattern : path.join(this.rootDir, pattern);
 
         try {
             const files = await glob(absolutePattern, {
                 nodir: true,
-                ignore: this.excludePatterns
+                ignore: this.excludePatterns,
             });
 
-            return files.filter(file => !this.shouldExclude(file));
+            return files.filter((file) => !this.shouldExclude(file));
         } catch (error) {
             console.error(`Error matching files for pattern ${pattern}:`, error);
             return [];
@@ -229,15 +227,14 @@ class LockFileManager {
         const changedFiles = Object.keys(this.lockData.fileHashes).filter((filepath) => {
             // Skip virtual files (like generator states)
             if (filepath.startsWith('generator:')) return false;
-            
+
             const absolutePath = this.getAbsolutePath(filepath);
             return !this.shouldExclude(absolutePath) && this.hasFileChanged(absolutePath);
         });
 
         const changedDirs = Object.keys(this.lockData.directoryHashes).filter((dirpath) => {
             const absolutePath = this.getAbsolutePath(dirpath);
-            return !this.shouldExclude(absolutePath) && 
-                   this.lockData.directoryHashes[dirpath] !== this.calculateDirectoryHash(absolutePath);
+            return !this.shouldExclude(absolutePath) && this.lockData.directoryHashes[dirpath] !== this.calculateDirectoryHash(absolutePath);
         });
 
         return {

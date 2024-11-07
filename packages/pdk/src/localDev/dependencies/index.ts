@@ -185,18 +185,23 @@ export class DependencyManager {
         };
     }
 
-    private async calculateFilesHash(patterns: string[]): Promise<string> {
+    
+    private async calculateFilesHash(patterns: string[], generator?: GeneratorType): Promise<string> {
         const hash = crypto.createHash('sha256');
 
         for (const pattern of patterns) {
             const files = await this.lockFile.getMatchingFiles(pattern);
-            for (const file of files) {
+            const sortedFiles = files.sort(); // Sort for consistent ordering
+
+            for (const file of sortedFiles) {
                 const content = await this.lockFile.calculateFileHash(file);
+
                 hash.update(`${file}:${content}`);
             }
         }
 
-        return hash.digest('hex');
+        const finalHash = hash.digest('hex');
+        return finalHash;
     }
 
     private getGeneratorStateKey(generator: GeneratorType): string {
@@ -208,9 +213,17 @@ export class DependencyManager {
         const stateKey = this.getGeneratorStateKey(generator);
         const previousHash = this.lockFile.getFileHash(stateKey);
 
+        //if (generator === 'contracts') {
+        //    console.log(stateKey, previousHash);
+        // }
         if (!previousHash) return true;
 
-        const currentInputHash = await this.calculateFilesHash(config.inputs);
+        const currentInputHash = await this.calculateFilesHash(config.inputs, generator);
+
+        //if (generator === 'contracts') {
+        //   console.log(currentInputHash);
+        //    console.log(config.inputs);
+        // }
         return currentInputHash !== previousHash;
     }
 
