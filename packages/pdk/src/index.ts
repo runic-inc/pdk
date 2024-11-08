@@ -14,7 +14,7 @@ import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
 import { ErrorCode, PDKError } from './helpers/error';
-import { localDevRun, localDevStop } from './localDev';
+import { localDevDown, localDevUp } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
 
@@ -202,21 +202,21 @@ program
 const localDev = program.command('localDev').description('local dev commands');
 
 localDev
-    .command('run')
-    .description('Run docker compose for local dev')
+    .command('up')
+    .description('Run docker compose up for local dev')
     .action(async () => {
-        console.log('Running docker compose for local dev');
+        console.log('Setting up docker compose for local dev');
         const configPath = await getConfigPath();
-        await localDevRun(configPath);
+        await localDevUp(configPath);
     });
 
 localDev
-    .command('stop')
-    .description('Stop docker compose for local dev')
+    .command('down')
+    .description('Run docker compose down for local dev')
     .action(async () => {
-        console.log('Stopping docker compose for local dev');
+        console.log('Tearing down docker compose for local dev');
         const configPath = await getConfigPath();
-        await localDevStop(configPath);
+        await localDevDown(configPath);
     });
 
 const network = program.command('network').description('network commands');
