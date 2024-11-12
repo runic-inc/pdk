@@ -29,8 +29,8 @@
             "id": 4,
             "key": "b4",
             "type": "bytes8",
-            "description": "Short Name",
-            "arrayLength": 4
+            "arrayLength": 4,
+            "description": "Short Name"
         }
     ]
 }
