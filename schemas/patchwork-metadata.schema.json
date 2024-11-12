@@ -3,10 +3,7 @@
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "title": "Patchwork Metadata",
     "type": "object",
-    "required": [
-        "name",
-        "symbol"
-    ],
+    "required": ["name", "symbol"],
     "properties": {
         "name": {
             "type": "string",
@@ -25,16 +22,10 @@
             "description": "URI of image (use {tokenID} to substitute)"
         },
         "fields": {
-            "type" : "array",
-            "items" : {
+            "type": "array",
+            "items": {
                 "type": "object",
-                "required": [
-                    "id",
-                    "key",
-                    "type",
-                    "slot",
-                    "offset"
-                ],
+                "required": ["id", "key", "type", "slot", "offset"],
                 "properties": {
                     "id": {
                         "type": "number",
@@ -73,6 +64,9 @@
                             "char16",
                             "char32",
                             "char64",
+                            "bytes8",
+                            "bytes16",
+                            "bytes32",
                             "literef",
                             "address",
                             "string"
@@ -85,10 +79,7 @@
                     "visibility": {
                         "type": "string",
                         "description": "Field visibility",
-                        "enum": [
-                            "public",
-                            "private"
-                        ]
+                        "enum": ["public", "private"]
                     },
                     "slot": {
                         "type": "number",
