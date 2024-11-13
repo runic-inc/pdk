@@ -1,0 +1,36 @@
+{
+    "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+    "scopeName": "test",
+    "name": "Bytes",
+    "symbol": "BYTES",
+    "baseURI": "https://mything/my/",
+    "schemaURI": "https://basic.xyz/schema/basic.json",
+    "imageURI": "https://mything/my/{tokenID}.png",
+    "fields": [
+        {
+            "id": 1,
+            "key": "b1",
+            "type": "bytes8",
+            "description": "Short Name"
+        },
+        {
+            "id": 2,
+            "key": "b2",
+            "type": "bytes16",
+            "description": "Short Name"
+        },
+        {
+            "id": 3,
+            "key": "b3",
+            "type": "bytes32",
+            "description": "Short Name"
+        },
+        {
+            "id": 4,
+            "key": "b4",
+            "type": "bytes8",
+            "arrayLength": 4,
+            "description": "Short Name"
+        }
+    ]
+}
