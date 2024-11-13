@@ -40,17 +40,18 @@ function Providers(props: {
 	);
 
 	return (
-		<trpc.Provider client={trpcClient} queryClient={queryClient}>
-			<WagmiProvider config={config}>
-				<QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>
-					{props.children}
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+            <WagmiProvider config={config}>
+                <QueryClientProvider client={queryClient}>
+                    <RainbowKitProvider>
+                        {props.children}
                     </RainbowKitProvider>
-				</QueryClientProvider>
-			</WagmiProvider>
+                </QueryClientProvider>
+            </WagmiProvider>
 		</trpc.Provider>
-	);
+    );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { Providers, trpc };
 
