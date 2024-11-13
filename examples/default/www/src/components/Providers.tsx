@@ -10,21 +10,33 @@ import { type ReactNode, useState } from "react";
 import superjson from "superjson";
 import { WagmiProvider } from "wagmi";
 import { baseSepolia, } from 'wagmi/chains';
-import patchworkConfig from "../../../../patchwork.config";
-import type { AppRouter } from "../../../../ponder/src/api";
+import patchworkConfig from "../../../patchwork.config";
+import type { AppRouter } from "../../../ponder/src/api";
 
+/**
+ * tRPC is used to communicate with Ponder with end-to-end type safety.
+ */
 const trpc = createTRPCReact<AppRouter>();
 
+/**
+ * React Query is used by both tRPC and by Wagmi/wallet libraries.
+ */
 const queryClient = new QueryClient();
 
+/**
+ * Wagmi config.
+ * Update this to match your needs!
+ */
 const config = getDefaultConfig({
     appName: patchworkConfig.name,
-    projectId: import.meta.env.VITE_PUBLIC_WALLETCONNECT_PROJECTID,
+    projectId: import.meta.env.VITE_PUBLIC_WALLETCONNECT_PROJECTID, // Don't forget to update your env!
     chains: [baseSepolia],
     ssr: true,
   });
 
-
+/**
+ * Feel free to add any other providers you need to this component (tooltip providers, etc.)
+ */
 function Providers(props: {
 	children: ReactNode;
 }) {
@@ -38,7 +50,6 @@ function Providers(props: {
 			],
 		}),
 	);
-
 	return (
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
             <WagmiProvider config={config}>
@@ -54,4 +65,3 @@ function Providers(props: {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export { Providers, trpc };
-
