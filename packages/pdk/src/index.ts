@@ -14,6 +14,7 @@ import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
 import { ErrorCode, PDKError } from './helpers/error';
+import { addVerboseOption } from './helpers/logger';
 import { localDevDown, localDevUp } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
@@ -88,35 +89,38 @@ program
         launchWizardApp();
     });
 
-program
-    .command('generateTsABIs')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate TypeScript ABIs for ponder')
-    .action(async (configFile) => {
-        console.log('Generating TypeScript ABIs...');
-        const configPath = await getConfigPath(configFile);
-        await generateABIs(configPath);
-    });
+addVerboseOption(
+    program
+        .command('generateTsABIs')
+        .argument('[configFile]', 'Path to the config file')
+        .description('Generate TypeScript ABIs for ponder')
+        .action(async (configFile) => {
+            const configPath = await getConfigPath(configFile);
+            await generateABIs(configPath);
+        }),
+);
 
-program
-    .command('generateSchema')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the ponder schema')
-    .action(async (configFile) => {
-        console.log('Generating Ponder Schema');
-        const configPath = await getConfigPath(configFile);
-        await generateSchema(configPath);
-    });
+addVerboseOption(
+    program
+        .command('generateSchema')
+        .argument('[configFile]', 'Path to the config file')
+        .description('Generate the ponder schema')
+        .action(async (configFile) => {
+            const configPath = await getConfigPath(configFile);
+            await generateSchema(configPath);
+        }),
+);
 
-program
-    .command('generateEventHooks')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the ponder event code')
-    .action(async (configFile) => {
-        console.log('Generating Ponder event code');
-        const configPath = await getConfigPath(configFile);
-        await generateEventHooks(configPath);
-    });
+addVerboseOption(
+    program
+        .command('generateEventHooks')
+        .argument('[configFile]', 'Path to the config file')
+        .description('Generate the ponder event code')
+        .action(async (configFile) => {
+            const configPath = await getConfigPath(configFile);
+            await generateEventHooks(configPath);
+        }),
+);
 
 program
     .command('generatePonderConfig')
@@ -148,15 +152,16 @@ program
         await generateWWWEnv(configPath);
     });
 
-program
-    .command('generateReactHooks')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the React hooks for app')
-    .action(async (configFile) => {
-        console.log('Generating React hooks for app');
-        const configPath = await getConfigPath(configFile);
-        await generateReactHooks(configPath);
-    });
+addVerboseOption(
+    program
+        .command('generateReactHooks')
+        .argument('[configFile]', 'Path to the config file')
+        .description('Generate the React hooks for app')
+        .action(async (configFile) => {
+            const configPath = await getConfigPath(configFile);
+            await generateReactHooks(configPath);
+        }),
+);
 
 program
     .command('generateReactComponents')
