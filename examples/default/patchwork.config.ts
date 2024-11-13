@@ -1,23 +1,16 @@
 import { Feature, type ProjectConfig } from '@patchworkdev/common/types';
 
 const projectConfig: ProjectConfig = {
-    name: 'myapp',
+    name: 'My Patchwork App',
     contracts: {
         'Word': {
             scopeName: 'myapp',
-            name: 'Words',
-            symbol: 'WORD',
+            name: 'My First Contract',
+            symbol: 'FIRST',
             baseURI: 'https://www.example.com/',
-            schemaURI: 'https://www.example.com/schemas/word.json',
-            imageURI: 'https://www.example.com/assets/word/{tokenID}',
-            fields: [
-                {
-                    id: 0,
-                    key: 'word',
-                    type: 'char32',
-                    description: 'Word',
-                },
-            ],
+            schemaURI: 'https://www.example.com/schemas/myfirstcontract.json',
+            imageURI: 'https://www.example.com/assets/myfirstcontract/{tokenID}',
+            fields: [],
             features: [Feature.MINTABLE],
         },
     },
