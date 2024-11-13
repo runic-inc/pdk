@@ -1,5 +1,5 @@
 {
-    "name": "ponder_next",
+    "name": "create-patchwork-default",
     "version": "0.1.0",
     "private": true,
     "type": "commonjs",
@@ -20,7 +20,6 @@
         "www"
     ],
     "dependencies": {
-        "@hono/trpc-server": "0.3.2",
         "@openzeppelin/contracts": "5.0.2",
         "@patchworkdev/common": "0.2.4",
         "@patchworkdev/contracts": "2.0.4",
