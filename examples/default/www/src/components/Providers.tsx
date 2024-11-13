@@ -9,7 +9,6 @@ import { createTRPCReact } from "@trpc/react-query";
 import { type ReactNode, useState } from "react";
 import superjson from "superjson";
 import { WagmiProvider } from "wagmi";
-import { baseSepolia, } from 'wagmi/chains';
 import patchworkConfig from "../../../patchwork.config";
 import type { AppRouter } from "../../../ponder/src/api";
 
@@ -30,10 +29,10 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
     appName: patchworkConfig.name,
     projectId: import.meta.env.VITE_PUBLIC_WALLETCONNECT_PROJECTID, // Don't forget to update your env!
-    chains: [baseSepolia],
+    chains: [patchworkConfig.networks[import.meta.env.VITE_NETWORK].chain],
     ssr: true,
   });
-
+  
 /**
  * Feel free to add any other providers you need to this component (tooltip providers, etc.)
  */

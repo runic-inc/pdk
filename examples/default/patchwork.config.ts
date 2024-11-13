@@ -1,4 +1,5 @@
 import { Feature, type ProjectConfig } from '@patchworkdev/common/types';
+import { anvil, base, baseSepolia } from 'viem/chains';
 
 const projectConfig: ProjectConfig = {
     name: 'My Patchwork App',
@@ -20,6 +21,17 @@ const projectConfig: ProjectConfig = {
             name: 'myapp',
         },
     ],
+    networks: {
+        local: {
+            chain: anvil,
+        },
+        testnet: {
+            chain: baseSepolia,
+        },
+        mainnet: {
+            chain: base,
+        },
+    }
 };
 
 export default projectConfig;
