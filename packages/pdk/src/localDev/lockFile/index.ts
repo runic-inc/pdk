@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
+import { glob } from 'glob';
 import path from 'path';
 import { Address } from 'viem';
 
@@ -59,7 +60,6 @@ class LockFileManager {
     }
 
     protected shouldExclude(itemPath: string): boolean {
-        // Convert to relative path for matching
         const relativePath = path.relative(this.rootDir, itemPath);
         return this.excludePatterns.some((pattern) => {
             if (pattern.startsWith('*')) {
@@ -98,27 +98,31 @@ class LockFileManager {
     }
 
     public getLatestDeploymentForContract(contract: string, network: string): Deployment | null {
-        // Filter deployments for the specified network and contract, then sort by block number
         const networkDeployments = this.lockData.deploymentHistory
             .filter((deployment) => deployment.network === network && deployment.contract === contract)
             .sort((a, b) => b.block - a.block);
 
-        // Return the first (most recent) deployment or null if none found
         return networkDeployments[0] || null;
     }
 
     public calculateFileHash(filepath: string): string {
         const absolutePath = path.isAbsolute(filepath) ? filepath : this.getAbsolutePath(filepath);
+
+        // Handle virtual files (like generator states) that don't exist on disk
+        if (!fs.existsSync(absolutePath)) {
+            return this.lockData.fileHashes[this.getRelativePath(filepath)] || '';
+        }
+
         const content = fs.readFileSync(absolutePath);
         const hash = crypto.createHash('sha256');
         hash.update(content);
         return hash.digest('hex');
     }
 
-    public updateFileHash(filepath: string): void {
+    public updateFileHash(filepath: string, hash?: string): void {
         const relativePath = this.getRelativePath(filepath);
-        const hash = this.calculateFileHash(filepath);
-        this.lockData.fileHashes[relativePath] = hash;
+        const finalHash = hash ?? this.calculateFileHash(filepath);
+        this.lockData.fileHashes[relativePath] = finalHash;
         this.saveLockFile();
     }
 
@@ -128,11 +132,26 @@ class LockFileManager {
         return this.lockData.fileHashes[relativePath] !== currentHash;
     }
 
+    public async getMatchingFiles(pattern: string): Promise<string[]> {
+        const absolutePattern = path.isAbsolute(pattern) ? pattern : path.join(this.rootDir, pattern);
+
+        try {
+            const files = await glob(absolutePattern, {
+                nodir: true,
+                ignore: this.excludePatterns,
+            });
+
+            return files.filter((file) => !this.shouldExclude(file));
+        } catch (error) {
+            console.error(`Error matching files for pattern ${pattern}:`, error);
+            return [];
+        }
+    }
+
     public calculateDirectoryHash(dirpath: string): string {
         const absolutePath = path.isAbsolute(dirpath) ? dirpath : this.getAbsolutePath(dirpath);
         const hash = crypto.createHash('sha256');
 
-        // Add directory name to the hash
         hash.update(path.basename(absolutePath));
 
         try {
@@ -206,6 +225,9 @@ class LockFileManager {
 
     public getAllChangedItems(): { files: string[]; directories: string[] } {
         const changedFiles = Object.keys(this.lockData.fileHashes).filter((filepath) => {
+            // Skip virtual files (like generator states)
+            if (filepath.startsWith('generator:')) return false;
+
             const absolutePath = this.getAbsolutePath(filepath);
             return !this.shouldExclude(absolutePath) && this.hasFileChanged(absolutePath);
         });

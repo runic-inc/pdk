@@ -5,6 +5,7 @@ import { generateWWWEnv } from '../generateWWWEnv';
 import { getDeploymentBlockNumber } from './blocknumber';
 import { calculateBytecode } from './bytecode';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
+import { GeneratorManager } from './generators';
 import LockFileManager from './lockFile';
 
 interface BytecodeComparison {
@@ -74,12 +75,15 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         console.log('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        // Calculate bytecode after Docker is running
-        const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
-
-        // Initialize lock file manager
         const lockFileManager = new LockFileManager(configPath);
+        const dependencyManager = new GeneratorManager(configPath, lockFileManager);
         const network = lockFileManager.getCurrentNetwork();
+
+        // Run all generators in sequence
+        await dependencyManager.processGenerators();
+
+        // Calculate bytecode after running generators
+        const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
 
         // Compare bytecode with previous deployment
         const comparison = await compareWithPreviousDeployment(lockFileManager, network, bytecodeInfo);
@@ -117,7 +121,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
                     deploymentInfo.deployedAddress as Address,
                     network,
                     new Date().toISOString(),
-                    Number(blockNumber), // Convert bigint to number
+                    Number(blockNumber),
                 );
             }
         } else {
@@ -147,8 +151,10 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
             cwd: targetDir,
         });
+
         console.log('Docker containers and network ports:');
         console.log(stdout);
+
         return deployedContracts;
     } catch (error) {
         console.error('Deployment failed:', error);

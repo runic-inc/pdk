@@ -20,14 +20,16 @@
     "author": "Runic Labs, Inc",
     "license": "MIT",
     "dependencies": {
+        "@commander-js/extra-typings": "12.1.0",
         "@hono/node-server": "1.12.2",
         "@patchworkdev/common": "workspace:*",
-        "@commander-js/extra-typings": "12.1.0",
-        "hono": "4.6.3",
         "@ponder/core": "^0.5.17",
         "commander": "12.1.0",
-        "lodash": "4.17.21",
         "execa": "9.5.0",
+        "glob": "^11.0.0",
+        "hono": "4.6.3",
+        "lodash": "4.17.21",
+        "ora": "8.1.0",
         "prettier": "3.3.3",
         "ts-node": "10.9.2",
         "tsconfig-paths": "4.2.0",
@@ -38,6 +40,7 @@
         "pdk": "dist/index.js"
     },
     "devDependencies": {
+        "@types/glob": "^8.1.0",
         "@types/jest": "29.5.12",
         "@types/lodash": "4.17.12",
         "@types/node": "22.5.1",
