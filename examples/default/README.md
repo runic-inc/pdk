@@ -4,14 +4,14 @@ Folders:
 
 -   `contracts`: Contains the generated Solidity contracts.
 -   `ponder`: Contains the generated Ponder configurations and code.
--   `www`: Contains the generated front-end (Next.js app).
+-   `www`: Contains the generated front-end (Vite + React).
 
 Docker Containers:
 
 -   `dozzle`: A service manager
 -   `ponder`: A blockchain adapter
 -   `anvil`: A local fork of base
--   `www`: A next.js front-end
+-   `www`: A Vite + React front-end
 -   `postgres`: A database
 
 ## Running Services
