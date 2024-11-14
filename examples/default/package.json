@@ -21,9 +21,9 @@
     ],
     "dependencies": {
         "@openzeppelin/contracts": "5.0.2",
-        "@patchworkdev/common": "0.2.5",
+        "@patchworkdev/common": "next",
         "@patchworkdev/contracts": "2.0.6",
-        "@patchworkdev/pdk": "0.2.5",
+        "@patchworkdev/pdk": "next",
         "forge-std": "github:foundry-rs/forge-std"
     },
     "devDependencies": {
