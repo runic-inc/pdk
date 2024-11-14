@@ -10,7 +10,6 @@ export async function generateSchema(configPath: string) {
     const abiDir = path.join(configDir, 'ponder', 'abis');
     const ponderSchema = path.join(configDir, 'ponder', 'ponder.schema.ts');
 
-    logger.info('Generating Ponder schema...');
     logger.debug('Config directory:', configDir);
     logger.debug('ABI directory:', abiDir);
     logger.debug('Schema output path:', ponderSchema);
@@ -29,7 +28,7 @@ export async function generateSchema(configPath: string) {
         logger.debug('Project config loaded successfully');
 
         await generateSchemaFile(projectConfig, ponderSchema);
-        logger.success(`Ponder schema generated successfully at ${ponderSchema}`);
+        logger.info(`Ponder schema generated successfully at ${ponderSchema}`);
     } catch (error) {
         logger.error('Failed to generate schema:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate schema');

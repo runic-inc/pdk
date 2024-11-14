@@ -1,12 +1,13 @@
 import { importPatchworkConfig } from '../../helpers/config';
+import { logger } from '../../helpers/logger';
 
 export async function networkList(configPath: string) {
     const patchworkConfig = await importPatchworkConfig(configPath);
     if (!patchworkConfig) {
-        console.error('Error loading Patchwork config');
+        logger.error('Error loading Patchwork config');
         return;
     }
     for (const networkName in patchworkConfig.networks) {
-        console.log(networkName + ':', patchworkConfig.networks[networkName]);
+        logger.info(networkName + ':', patchworkConfig.networks[networkName]);
     }
 }

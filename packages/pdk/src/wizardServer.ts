@@ -1,30 +1,34 @@
-import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static'
+import { serveStatic } from '@hono/node-server/serve-static';
+import { Hono } from 'hono';
 import path from 'path';
+import { logger } from './helpers/logger';
 
 export const launchWizardApp = () => {
-  const app = new Hono();
+    const app = new Hono();
 
-  // console.log(process.cwd());
-  // console.log(__dirname);
-  const rel = path.relative(process.cwd(), __dirname);
-  // console.log(rel);
-  
-  app.get('/api', async (c) => {
-    return c.text('Hello from Patchwork Wizard API');
-  });
-  
-  app.use('/*', serveStatic({ 
-    root: `${rel}/wizard`, 
-    onNotFound: (path, c) => {
-      // console.log(`${path} is not found, checked ${c.req.path}`)
-    }
-  }));
+    // logger.info(process.cwd());
+    // logger.info(__dirname);
+    const rel = path.relative(process.cwd(), __dirname);
+    // logger.info(rel);
 
-  serve({
-    fetch: app.fetch,
-    port: 3333
-  });
-  console.log('Patchwork Wizard is running on http://localhost:3333');
+    app.get('/api', async (c) => {
+        return c.text('Hello from Patchwork Wizard API');
+    });
+
+    app.use(
+        '/*',
+        serveStatic({
+            root: `${rel}/wizard`,
+            onNotFound: (path, c) => {
+                // logger.info(`${path} is not found, checked ${c.req.path}`)
+            },
+        }),
+    );
+
+    serve({
+        fetch: app.fetch,
+        port: 3333,
+    });
+    logger.info('Patchwork Wizard is running on http://localhost:3333');
 };

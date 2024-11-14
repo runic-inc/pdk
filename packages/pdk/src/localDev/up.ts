@@ -2,6 +2,7 @@ import path from 'path';
 import { Address } from 'viem';
 import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
+import { logger } from '../helpers/logger';
 import { getDeploymentBlockNumber } from './blocknumber';
 import { calculateBytecode } from './bytecode';
 import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
@@ -52,7 +53,7 @@ async function compareWithPreviousDeployment(lockFileManager: LockFileManager, n
 }
 
 export async function localDevUp(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
-    console.log('Running local development environment...');
+    logger.info('Running local development environment...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
@@ -66,13 +67,13 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     try {
         const { execa } = await import('execa');
         // Start Docker services first
-        console.log('Starting Docker services...');
+        logger.info('Starting Docker services...');
         await execa('docker', ['compose', 'up', '-d'], {
             cwd: targetDir,
         });
 
         // Wait a moment for services to be ready
-        console.log('Waiting for services to be ready...');
+        logger.info('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const lockFileManager = new LockFileManager(configPath);
@@ -90,26 +91,26 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
         // Log changes if any were found
         if (comparison.changes.length > 0) {
-            console.log('\nBytecode Changes Detected:');
-            console.log('═══════════════════════════════════════════════════════════');
+            logger.info('\nBytecode Changes Detected:');
+            logger.info('═══════════════════════════════════════════════════════════');
             comparison.changes.forEach((change) => {
                 if (network === 'local') {
-                    console.log(`${change.contract}: Local network - will redeploy`);
+                    logger.info(`${change.contract}: Local network - will redeploy`);
                 } else if (!change.oldHash) {
-                    console.log(`${change.contract}: New contract - needs deployment`);
+                    logger.info(`${change.contract}: New contract - needs deployment`);
                 } else {
-                    console.log(`${change.contract}: Bytecode changed`);
-                    console.log(`  Previous: ${change.oldHash}`);
-                    console.log(`  Current:  ${change.newHash}`);
+                    logger.info(`${change.contract}: Bytecode changed`);
+                    logger.info(`  Previous: ${change.oldHash}`);
+                    logger.info(`  Current:  ${change.newHash}`);
                 }
             });
-            console.log('═══════════════════════════════════════════════════════════\n');
+            logger.info('═══════════════════════════════════════════════════════════\n');
         }
 
         let deployedContracts: DeploymentAddresses;
 
         if (comparison.needsDeployment) {
-            console.log(`Deploying contracts to ${network}...`);
+            logger.info(`Deploying contracts to ${network}...`);
             deployedContracts = await deployContracts(deployConfig, scriptDir);
             const blockNumber = await getDeploymentBlockNumber(deployConfig.rpcUrl);
             // Update lock file with new deployments
@@ -125,7 +126,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
                 );
             }
         } else {
-            console.log('No bytecode changes detected. Skipping deployment.');
+            logger.info('No bytecode changes detected. Skipping deployment.');
             // Return the previous deployment addresses
             deployedContracts = Object.fromEntries(
                 Object.keys(bytecodeInfo).map((contract) => {
@@ -152,12 +153,12 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
             cwd: targetDir,
         });
 
-        console.log('Docker containers and network ports:');
-        console.log(stdout);
+        logger.info('Docker containers and network ports:');
+        logger.info(stdout);
 
         return deployedContracts;
     } catch (error) {
-        console.error('Deployment failed:', error);
+        logger.error('Deployment failed:', error);
         throw error;
     }
 }

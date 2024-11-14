@@ -6,8 +6,6 @@ import { logger } from '../helpers/logger';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
 export async function generateEventHooks(configPath: string) {
-    logger.info('Generating event hooks...');
-
     // Resolve the full path of the config file
     const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
     const configDir = path.dirname(fullConfigPath);
@@ -57,7 +55,7 @@ export async function generateEventHooks(configPath: string) {
         logger.debug('Creating event file:', outputPath);
         await createPonderEventFile(handlers, outputPath);
 
-        logger.success(`Event hooks generated successfully at ${outputPath}`);
+        logger.info(`Event hooks generated successfully at ${outputPath}`);
     } catch (error) {
         logger.error('Failed to generate event hooks:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate event hooks', { error });

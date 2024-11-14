@@ -1,4 +1,5 @@
 import { createPublicClient, http } from 'viem';
+import { logger } from '../../helpers/logger';
 
 export async function getBlockNumber(rpcUrl: string): Promise<bigint> {
     try {
@@ -9,7 +10,7 @@ export async function getBlockNumber(rpcUrl: string): Promise<bigint> {
         const blockNumber = await client.getBlockNumber();
         return blockNumber;
     } catch (error) {
-        console.error('Failed to fetch block number:', error);
+        logger.error('Failed to fetch block number:', error);
         throw new Error('Failed to fetch block number from node');
     }
 }

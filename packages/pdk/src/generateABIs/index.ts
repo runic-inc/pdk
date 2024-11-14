@@ -29,7 +29,6 @@ export async function generateABIs(configPath: string) {
     const buildOutDir = path.join(path.dirname(configPath), 'contracts', 'out');
     const abiDir = path.join(path.dirname(configPath), 'ponder', 'abis');
 
-    logger.info('Generating TypeScript ABIs...');
     logger.debug('Build output directory:', buildOutDir);
     logger.debug('ABI output directory:', abiDir);
 
@@ -76,7 +75,7 @@ export async function generateABIs(configPath: string) {
 
         // Write the index file
         await fs.writeFile(path.join(abiDir, 'index.ts'), indexContent);
-        logger.success('Successfully generated all TypeScript ABIs');
+        logger.info('Successfully generated all TypeScript ABIs');
     } catch (error) {
         logger.error('Failed to generate TypeScript ABIs:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate TypeScript ABIs');

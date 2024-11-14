@@ -9,6 +9,7 @@ import { generateReactComponents } from '../../generateReactComponents';
 import { generateReactHooks } from '../../generateReactHooks';
 import { generateSchema } from '../../generateSchema';
 import LockFileManager from '../lockFile';
+import { logger } from '../../helpers/logger';
 
 export type GeneratorType =
     | 'contracts'
@@ -221,7 +222,7 @@ export class GeneratorManager {
     public async processGenerators(): Promise<void> {
         for (const generator of this.generatorOrder) {
             if (await this.hasInputsChanged(generator)) {
-                console.log(`Running generator: ${generator}`);
+                logger.info(`Running generator: ${generator}`);
                 const config = this.generators[generator];
                 await config.run(this.configPath);
 

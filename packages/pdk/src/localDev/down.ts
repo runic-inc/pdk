@@ -1,7 +1,8 @@
 import path from 'path';
+import { logger } from '../helpers/logger';
 
 export async function localDevDown(configPath: string) {
-    console.log('Stopping local development environment...');
+    logger.info('Stopping local development environment...');
     const targetDir = path.dirname(configPath);
     try {
         //doing dynamic import due to CommonJS packages not being able to import ESM packages synchronously
@@ -10,6 +11,6 @@ export async function localDevDown(configPath: string) {
             cwd: targetDir,
         });
     } catch (error) {
-        console.log(error);
+        logger.info(error);
     }
 }

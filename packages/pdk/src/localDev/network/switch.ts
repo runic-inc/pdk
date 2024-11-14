@@ -1,10 +1,11 @@
 import { importPatchworkConfig } from '../../helpers/config';
+import { logger } from '../../helpers/logger';
 import LockFileManager from '../../localDev/lockFile';
 
 export async function networkSwitch(configPath: string, networkName: string) {
     const patchworkConfig = await importPatchworkConfig(configPath);
     if (!patchworkConfig) {
-        console.error('Error loading Patchwork config');
+        logger.error('Error loading Patchwork config');
         return;
     }
 
@@ -13,6 +14,6 @@ export async function networkSwitch(configPath: string, networkName: string) {
     if (patchworkConfig.networks && patchworkConfig.networks[networkName]) {
         lockFileManager.updateNetwork(networkName);
     } else {
-        console.error(`Network ${networkName} not found in Patchwork config`);
+        logger.error(`Network ${networkName} not found in Patchwork config`);
     }
 }
