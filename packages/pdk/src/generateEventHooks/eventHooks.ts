@@ -24,7 +24,9 @@ export function generateEntityEventHandlers(projectConfig: ProjectConfig, ponder
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
 
     Object.entries(projectConfig.contracts).flatMap(([contractName, contractConfig]) => {
-        const filteredEvents = abis[contractName].filter((abiEvent) => abiEvent.type === 'event').filter((abiEvent) => entityEvents.includes(abiEvent.name));
+        const key = (typeof contractConfig !== 'string' && contractConfig.name.replace(/\s+/g, '')) || contractName;
+        const abi = abis[contractName] ?? abis[key];
+        const filteredEvents = abi.filter((abiEvent) => abiEvent.type === 'event')?.filter((abiEvent) => entityEvents.includes(abiEvent.name));
         return filteredEvents
             .map((event) => generatePonderOnHandler(contractName, event, projectConfig, ponderSchema, abis))
             .map((handler) => {

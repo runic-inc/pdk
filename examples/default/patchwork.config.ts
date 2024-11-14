@@ -4,7 +4,7 @@ import { anvil, base, baseSepolia } from 'viem/chains';
 const projectConfig: ProjectConfig = {
     name: 'My Patchwork App',
     contracts: {
-        FirstContract: {
+        MyFirstContract: {
             scopeName: 'myapp',
             name: 'My First Contract',
             symbol: 'FIRST',
@@ -38,12 +38,15 @@ const projectConfig: ProjectConfig = {
     networks: {
         local: {
             chain: anvil,
+            rpc: 'http://127.0.0.1:8545',
         },
         testnet: {
             chain: baseSepolia,
+            rpc: 'http://127.0.0.1:8545',
         },
         mainnet: {
             chain: base,
+            rpc: 'http://127.0.0.1:8545',
         },
     },
 };
