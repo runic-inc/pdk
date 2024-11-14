@@ -3,7 +3,6 @@ import fs from 'fs';
 import { glob } from 'glob';
 import path from 'path';
 import { Address } from 'viem';
-import { logger } from '../../helpers/logger';
 
 type Deployment = {
     contract: string;
@@ -144,7 +143,7 @@ class LockFileManager {
 
             return files.filter((file) => !this.shouldExclude(file));
         } catch (error) {
-            logger.error(`Error matching files for pattern ${pattern}:`, error);
+            console.error(`Error matching files for pattern ${pattern}:`, error);
             return [];
         }
     }
@@ -182,7 +181,7 @@ class LockFileManager {
 
             return hash.digest('hex');
         } catch (error) {
-            logger.error(`Error processing directory ${dirpath}:`, error);
+            console.error(`Error processing directory ${dirpath}:`, error);
             return '';
         }
     }

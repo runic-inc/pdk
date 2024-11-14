@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { logger } from '../../helpers/logger';
 
 export type DeployConfig = {
     rpcUrl?: string;
@@ -25,7 +24,7 @@ async function parseDeploymentOutput(output: string, contractNames: string[]): P
     // Find the return value line
     const returnLine = lines.find((line) => line.includes('DeploymentAddresses({'));
     if (!returnLine) {
-        logger.error('Deployment output:', output);
+        console.error('Deployment output:', output);
         throw new Error('Could not find deployment addresses in output');
     }
 
@@ -47,7 +46,7 @@ async function parseDeploymentOutput(output: string, contractNames: string[]): P
     // Verify we found all expected contracts
     const missingContracts = contractNames.filter((name) => !deployedContracts[name]);
     if (missingContracts.length > 0) {
-        logger.error('Deployment output:', output);
+        console.error('Deployment output:', output);
         throw new Error(`Missing addresses for contracts: ${missingContracts.join(', ')}`);
     }
 
@@ -100,10 +99,10 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
 
     // Extract contract names and validate script
     const contractNames = await extractContractNamesFromScript(scriptPath);
-    logger.info('\nFound contracts to deploy:', contractNames.join(', '));
+    console.info('\nFound contracts to deploy:', contractNames.join(', '));
 
     // Run forge script
-    logger.info('\nRunning deployment script...');
+    console.info('\nRunning deployment script...');
     const { stdout } = await execa(
         'forge',
         [
@@ -133,13 +132,13 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
     const deployedContracts = await parseDeploymentOutput(stdout, contractNames);
 
     // Print results in a nicely formatted table
-    logger.info('\nDeployment Results:');
-    logger.info('═══════════════════════════════════════════════════════════════════════════');
-    logger.info('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
-    logger.info('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
+    console.info('\nDeployment Results:');
+    console.info('═══════════════════════════════════════════════════════════════════════════');
+    console.info('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
+    console.info('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
     Object.entries(deployedContracts).forEach(([contract, info]) => {
-        logger.info(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
+        console.info(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
     });
-    logger.info('═══════════════════════════════════════════════════════════════════════════');
+    console.info('═══════════════════════════════════════════════════════════════════════════');
     return deployedContracts;
 }

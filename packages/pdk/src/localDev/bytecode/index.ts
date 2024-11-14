@@ -2,11 +2,10 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { logger } from '../../helpers/logger';
 import { DeployConfig, DeploymentAddresses } from '../deployment';
 
 export async function calculateBytecode(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
-    logger.info('Calculating contract bytecode...');
+    console.info('Calculating contract bytecode...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
@@ -46,11 +45,11 @@ export async function calculateBytecode(configPath: string, config: DeployConfig
             .filter((line) => line.startsWith('DeploymentInfo'))
             .map((line) => line.split(/\s+/)[1].replace(';', ''));
 
-        logger.debug('\nCalculating bytecode for contracts:', contractNames.join(', '));
+        console.debug('\nCalculating bytecode for contracts:', contractNames.join(', '));
 
         // Run forge script in bytecode-only mode
         const { execa } = await import('execa');
-        logger.info('\nRunning bytecode calculation...');
+        console.info('\nRunning bytecode calculation...');
         const { stdout } = await execa(
             'forge',
             ['script', '--optimize', '--optimizer-runs=200', '-vvv', deployScript, '--rpc-url', deployConfig.rpcUrl, '--private-key', deployConfig.privateKey],
@@ -72,7 +71,7 @@ export async function calculateBytecode(configPath: string, config: DeployConfig
         const returnLine = lines.find((line) => line.includes('DeploymentAddresses({'));
 
         if (!returnLine) {
-            logger.error('Script output:', stdout);
+            console.error('Script output:', stdout);
             throw new Error('Could not find deployment addresses in output');
         }
 
@@ -92,18 +91,18 @@ export async function calculateBytecode(configPath: string, config: DeployConfig
         }
 
         // Print results
-        logger.debug('\nBytecode Calculation Results:');
-        logger.debug('═══════════════════════════════════════════════════════════');
-        logger.debug('Contract Name'.padEnd(20), '│', 'Bytecode Hash');
-        logger.debug('─'.repeat(20), '┼', '─'.repeat(66));
+        console.debug('\nBytecode Calculation Results:');
+        console.debug('═══════════════════════════════════════════════════════════');
+        console.debug('Contract Name'.padEnd(20), '│', 'Bytecode Hash');
+        console.debug('─'.repeat(20), '┼', '─'.repeat(66));
         Object.entries(deployedContracts).forEach(([contract, info]) => {
-            logger.debug(contract.padEnd(20), '│', info.bytecodeHash);
+            console.debug(contract.padEnd(20), '│', info.bytecodeHash);
         });
-        logger.debug('═══════════════════════════════════════════════════════════');
+        console.debug('═══════════════════════════════════════════════════════════');
 
         return deployedContracts;
     } catch (error) {
-        logger.error('Bytecode calculation failed:', error);
+        console.error('Bytecode calculation failed:', error);
         throw error;
     }
 }
