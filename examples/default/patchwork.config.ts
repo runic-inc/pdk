@@ -4,14 +4,28 @@ import { anvil, base, baseSepolia } from 'viem/chains';
 const projectConfig: ProjectConfig = {
     name: 'My Patchwork App',
     contracts: {
-        'Word': {
+        FirstContract: {
             scopeName: 'myapp',
             name: 'My First Contract',
             symbol: 'FIRST',
             baseURI: 'https://www.example.com/',
             schemaURI: 'https://www.example.com/schemas/myfirstcontract.json',
             imageURI: 'https://www.example.com/assets/myfirstcontract/{tokenID}',
-            fields: [],
+            fields: [
+                {
+                    id: 0,
+                    key: 'myfield',
+                    type: 'char32',
+                    description: 'My Field',
+                },
+                {
+                    id: 1,
+                    key: 'myarray',
+                    type: 'char8',
+                    description: 'My Array',
+                    arrayLength: 4,
+                },
+            ],
             features: [Feature.MINTABLE],
         },
     },
@@ -31,7 +45,7 @@ const projectConfig: ProjectConfig = {
         mainnet: {
             chain: base,
         },
-    }
+    },
 };
 
 export default projectConfig;
