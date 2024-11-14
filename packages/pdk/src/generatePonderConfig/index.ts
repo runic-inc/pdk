@@ -78,7 +78,7 @@ function configTemplate(imports: Set<string>, networkConfig: string, contractCon
 //      should not be committed or be known ahead of time
 export function networkTemplate(name: string, network: Network): string {
     return ` ${name}: {
-            chainId: ${network.chainId},
+            chainId: ${network.chain.id},
             transport: http(process.env.${_.upperCase(name)}_RPC),
         }`;
 }

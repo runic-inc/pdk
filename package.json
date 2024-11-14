@@ -1,29 +1,28 @@
 {
-  "name": "@patchworkdev/pdkmonorepo",
-  "description": "Patchwork Development Kit Monorepo",
-  "version": "0.2.5",
-  "main": "src/index.ts",
-  "scripts": {
-    "clean": "pnpm run -r clean",
-    "build": "pnpm run -r build",
-    "test": "pnpm run -r test",
-    "test:coverage": "pnpm run --filter @patchworkdev/pdk test:coverage && pnpm run --filter @patchworkdev/common test:coverage && pnpm run --filter @patchworkdev/wizard test:coverage"
-  },
-  "keywords": [
-    "solidity",
-    "patchwork",
-    "codegen"
-  ],
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
-  "author": "Runic Labs, Inc",
-  "license": "MIT",
-  "dependencies": {
-  },
-  "devDependencies": {
-    "@types/node": "22.5.1",
-    "typescript": "5.5.4"
-  }
+    "name": "@patchworkdev/pdkmonorepo",
+    "description": "Patchwork Development Kit Monorepo",
+    "version": "0.2.5",
+    "main": "src/index.ts",
+    "scripts": {
+        "clean": "pnpm run -r clean",
+        "build": "pnpm run -r build",
+        "test": "pnpm run -r test",
+        "test:coverage": "pnpm run --filter @patchworkdev/pdk test:coverage && pnpm run --filter @patchworkdev/common test:coverage && pnpm run --filter @patchworkdev/wizard test:coverage"
+    },
+    "keywords": [
+        "solidity",
+        "patchwork",
+        "codegen"
+    ],
+    "workspaces": [
+        "packages/*",
+        "apps/*"
+    ],
+    "author": "Runic Labs, Inc",
+    "license": "MIT",
+    "dependencies": {},
+    "devDependencies": {
+        "@types/node": "22.5.1",
+        "typescript": "^5.6.3"
+    }
 }

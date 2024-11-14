@@ -7,6 +7,6 @@ export async function networkList(configPath: string) {
         return;
     }
     for (const networkName in patchworkConfig.networks) {
-        console.log(networkName + ':', patchworkConfig.networks[networkName]);
+        console.log(networkName + ':', patchworkConfig.networks[networkName as keyof typeof patchworkConfig.networks]);
     }
 }
