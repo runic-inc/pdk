@@ -16,6 +16,7 @@
     "prettier.tabWidth": 4,
     "prettier.trailingComma": "all",
     "prettier.printWidth": 160,
+    "prettier.useTabs": false,
     "[solidity]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },

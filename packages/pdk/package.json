@@ -24,6 +24,7 @@
         "@hono/node-server": "1.12.2",
         "@patchworkdev/common": "workspace:*",
         "@ponder/core": "^0.5.17",
+        "@wagmi/cli": "^2.1.18",
         "commander": "12.1.0",
         "execa": "9.5.0",
         "glob": "^11.0.0",

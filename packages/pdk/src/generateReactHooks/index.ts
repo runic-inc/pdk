@@ -8,8 +8,9 @@ import { pascalCase } from '../helpers/text';
 export async function generateReactHooks(configPath: string) {
     const configDir = path.dirname(configPath);
     const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
-    const hooksDir = path.join(configDir, 'www', 'generated', 'hooks');
-    const hooksFile = path.join(hooksDir, 'index.ts');
+    const hooksDir = path.join(configDir, 'www', 'src', 'generated', 'hooks');
+    const trpcHooksFile = path.join(hooksDir, 'trpc.ts');
+    //const wagmiHooksFile = path.join(hooksDir, 'wagmi.ts');
 
     // Check if tRPC router file exists
     try {
@@ -38,6 +39,6 @@ export async function generateReactHooks(configPath: string) {
             `);
     }
 
-    formatAndSaveFile(hooksFile, hooksFileArray.join(''));
-    console.log(`React hooks generated successfully at ${hooksFile}`);
+    formatAndSaveFile(trpcHooksFile, hooksFileArray.join(''));
+    console.log(`React hooks generated successfully at ${trpcHooksFile}`);
 }

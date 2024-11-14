@@ -1,4 +1,4 @@
-import { type ApiContext } from '@/generated';
+import type { ApiContext } from '@/generated';
 import { initTRPC } from '@trpc/server';
 import superjson from 'superjson';
 
