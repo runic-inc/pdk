@@ -1,11 +1,11 @@
-import { isCancel, log, select } from '@clack/prompts';
+import { log } from '@clack/prompts';
 import { Command } from '@commander-js/extra-typings';
 import cpy from 'cpy';
-import fs from 'fs/promises';
 import _ from 'lodash';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import pico from 'picocolors';
-import { fileURLToPath } from 'url';
 import { forgeBuild, generateAllComponents, generateContracts, generateDeployScripts, initGitRepo, installNodeDependencies } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,12 +33,12 @@ type CreatePatchworkOptions = Awaited<ReturnType<typeof program.opts>>;
 async function createPatchwork(configFile: string | undefined, options: CreatePatchworkOptions) {
     console.log('createPatchwork', configFile, options);
 
-    const templateProject = 'ponder_next';
+    const templateProject = 'default';
     const targetPath = process.cwd();
     const templatePath = path.join(__dirname, '', 'templates', templateProject);
-    const exampleProjectPath = path.join(__dirname, '', 'templates', 'projects');
+    const exampleProjectPath = path.join(__dirname, '', 'templates');
 
-    const useLocalPackages = options.useLocalPackages ? true : false;
+    const useLocalPackages = !!options.useLocalPackages;
 
     // if configFile is set try to use it if not ask user which example config they want to use
     const configPath = configFile ? path.resolve(process.cwd(), configFile) : path.join(exampleProjectPath, await selectExampleConfig());
@@ -76,7 +76,7 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
     console.log(pico.green(`Patchwork app "${projectName}" created successfully in directory "${projectFolderName}"!`));
 }
 
-async function copyFiles(src: string, dest: string, message: string = 'copying from src to dest') {
+async function copyFiles(src: string, dest: string, message = 'copying from src to dest') {
     console.log(message, src, dest);
     await cpy(path.join(src, '**', '*'), dest, {
         rename: (name) => name.replace(/^_dot_/, '.'),
@@ -112,7 +112,7 @@ async function getProjectNameFromConfig(configPath: string): Promise<string> {
     try {
         const content = await fs.readFile(configPath, 'utf8');
         const match = content.match(/name:\s*["'](.+?)["']/);
-        if (match && match[1]) {
+        if (match?.[1]) {
             return match[1];
         }
         throw new Error('Project name not found in config file');
@@ -123,11 +123,13 @@ async function getProjectNameFromConfig(configPath: string): Promise<string> {
 }
 
 async function selectExampleConfig(): Promise<string> {
-    const project = (await select({
-        message: 'Pick a project type.',
+    return 'default/patchwork.config.ts';
+    /*const project = (await select({
+        message: 'Choose a starter template',
         options: [
-            { value: 'canvas/patchwork.config.ts', label: 'Canvas' },
-            { value: 'elephants/patchwork.config.ts', label: 'Elephants' },
+            { value: 'default/patchwork.config.ts', label: 'Default' },
+            { value: 'demo-canvas/patchwork.config.ts', label: 'Demo app: Canvas' },
+            { value: 'demo-pfp/patchwork.config.ts', label: 'Demo app: PFP' },
         ],
     })) as string;
 
@@ -135,5 +137,5 @@ async function selectExampleConfig(): Promise<string> {
         process.exit(0);
     }
 
-    return project;
+    return project;*/
 }
