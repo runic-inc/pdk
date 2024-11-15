@@ -409,7 +409,7 @@ function getFieldType(type: string): string {
 
 function renderSchemaFile(enums: EnumStructure, tables: TableStructure): string {
     const output = [];
-    output.push(`import { index, onchainTable, relations } from "@ponder/core/db";`);
+    output.push(`import { index, onchainTable, relations } from "@ponder/core";`);
     Object.entries(tables).forEach(([tableName, table]) => {
         output.push(`export const ${_.camelCase(tableName)} = onchainTable('${_.snakeCase(tableName)}', (p) => ({
             ${table.fields.map((field) => `${field.key}: ${field.value}`).join(',\n')}

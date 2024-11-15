@@ -33,7 +33,6 @@ export async function generateEventHooks(configPath: string) {
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
 
     const ponderSchema = await loadPonderSchema(ponderSchemaPath);
-
     const handlers: GeneratedHandlers = { imports: new Set(), handlers: [] };
 
     const entityHandlers = generateEntityEventHandlers(projectConfig, ponderSchema, abis);

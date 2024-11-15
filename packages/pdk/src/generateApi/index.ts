@@ -81,7 +81,7 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
 async function generateTrpcApi(schema: SchemaModule): Promise<string[]> {
     let apiContent: string[] = [
         `
-import { eq, gt, and } from "@ponder/core/db";
+import { eq, gt, and } from "@ponder/core";
 import { publicProcedure, router } from "./trpc";
 import { z } from "zod";`,
     ];
