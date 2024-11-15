@@ -79,8 +79,8 @@ function coreTableStructure(): TableStructure {
                 { key: 'id', value: 'p.text().notNull()' },
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'namespace', value: 'p.text().notNull()' },
-                { key: 'patchworkAddress', value: 'p.evmHex().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'patchworkAddress', value: 'p.hex().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
             relations: {
                 block: {
@@ -94,9 +94,9 @@ function coreTableStructure(): TableStructure {
         Block: {
             fields: [
                 { key: 'id', value: 'p.text().notNull()' },
-                { key: 'extraData', value: 'p.evmHex().notNull()' },
-                { key: 'number', value: 'p.evmBigint().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'extraData', value: 'p.hex().notNull()' },
+                { key: 'number', value: 'p.bigint().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
             ],
             relations: {
@@ -113,12 +113,12 @@ function coreTableStructure(): TableStructure {
             fields: [
                 { key: 'id', value: 'p.text().notNull()' },
                 { key: 'blockId', value: 'p.text().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
                 { key: 'fromId', value: 'p.text().notNull()' },
                 { key: 'nonce', value: 'p.integer().notNull()' },
                 { key: 'toId', value: 'p.text()' },
                 { key: 'txIndex', value: 'p.integer().notNull()' },
-                { key: 'value', value: 'p.evmBigint().notNull()' },
+                { key: 'value', value: 'p.bigint().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
             ],
             relations: {
@@ -155,8 +155,8 @@ function coreTableStructure(): TableStructure {
         GlobalAddress: {
             fields: [
                 { key: 'id', value: 'p.text().notNull()' },
-                { key: 'address', value: 'p.evmHex().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'address', value: 'p.hex().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
             relations: {
                 address: {
@@ -174,7 +174,7 @@ function coreTableStructure(): TableStructure {
                 { key: 'chainId', value: 'p.text().notNull()' },
                 { key: 'type', value: 'p.text().notNull()' },
                 { key: 'searchable', value: 'p.text()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
             relations: {
                 address: {
@@ -212,7 +212,7 @@ function coreTableStructure(): TableStructure {
                 { key: 'addressId', value: 'p.text().notNull()' },
                 { key: 'txId', value: 'p.text().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
             relations: {
                 address: {
@@ -244,11 +244,11 @@ function coreTableStructure(): TableStructure {
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'symbol', value: 'p.text().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
-                { key: 'address', value: 'p.evmHex().notNull()' },
+                { key: 'address', value: 'p.hex().notNull()' },
                 { key: 'baseURI', value: 'p.text().notNull()' },
                 { key: 'schemaURI', value: 'p.text().notNull()' },
                 { key: 'imageURI', value: 'p.text().notNull()' },
-                { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
             relations: {
                 chain: {
@@ -274,8 +274,8 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
         const table: Table = {
             fields: [
                 { key: 'id', value: 'p.text().notNull()' },
-                { key: 'owner', value: 'p.evmHex().notNull()' },
-                { key: 'tokenId', value: 'p.evmBigint().notNull()' },
+                { key: 'owner', value: 'p.hex().notNull()' },
+                { key: 'tokenId', value: 'p.bigint().notNull()' },
                 { key: 'mintTxId', value: 'p.text().notNull()' },
                 { key: 'burnTxId', value: 'p.text()' },
                 { key: 'contractId', value: 'p.text().notNull()' },
@@ -315,7 +315,7 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
                         { key: 'id', value: 'p.text().notNull()' },
                         { key: `${_.camelCase(contractName)}Id`, value: `p.text().notNull()` },
                         { key: 'value', value: `${getFieldType(field.type)}.notNull()` },
-                        { key: 'timestamp', value: 'p.evmBigint().notNull()' },
+                        { key: 'timestamp', value: 'p.bigint().notNull()' },
                     ],
                     relations: {},
                 };
@@ -370,7 +370,7 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
             });
         }
 
-        table.fields.push({ key: 'timestamp', value: 'p.evmBigint()' });
+        table.fields.push({ key: 'timestamp', value: 'p.bigint()' });
         tables[contractName] = table;
     });
     return tables;
@@ -393,9 +393,9 @@ function getFieldType(type: string): string {
         case 'uint64':
         case 'uint128':
         case 'uint256':
-            return 'p.evmBigint()';
+            return 'p.bigint()';
         case 'address':
-            return 'p.evmHex()';
+            return 'p.hex()';
         case 'char8':
         case 'char16':
         case 'char32':
