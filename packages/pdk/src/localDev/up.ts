@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import _ from 'lodash';
 import path from 'path';
 import { Address } from 'viem';
 import { generatePonderEnv } from '../generatePonderEnv';
@@ -15,6 +17,40 @@ interface BytecodeComparison {
         oldHash?: string;
         newHash: string;
     }>;
+}
+
+function getDockerContainerName(projectName: string, serviceName: string, instanceNumber: number = 1): string {
+    const sanitizedName = _.chain(projectName)
+        .kebabCase()
+        .thru((name) => (/^[a-z]/.test(name) ? name : `project-${name}`))
+        .value();
+
+    return `${sanitizedName}-${serviceName}-${instanceNumber}`;
+}
+
+function getPonderContainerName(projectName: string, instanceNumber: number = 1): string {
+    return getDockerContainerName(projectName, 'ponder', instanceNumber);
+}
+
+async function getProjectNameFromConfig(configPath: string): Promise<string> {
+    const content = await fs.readFile(configPath, 'utf8');
+
+    try {
+        if (configPath.endsWith('.json')) {
+            const config = JSON.parse(content);
+            return config.name;
+        } else {
+            // For TypeScript files, extract name using regex
+            const match = content.match(/name:\s*["'](.+?)["']/);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        throw new Error('Project name not found in config file');
+    } catch (error) {
+        console.error(`Error reading project name from config: ${error}`);
+        throw error;
+    }
 }
 
 async function compareWithPreviousDeployment(lockFileManager: LockFileManager, network: string, newBytecode: DeploymentAddresses): Promise<BytecodeComparison> {
@@ -142,10 +178,15 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         }
 
         generatePonderEnv(configPath);
-        // restart ponder to pick up new .env file
-        await execa('docker', ['container', 'restart', 'canvas-ponder-1'], {
+
+        // Get project configuration to determine container name
+        const projectName = await getProjectNameFromConfig(configPath);
+        const ponderContainer = getPonderContainerName(projectName);
+        console.log(`Restarting Ponder container: ${ponderContainer}`);
+        await execa('docker', ['container', 'restart', ponderContainer], {
             cwd: targetDir,
         });
+
         generateWWWEnv(configPath);
 
         const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
