@@ -1,4 +1,3 @@
-
 export * from './codegen/contractSchema';
 export * from './codegen/contractSchemaJsonParser';
 export * from './codegen/generator';
@@ -13,6 +12,4 @@ export * from './configgen/jsonProjectConfigLoader';
 export * from './configgen/tsContractConfigGen';
 export * from './configgen/tsProjectConfigGen';
 export * from './deploygen/deployScriptGen';
-export * from './deploygen/deployShellScriptGen';
 export * from './types';
-
