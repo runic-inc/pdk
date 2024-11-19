@@ -44,7 +44,7 @@ const projectConfig: ProjectConfig = {
                 {
                     id: 1,
                     key: 'decorations',
-                    type: 'uint64',
+                    type: 'bytes8',
                     description: 'Decorations',
                     arrayLength: 4,
                 },

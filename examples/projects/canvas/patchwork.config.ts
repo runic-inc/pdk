@@ -45,7 +45,7 @@ const projectConfig: ProjectConfig = {
                     // 1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 1, 0, "decorations"
                     id: 1,
                     key: 'decorations',
-                    type: 'char8',
+                    type: 'bytes8',
                 },
                 {
                     // 2, 0, FieldType.ADDRESS, 1, FieldVisibility.PUBLIC, 2, 0, "minter"

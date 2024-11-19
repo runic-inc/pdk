@@ -54,7 +54,7 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
     });
     const originalRequire = Module.prototype.require;
     const newRequire = function (this: NodeModule, id: string) {
-        if (id === '@ponder/core/db') {
+        if (id === '@ponder/core') {
             return require(path.resolve(__dirname, './ponderSchemaMock'));
         }
         return originalRequire.call(this, id);

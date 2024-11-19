@@ -22,9 +22,9 @@
     "dependencies": {
         "@hono/trpc-server": "0.3.2",
         "@openzeppelin/contracts": "5.0.2",
-        "@patchworkdev/common": "0.2.4",
-        "@patchworkdev/contracts": "2.0.4",
-        "@patchworkdev/pdk": "0.2.4",
+        "@patchworkdev/common": "0.2.5",
+        "@patchworkdev/contracts": "2.0.6",
+        "@patchworkdev/pdk": "0.2.5",
         "forge-std": "github:foundry-rs/forge-std"
     },
     "devDependencies": {
