@@ -4,6 +4,7 @@ import { analyzeAPI } from '../helpers/api';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
 import { pascalCase } from '../helpers/text';
+import { logger } from '../helpers/logger';
 
 export async function generateDemoPage(configPath: string) {
     const configDir = path.dirname(configPath);
@@ -46,5 +47,5 @@ export default function Home() {
     }
 
     await formatAndSaveFile(demoFile, demoFileArray.join(''));
-    console.log(`Demo page generated successfully at ${demoFile}`);
+    logger.info(`Demo page generated successfully at ${demoFile}`);
 }

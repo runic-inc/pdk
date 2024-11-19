@@ -88,7 +88,7 @@ async function compareWithPreviousDeployment(lockFileManager: LockFileManager, n
 }
 
 export async function localDevUp(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
-    console.log('Running local development environment...');
+    console.info('Running local development environment...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
@@ -102,13 +102,13 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     try {
         const { execa } = await import('execa');
         // Start Docker services first
-        console.log('Starting Docker services...');
+        console.info('Starting Docker services...');
         await execa('docker', ['compose', 'up', '-d'], {
             cwd: targetDir,
         });
 
         // Wait a moment for services to be ready
-        console.log('Waiting for services to be ready...');
+        console.info('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const lockFileManager = new LockFileManager(configPath);
@@ -126,26 +126,26 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
         // Log changes if any were found
         if (comparison.changes.length > 0) {
-            console.log('\nBytecode Changes Detected:');
-            console.log('═══════════════════════════════════════════════════════════');
+            console.info('\nBytecode Changes Detected:');
+            console.info('═══════════════════════════════════════════════════════════');
             comparison.changes.forEach((change) => {
                 if (network === 'local') {
-                    console.log(`${change.contract}: Local network - will redeploy`);
+                    console.info(`${change.contract}: Local network - will redeploy`);
                 } else if (!change.oldHash) {
-                    console.log(`${change.contract}: New contract - needs deployment`);
+                    console.info(`${change.contract}: New contract - needs deployment`);
                 } else {
-                    console.log(`${change.contract}: Bytecode changed`);
-                    console.log(`  Previous: ${change.oldHash}`);
-                    console.log(`  Current:  ${change.newHash}`);
+                    console.info(`${change.contract}: Bytecode changed`);
+                    console.info(`  Previous: ${change.oldHash}`);
+                    console.info(`  Current:  ${change.newHash}`);
                 }
             });
-            console.log('═══════════════════════════════════════════════════════════\n');
+            console.info('═══════════════════════════════════════════════════════════\n');
         }
 
         let deployedContracts: DeploymentAddresses;
 
         if (comparison.needsDeployment) {
-            console.log(`Deploying contracts to ${network}...`);
+            console.info(`Deploying contracts to ${network}...`);
             deployedContracts = await deployContracts(deployConfig, scriptDir);
             const blockNumber = await getDeploymentBlockNumber(deployConfig.rpcUrl);
             // Update lock file with new deployments
@@ -161,7 +161,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
                 );
             }
         } else {
-            console.log('No bytecode changes detected. Skipping deployment.');
+            console.info('No bytecode changes detected. Skipping deployment.');
             // Return the previous deployment addresses
             deployedContracts = Object.fromEntries(
                 Object.keys(bytecodeInfo).map((contract) => {
@@ -193,8 +193,8 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
             cwd: targetDir,
         });
 
-        console.log('Docker containers and network ports:');
-        console.log(stdout);
+        console.info('Docker containers and network ports:');
+        console.info(stdout);
 
         return deployedContracts;
     } catch (error) {

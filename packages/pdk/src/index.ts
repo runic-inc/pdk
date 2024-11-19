@@ -1,4 +1,4 @@
-import { Command } from '@commander-js/extra-typings';
+import { Command, OptionValues } from '@commander-js/extra-typings';
 import path from 'path';
 import { CLIProcessor } from './cliProcessor';
 import { generateABIs } from './generateABIs';
@@ -14,6 +14,7 @@ import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
 import { findConfig } from './helpers/config';
 import { ErrorCode, PDKError } from './helpers/error';
+import { setLogLevel } from './helpers/logger';
 import { localDevDown, localDevUp } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
@@ -31,7 +32,11 @@ async function getConfigPath(configFile?: string): Promise<string> {
     return configPath;
 }
 
-const program = new Command();
+interface GlobalOptions extends OptionValues {
+    verbose?: boolean;
+}
+
+const program = new Command<[], GlobalOptions>();
 
 program.name('pdk').version('1.0.0');
 
@@ -39,6 +44,13 @@ program.name('pdk').version('1.0.0');
 program.on('error', (err) => {
     console.error('Global error:', err.message);
     process.exit(1);
+});
+
+program.option('-v, --verbose', 'Enable verbose logging');
+
+program.hook('preAction', (thisCommand) => {
+    const opts = thisCommand.opts();
+    setLogLevel(opts.verbose ? 'debug' : 'info');
 });
 
 program
@@ -93,7 +105,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate TypeScript ABIs for ponder')
     .action(async (configFile) => {
-        console.log('Generating TypeScript ABIs...');
         const configPath = await getConfigPath(configFile);
         await generateABIs(configPath);
     });
@@ -103,7 +114,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder schema')
     .action(async (configFile) => {
-        console.log('Generating Ponder Schema');
         const configPath = await getConfigPath(configFile);
         await generateSchema(configPath);
     });
@@ -113,7 +123,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder event code')
     .action(async (configFile) => {
-        console.log('Generating Ponder event code');
         const configPath = await getConfigPath(configFile);
         await generateEventHooks(configPath);
     });
@@ -123,7 +132,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder config code')
     .action(async (configFile) => {
-        console.log('Generating Ponder config code');
         const configPath = await getConfigPath(configFile);
         await generatePonderConfig(configPath);
     });
@@ -133,7 +141,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate ponder env file')
     .action(async (configFile) => {
-        console.log('Generating Ponder env file');
         const configPath = await getConfigPath(configFile);
         await generatePonderEnv(configPath);
     });
@@ -143,7 +150,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate www env file')
     .action(async (configFile) => {
-        console.log('Generating WWW env file');
         const configPath = await getConfigPath(configFile);
         await generateWWWEnv(configPath);
     });
@@ -153,17 +159,14 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the React hooks for app')
     .action(async (configFile) => {
-        console.log('Generating React hooks for app');
         const configPath = await getConfigPath(configFile);
         await generateReactHooks(configPath);
     });
-
 program
     .command('generateReactComponents')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the React components for app')
     .action(async (configFile) => {
-        console.log('Generating React components for app');
         const configPath = await getConfigPath(configFile);
         await generateReactComponents(configPath);
     });
@@ -173,7 +176,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the demo app page')
     .action(async (configFile) => {
-        console.log('Generating the demo app page');
         const configPath = await getConfigPath(configFile);
         await generateDemoPage(configPath);
     });
@@ -183,7 +185,6 @@ program
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the trpc api')
     .action(async (configFile) => {
-        console.log('Generating API');
         const configPath = await getConfigPath(configFile);
         const schemaPath = path.join(path.dirname(configPath), 'ponder', 'ponder.schema.ts');
         const apiOutputDir = path.join(path.dirname(configPath), 'ponder', 'src', 'generated');
@@ -205,7 +206,7 @@ localDev
     .command('up')
     .description('Run docker compose up for local dev')
     .action(async () => {
-        console.log('Setting up docker compose for local dev');
+        console.info('Setting up docker compose for local dev');
         const configPath = await getConfigPath();
         await localDevUp(configPath);
     });
@@ -214,7 +215,7 @@ localDev
     .command('down')
     .description('Run docker compose down for local dev')
     .action(async () => {
-        console.log('Tearing down docker compose for local dev');
+        console.info('Tearing down docker compose for local dev');
         const configPath = await getConfigPath();
         await localDevDown(configPath);
     });
@@ -243,7 +244,7 @@ network
         await program.parseAsync();
     } catch (error) {
         if (error instanceof PDKError) {
-            console.error(`PDK error ${error.code}: `, error.message);
+            console.error(`${error.code}: `, error.message);
         } else {
             console.error('Unknown Error:', error);
         }

@@ -6,6 +6,7 @@ import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
 import { SchemaModule } from '../helpers/ponderSchemaMock';
 import { pascalCase } from '../helpers/text';
+import { logger } from '../helpers/logger';
 
 const trpcRouteToHookName = (route: string) => 'use' + pascalCase(route);
 
@@ -34,11 +35,11 @@ export async function generateReactComponents(configPath: string) {
 
             const componentFile = path.join(componentsDir, `${pascalCase(entity)}List.tsx`);
             await formatAndSaveFile(componentFile, template);
-            console.log(`Generated component: ${componentFile}`);
+            logger.debug(`Generated component: ${componentFile}`);
         }
     }
 
-    console.log('React components generation completed successfully.');
+    logger.info('React components generation completed successfully.');
 }
 
 function generateComponent(template: string, entity: string, hook: string, ponderSchema: SchemaModule) {

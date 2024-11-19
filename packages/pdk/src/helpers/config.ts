@@ -7,6 +7,7 @@ import { register } from 'ts-node';
 import { Abi } from 'viem';
 import { ErrorCode, PDKError } from './error';
 import { SchemaModule } from './ponderSchemaMock';
+import { logger } from './logger';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
@@ -39,7 +40,7 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
     try {
         await fs.access(ponderSchema);
     } catch (error) {
-        // console.error(`Error: Unable to access Ponder schema file at ${ponderSchema}`);
+        // logger.error(`Error: Unable to access Ponder schema file at ${ponderSchema}`);
         throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Unable to access Ponder schema file at  ${ponderSchema}`);
     }
     let schemaModule: SchemaModule = {};
@@ -65,9 +66,9 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
         return schemaModule as SchemaModule;
     } catch (error) {
         if (error instanceof TypeError && error.message.includes('is not a function')) {
-            console.error('Error: It seems a method is missing from our mock implementation.');
-            console.error('Full error:', error);
-            console.error('Please add this method to the mockSchemaBuilder in ponderSchemaMocks.ts');
+            logger.error('Error: It seems a method is missing from our mock implementation.');
+            logger.error('Full error:', error);
+            logger.error('Please add this method to the mockSchemaBuilder in ponderSchemaMocks.ts');
         } else {
             throw new PDKError(ErrorCode.MOCK_NOT_FOUND, `Missing mock implementation in ponderSchemaMocks.ts`);
         }
@@ -100,9 +101,9 @@ export async function importPatchworkConfig(config: string): Promise<ProjectConf
         return module.default as ProjectConfig;
     } catch (error) {
         if (error instanceof Error) {
-            console.error('Error importing ProjectConfig:', error.message);
+            logger.error('Error importing ProjectConfig:', error.message);
         } else {
-            console.error('An unknown error occurred while importing ProjectConfig');
+            logger.error('An unknown error occurred while importing ProjectConfig');
         }
         throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`);
     }
@@ -112,7 +113,7 @@ export async function importABIFiles(abiDir: string) {
     try {
         await fs.access(abiDir);
     } catch (error) {
-        console.error(`- ABI directory not found: ${abiDir}`);
+        logger.error(`- ABI directory not found: ${abiDir}`);
         throw new PDKError(ErrorCode.DIR_NOT_FOUND, `ABI directory not found at ${abiDir}`);
     }
     // Register ts-node to handle TypeScript files
@@ -149,12 +150,12 @@ export async function importABIFiles(abiDir: string) {
         // return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);
         // return abiObjects;
     } catch (error) {
-        console.error('Error importing ABI files:', error);
+        logger.error('Error importing ABI files:', error);
         throw new PDKError(ErrorCode.ABI_IMPORT_ERROR, `Error importing ABIs at ${abiDir}`);
     }
 
     if (Object.keys(abiObjects).length === 0) {
-        console.error(`Error: No ABI files found in ${abiDir}`);
+        logger.error(`Error: No ABI files found in ${abiDir}`);
         throw new PDKError(ErrorCode.ABI_IMPORT_ERROR, `Error: No ABI files found in  ${abiDir}`);
     }
     return abiObjects;

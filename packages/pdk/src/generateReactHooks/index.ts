@@ -3,6 +3,7 @@ import path from 'path';
 import { analyzeAPI } from '../helpers/api';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
+import { logger } from '../helpers/logger';
 import { pascalCase } from '../helpers/text';
 
 export async function generateReactHooks(configPath: string) {
@@ -15,7 +16,7 @@ export async function generateReactHooks(configPath: string) {
     try {
         await fs.access(trpcRouter);
     } catch (error) {
-        console.error(`Error: Unable to access tRPC router file at ${trpcRouter}`);
+        logger.error(`Error: Unable to access tRPC router file at ${trpcRouter}`);
         throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Error: Unable to access tRPC router file at ${trpcRouter}`);
     }
 
@@ -23,7 +24,7 @@ export async function generateReactHooks(configPath: string) {
     try {
         await fs.mkdir(hooksDir, { recursive: true });
     } catch (error) {
-        console.error(`Error creating hooks directory at ${hooksDir}:`, error);
+        logger.error(`Error creating hooks directory at ${hooksDir}:`, error);
         throw new PDKError(ErrorCode.DIR_NOT_FOUND, `Error creating hooks directory at  ${trpcRouter}`);
     }
 
@@ -39,5 +40,5 @@ export async function generateReactHooks(configPath: string) {
     }
 
     formatAndSaveFile(hooksFile, hooksFileArray.join(''));
-    console.log(`React hooks generated successfully at ${hooksFile}`);
+    logger.info(`React hooks generated successfully at ${hooksFile}`);
 }
