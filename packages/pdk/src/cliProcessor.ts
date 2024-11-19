@@ -3,7 +3,6 @@ import {
     ContractConfig,
     ContractSchemaImpl,
     DeployScriptGen,
-    DeployShellScriptGen,
     JSONProjectConfigLoader,
     JSONSchemaGen,
     MainContractGen,
@@ -198,11 +197,6 @@ export class CLIProcessor {
             let outputPath = path.join(outputDir, deployerFilename);
             fs.writeFileSync(outputPath, deployScriptCode);
             console.log(`Deploy script generated at ${outputPath}`);
-            const deployShellScriptCode = new DeployShellScriptGen().gen(projectConfig);
-            const deployShellScriptFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + '-deploy.sh';
-            outputPath = path.join(outputDir, deployShellScriptFilename);
-            fs.writeFileSync(outputPath, deployShellScriptCode);
-            console.log(`Deploy shell script generated at ${outputPath}`);
         } catch (err: any) {
             console.error('Error:', err.message);
             throw new Error('Error generating deploy script');
