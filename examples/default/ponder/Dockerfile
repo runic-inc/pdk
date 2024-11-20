@@ -1,11 +1,13 @@
 FROM node:18-alpine
 
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat python3 py3-pip make g++ gcc
 RUN apk update
+RUN ln -sf python3 /usr/bin/python
 
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ENV PYTHON=/usr/bin/python
 RUN corepack enable
 
 WORKDIR /app
