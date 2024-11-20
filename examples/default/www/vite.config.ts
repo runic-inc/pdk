@@ -1,10 +1,17 @@
 import { ValidateEnv } from '@julr/vite-plugin-validate-env';
 import react from '@vitejs/plugin-react';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import { z } from 'zod';
 
 // https://vite.dev/config/
 export default defineConfig({
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+            '#': path.resolve(__dirname, './..'),
+        },
+    },
     plugins: [
         ValidateEnv({
             validator: 'zod',
