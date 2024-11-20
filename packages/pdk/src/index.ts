@@ -93,6 +93,19 @@ program
     });
 
 program
+    .command('convertToTS')
+    .argument('[configFiles...]', 'Path to JSON files')
+    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+    .description('Convert JSON project configurations to Typescript')
+    .action(async (configFiles, options) => {
+        try {
+            cliProcessor.convertToTS(configFiles, options.output);
+        } catch (e) {
+            throw new PDKError(ErrorCode.PDK_ERROR, `Error converting files`, { configFiles, options });
+        }
+    });
+
+program
     .command('generateDeployScripts')
     .argument('[configFiles...]', 'Path to the JSON or TS files')
     .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')

@@ -9,6 +9,7 @@ import {
     MainContractGen,
     parseJson,
     ProjectConfig,
+    TSProjectConfigGen,
     UserContractGen,
     validateSchema,
 } from '@patchworkdev/common';
@@ -319,12 +320,40 @@ export class CLIProcessor {
                 } else if (tsConfig.contracts) {
                     const jsonFilename = path.basename(configFile).replace('.ts', '.json');
                     let outputPath = path.join(outputDir, jsonFilename);
-                    const tsContent = new JSONProjectConfigGen().gen(tsConfig);
-                    fs.writeFileSync(outputPath, tsContent);
-                    console.log(`Solidity gen file generated at ${outputPath}`);
+                    const jsonContent = new JSONProjectConfigGen().gen(tsConfig);
+                    fs.writeFileSync(outputPath, jsonContent);
+                    console.log(`Project JSON generated at ${outputPath}`);
                 } else {
                     console.error(`Invalid TS config file: ${configFile}`);
                     throw new Error(`Invalid TS config file: ${configFile}`);
+                }
+            } else {
+                console.error(`Invalid Typescript filename: ${configFile}`);
+                throw new Error(`Invalid Typescript filename: ${configFile}`);
+            }
+        }
+    }
+
+    convertToTS(configFiles: string[], outputDir: string = process.cwd(), contract?: string) {
+        console.log('Converting...');
+        for (const configFile of configFiles) {
+            if (configFile.endsWith('.json')) {
+                const jsonData = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+                if (validateSchema(jsonData, this.contractSchema).isValid) {
+                    // Contract config
+                    console.error(`Found contract config but convert only supports project configs: ${configFile}`);
+                    throw new Error(`Found contract config but convert only supports project configs: ${configFile}`);
+                } else if (validateSchema(jsonData, this.projectSchema).isValid) {
+                    // Project config
+                    const projectConfig = new JSONProjectConfigLoader().load(fs.readFileSync(configFile, 'utf8'));
+                    const jsonFilename = path.basename(configFile).replace('.json', '.ts');
+                    let outputPath = path.join(outputDir, jsonFilename);
+                    const tsContent = new TSProjectConfigGen().gen(projectConfig);
+                    fs.writeFileSync(outputPath, tsContent);
+                    console.log(`Project TS generated at ${outputPath}`);
+                } else {
+                    console.error(`Invalid config file: ${configFile}`);
+                    throw new Error(`Invalid config file: ${configFile}`);
                 }
             } else {
                 console.error(`Invalid Typescript filename: ${configFile}`);
