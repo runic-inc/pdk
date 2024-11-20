@@ -1,5 +1,6 @@
 import { ContractSchemaImpl } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
+import { ind } from "../codegen/generator";
 import { ContractConfig, ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
 import { JSONContractConfigGen } from './jsonContractConfigGen';
 
@@ -28,25 +29,37 @@ export class JSONProjectConfigGen {
     }
 
     genScopeConfig(scopeConfig: ScopeConfig): string {
+        const scopeProps = [];
+        scopeProps.push(`"name": "${scopeConfig.name}"`);
+        if (scopeConfig.owner) {
+            scopeProps.push(`"owner": "${scopeConfig.owner}"`);
+        }
+        if (scopeConfig.whitelist !== undefined) {
+            scopeProps.push(`"whitelist": ${scopeConfig.whitelist}`);
+        }
+        if (scopeConfig.userAssign !== undefined) {
+            scopeProps.push(`"userAssign": ${scopeConfig.userAssign}`);
+        }
+        if (scopeConfig.userPatch !== undefined) {
+            scopeProps.push(`"userPatch": ${scopeConfig.userPatch}`);
+        }
+        if (scopeConfig.bankers) {
+            scopeProps.push(`"bankers": [${scopeConfig.bankers.map(banker => `"${banker}"`).join(',')}]`);
+        }
+        if (scopeConfig.operators) {
+            scopeProps.push(`"operators": [${scopeConfig.operators.map(operator => `"${operator}"`).join(',')}]`);
+        }
+        if (scopeConfig.mintConfigs) {
+            scopeProps.push(`"mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)}`);
+        }
+        if (scopeConfig.patchFees) {
+            scopeProps.push(`"patchFees": ${this.genPatchFees(scopeConfig.patchFees)}`);
+        }
+        if (scopeConfig.assignFees) {
+            scopeProps.push(`"assignFees": ${this.genAssignFees(scopeConfig.assignFees)}`);
+        }
         return `        "${scopeConfig.name}": {\n` +
-            `            "name": "${scopeConfig.name}",\n` +
-            `            "owner": "${scopeConfig.owner}",\n` +
-            `            "whitelist": ${scopeConfig.whitelist},\n` +
-            `            "userAssign": ${scopeConfig.userAssign},\n` +
-            `            "userPatch": ${scopeConfig.userPatch},\n` +
-            `            "bankers": [` +
-            scopeConfig.bankers?.map(banker => {
-                return `"${banker}"`;
-            }).join(',') +
-            `],\n` +
-            `            "operators": [` +
-            scopeConfig.operators?.map(operator => {
-                return `"${operator}"`;
-            }).join(',') +
-            `],\n` +
-            `            "mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)},\n` +
-            `            "patchFees": ${this.genPatchFees(scopeConfig.patchFees)},\n` +
-            `            "assignFees": ${this.genAssignFees(scopeConfig.assignFees)}\n` +
+            ind(12, scopeProps.join(',\n')) +
             `        }`;
     }
 

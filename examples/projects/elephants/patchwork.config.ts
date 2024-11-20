@@ -3,63 +3,69 @@ import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 const projectConfig: ProjectConfig = {
     name: 'elephants',
     contracts: {
-        Canvas: {
+        Elephant: {
             scopeName: 'elephants',
-            name: 'Canvas',
-            symbol: 'CANVAS',
-            baseURI: 'https://canvas.patchwork.dev/',
-            schemaURI: 'https://canvas.patchwork.dev/schemas/canvas.json',
-            imageURI: 'https://canvas.patchwork.dev/assets/canvas/{tokenID}',
+            name: 'Elephants',
+            symbol: 'ELEPHANT',
+            baseURI: 'https://elephants.fun/metadata/elephant/',
+            schemaURI: 'https://elephants.fun/schemas/elephant.json',
+            imageURI: 'https://elephants.fun/assets/elephant/{tokenID}',
             fields: [
                 {
-                    // 0, 0, FieldType.CHAR32, 1, FieldVisibility.PUBLIC, 0, 0, "name"
                     id: 0,
+                    key: 'attributeLiteRefs',
+                    type: 'literef',
+                    description: 'Attribute LiteRefs',
+                    arrayLength: 8,
+                },
+                {
+                    id: 1,
                     key: 'name',
                     type: 'char32',
-                },
-                {
-                    //1, 0, FieldType.LITEREF, 0, FieldVisibility.PUBLIC, 0, 0, "bubbleRefs"
-                    id: 1,
-                    key: 'bubbleRefs',
-                    type: 'literef',
-                    arrayLength: 0,
+                    description: 'Name',
                 },
             ],
-            features: [Feature.MINTABLE],
+            features: [],
         },
-        Bubble: {
+        Attribute: {
             scopeName: 'elephants',
-            name: 'Bubble',
-            symbol: 'BUBBLE',
-            baseURI: 'https://canvas.patchwork.dev/',
-            schemaURI: 'https://canvas.patchwork.dev/schemas/bubble.json',
-            imageURI: 'https://canvas.patchwork.dev/assets/bubble/{tokenID}',
+            name: 'Elephants: Attributes',
+            symbol: 'ATTRIBUTE',
+            baseURI: 'https://elephants.fun/metadata/attribute/',
+            schemaURI: 'https://elephants.fun/schemas/attribute.json',
+            imageURI: 'https://elephants.fun/assets/attribute/{tokenID}',
             fields: [
                 {
-                    // 0, 0, FieldType.UINT256, 1, FieldVisibility.PUBLIC, 0, 0, "sequence"
                     id: 0,
-                    key: 'sequence',
-                    type: 'uint256',
+                    key: 'attributeType',
+                    type: 'uint8',
+                    description: 'Attribute Type',
                 },
                 {
-                    // 1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 1, 0, "decorations"
                     id: 1,
-                    key: 'decorations',
-                    type: 'bytes8',
+                    key: 'attributeId',
+                    type: 'uint16',
+                    description: 'Attribute ID',
                 },
                 {
-                    // 2, 0, FieldType.ADDRESS, 1, FieldVisibility.PUBLIC, 2, 0, "minter"
                     id: 2,
-                    key: 'minter',
-                    type: 'address',
+                    key: 'tier',
+                    type: 'uint8',
+                    description: 'Attribute Tier',
+                },
+                {
+                    id: 3,
+                    key: 'name',
+                    type: 'char16',
+                    description: 'Attribute Name',
                 },
             ],
-            features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE, Feature.WEAKREF],
+            features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
         },
     },
     contractRelations: {
-        Canvas: {
-            fragments: ['Bubble'],
+        Elephant: {
+            fragments: ['Attribute'],
         },
     },
     scopes: [
@@ -77,15 +83,15 @@ const projectConfig: ProjectConfig = {
         {
             network: 'base',
             contracts: {
-                Canvas: {
-                    name: 'Canvas',
-                    address: '0x4e110000000003FaC58d6F09DbA701181Bb67738',
-                    block: 5302131,
+                Elephant: {
+                    name: 'Elephant',
+                    address: '0xbeefbeefbeefd8719828fc887effd1f4c85b2848',
+                    block: 10968348,
                 },
-                Bubble: {
-                    name: 'Bubble',
-                    address: '0xB0Bb1eb0bb1E823D6eFfd2ED7Fdb67A78995AE7c',
-                    block: 5302131,
+                Attribute: {
+                    name: 'Attribute',
+                    address: '0xbeeeeeeeeeef0da9a8b35516d7b1ace4a33380ab',
+                    block: 10968348,
                 },
             },
         },
