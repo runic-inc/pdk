@@ -28,4 +28,4 @@ COPY . .
 
 WORKDIR /app/www
 
-CMD ["pnpm", "preview"]
+CMD ["pnpm", "dev"]
