@@ -56,7 +56,7 @@ async function generateTrpcHooks(configPath: string) {
 
     const apiStructure = analyzeAPI(trpcRouter);
     const hooksFileArray = [
-        `import { trpc } from '../utils/trpc';
+        `import { trpc } from '../lib/trpc';
             `,
     ];
 
