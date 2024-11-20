@@ -3,6 +3,7 @@ import {
     ContractConfig,
     ContractSchemaImpl,
     DeployScriptGen,
+    JSONProjectConfigGen,
     JSONProjectConfigLoader,
     JSONSchemaGen,
     MainContractGen,
@@ -305,5 +306,30 @@ export class CLIProcessor {
             schema = new ContractSchemaImpl(parseJson(jsonData));
         }
         return schema;
+    }
+
+    convertToJSON(configFiles: string[], outputDir: string = process.cwd(), contract?: string) {
+        console.log('Converting...');
+        for (const configFile of configFiles) {
+            if (configFile.endsWith('.ts')) {
+                const tsConfig = this.loadTSConfigFile(configFile);
+                if (tsConfig instanceof ContractSchemaImpl) {
+                    console.error(`Not a project config: ${configFile}`);
+                    throw new Error(`Not a project config: ${configFile}`);
+                } else if (tsConfig.contracts) {
+                    const jsonFilename = path.basename(configFile).replace('.ts', '.json');
+                    let outputPath = path.join(outputDir, jsonFilename);
+                    const tsContent = new JSONProjectConfigGen().gen(tsConfig);
+                    fs.writeFileSync(outputPath, tsContent);
+                    console.log(`Solidity gen file generated at ${outputPath}`);
+                } else {
+                    console.error(`Invalid TS config file: ${configFile}`);
+                    throw new Error(`Invalid TS config file: ${configFile}`);
+                }
+            } else {
+                console.error(`Invalid Typescript filename: ${configFile}`);
+                throw new Error(`Invalid Typescript filename: ${configFile}`);
+            }
+        }
     }
 }

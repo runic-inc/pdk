@@ -1,0 +1,3 @@
+packages/common/src/configgen/**/*.ts
+packages/common/src/codegen/**/*.ts
+packages/common/src/deploygen/**/*.ts

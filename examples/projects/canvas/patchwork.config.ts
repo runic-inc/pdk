@@ -12,16 +12,16 @@ const projectConfig: ProjectConfig = {
             imageURI: 'https://canvas.patchwork.dev/assets/canvas/{tokenID}',
             fields: [
                 {
-                    // 0, 0, FieldType.CHAR32, 1, FieldVisibility.PUBLIC, 0, 0, "name"
                     id: 0,
                     key: 'name',
                     type: 'char32',
+                    description: 'Name',
                 },
                 {
-                    //1, 0, FieldType.LITEREF, 0, FieldVisibility.PUBLIC, 0, 0, "bubbleRefs"
                     id: 1,
                     key: 'bubbleRefs',
                     type: 'literef',
+                    description: 'Bubble Literefs',
                     arrayLength: 0,
                 },
             ],
@@ -36,22 +36,23 @@ const projectConfig: ProjectConfig = {
             imageURI: 'https://canvas.patchwork.dev/assets/bubble/{tokenID}',
             fields: [
                 {
-                    // 0, 0, FieldType.UINT256, 1, FieldVisibility.PUBLIC, 0, 0, "sequence"
                     id: 0,
                     key: 'sequence',
                     type: 'uint256',
+                    description: 'Sequence',
                 },
                 {
-                    // 1, 0, FieldType.CHAR8, 4, FieldVisibility.PUBLIC, 1, 0, "decorations"
                     id: 1,
                     key: 'decorations',
                     type: 'bytes8',
+                    description: 'Decorations',
+                    arrayLength: 4,
                 },
                 {
-                    // 2, 0, FieldType.ADDRESS, 1, FieldVisibility.PUBLIC, 2, 0, "minter"
                     id: 2,
                     key: 'minter',
                     type: 'address',
+                    description: 'Original minter address',
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE, Feature.WEAKREF],
