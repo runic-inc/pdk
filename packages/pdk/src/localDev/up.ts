@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import _ from 'lodash';
 import path from 'path';
 import { Address } from 'viem';
 import { generatePonderEnv } from '../generatePonderEnv';
@@ -15,6 +17,40 @@ interface BytecodeComparison {
         oldHash?: string;
         newHash: string;
     }>;
+}
+
+function getDockerContainerName(projectName: string, serviceName: string, instanceNumber: number = 1): string {
+    const sanitizedName = _.chain(projectName)
+        .kebabCase()
+        .thru((name) => (/^[a-z]/.test(name) ? name : `project-${name}`))
+        .value();
+
+    return `${sanitizedName}-${serviceName}-${instanceNumber}`;
+}
+
+function getPonderContainerName(projectName: string, instanceNumber: number = 1): string {
+    return getDockerContainerName(projectName, 'ponder', instanceNumber);
+}
+
+async function getProjectNameFromConfig(configPath: string): Promise<string> {
+    const content = await fs.readFile(configPath, 'utf8');
+
+    try {
+        if (configPath.endsWith('.json')) {
+            const config = JSON.parse(content);
+            return config.name;
+        } else {
+            // For TypeScript files, extract name using regex
+            const match = content.match(/name:\s*["'](.+?)["']/);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        throw new Error('Project name not found in config file');
+    } catch (error) {
+        console.error(`Error reading project name from config: ${error}`);
+        throw error;
+    }
 }
 
 async function compareWithPreviousDeployment(lockFileManager: LockFileManager, network: string, newBytecode: DeploymentAddresses): Promise<BytecodeComparison> {
@@ -52,7 +88,7 @@ async function compareWithPreviousDeployment(lockFileManager: LockFileManager, n
 }
 
 export async function localDevUp(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
-    console.log('Running local development environment...');
+    console.info('Running local development environment...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
@@ -66,13 +102,13 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     try {
         const { execa } = await import('execa');
         // Start Docker services first
-        console.log('Starting Docker services...');
+        console.info('Starting Docker services...');
         await execa('docker', ['compose', 'up', '-d'], {
             cwd: targetDir,
         });
 
         // Wait a moment for services to be ready
-        console.log('Waiting for services to be ready...');
+        console.info('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const lockFileManager = new LockFileManager(configPath);
@@ -90,26 +126,26 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
         // Log changes if any were found
         if (comparison.changes.length > 0) {
-            console.log('\nBytecode Changes Detected:');
-            console.log('═══════════════════════════════════════════════════════════');
+            console.info('\nBytecode Changes Detected:');
+            console.info('═══════════════════════════════════════════════════════════');
             comparison.changes.forEach((change) => {
                 if (network === 'local') {
-                    console.log(`${change.contract}: Local network - will redeploy`);
+                    console.info(`${change.contract}: Local network - will redeploy`);
                 } else if (!change.oldHash) {
-                    console.log(`${change.contract}: New contract - needs deployment`);
+                    console.info(`${change.contract}: New contract - needs deployment`);
                 } else {
-                    console.log(`${change.contract}: Bytecode changed`);
-                    console.log(`  Previous: ${change.oldHash}`);
-                    console.log(`  Current:  ${change.newHash}`);
+                    console.info(`${change.contract}: Bytecode changed`);
+                    console.info(`  Previous: ${change.oldHash}`);
+                    console.info(`  Current:  ${change.newHash}`);
                 }
             });
-            console.log('═══════════════════════════════════════════════════════════\n');
+            console.info('═══════════════════════════════════════════════════════════\n');
         }
 
         let deployedContracts: DeploymentAddresses;
 
         if (comparison.needsDeployment) {
-            console.log(`Deploying contracts to ${network}...`);
+            console.info(`Deploying contracts to ${network}...`);
             deployedContracts = await deployContracts(deployConfig, scriptDir);
             const blockNumber = await getDeploymentBlockNumber(deployConfig.rpcUrl);
             // Update lock file with new deployments
@@ -125,7 +161,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
                 );
             }
         } else {
-            console.log('No bytecode changes detected. Skipping deployment.');
+            console.info('No bytecode changes detected. Skipping deployment.');
             // Return the previous deployment addresses
             deployedContracts = Object.fromEntries(
                 Object.keys(bytecodeInfo).map((contract) => {
@@ -142,18 +178,23 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
         }
 
         generatePonderEnv(configPath);
-        // restart ponder to pick up new .env file
-        await execa('docker', ['container', 'restart', 'canvas-ponder-1'], {
+
+        // Get project configuration to determine container name
+        const projectName = await getProjectNameFromConfig(configPath);
+        const ponderContainer = getPonderContainerName(projectName);
+        console.log(`Restarting Ponder container: ${ponderContainer}`);
+        await execa('docker', ['container', 'restart', ponderContainer], {
             cwd: targetDir,
         });
+
         generateWWWEnv(configPath);
 
         const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
             cwd: targetDir,
         });
 
-        console.log('Docker containers and network ports:');
-        console.log(stdout);
+        console.info('Docker containers and network ports:');
+        console.info(stdout);
 
         return deployedContracts;
     } catch (error) {

@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../helpers/config';
 import { ErrorCode, PDKError } from '../helpers/error';
+import { logger } from '../helpers/logger';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
 export async function generateEventHooks(configPath: string) {
@@ -14,32 +15,49 @@ export async function generateEventHooks(configPath: string) {
     const eventDir = path.join(configDir, 'ponder', 'src', 'generated');
     const ponderSchemaPath = path.join(configDir, 'ponder', 'ponder.schema.ts');
 
+    logger.debug('Config path:', fullConfigPath);
+    logger.debug('ABI directory:', abiDir);
+    logger.debug('Event directory:', eventDir);
+    logger.debug('Ponder schema path:', ponderSchemaPath);
+
     // Check if output directory exists
     try {
         await fs.access(eventDir);
+        logger.debug('Event directory accessible');
     } catch (error) {
-        console.error(`Error: Unable to access Event directory at ${eventDir}`);
+        logger.error(`Unable to access Event directory at ${eventDir}`);
         throw new PDKError(ErrorCode.DIR_NOT_FOUND, `Unable to access Event directory at ${eventDir}`);
     }
 
-    const abis = await importABIFiles(abiDir);
+    try {
+        // Import required files
+        const abis = await importABIFiles(abiDir);
+        const projectConfig = await importPatchworkConfig(fullConfigPath);
+        logger.debug('Project config loaded');
 
-    const projectConfig = await importPatchworkConfig(fullConfigPath);
+        // Process configuration
+        const fragmentRelationships = getFragmentRelationships(projectConfig);
+        logger.debug(`Found ${Object.keys(fragmentRelationships).length} fragment relationships`);
 
-    // begin process config
-    // ToDo
-    // Currently only getting entity events. need to get some patchwork protocol events too
-    const fragmentRelationships = getFragmentRelationships(projectConfig);
-    const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
+        const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
+        const ponderSchema = await loadPonderSchema(ponderSchemaPath);
 
-    const ponderSchema = await loadPonderSchema(ponderSchemaPath);
+        // Generate handlers
+        const handlers: GeneratedHandlers = { imports: new Set(), handlers: [] };
 
-    const handlers: GeneratedHandlers = { imports: new Set(), handlers: [] };
+        const entityHandlers = generateEntityEventHandlers(projectConfig, ponderSchema, abis);
+        entityHandlers.imports.forEach((item) => handlers.imports.add(item));
+        handlers.handlers.push(...entityHandlers.handlers);
+        logger.debug(`Generated ${handlers.handlers.length} event handlers`);
 
-    const entityHandlers = generateEntityEventHandlers(projectConfig, ponderSchema, abis);
+        // Create output file
+        const outputPath = path.join(eventDir, 'events.ts');
+        logger.debug('Creating event file:', outputPath);
+        await createPonderEventFile(handlers, outputPath);
 
-    entityHandlers.imports.forEach((item) => handlers.imports.add(item));
-    handlers.handlers.push(...entityHandlers.handlers);
-
-    await createPonderEventFile(handlers, path.join(eventDir, 'events.ts'));
+        logger.info(`Event hooks generated successfully at ${outputPath}`);
+    } catch (error) {
+        logger.error('Failed to generate event hooks:', error);
+        throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate event hooks', { error });
+    }
 }

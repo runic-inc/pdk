@@ -221,7 +221,7 @@ export class GeneratorManager {
     public async processGenerators(): Promise<void> {
         for (const generator of this.generatorOrder) {
             if (await this.hasInputsChanged(generator)) {
-                console.log(`Running generator: ${generator}`);
+                console.info(`Running generator: ${generator}`);
                 const config = this.generators[generator];
                 await config.run(this.configPath);
 

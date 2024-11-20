@@ -4,6 +4,7 @@ import { loadPonderSchema } from '../helpers/config';
 // import { FieldDefinition, Schema } from "./ponderMocks";
 import { formatAndSaveFile } from '../helpers/file';
 import { FieldDefinition, SchemaModule, TableDefinition } from '../helpers/ponderSchemaMock';
+import { logger } from '../helpers/logger';
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     const schema = await loadPonderSchema(ponderSchema);
@@ -12,7 +13,7 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     try {
         await fs.access(apiOutputDir);
     } catch (error) {
-        console.log(`API output directory does not exist. Creating ${apiOutputDir}`);
+        logger.info(`API output directory does not exist. Creating ${apiOutputDir}`);
         await fs.mkdir(apiOutputDir, { recursive: true });
     }
 
@@ -23,7 +24,7 @@ export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     const outputPath = path.join(apiOutputDir, 'api.ts');
     // await fs.writeFile(outputPath, apiContent, 'utf8');
     await formatAndSaveFile(outputPath, output.join('\n'));
-    console.log(`tRPC API generation completed. Output written to ${outputPath}`);
+    logger.info(`tRPC API generation completed. Output written to ${outputPath}`);
 }
 
 function getZodType(fieldDef: FieldDefinition): string {
@@ -81,7 +82,7 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
 async function generateTrpcApi(schema: SchemaModule): Promise<string[]> {
     let apiContent: string[] = [
         `
-import { eq, gt, and } from "@ponder/core/db";
+import { eq, gt, and } from "@ponder/core";
 import { publicProcedure, router } from "./trpc";
 import { z } from "zod";`,
     ];

@@ -99,10 +99,10 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
 
     // Extract contract names and validate script
     const contractNames = await extractContractNamesFromScript(scriptPath);
-    console.log('\nFound contracts to deploy:', contractNames.join(', '));
+    console.info('\nFound contracts to deploy:', contractNames.join(', '));
 
     // Run forge script
-    console.log('\nRunning deployment script...');
+    console.info('\nRunning deployment script...');
     const { stdout } = await execa(
         'forge',
         [
@@ -132,13 +132,13 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
     const deployedContracts = await parseDeploymentOutput(stdout, contractNames);
 
     // Print results in a nicely formatted table
-    console.log('\nDeployment Results:');
-    console.log('═══════════════════════════════════════════════════════════════════════════');
-    console.log('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
-    console.log('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
+    console.info('\nDeployment Results:');
+    console.info('═══════════════════════════════════════════════════════════════════════════');
+    console.info('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode');
+    console.info('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
     Object.entries(deployedContracts).forEach(([contract, info]) => {
-        console.log(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
+        console.info(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
     });
-    console.log('═══════════════════════════════════════════════════════════════════════════');
+    console.info('═══════════════════════════════════════════════════════════════════════════');
     return deployedContracts;
 }

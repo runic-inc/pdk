@@ -3,6 +3,7 @@ import _ from 'lodash';
 import path from 'path';
 import { importPatchworkConfig } from '../helpers/config';
 import { ErrorCode, PDKError } from '../helpers/error';
+import { logger } from '../helpers/logger';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderEnv(configPath: string) {
@@ -16,7 +17,7 @@ export async function generatePonderEnv(configPath: string) {
     const projectConfig = await importPatchworkConfig(fullConfigPath);
 
     if (!projectConfig.networks) {
-        console.error(`No networks found in the project config. Cannot build network configuration.`);
+        logger.error(`No networks found in the project config. Cannot build network configuration.`);
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${fullConfigPath}`);
     }
 
@@ -31,7 +32,7 @@ export async function generatePonderEnv(configPath: string) {
     for (const contractName in projectConfig.contracts) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
         if (!deploymentInfo) {
-            console.error(`No deployment found for ${contractName}`);
+            logger.error(`No deployment found for ${contractName}`);
             throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
         }
         output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
@@ -43,5 +44,5 @@ export async function generatePonderEnv(configPath: string) {
     } catch (error) {
         throw new PDKError(ErrorCode.FILE_SAVE_ERROR, `Error saving env file ${ponderEnvPath}`);
     }
-    console.log(`Ponder env generated successfully: ${ponderEnvPath}`);
+    logger.info(`Ponder env generated successfully: ${ponderEnvPath}`);
 }

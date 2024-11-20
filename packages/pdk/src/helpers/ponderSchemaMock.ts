@@ -20,8 +20,8 @@ export function onchainTable(tableName: string, tableDefinition: (t: TableBuilde
 
     const mockTableBuilder: TableBuilder = {
         text: () => createChainableTableFieldDefinition('string'),
-        evmHex: () => createChainableTableFieldDefinition('hex'),
-        evmBigint: () => createChainableTableFieldDefinition('bigint'),
+        hex: () => createChainableTableFieldDefinition('hex'),
+        bigint: () => createChainableTableFieldDefinition('bigint'),
         integer: () => createChainableTableFieldDefinition('int'),
     };
 
@@ -131,8 +131,8 @@ type ChainableTableFieldDefinition = {
 
 interface TableBuilder {
     text: () => ChainableTableFieldDefinition;
-    evmHex: () => ChainableTableFieldDefinition;
-    evmBigint: () => ChainableTableFieldDefinition;
+    hex: () => ChainableTableFieldDefinition;
+    bigint: () => ChainableTableFieldDefinition;
     integer: () => ChainableTableFieldDefinition;
 }
 

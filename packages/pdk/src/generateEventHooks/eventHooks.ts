@@ -14,8 +14,6 @@ export async function createPonderEventFile(handlers: GeneratedHandlers, eventFi
     handlers.handlers.forEach((handler) => {
         output.push(handler);
     });
-
-    console.log(eventFile);
     await formatAndSaveFile(eventFile, output.join('\n'));
 }
 

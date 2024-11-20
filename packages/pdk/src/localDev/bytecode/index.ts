@@ -5,7 +5,7 @@ import path from 'path';
 import { DeployConfig, DeploymentAddresses } from '../deployment';
 
 export async function calculateBytecode(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
-    console.log('Calculating contract bytecode...');
+    console.info('Calculating contract bytecode...');
     const targetDir = path.dirname(configPath);
     const contractsDir = path.join(targetDir, 'contracts');
     const scriptDir = path.join(contractsDir, 'script');
@@ -45,11 +45,11 @@ export async function calculateBytecode(configPath: string, config: DeployConfig
             .filter((line) => line.startsWith('DeploymentInfo'))
             .map((line) => line.split(/\s+/)[1].replace(';', ''));
 
-        console.log('\nCalculating bytecode for contracts:', contractNames.join(', '));
+        console.debug('\nCalculating bytecode for contracts:', contractNames.join(', '));
 
         // Run forge script in bytecode-only mode
         const { execa } = await import('execa');
-        console.log('\nRunning bytecode calculation...');
+        console.info('\nRunning bytecode calculation...');
         const { stdout } = await execa(
             'forge',
             ['script', '--optimize', '--optimizer-runs=200', '-vvv', deployScript, '--rpc-url', deployConfig.rpcUrl, '--private-key', deployConfig.privateKey],
@@ -91,14 +91,14 @@ export async function calculateBytecode(configPath: string, config: DeployConfig
         }
 
         // Print results
-        console.log('\nBytecode Calculation Results:');
-        console.log('═══════════════════════════════════════════════════════════');
-        console.log('Contract Name'.padEnd(20), '│', 'Bytecode Hash');
-        console.log('─'.repeat(20), '┼', '─'.repeat(66));
+        console.debug('\nBytecode Calculation Results:');
+        console.debug('═══════════════════════════════════════════════════════════');
+        console.debug('Contract Name'.padEnd(20), '│', 'Bytecode Hash');
+        console.debug('─'.repeat(20), '┼', '─'.repeat(66));
         Object.entries(deployedContracts).forEach(([contract, info]) => {
-            console.log(contract.padEnd(20), '│', info.bytecodeHash);
+            console.debug(contract.padEnd(20), '│', info.bytecodeHash);
         });
-        console.log('═══════════════════════════════════════════════════════════');
+        console.debug('═══════════════════════════════════════════════════════════');
 
         return deployedContracts;
     } catch (error) {

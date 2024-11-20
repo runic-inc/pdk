@@ -4,6 +4,7 @@ import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
+import { logger } from '../helpers/logger';
 
 export async function generatePonderConfig(configPath: string) {
     // Resolve the full path of the config file
@@ -19,7 +20,7 @@ export async function generatePonderConfig(configPath: string) {
     const projectConfig = await importPatchworkConfig(fullConfigPath);
 
     if (!projectConfig.networks) {
-        console.error(`No networks found in the project config. Cannot build network configuration.`);
+        logger.error(`No networks found in the project config. Cannot build network configuration.`);
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${fullConfigPath}`);
     }
 
@@ -34,7 +35,7 @@ export async function generatePonderConfig(configPath: string) {
         .map(([contractName, contractConfig]) => {
             imports.add(contractName);
             if (!projectConfig.deployments || !projectConfig.networks) {
-                console.error(`No deployments or networks found. Cannot build contract config for ${contractName}`);
+                logger.error(`No deployments or networks found. Cannot build contract config for ${contractName}`);
                 return '';
             }
             return contractTemplate(contractName, projectConfig.deployments, projectConfig.networks);
@@ -48,7 +49,7 @@ export async function generatePonderConfig(configPath: string) {
     const config = configTemplate(imports, networks.join(), contracts.join());
 
     await formatAndSaveFile(ponderConfigPath, config);
-    console.log(`Ponder config generated successfully: ${ponderConfigPath}`);
+    logger.info(`Ponder config generated successfully: ${ponderConfigPath}`);
 }
 
 function configTemplate(imports: Set<string>, networkConfig: string, contractConfig: string): string {
@@ -97,7 +98,7 @@ export function contractTemplate(name: string, deployments: Deployment<string>[]
 function contractNetworkTemplate(name: string, networkName: string, deployments: Deployment<string>[], network: Network): string | undefined {
     const deployment = deployments.find((d) => d.network === networkName);
     if (!deployment) {
-        console.log(`No deployment found for ${name}`);
+        logger.info(`No deployment found for ${name}`);
         return undefined;
     }
     return `${networkName}: {
