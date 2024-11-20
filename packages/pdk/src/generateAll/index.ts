@@ -2,10 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { generateABIs } from '../generateABIs';
 import { generateAPI } from '../generateApi';
-import { generateDemoPage } from '../generateDemoPage';
 import { generateEventHooks } from '../generateEventHooks';
 import { generatePonderConfig } from '../generatePonderConfig';
-import { generateReactComponents } from '../generateReactComponents';
 import { generateReactHooks } from '../generateReactHooks';
 import { generateSchema } from '../generateSchema';
 
@@ -22,7 +20,7 @@ export async function generateAll(configPath: string) {
     await generateSchema(configPath);
 
     // Generate Event Hooks
-    console.log('Generating Event Hooks...');
+    console.log('Generating Ponder Events...');
     await generateEventHooks(configPath);
 
     // Generate Ponder Config
@@ -46,12 +44,12 @@ export async function generateAll(configPath: string) {
     await generateReactHooks(configPath);
 
     // Generate React Components
-    console.log('Generating React Components...');
-    await generateReactComponents(configPath);
+    // console.log('Generating React Components...');
+    // await generateReactComponents(configPath);
 
     // Generate Demo Page
-    console.log('Generating Demo Page...');
-    await generateDemoPage(configPath);
+    // console.log('Generating Demo Page...');
+    // await generateDemoPage(configPath);
 
     console.log('All components generated successfully!');
 }

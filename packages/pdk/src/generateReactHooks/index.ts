@@ -6,6 +6,31 @@ import { formatAndSaveFile } from '../helpers/file';
 import { pascalCase } from '../helpers/text';
 
 export async function generateReactHooks(configPath: string) {
+    console.log('  ∟ Generating Wagmi hooks...');
+    await generateWagmiHooks(configPath);
+    console.log('  ∟ Generating tRPC API hooks...');
+    await generateTrpcHooks(configPath);
+    console.log(`React hooks generated successfully`);
+}
+
+async function generateWagmiHooks(configPath: string) {
+    const configDir = path.dirname(configPath);
+    const wagmiConfig = path.join(configDir, 'wagmi.config.ts');
+
+    try {
+        await fs.access(wagmiConfig);
+    } catch (error) {
+        console.error(`Error: Unable to access Wagmi config file at ${wagmiConfig}`);
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Error: Unable to access Wagmi config file at ${wagmiConfig}`);
+    }
+
+    const { execa } = await import('execa');
+    execa('pnpm', ['wagmi', 'generate'], {
+        cwd: configDir,
+    });
+}
+
+async function generateTrpcHooks(configPath: string) {
     const configDir = path.dirname(configPath);
     const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
     const hooksDir = path.join(configDir, 'www', 'src', 'generated', 'hooks');
@@ -40,5 +65,4 @@ export async function generateReactHooks(configPath: string) {
     }
 
     formatAndSaveFile(trpcHooksFile, hooksFileArray.join(''));
-    console.log(`React hooks generated successfully at ${trpcHooksFile}`);
 }
