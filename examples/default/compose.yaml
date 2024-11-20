@@ -54,13 +54,14 @@ services:
             - .:/app
             - www-deps:/app/node_modules
             - www-app-deps:/app/www/node_modules
-            - www-next:/app/www/.next
+            - www-vite:/app/www  # should this be app/www/dist?
         ports:
             - '3000:3000'
         environment:
             - NODE_ENV=development
         depends_on:
             - ponder
+            
     dozzle:
         image: amir20/dozzle:latest
         volumes:
@@ -78,4 +79,4 @@ volumes:
     ponder-app-deps:
     www-deps:
     www-app-deps:
-    www-next:
+    www-vite:
