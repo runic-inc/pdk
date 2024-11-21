@@ -54,6 +54,9 @@ export class DeployScriptGen {
         script += `        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
         script += `        bool bytecodeOnly = vm.envOr("BYTECODE_ONLY", false);\n\n`;
 
+        // Add Create2Deployer address constant
+        script += `        address create2DeployerAddress = 0x4e59b44847b379578588920cA78FbF26c0B4956C;\n\n`;
+
         script += `        console.log("Deployer starting");\n`;
         script += `        console.log("owner: ", ownerAddress);\n`;
         script += `        console.log("patchwork protocol: ", ppAddress);\n`;
@@ -62,7 +65,7 @@ export class DeployScriptGen {
 
         script += `        DeploymentAddresses memory deployments;\n\n`;
 
-        // Calculate bytecode hashes for all contracts
+        // Calculate bytecode hashes and predicted addresses for all contracts
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
@@ -71,9 +74,18 @@ export class DeployScriptGen {
             script += `        bytes memory ${contractKeyName}CreationCode = type(${contractName}).creationCode;\n`;
             script += `        bytes memory ${contractKeyName}CreationBytecode = abi.encodePacked(${contractKeyName}CreationCode, abi.encode(ppAddress, ownerAddress));\n`;
             script += `        bytes32 ${contractKeyName}BytecodeHash = keccak256(${contractKeyName}CreationBytecode);\n`;
-            script += `        console.log("${contractName} codehash: ", Strings.toHexString(uint256(${contractKeyName}BytecodeHash)));\n`;
+            script += `        console.log("${contractName} codehash: ", Strings.toHexString(uint256(${contractKeyName}BytecodeHash)));\n\n`;
+            
+            // Add predicted address calculation
+            script += `        address predicted${contractName}Address = vm.computeCreate2Address(\n`;
+            script += `            salt,\n`;
+            script += `            ${contractKeyName}BytecodeHash,\n`;
+            script += `            create2DeployerAddress\n`;
+            script += `        );\n`;
+            script += `        console.log("Predicted ${contractName} address: ", predicted${contractName}Address);\n\n`;
+            
             script += `        deployments.${key} = DeploymentInfo({\n`;
-            script += `            deployedAddress: address(0),\n`;
+            script += `            deployedAddress: predicted${contractName}Address,\n`;
             script += `            bytecodeHash: ${contractKeyName}BytecodeHash\n`;
             script += `        });\n\n`;
         });
@@ -97,6 +109,7 @@ export class DeployScriptGen {
             const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
 
             script += `            ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
+            script += `            assert(address(${contractKeyName}) == predicted${contractName}Address); // Verify prediction\n`;
             script += `            console.log("${contractName} deployed at: ", address(${contractKeyName}));\n`;
             script += `            deployments.${key}.deployedAddress = address(${contractKeyName});\n\n`;
         });
