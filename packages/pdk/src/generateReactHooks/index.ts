@@ -7,10 +7,36 @@ import { logger } from '../helpers/logger';
 import { pascalCase } from '../helpers/text';
 
 export async function generateReactHooks(configPath: string) {
+    logger.info(`  ∟ Generating Wagmi hooks...`);
+    await generateWagmiHooks(configPath);
+    logger.info(`  ∟ Generating tRPC API hooks...`);
+    await generateTrpcHooks(configPath);
+    logger.info(`React hooks generated successfully`);
+}
+
+async function generateWagmiHooks(configPath: string) {
+    const configDir = path.dirname(configPath);
+    const wagmiConfig = path.join(configDir, 'wagmi.config.ts');
+
+    try {
+        await fs.access(wagmiConfig);
+    } catch (error) {
+        console.error(`Error: Unable to access Wagmi config file at ${wagmiConfig}`);
+        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Error: Unable to access Wagmi config file at ${wagmiConfig}`);
+    }
+
+    const { execa } = await import('execa');
+    execa('pnpm', ['wagmi', 'generate'], {
+        cwd: configDir,
+    });
+}
+
+async function generateTrpcHooks(configPath: string) {
     const configDir = path.dirname(configPath);
     const trpcRouter = path.join(configDir, 'ponder', 'src', 'generated', 'api.ts');
-    const hooksDir = path.join(configDir, 'www', 'generated', 'hooks');
-    const hooksFile = path.join(hooksDir, 'index.ts');
+    const hooksDir = path.join(configDir, 'www', 'src', 'generated', 'hooks');
+    const trpcHooksFile = path.join(hooksDir, 'trpc.ts');
+    //const wagmiHooksFile = path.join(hooksDir, 'wagmi.ts');
 
     // Check if tRPC router file exists
     try {
@@ -30,7 +56,7 @@ export async function generateReactHooks(configPath: string) {
 
     const apiStructure = analyzeAPI(trpcRouter);
     const hooksFileArray = [
-        `import { trpc } from '../utils/trpc';
+        `import { trpc } from '../lib/trpc';
             `,
     ];
 
@@ -39,6 +65,5 @@ export async function generateReactHooks(configPath: string) {
             `);
     }
 
-    formatAndSaveFile(hooksFile, hooksFileArray.join(''));
-    logger.info(`React hooks generated successfully at ${hooksFile}`);
+    formatAndSaveFile(trpcHooksFile, hooksFileArray.join(''));
 }

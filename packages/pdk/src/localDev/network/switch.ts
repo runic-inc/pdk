@@ -10,7 +10,7 @@ export async function networkSwitch(configPath: string, networkName: string) {
 
     const lockFileManager = new LockFileManager(configPath);
 
-    if (patchworkConfig.networks && patchworkConfig.networks[networkName]) {
+    if (patchworkConfig.networks && patchworkConfig.networks[networkName as keyof typeof patchworkConfig.networks]) {
         lockFileManager.updateNetwork(networkName);
     } else {
         console.error(`Network ${networkName} not found in Patchwork config`);

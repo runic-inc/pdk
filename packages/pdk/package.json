@@ -1,7 +1,7 @@
 {
     "name": "@patchworkdev/pdk",
     "description": "Patchwork Development Kit",
-    "version": "0.2.5",
+    "version": "0.3.0-rc.0",
     "main": "src/index.ts",
     "type": "commonjs",
     "scripts": {
@@ -35,7 +35,7 @@
         "prettier": "3.3.3",
         "ts-node": "10.9.2",
         "tsconfig-paths": "4.2.0",
-        "typescript": "5.5.4",
+        "typescript": "^5.6.3",
         "viem": "2.21.9"
     },
     "bin": {

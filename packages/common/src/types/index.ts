@@ -1,3 +1,5 @@
+import type { Chain } from 'viem';
+
 export enum Feature {
     FRAGMENTMULTI = 'FRAGMENTMULTI',
     FRAGMENTSINGLE = 'FRAGMENTSINGLE',
@@ -194,7 +196,7 @@ export type Deployment<T extends string> = {
 };
 
 export type Network = {
-    chainId: number;
+    chain: Chain;
     rpc: string;
 };
 
@@ -202,7 +204,7 @@ export type ContractsConfig = Record<string, ContractConfig | string>;
 
 export type ContractRelationsConfig = Record<string, ContractRelation>;
 
-export type ProjectConfig<T extends string = string> = {
+export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
     name: ValidNameIdentifier;
     scopes: ScopeConfig[];
     contracts: ContractsConfig;

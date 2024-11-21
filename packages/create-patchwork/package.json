@@ -1,6 +1,6 @@
 {
     "name": "create-patchwork",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "",
     "type": "module",
     "main": "dist/index.js",
@@ -29,6 +29,6 @@
         "@types/lodash": "4.17.13",
         "@types/node": "^22.4.2",
         "tsup": "^8.2.4",
-        "typescript": "^5.5.4"
+        "typescript": "^5.6.3"
     }
 }

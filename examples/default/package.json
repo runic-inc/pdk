@@ -1,0 +1,40 @@
+{
+    "name": "create-patchwork-default",
+    "version": "0.1.0",
+    "private": true,
+    "type": "commonjs",
+    "scripts": {
+        "dev": "pnpm www-dev && pnpm ponder-dev",
+        "build": "pnpm --filter ./www build",
+        "start": "pnpm next-start && pnpm ponder-start",
+        "ponder-dev": "pnpm --filter ./ponder dev",
+        "ponder-start": "pnpm --filter ./ponder start",
+        "www-dev": "pnpm --filter ./www dev",
+        "www-start": "pnpm --filter ./www start",
+        "lint": "pnpm -r lint",
+        "codegen": "pnpm --filter ./ponder codegen",
+        "typecheck": "tsc"
+    },
+    "workspaces": [
+        "ponder",
+        "www"
+    ],
+    "dependencies": {},
+    "devDependencies": {
+        "@openzeppelin/contracts": "5.0.2",
+        "@patchworkdev/common": "next",
+        "@patchworkdev/contracts": "2.0.6",
+        "@patchworkdev/pdk": "next",
+        "@types/node": "^20.9.0",
+        "@wagmi/cli": "^2.1.18",
+        "eslint": "^8.53.0",
+        "eslint-config-next": "14.2.5",
+        "eslint-config-ponder": "^0.5.17",
+        "forge-std": "github:foundry-rs/forge-std",
+        "typescript": "^5.2.2",
+        "viem": "2.21.25"
+    },
+    "engines": {
+        "node": ">=18.14"
+    }
+}

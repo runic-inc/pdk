@@ -2,10 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { generateABIs } from '../generateABIs';
 import { generateAPI } from '../generateApi';
-import { generateDemoPage } from '../generateDemoPage';
 import { generateEventHooks } from '../generateEventHooks';
 import { generatePonderConfig } from '../generatePonderConfig';
-import { generateReactComponents } from '../generateReactComponents';
 import { generateReactHooks } from '../generateReactHooks';
 import { generateSchema } from '../generateSchema';
 import { logger } from '../helpers/logger';
@@ -19,11 +17,11 @@ export async function generateAll(configPath: string) {
     await generateABIs(configPath);
 
     // Generate Ponder Schema
-    logger.info('Generating Ponder Schema...');
+    logger.info('Generating Ponder schema...');
     await generateSchema(configPath);
 
     // Generate Event Hooks
-    logger.info('Generating Event Hooks...');
+    logger.info('Generating Ponder events...');
     await generateEventHooks(configPath);
 
     // Generate Ponder Config
@@ -43,16 +41,16 @@ export async function generateAll(configPath: string) {
     await generateAPI(schemaPath, apiOutputDir);
 
     // Generate React Hooks
-    logger.info('Generating React Hooks...');
+    logger.info('Generating React hooks...');
     await generateReactHooks(configPath);
 
     // Generate React Components
-    logger.info('Generating React Components...');
-    await generateReactComponents(configPath);
+    // console.log('Generating React Components...');
+    // await generateReactComponents(configPath);
 
     // Generate Demo Page
-    logger.info('Generating Demo Page...');
-    await generateDemoPage(configPath);
+    // console.log('Generating Demo Page...');
+    // await generateDemoPage(configPath);
 
     logger.info('All components generated successfully!');
 }
