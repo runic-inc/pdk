@@ -9,6 +9,12 @@ export default defineConfig([
         plugins: [
             foundry({
                 include: getContracts(),
+                deployments: Object.fromEntries(
+                    getContracts().map((contractName) => {
+                        const contractAddress = getDeploymentAddressForContract(contractName);
+                        return [contractName, contractAddress];
+                    }),
+                ),
                 forge: {
                     build: false,
                 },
@@ -17,6 +23,10 @@ export default defineConfig([
         ],
     },
 ]);
+
+function getDeploymentAddressForContract(contractName: string): `0x${string}` {
+    return '0x0000000000000000000000000000000000000000';
+}
 
 function getContracts() {
     const srcDir = path.resolve(__dirname, './contracts/src');
