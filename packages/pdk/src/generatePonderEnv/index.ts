@@ -4,6 +4,7 @@ import { importPatchworkConfig } from '../helpers/config';
 import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
+import { processContracts } from '../localDev/deployment';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderEnv(configPath: string) {
@@ -32,16 +33,23 @@ export async function generatePonderEnv(configPath: string) {
 
     const lockFileManager = new LockFileManager(configPath);
     const selectedNetwork = lockFileManager.getCurrentNetwork();
+    const bytecodeInfo = await processContracts(configPath, {}, false);
     for (const contractName in projectConfig.contracts) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
         if (!deploymentInfo) {
-            logger.error(`No deployment found for ${contractName}`);
-            throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
+            if (bytecodeInfo[contractName]) {
+                env[`${_.upperCase(contractName)}_BLOCK`] = '1';
+                env[`${_.upperCase(contractName)}_ADDRESS`] = bytecodeInfo[contractName].deployedAddress;
+            } else {
+                logger.error(`No deployment found for ${contractName}`);
+                throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
+            }
+        } else {
+            // output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
+            // output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
+            env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
+            env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
-        // output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
-        // output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
-        env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
-        env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
     }
 
     writeEnvFile(env, ponderEnvPath);
