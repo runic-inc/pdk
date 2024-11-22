@@ -24,10 +24,7 @@ export async function generatePonderEnv(configPath: string) {
 
     const env = await getEnvFile(ponderEnvPath);
 
-    // const output: string[] = [];
-
     Object.entries(projectConfig.networks).map(([networkName, network]) => {
-        // output.push(`${_.upperCase(networkName)}_RPC=${network.rpc}`);
         env[`${_.upperCase(networkName)}_RPC`] = network.rpc;
     });
 
@@ -45,18 +42,11 @@ export async function generatePonderEnv(configPath: string) {
                 throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
             }
         } else {
-            // output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
-            // output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
             env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
             env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
     }
 
     writeEnvFile(env, ponderEnvPath);
-    // try {
-    //     await fs.writeFile(ponderEnvPath, output.join('\n'), 'utf-8');
-    // } catch (error) {
-    //     throw new PDKError(ErrorCode.FILE_SAVE_ERROR, `Error saving env file ${ponderEnvPath}`);
-    // }
     logger.info(`Ponder env generated successfully: ${ponderEnvPath}`);
 }
