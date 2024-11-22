@@ -123,6 +123,7 @@ export async function deployContracts(deployConfig: DeployConfig, scriptDir: str
                 ...process.env,
                 OWNER: deployConfig.owner,
                 PATCHWORK_PROTOCOL: deployConfig.patchworkProtocol,
+                TRY_DEPLOY: 'true',
             },
             stdio: ['inherit', 'pipe', 'inherit'],
         },
