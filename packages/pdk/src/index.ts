@@ -18,6 +18,7 @@ import { setLogLevel } from './helpers/logger';
 import { localDevDown, localDevUp } from './localDev';
 import { networkList, networkSwitch } from './localDev/network';
 import { launchWizardApp } from './wizardServer';
+export { processContracts } from './localDev/deployment';
 
 const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
 const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
