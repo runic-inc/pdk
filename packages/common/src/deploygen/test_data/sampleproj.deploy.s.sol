@@ -22,7 +22,7 @@ contract SampleProjectDeploy is Script {
         address ownerAddress = vm.envAddress("OWNER");
         address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");
         bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));
-        bool bytecodeOnly = vm.envOr("BYTECODE_ONLY", false);
+        bool tryDeploy = vm.envOr("TRY_DEPLOY", false);
 
         address create2DeployerAddress = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
 
@@ -30,7 +30,7 @@ contract SampleProjectDeploy is Script {
         console.log("owner: ", ownerAddress);
         console.log("patchwork protocol: ", ppAddress);
         console.log("deployment salt: ", vm.toString(salt));
-        console.log("bytecode only mode: ", bytecodeOnly);
+        console.log("try deploy mode: ", tryDeploy);
 
         DeploymentAddresses memory deployments;
 
@@ -68,7 +68,7 @@ contract SampleProjectDeploy is Script {
             bytecodeHash: fragmentsingleBytecodeHash
         });
 
-        if (!bytecodeOnly) {
+        if (tryDeploy) {
             vm.startBroadcast();
             PatchworkProtocol pp = PatchworkProtocol(ppAddress);
 

@@ -52,7 +52,7 @@ export class DeployScriptGen {
         script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
         script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
         script += `        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
-        script += `        bool bytecodeOnly = vm.envOr("BYTECODE_ONLY", false);\n\n`;
+        script += `        bool tryDeploy = vm.envOr("TRY_DEPLOY", false);\n\n`;
 
         // Add Create2Deployer address constant
         script += `        address create2DeployerAddress = 0x4e59b44847b379578588920cA78FbF26c0B4956C;\n\n`;
@@ -61,7 +61,7 @@ export class DeployScriptGen {
         script += `        console.log("owner: ", ownerAddress);\n`;
         script += `        console.log("patchwork protocol: ", ppAddress);\n`;
         script += `        console.log("deployment salt: ", vm.toString(salt));\n`;
-        script += `        console.log("bytecode only mode: ", bytecodeOnly);\n\n`;
+        script += `        console.log("try deploy mode: ", tryDeploy);\n\n`;
 
         script += `        DeploymentAddresses memory deployments;\n\n`;
 
@@ -90,7 +90,7 @@ export class DeployScriptGen {
             script += `        });\n\n`;
         });
 
-        script += `        if (!bytecodeOnly) {\n`;
+        script += `        if (tryDeploy) {\n`;
         script += `            vm.startBroadcast();\n`;
         script += `            PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n\n`;
 
