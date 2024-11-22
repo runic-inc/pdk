@@ -3,8 +3,8 @@ import path from 'path';
 import { analyzeAPI } from '../helpers/api';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
-import { pascalCase } from '../helpers/text';
 import { logger } from '../helpers/logger';
+import { pascalCase } from '../helpers/text';
 
 export async function generateDemoPage(configPath: string) {
     const configDir = path.dirname(configPath);
@@ -12,7 +12,7 @@ export async function generateDemoPage(configPath: string) {
     const demoFile = path.join(configDir, 'www', 'app', 'demo', 'page.tsx');
 
     const apiStructure = analyzeAPI(trpcRouter);
-    const demoFileArray = [`"use client";\n\n`];
+    const demoFileArray = [`"use client";\n\nimport React from "react";\n`];
     const components = [];
 
     for (let key in apiStructure) {
@@ -20,7 +20,7 @@ export async function generateDemoPage(configPath: string) {
             const entity = key.split('.')[0];
             const component = `${pascalCase(entity)}List`;
             components.push(component);
-            demoFileArray.push(`import ${component} from "../../generated/components/${component}";\n`);
+            demoFileArray.push(`import ${component} from "../../src/generated/components/${component}";\n`);
         }
     }
 

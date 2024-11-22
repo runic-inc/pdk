@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
 import _ from 'lodash';
 import path from 'path';
 import { importPatchworkConfig } from '../helpers/config';
+import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
 import LockFileManager from '../localDev/lockFile';
@@ -21,10 +21,13 @@ export async function generateWWWEnv(configPath: string) {
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${fullConfigPath}`);
     }
 
-    const output: string[] = ['API_URL=http://localhost:42069'];
+    const env = await getEnvFile(wwwEnvPath);
+    env['API_URL'] = 'http://localhost:42069';
+    // const output: string[] = ['API_URL=http://localhost:42069'];
 
     Object.entries(projectConfig.networks).map(([networkName, network]) => {
-        output.push(`${_.upperCase(networkName)}_RPC=${network.rpc}`);
+        // output.push(`${_.upperCase(networkName)}_RPC=${network.rpc}`);
+        env[`${_.upperCase(networkName)}_RPC`] = network.rpc;
     });
 
     const lockFileManager = new LockFileManager(configPath);
@@ -35,14 +38,17 @@ export async function generateWWWEnv(configPath: string) {
             logger.error(`No deployment found for ${contractName}`);
             throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
         }
-        output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
-        output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
+        // output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
+        // output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
+        env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
+        env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
     }
 
-    try {
-        await fs.writeFile(wwwEnvPath, output.join('\n'), 'utf-8');
-    } catch (error) {
-        throw new PDKError(ErrorCode.FILE_SAVE_ERROR, `Error saving env file ${wwwEnvPath}`);
-    }
+    // try {
+    //     await fs.writeFile(wwwEnvPath, output.join('\n'), 'utf-8');
+    // } catch (error) {
+    //     throw new PDKError(ErrorCode.FILE_SAVE_ERROR, `Error saving env file ${wwwEnvPath}`);
+    // }
+    writeEnvFile(env, wwwEnvPath);
     logger.info(`WWW env generated successfully: ${wwwEnvPath}`);
 }

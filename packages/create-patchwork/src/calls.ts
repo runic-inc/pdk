@@ -2,10 +2,7 @@ import { execa } from 'execa';
 import { oraPromise } from 'ora';
 import path from 'path';
 
-
-
 export async function installNodeDependencies(targetDir: string): Promise<void> {
-
     await oraPromise(
         execa('pnpm', ['install'], {
             cwd: targetDir,
@@ -20,11 +17,10 @@ export async function installNodeDependencies(targetDir: string): Promise<void> 
         }),
         {
             text: `Installing node dependencies`,
-            failText: "Failed to install node dependencies.",
+            failText: 'Failed to install node dependencies.',
             successText: `Node dependencies installed successfully`,
         },
     );
-
 }
 
 export async function initGitRepo(targetDir: string): Promise<void> {
@@ -34,7 +30,7 @@ export async function initGitRepo(targetDir: string): Promise<void> {
         }),
         {
             text: `Initializing git repo`,
-            failText: "Failed to initialize git repo",
+            failText: 'Failed to initialize git repo',
             successText: `Git repo initialized successfully`,
         },
     );
@@ -45,7 +41,7 @@ export async function initGitRepo(targetDir: string): Promise<void> {
         }),
         {
             text: `Adding files to git repo`,
-            failText: "Failed to add files to git repo",
+            failText: 'Failed to add files to git repo',
             successText: `Files added to git repo successfully`,
         },
     );
@@ -56,11 +52,10 @@ export async function initGitRepo(targetDir: string): Promise<void> {
         }),
         {
             text: `Initial commit`,
-            failText: "Initial commit failed",
+            failText: 'Initial commit failed',
             successText: `Initial commit complete`,
         },
     );
-
 }
 
 export async function forgeBuild(targetDir: string): Promise<void> {
@@ -70,12 +65,11 @@ export async function forgeBuild(targetDir: string): Promise<void> {
         }),
         {
             text: `Building contracts`,
-            failText: "Failed to build contracts",
+            failText: 'Failed to build contracts',
             successText: `Contracts built successfully`,
         },
     );
 }
-
 
 export async function generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const outputDir = './contracts/src';
@@ -83,18 +77,14 @@ export async function generateContracts(targetDir: string, useLocalPackages: boo
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
-        execa(pdkCommand, [
-            'generateContracts',
-            configPath,
-            '-o', outputDir
-        ], {
+        execa(pdkCommand, ['generateContracts', configPath, '-o', outputDir], {
             cwd: targetDir,
         }),
         {
             text: `Generating contracts`,
-            failText: "Failed to generate contracts",
+            failText: 'Failed to generate contracts',
             successText: `Contracts generated successfully`,
-        }
+        },
     );
 }
 
@@ -104,19 +94,14 @@ export async function generateDeployScripts(targetDir: string, useLocalPackages:
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
-        execa(pdkCommand, [
-            'generateDeployScripts',
-            configPath,
-            '-o', outputDir,
-            '-c', '../src'
-        ], {
+        execa(pdkCommand, ['generateDeployScripts', configPath, '-o', outputDir, '-c', '../src'], {
             cwd: targetDir,
         }),
         {
             text: `Generating deploy scripts`,
-            failText: "Failed to generate deploy scripts",
+            failText: 'Failed to generate deploy scripts',
             successText: `Deploy scripts generated successfully`,
-        }
+        },
     );
 }
 
@@ -127,9 +112,9 @@ export async function linkLocalPackages(targetDir: string): Promise<void> {
         }),
         {
             text: `Linking @patchworkdev/pdk`,
-            failText: "Failed to link @patchworkdev/pdk",
+            failText: 'Failed to link @patchworkdev/pdk',
             successText: `@patchworkdev/pdk linked successfully`,
-        }
+        },
     );
     await oraPromise(
         execa('pnpm', ['link', '--global', '@patchworkdev/common'], {
@@ -137,9 +122,23 @@ export async function linkLocalPackages(targetDir: string): Promise<void> {
         }),
         {
             text: `Linking @patchworkdev/common`,
-            failText: "Failed to link @patchworkdev/common",
+            failText: 'Failed to link @patchworkdev/common',
             successText: `@patchworkdev/common linked successfully`,
-        }
+        },
+    );
+}
+
+export async function selectLocalNetwork(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+    await oraPromise(
+        execa(pdkCommand, ['network', 'switch', 'local'], {
+            cwd: targetDir,
+        }),
+        {
+            text: `Selecting local network`,
+            failText: 'Failed to select local network',
+            successText: `local network selected successfully`,
+        },
     );
 }
 
@@ -151,8 +150,8 @@ export async function generateAllComponents(targetDir: string, useLocalPackages:
         }),
         {
             text: `Generating abis, apis, ponder schema, scripts, and hooks`,
-            failText: "Failed to generate all components",
+            failText: 'Failed to generate all components',
             successText: `All components generated successfully`,
-        }
+        },
     );
 }
