@@ -8,7 +8,8 @@ export enum ErrorCode {
     FILE_SAVE_ERROR = 'FILE_SAVE_ERROR',
     DEPLOYMENT_NOT_FOUND = 'DEPLOYMENT_NOT_FOUND',
     PDK_ERROR = 'PDK_ERROR',
-    UNKNOWN_ERROR = "UNKNOWN_ERROR",
+    UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+    FILE_READ_ERROR = 'FILE_READ_ERROR',
 }
 
 export class PDKError extends Error {

@@ -6,7 +6,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pico from 'picocolors';
-import { forgeBuild, generateAllComponents, generateContracts, generateDeployScripts, initGitRepo, installNodeDependencies } from './calls.js';
+import {
+    forgeBuild,
+    generateAllComponents,
+    generateContracts,
+    generateDeployScripts,
+    initGitRepo,
+    installNodeDependencies,
+    selectLocalNetwork,
+} from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +80,8 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
 
     // Generate all components using pdk
     await generateAllComponents(targetDir, useLocalPackages, targetConfigPath);
+
+    await selectLocalNetwork(targetDir, useLocalPackages, targetConfigPath);
 
     console.log(pico.green(`Patchwork app "${projectName}" created successfully in directory "${projectFolderName}"!`));
 }
