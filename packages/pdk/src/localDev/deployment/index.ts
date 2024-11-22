@@ -74,14 +74,14 @@ export async function processContracts(configPath: string, config: DeployConfig 
     const scriptDir = path.join(contractsDir, 'script');
 
     const deployConfig = {
-        rpcUrl: config.rpcUrl || 'http://localhost:8545',
+        rpcUrl: shouldDeploy ? config.rpcUrl || 'http://localhost:1234' : undefined,
         privateKey: config.privateKey || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
         owner: config.owner || '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
         patchworkProtocol: config.patchworkProtocol || '0x00000000001616E65bb9FdA42dFBb7155406549b',
     };
 
-    if (shouldDeploy && Object.values(deployConfig).some((v) => v === undefined)) {
-        throw new Error('Missing required deploy configuration');
+    if (shouldDeploy && !deployConfig.rpcUrl) {
+        throw new Error('Missing required RPC URL for deployment');
     }
 
     try {
@@ -102,20 +102,14 @@ export async function processContracts(configPath: string, config: DeployConfig 
         console.info(`\nFound contracts: ${contractNames.join(', ')}`);
 
         const { execa } = await import('execa');
-        const forgeArgs = [
-            'script',
-            '--optimize',
-            '--optimizer-runs=200',
-            '-vvv',
-            deployScript,
-            '--rpc-url',
-            deployConfig.rpcUrl,
-            '--private-key',
-            deployConfig.privateKey,
-        ];
+        const forgeArgs = ['script', '--optimize', '--optimizer-runs=200', '-vvv', deployScript];
 
+        // Add RPC and broadcast flags only if deploying
         if (shouldDeploy) {
-            forgeArgs.push('--broadcast');
+            forgeArgs.push('--rpc-url', deployConfig.rpcUrl!, '--private-key', deployConfig.privateKey, '--broadcast');
+        } else {
+            // Add offline flag for address calculation mode
+            forgeArgs.push('--offline');
         }
 
         const { stdout } = await execa('forge', forgeArgs, {
