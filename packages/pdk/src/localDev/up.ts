@@ -5,8 +5,7 @@ import { Address } from 'viem';
 import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
 import { getDeploymentBlockNumber } from './blocknumber';
-import { calculateBytecode } from './bytecode';
-import { DeployConfig, deployContracts, DeploymentAddresses } from './deployment';
+import { DeployConfig, DeploymentAddresses, processContracts } from './deployment';
 import { GeneratorManager } from './generators';
 import LockFileManager from './lockFile';
 
@@ -101,30 +100,24 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
     try {
         const { execa } = await import('execa');
-        // Start Docker services first
         console.info('Starting Docker services...');
         await execa('docker', ['compose', 'up', '-d'], {
             cwd: targetDir,
         });
 
-        // Wait a moment for services to be ready
-        console.info('Waiting for services to be ready...');
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const lockFileManager = new LockFileManager(configPath);
         const dependencyManager = new GeneratorManager(configPath, lockFileManager);
         const network = lockFileManager.getCurrentNetwork();
 
-        // Run all generators in sequence
         await dependencyManager.processGenerators();
 
-        // Calculate bytecode after running generators
-        const bytecodeInfo = await calculateBytecode(configPath, deployConfig);
+        // Calculate bytecode + deploy addresses, don't try to deploy
+        const bytecodeInfo = await processContracts(configPath, deployConfig, false);
 
-        // Compare bytecode with previous deployment
         const comparison = await compareWithPreviousDeployment(lockFileManager, network, bytecodeInfo);
 
-        // Log changes if any were found
         if (comparison.changes.length > 0) {
             console.info('\nBytecode Changes Detected:');
             console.info('═══════════════════════════════════════════════════════════');
@@ -146,9 +139,9 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
         if (comparison.needsDeployment) {
             console.info(`Deploying contracts to ${network}...`);
-            deployedContracts = await deployContracts(deployConfig, scriptDir);
+            deployedContracts = await processContracts(configPath, deployConfig, true);
             const blockNumber = await getDeploymentBlockNumber(deployConfig.rpcUrl);
-            // Update lock file with new deployments
+
             for (const contractName in deployedContracts) {
                 const deploymentInfo = deployedContracts[contractName];
                 lockFileManager.logDeployment(
@@ -162,7 +155,6 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
             }
         } else {
             console.info('No bytecode changes detected. Skipping deployment.');
-            // Return the previous deployment addresses
             deployedContracts = Object.fromEntries(
                 Object.keys(bytecodeInfo).map((contract) => {
                     const lastDeployment = lockFileManager.getLatestDeploymentForContract(contract, network)!;
@@ -179,7 +171,6 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
         generatePonderEnv(configPath);
 
-        // Get project configuration to determine container name
         const projectName = await getProjectNameFromConfig(configPath);
         const ponderContainer = getPonderContainerName(projectName);
         console.log(`Restarting Ponder container: ${ponderContainer}`);
