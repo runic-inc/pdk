@@ -4,7 +4,6 @@ import { importPatchworkConfig } from '../helpers/config';
 import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
-import { processContracts } from '../localDev/deployment';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generateWWWEnv(configPath: string) {
@@ -33,6 +32,9 @@ export async function generateWWWEnv(configPath: string) {
     const lockFileManager = new LockFileManager(configPath);
     const selectedNetwork = lockFileManager.getCurrentNetwork();
     env['VITE_NETWORK'] = selectedNetwork;
+    /*
+    * superfluous for now, commenting out
+    *
     const bytecodeInfo = await processContracts(configPath, {}, false);
     for (const contractName in projectConfig.contracts) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
@@ -49,7 +51,7 @@ export async function generateWWWEnv(configPath: string) {
             env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
     }
-
+    */
     writeEnvFile(env, wwwEnvPath);
     logger.info(`WWW env generated successfully: ${wwwEnvPath}`);
 }
