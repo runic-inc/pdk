@@ -29,5 +29,6 @@ COPY . .
 WORKDIR /app/www
 
 EXPOSE 3000
+EXPOSE 3010
 
 CMD ["pnpm", "dev"]

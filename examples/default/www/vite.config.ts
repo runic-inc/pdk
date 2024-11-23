@@ -8,7 +8,15 @@ import { z } from 'zod';
 export default defineConfig({
     server: {
         port: 3000,
+        strictPort: true,
         host: true,
+        hmr: {
+            port: 3010,
+        },
+        watch: {
+            usePolling: true,
+            interval: 200,
+        },
     },
     resolve: {
         alias: {
