@@ -28,4 +28,6 @@ COPY . .
 
 WORKDIR /app/www
 
+EXPOSE 3000
+
 CMD ["pnpm", "dev"]

@@ -2,7 +2,23 @@
     "name": "@patchworkdev/pdk",
     "description": "Patchwork Development Kit",
     "version": "0.3.0-rc.1",
-    "main": "src/index.ts",
+    "main": "dist/index.js",
+    "types": "src/index.ts",
+    "exports": {
+        ".": {
+            "default": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./utils": {
+            "default": "./dist/exports/index.js",
+            "types": "./dist/exports/index.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "src",
+        "/utils"
+    ],
     "type": "commonjs",
     "scripts": {
         "start": "node dist/index.js",

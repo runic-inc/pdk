@@ -54,7 +54,7 @@ services:
             - .:/app
             - www-deps:/app/node_modules
             - www-app-deps:/app/www/node_modules
-            - www-vite:/app/www  # should this be app/www/dist?
+            - www-vite:/app/www
         ports:
             - '3000:3000'
         environment:
