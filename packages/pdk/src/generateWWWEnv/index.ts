@@ -4,6 +4,7 @@ import { importPatchworkConfig } from '../helpers/config';
 import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
+import { processContracts } from '../localDev/deployment';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generateWWWEnv(configPath: string) {
@@ -23,32 +24,30 @@ export async function generateWWWEnv(configPath: string) {
 
     const env = await getEnvFile(wwwEnvPath);
     env['API_URL'] = 'http://localhost:42069';
-    // const output: string[] = ['API_URL=http://localhost:42069'];
 
     Object.entries(projectConfig.networks).map(([networkName, network]) => {
-        // output.push(`${_.upperCase(networkName)}_RPC=${network.rpc}`);
         env[`${_.upperCase(networkName)}_RPC`] = network.rpc;
     });
 
     const lockFileManager = new LockFileManager(configPath);
     const selectedNetwork = lockFileManager.getCurrentNetwork();
+    const bytecodeInfo = await processContracts(configPath, {}, false);
     for (const contractName in projectConfig.contracts) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
         if (!deploymentInfo) {
-            logger.error(`No deployment found for ${contractName}`);
-            throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
+            if (bytecodeInfo[contractName]) {
+                env[`${_.upperCase(contractName)}_BLOCK`] = '1';
+                env[`${_.upperCase(contractName)}_ADDRESS`] = bytecodeInfo[contractName].deployedAddress;
+            } else {
+                logger.error(`No deployment found for ${contractName}`);
+                throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
+            }
+        } else {
+            env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
+            env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
-        // output.push(`${_.upperCase(contractName)}_BLOCK=${deploymentInfo.block}`);
-        // output.push(`${_.upperCase(contractName)}_ADDRESS=${deploymentInfo.address}`);
-        env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
-        env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
     }
 
-    // try {
-    //     await fs.writeFile(wwwEnvPath, output.join('\n'), 'utf-8');
-    // } catch (error) {
-    //     throw new PDKError(ErrorCode.FILE_SAVE_ERROR, `Error saving env file ${wwwEnvPath}`);
-    // }
     writeEnvFile(env, wwwEnvPath);
     logger.info(`WWW env generated successfully: ${wwwEnvPath}`);
 }
