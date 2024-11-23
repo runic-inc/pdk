@@ -1,59 +1,45 @@
+import { processContracts } from '@patchworkdev/pdk/utils';
 import { defineConfig } from '@wagmi/cli';
 import { foundry, react } from '@wagmi/cli/plugins';
-import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-export default defineConfig([
-    {
-        out: 'www/src/generated/hooks/wagmi.ts',
-        plugins: [
-            foundry({
-                include: getContracts().map(({ path }) => path),
-                deployments: Object.fromEntries(
-                    getContracts().map(({ name, address }) => {
-                        return [name, address];
-                    }),
-                ),
-                forge: {
-                    build: false,
-                },
-            }),
-            react(),
-        ],
-    },
-]);
-
-function getDeploymentAddressForContract(contractName: string): `0x${string}` {
-    return '0x0000000000000000000000000000000000000000';
-}
-
-type C = {
-    name: string;
-    path: string;
-    address: `0x${string}`;
-};
-function getContracts(): C[] {
-    const srcDir = path.resolve(__dirname, './contracts/src');
-    const outDir = path.resolve(__dirname, './contracts/out');
+export default defineConfig(async () => {
+    const contracts = await processContracts(path.resolve(__dirname, 'contracts'));
+    const out: {
+        name: string;
+        path: string;
+        address: `0x${string}`;
+    }[] = [];
     try {
-        const solFiles = readdirSync(srcDir);
-        const solBaseNames = solFiles.filter((file) => file.endsWith('.sol') && !file.toLowerCase().includes('generated')).map((file) => path.parse(file).name);
-
-        const contracts: C[] = [];
-        for (const baseName of solBaseNames) {
+        Object.entries(contracts).forEach(([baseName, details]) => {
             const jsonPath = path.join(`${baseName}.sol`, `${baseName}.json`);
-            const fullPath = path.join(outDir, jsonPath);
-            if (existsSync(fullPath)) {
-                contracts.push({
-                    name: baseName,
-                    path: jsonPath,
-                    address: '0x0000000000000000000000000000000000000000',
-                });
-            }
-        }
-        return contracts;
+            out.push({
+                name: baseName,
+                path: jsonPath,
+                address: details.deployedAddress as `0x${string}`,
+            });
+        });
     } catch (err) {
         console.error('Error reading directories:', err);
         return [];
     }
-}
+    return [
+        {
+            out: 'www/src/generated/hooks/wagmi.ts',
+            plugins: [
+                foundry({
+                    include: out.map(({ path }) => path),
+                    deployments: Object.fromEntries(
+                        out.map(({ name, address }) => {
+                            return [name, address];
+                        }),
+                    ),
+                    forge: {
+                        build: false,
+                    },
+                }),
+                react(),
+            ],
+        },
+    ];
+});
