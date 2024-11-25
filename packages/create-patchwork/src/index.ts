@@ -23,7 +23,7 @@ const program = new Command()
     .name('create-patchwork')
     .version('0.0.3')
     .argument('[configFile]', 'Path to the JSON or TS file')
-    .option('-l, --use-local-packages', 'Use local packages for Patchwork dependencies')
+    .option('-l, --use-local-packages', 'Use local packages for Patchwork dependencies', false)
     .description('Create a new Patchwork project')
     .action(async (configFile, options) => createPatchwork(configFile, options));
 
@@ -46,7 +46,7 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
     const templatePath = path.join(__dirname, '', 'templates', templateProject);
     const exampleProjectPath = path.join(__dirname, '', 'templates');
 
-    const useLocalPackages = !!options.useLocalPackages;
+    const { useLocalPackages } = options;
 
     // if configFile is set try to use it if not ask user which example config they want to use
     const configPath = configFile ? path.resolve(process.cwd(), configFile) : path.join(exampleProjectPath, await selectExampleConfig());

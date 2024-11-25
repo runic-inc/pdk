@@ -51,15 +51,16 @@ services:
             context: .
             dockerfile: www/Dockerfile
         volumes:
-            - .:/app
+            - .:/app:delegated
             - www-deps:/app/node_modules
             - www-app-deps:/app/www/node_modules
-            - www-vite:/app/www  # should this be app/www/dist?
         ports:
             - '3000:3000'
+            - '3010:3010'
         environment:
             - NODE_ENV=development
             - CHOKIDAR_USEPOLLING=true
+            - CHOKIDAR_INTERVAL=200
         depends_on:
             - ponder
             

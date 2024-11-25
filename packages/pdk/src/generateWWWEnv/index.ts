@@ -4,7 +4,6 @@ import { importPatchworkConfig } from '../helpers/config';
 import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
-import { processContracts } from '../localDev/deployment';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generateWWWEnv(configPath: string) {
@@ -13,6 +12,7 @@ export async function generateWWWEnv(configPath: string) {
     const configDir = path.dirname(fullConfigPath);
 
     // Define paths relative to the config file
+    const wwwExamplePath = path.join(configDir, 'www', '.env.example');
     const wwwEnvPath = path.join(configDir, 'www', '.env.local');
 
     const projectConfig = await importPatchworkConfig(fullConfigPath);
@@ -22,8 +22,8 @@ export async function generateWWWEnv(configPath: string) {
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${fullConfigPath}`);
     }
 
-    const env = await getEnvFile(wwwEnvPath);
-    env['API_URL'] = 'http://localhost:42069';
+    const env = await getEnvFile(wwwEnvPath, true, wwwExamplePath);
+    env['VITE_PUBLIC_PONDER_URL'] = 'http://localhost:42069';
 
     Object.entries(projectConfig.networks).map(([networkName, network]) => {
         env[`${_.upperCase(networkName)}_RPC`] = network.rpc;
@@ -31,6 +31,10 @@ export async function generateWWWEnv(configPath: string) {
 
     const lockFileManager = new LockFileManager(configPath);
     const selectedNetwork = lockFileManager.getCurrentNetwork();
+    env['VITE_NETWORK'] = selectedNetwork;
+    /*
+    * superfluous for now, commenting out
+    *
     const bytecodeInfo = await processContracts(configPath, {}, false);
     for (const contractName in projectConfig.contracts) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
@@ -47,7 +51,7 @@ export async function generateWWWEnv(configPath: string) {
             env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
     }
-
+    */
     writeEnvFile(env, wwwEnvPath);
     logger.info(`WWW env generated successfully: ${wwwEnvPath}`);
 }

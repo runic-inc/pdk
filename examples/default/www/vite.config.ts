@@ -8,6 +8,15 @@ import { z } from 'zod';
 export default defineConfig({
     server: {
         port: 3000,
+        strictPort: true,
+        host: true,
+        hmr: {
+            port: 3010,
+        },
+        watch: {
+            usePolling: true,
+            interval: 200,
+        },
     },
     resolve: {
         alias: {
@@ -19,7 +28,7 @@ export default defineConfig({
         ValidateEnv({
             validator: 'zod',
             schema: {
-                VITE_PUBLIC_WALLETCONNECT_PROJECTID: z.string().regex(/^[a-zA-Z0-9]{32}$/),
+                VITE_PUBLIC_WALLETCONNECT_PROJECTID: z.string(),
                 VITE_PUBLIC_PONDER_URL: z.string().url(),
                 VITE_NETWORK: z.enum(['local', 'mainnet', 'testnet']),
             },

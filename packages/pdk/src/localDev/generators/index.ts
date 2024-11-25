@@ -2,26 +2,15 @@ import crypto from 'crypto';
 import path from 'path';
 import { generateABIs } from '../../generateABIs';
 import { generateAPI } from '../../generateApi';
-import { generateDemoPage } from '../../generateDemoPage';
 import { generateEventHooks } from '../../generateEventHooks';
 import { generatePonderConfig } from '../../generatePonderConfig';
-import { generateReactComponents } from '../../generateReactComponents';
 import { generateReactHooks } from '../../generateReactHooks';
 import { generateSchema } from '../../generateSchema';
 import LockFileManager from '../lockFile';
 
-export type GeneratorType =
-    | 'contracts'
-    | 'deployScripts'
-    | 'forgeBuild'
-    | 'abis'
-    | 'schema'
-    | 'eventHooks'
-    | 'ponderConfig'
-    | 'api'
-    | 'reactHooks'
-    | 'reactComponents'
-    | 'demoPage';
+export type GeneratorType = 'contracts' | 'deployScripts' | 'forgeBuild' | 'abis' | 'schema' | 'eventHooks' | 'ponderConfig' | 'api' | 'reactHooks';
+// | 'reactComponents'
+// | 'demoPage';
 
 interface GeneratorConfig {
     inputs: string[];
@@ -122,8 +111,8 @@ export class GeneratorManager {
             'ponderConfig',
             'api',
             'reactHooks',
-            'reactComponents',
-            'demoPage',
+            // 'reactComponents',
+            // 'demoPage',
         ];
     }
 
@@ -174,16 +163,16 @@ export class GeneratorManager {
                 outputs: ['www/generated/hooks/index.ts'],
                 run: generateReactHooks,
             },
-            reactComponents: {
-                inputs: ['ponder/src/generated/api.ts', 'ponder/ponder.schema.ts'],
-                outputs: ['www/generated/components/**/*.tsx'],
-                run: generateReactComponents,
-            },
-            demoPage: {
-                inputs: ['ponder/src/generated/api.ts'],
-                outputs: ['www/app/demo/page.tsx'],
-                run: generateDemoPage,
-            },
+            // reactComponents: {
+            //     inputs: ['ponder/src/generated/api.ts', 'ponder/ponder.schema.ts'],
+            //     outputs: ['www/generated/components/**/*.tsx'],
+            //     run: generateReactComponents,
+            // },
+            // demoPage: {
+            //     inputs: ['ponder/src/generated/api.ts'],
+            //     outputs: ['www/app/demo/page.tsx'],
+            //     run: generateDemoPage,
+            // },
         };
     }
 

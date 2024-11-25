@@ -2,12 +2,21 @@ import fs from 'fs/promises';
 import { ErrorCode, PDKError } from './error';
 import { logger } from './logger';
 
-export async function getEnvFile(filePath: string, createIfNotExists = true) {
+export async function getEnvFile(filePath: string, createIfNotExists = true, example?: string) {
     try {
         await fs.access(filePath);
     } catch {
         if (createIfNotExists) {
-            await fs.writeFile(filePath, '', 'utf-8');
+            let contents = '';
+            if (example) {
+                try {
+                    const exampleEnv = await fs.readFile(example, 'utf-8');
+                    contents = exampleEnv;
+                } catch (error) {
+                    logger.error(`Error reading example file: ${example}`);
+                }
+            }
+            await fs.writeFile(filePath, contents, 'utf-8');
         } else {
             logger.error(`File does not exist: ${filePath}`);
             throw new PDKError(ErrorCode.FILE_NOT_FOUND, `File does not exist ${filePath}`);
