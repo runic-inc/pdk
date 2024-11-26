@@ -1,7 +1,7 @@
 {
     "name": "@patchworkdev/common",
     "description": "Patchwork Development Kit",
-    "version": "0.3.0-rc.2",
+    "version": "0.3.0",
     "main": "dist/index.js",
     "types": "./dist/index.d.ts",
     "typesVersions": {
@@ -56,6 +56,6 @@
         "@types/node": "^22.3.0",
         "jest": "^29.5.0",
         "ts-jest": "^29.0.5",
-        "viem": "^2.21.25"
+        "viem": "2.21.51"
     }
 }

@@ -1,7 +1,7 @@
 {
     "name": "@patchworkdev/pdk",
     "description": "Patchwork Development Kit",
-    "version": "0.3.0-rc.4",
+    "version": "0.3.0",
     "main": "dist/index.js",
     "types": "src/index.ts",
     "exports": {
@@ -52,7 +52,7 @@
         "ts-node": "10.9.2",
         "tsconfig-paths": "4.2.0",
         "typescript": "^5.6.3",
-        "viem": "2.21.9"
+        "viem": "2.21.51"
     },
     "bin": {
         "pdk": "dist/index.js"

@@ -1,10 +1,12 @@
-import { Deployment, Network } from '@patchworkdev/common';
+import { Network } from '@patchworkdev/common';
 import _ from 'lodash';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { formatAndSaveFile } from '../helpers/file';
 import { logger } from '../helpers/logger';
+import { envVarCase } from '../helpers/text';
+import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderConfig(configPath: string) {
     // Resolve the full path of the config file
@@ -24,6 +26,7 @@ export async function generatePonderConfig(configPath: string) {
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${fullConfigPath}`);
     }
 
+    const lockFileManager = new LockFileManager(configPath);
     const fragmentRelationships = getFragmentRelationships(projectConfig);
 
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
@@ -34,11 +37,11 @@ export async function generatePonderConfig(configPath: string) {
     const contracts = Object.entries(projectConfig.contracts)
         .map(([contractName, contractConfig]) => {
             imports.add(contractName);
-            if (!projectConfig.deployments || !projectConfig.networks) {
-                logger.error(`No deployments or networks found. Cannot build contract config for ${contractName}`);
+            if (!projectConfig.networks) {
+                logger.warn(`No networks found. Cannot build contract config for ${contractName}`);
                 return '';
             }
-            return contractTemplate(contractName, projectConfig.deployments, projectConfig.networks);
+            return contractTemplate(lockFileManager, contractName, projectConfig.networks);
         })
         .filter(Boolean);
 
@@ -83,11 +86,11 @@ export function networkTemplate(name: string, network: Network): string {
             transport: http(process.env.${_.upperCase(name)}_RPC),
         }`;
 }
-export function contractTemplate(name: string, deployments: Deployment<string>[], network: Record<string, Network>): string {
+export function contractTemplate(lockFileManager: LockFileManager, name: string, network: Record<string, Network>): string {
     return `${name}: {
             network: {
                 ${Object.entries(network)
-                    .map(([networkName, network]) => contractNetworkTemplate(name, networkName, deployments, network))
+                    .map(([networkName, network]) => contractNetworkTemplate(lockFileManager, name, networkName, network))
                     .filter((s) => s !== undefined)
                     .join(',')}
  
@@ -95,14 +98,14 @@ export function contractTemplate(name: string, deployments: Deployment<string>[]
             abi: mergeAbis([${name}]),
         }`;
 }
-function contractNetworkTemplate(name: string, networkName: string, deployments: Deployment<string>[], network: Network): string | undefined {
-    const deployment = deployments.find((d) => d.network === networkName);
+function contractNetworkTemplate(lockFileManager: LockFileManager, name: string, networkName: string, network: Network): string | undefined {
+    const deployment = lockFileManager.getLatestDeploymentForContract(name, networkName);
     if (!deployment) {
-        logger.info(`No deployment found for ${name}`);
+        logger.info(`No deployment found for ${name} on ${networkName} network`);
         return undefined;
     }
     return `${networkName}: {
-                    startBlock: Number(process.env.${_.upperCase(name)}_BLOCK),
-                    address: process.env.${_.upperCase(name)}_ADDRESS as Address,
+                    startBlock: Number(process.env.${envVarCase(name)}_BLOCK),
+                    address: process.env.${envVarCase(name)}_ADDRESS as Address,
                 }`;
 }
