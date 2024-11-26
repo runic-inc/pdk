@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import path from 'path';
 import { importPatchworkConfig } from '../helpers/config';
 import { getEnvFile, writeEnvFile } from '../helpers/env';
 import { ErrorCode, PDKError } from '../helpers/error';
 import { logger } from '../helpers/logger';
+import { envVarCase } from '../helpers/text';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generateWWWEnv(configPath: string) {
@@ -26,7 +26,7 @@ export async function generateWWWEnv(configPath: string) {
     env['VITE_PUBLIC_PONDER_URL'] = 'http://localhost:42069';
 
     Object.entries(projectConfig.networks).map(([networkName, network]) => {
-        env[`${_.upperCase(networkName)}_RPC`] = network.rpc;
+        env[`${envVarCase(networkName)}_RPC`] = network.rpc;
     });
 
     const lockFileManager = new LockFileManager(configPath);
@@ -40,15 +40,15 @@ export async function generateWWWEnv(configPath: string) {
         const deploymentInfo = lockFileManager.getLatestDeploymentForContract(contractName, selectedNetwork);
         if (!deploymentInfo) {
             if (bytecodeInfo[contractName]) {
-                env[`${_.upperCase(contractName)}_BLOCK`] = '1';
-                env[`${_.upperCase(contractName)}_ADDRESS`] = bytecodeInfo[contractName].deployedAddress;
+                env[`${envVarCase(contractName)}_BLOCK`] = '1';
+                env[`${envVarCase(contractName)}_ADDRESS`] = bytecodeInfo[contractName].deployedAddress;
             } else {
                 logger.error(`No deployment found for ${contractName}`);
                 throw new PDKError(ErrorCode.DEPLOYMENT_NOT_FOUND, `No deployment found for  ${contractName}`);
             }
         } else {
-            env[`${_.upperCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
-            env[`${_.upperCase(contractName)}_ADDRESS`] = deploymentInfo.address;
+            env[`${envVarCase(contractName)}_BLOCK`] = deploymentInfo.block.toString();
+            env[`${envVarCase(contractName)}_ADDRESS`] = deploymentInfo.address;
         }
     }
     */

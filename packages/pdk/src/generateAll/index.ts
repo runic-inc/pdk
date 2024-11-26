@@ -4,8 +4,10 @@ import { generateABIs } from '../generateABIs';
 import { generateAPI } from '../generateApi';
 import { generateEventHooks } from '../generateEventHooks';
 import { generatePonderConfig } from '../generatePonderConfig';
+import { generatePonderEnv } from '../generatePonderEnv';
 import { generateReactHooks } from '../generateReactHooks';
 import { generateSchema } from '../generateSchema';
+import { generateWWWEnv } from '../generateWWWEnv';
 import { logger } from '../helpers/logger';
 
 export async function generateAll(configPath: string) {
@@ -43,6 +45,14 @@ export async function generateAll(configPath: string) {
     // Generate React Hooks
     logger.info('Generating React hooks...');
     await generateReactHooks(configPath);
+
+    // generate www env
+    logger.info('Generating WWW Env file...');
+    await generateWWWEnv(configPath);
+
+    // generate ponder env
+    logger.info('Generating Ponder Env file...');
+    await generatePonderEnv(configPath);
 
     // Generate React Components
     // console.log('Generating React Components...');

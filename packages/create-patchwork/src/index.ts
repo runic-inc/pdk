@@ -13,6 +13,7 @@ import {
     generateDeployScripts,
     initGitRepo,
     installNodeDependencies,
+    linkLocalPackages,
     selectLocalNetwork,
 } from './calls.js';
 
@@ -21,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 const program = new Command()
     .name('create-patchwork')
-    .version('0.0.3')
+    // .version('0.0.3')
     .argument('[configFile]', 'Path to the JSON or TS file')
     .option('-l, --use-local-packages', 'Use local packages for Patchwork dependencies', false)
     .description('Create a new Patchwork project')
@@ -65,6 +66,10 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
 
     // Install dependencies (including @patchworkdev/common and pdk)
     await installNodeDependencies(targetDir);
+
+    if (useLocalPackages) {
+        await linkLocalPackages(targetDir);
+    }
 
     // Initialize git repo
     await initGitRepo(targetDir);

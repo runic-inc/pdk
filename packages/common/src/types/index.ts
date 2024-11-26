@@ -210,5 +210,4 @@ export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = 
     contracts: ContractsConfig;
     contractRelations: ContractRelationsConfig;
     networks?: Record<T, Network>;
-    deployments?: Deployment<T>[];
 };
