@@ -1,0 +1,21 @@
+{
+    "name": "cli",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "ts-node src/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@commander-js/extra-typings": "12.1.0",
+        "@patchworkdev/common": "workspace:*",
+        "commander": "12.1.0"
+    },
+    "devDependencies": {
+        "ts-node": "10.9.2",
+        "typescript": "^5.6.3"
+    }
+}
