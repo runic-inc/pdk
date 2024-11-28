@@ -1,5 +1,5 @@
-import { importPatchworkConfig } from '../../helpers/config';
-import LockFileManager from '../../localDev/lockFile';
+import { importPatchworkConfig } from '../helpers/config';
+import LockFileManager from '../localDev/lockFile';
 
 export async function networkSwitch(configPath: string, networkName: string) {
     const patchworkConfig = await importPatchworkConfig(configPath);
