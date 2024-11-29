@@ -1,14 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../common/helpers/logger';
-import { generateABIs } from '../generateABIs';
-import { generateAPI } from '../generateApi';
-import { generateEventHooks } from '../generateEventHooks';
-import { generatePonderConfig } from '../generatePonderConfig';
-import { generatePonderEnv } from '../generatePonderEnv';
-import { generateReactHooks } from '../generateReactHooks';
-import { generateSchema } from '../generateSchema';
-import { generateWWWEnv } from '../generateWWWEnv';
+import { generateABIs, generateAPI, generateEventHooks, generatePonderConfig, generatePonderEnv, generateReactHooks, generateSchema, generateWWWEnv } from './';
 
 export async function generateServices(configPath: string) {
     logger.info('Generating all components...');

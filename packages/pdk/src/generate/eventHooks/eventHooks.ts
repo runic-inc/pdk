@@ -1,8 +1,8 @@
 import { ProjectConfig } from '@patchworkdev/common';
 import _ from 'lodash';
 import { Abi, AbiEvent } from 'viem';
-import { formatAndSaveFile } from '../common/helpers/file';
-import { SchemaModule } from '../common/helpers/ponderSchemaMock';
+import { formatAndSaveFile } from '../../common/helpers/file';
+import { SchemaModule } from '../../common/helpers/ponderSchemaMock';
 
 export type GeneratedHandlers = { imports: Set<string>; handlers: string[] };
 type HandlerAndImport = { handler: string; imports: Set<string> };

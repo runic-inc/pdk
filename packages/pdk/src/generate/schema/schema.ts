@@ -1,7 +1,7 @@
 import { ProjectConfig } from '@patchworkdev/common';
 import * as _ from 'lodash';
-import { getFragmentRelationships } from '../common/helpers/config';
-import { formatAndSaveFile } from '../common/helpers/file';
+import { getFragmentRelationships } from '../../common/helpers/config';
+import { formatAndSaveFile } from '../../common/helpers/file';
 
 type Table = {
     fields: {

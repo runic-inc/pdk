@@ -6,24 +6,24 @@ import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
 import { convertToJSON, convertToTS } from './convert';
 import { localDevDown, localDevUp } from './dev';
-import { generateAll, generateContractDeployScripts, generateContracts, generateServices } from './generate';
-import { generateABIs } from './generateABIs';
-import { generateAPI } from './generateApi';
-import { generateDemoPage } from './generateDemoPage';
-import { generateEventHooks } from './generateEventHooks';
-import { generatePonderConfig } from './generatePonderConfig';
-import { generatePonderEnv } from './generatePonderEnv';
-import { generateReactComponents } from './generateReactComponents';
-import { generateReactHooks } from './generateReactHooks';
-import { generateSchema } from './generateSchema';
-import { generateWWWEnv } from './generateWWWEnv';
+import {
+    generateABIs,
+    generateAll,
+    generateAPI,
+    generateContractDeployScripts,
+    generateContracts,
+    generateDemoPage,
+    generateEventHooks,
+    generatePonderConfig,
+    generatePonderEnv,
+    generateReactComponents,
+    generateReactHooks,
+    generateSchema,
+    generateServices,
+    generateWWWEnv,
+} from './generate';
 import { networkList, networkSwitch } from './network';
 import { launchWizardApp } from './wizardServer';
-
-// const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
-// const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
-
-// const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 
 async function getConfigPath(configFile?: string): Promise<string> {
     const configPath = configFile || (await findConfig());
@@ -63,11 +63,6 @@ convert
     .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
     .description('Convert Typescript project configurations to JSON')
     .action(async (configFiles, options) => {
-        // try {
-        //     cliProcessor.convertToJSON(configFiles, options.output);
-        // } catch (e) {
-        //     throw new PDKError(ErrorCode.PDK_ERROR, `Error converting files`, { configFiles, options });
-        // }
         await convertToJSON(configFiles, options.output);
     });
 
@@ -77,11 +72,6 @@ convert
     .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
     .description('Convert JSON project configurations to Typescript')
     .action(async (configFiles, options) => {
-        // try {
-        //     cliProcessor.convertToTS(configFiles, options.output);
-        // } catch (e) {
-        //     throw new PDKError(ErrorCode.PDK_ERROR, `Error converting files`, { configFiles, options });
-        // }
         await convertToTS(configFiles, options.output);
     });
 

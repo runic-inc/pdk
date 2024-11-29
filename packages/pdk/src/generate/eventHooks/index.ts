@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../common/helpers/config';
-import { ErrorCode, PDKError } from '../common/helpers/error';
-import { logger } from '../common/helpers/logger';
+import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../../common/helpers/config';
+import { ErrorCode, PDKError } from '../../common/helpers/error';
+import { logger } from '../../common/helpers/logger';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
 export async function generateEventHooks(configPath: string) {
