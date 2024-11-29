@@ -1,1 +1,1 @@
-export { processContracts } from '../localDev/deployment';
+export { processContracts } from '../dev/deployment';

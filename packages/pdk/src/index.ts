@@ -5,6 +5,7 @@ import { findConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
 import { convertToJSON, convertToTS } from './convert';
+import { localDevDown, localDevUp } from './dev';
 import { generateAll, generateContractDeployScripts, generateContracts, generateServices } from './generate';
 import { generateABIs } from './generateABIs';
 import { generateAPI } from './generateApi';
@@ -16,7 +17,6 @@ import { generateReactComponents } from './generateReactComponents';
 import { generateReactHooks } from './generateReactHooks';
 import { generateSchema } from './generateSchema';
 import { generateWWWEnv } from './generateWWWEnv';
-import { localDevDown, localDevUp } from './localDev';
 import { networkList, networkSwitch } from './network';
 import { launchWizardApp } from './wizardServer';
 

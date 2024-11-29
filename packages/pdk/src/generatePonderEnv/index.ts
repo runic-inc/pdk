@@ -5,7 +5,7 @@ import { ErrorCode, PDKError } from '../common/helpers/error';
 import LockFileManager from '../common/helpers/lockFile';
 import { logger } from '../common/helpers/logger';
 import { envVarCase } from '../common/helpers/text';
-import { processContracts } from '../localDev/deployment';
+import { processContracts } from '../dev/deployment';
 
 export async function generatePonderEnv(configPath: string) {
     // Resolve the full path of the config file
