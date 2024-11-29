@@ -16,6 +16,9 @@ jobs:
           - name: packages/common
             working-directory: ./packages/common
             command: pnpm test
+          - name: packages/pdk
+            working-directory: ./packages/pdk
+            command: pnpm test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
