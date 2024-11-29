@@ -1,11 +1,11 @@
 import { Network } from '@patchworkdev/common';
 import _ from 'lodash';
 import path from 'path';
-import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../helpers/config';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { formatAndSaveFile } from '../helpers/file';
-import { logger } from '../helpers/logger';
-import { envVarCase } from '../helpers/text';
+import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../common/helpers/config';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { formatAndSaveFile } from '../common/helpers/file';
+import { logger } from '../common/helpers/logger';
+import { envVarCase } from '../common/helpers/text';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderConfig(configPath: string) {

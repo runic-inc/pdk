@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import path from 'path';
-import { logger } from './helpers/logger';
+import { logger } from './common/helpers/logger';
 
 export const launchWizardApp = () => {
     const app = new Hono();

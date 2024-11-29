@@ -1,9 +1,9 @@
 import path from 'path';
-import { importPatchworkConfig } from '../helpers/config';
-import { getEnvFile, writeEnvFile } from '../helpers/env';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { logger } from '../helpers/logger';
-import { envVarCase } from '../helpers/text';
+import { importPatchworkConfig } from '../common/helpers/config';
+import { getEnvFile, writeEnvFile } from '../common/helpers/env';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { logger } from '../common/helpers/logger';
+import { envVarCase } from '../common/helpers/text';
 import LockFileManager from '../localDev/lockFile';
 
 export async function generateWWWEnv(configPath: string) {

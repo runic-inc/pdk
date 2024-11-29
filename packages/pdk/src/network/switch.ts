@@ -1,4 +1,4 @@
-import { importPatchworkConfig } from '../helpers/config';
+import { importPatchworkConfig } from '../common/helpers/config';
 import LockFileManager from '../localDev/lockFile';
 
 export async function networkSwitch(configPath: string, networkName: string) {

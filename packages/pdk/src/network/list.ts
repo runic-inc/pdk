@@ -1,4 +1,4 @@
-import { importPatchworkConfig } from '../helpers/config';
+import { importPatchworkConfig } from '../common/helpers/config';
 
 export async function networkList(configPath: string) {
     const patchworkConfig = await importPatchworkConfig(configPath);

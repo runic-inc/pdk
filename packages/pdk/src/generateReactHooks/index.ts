@@ -1,10 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { analyzeAPI } from '../helpers/api';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { formatAndSaveFile } from '../helpers/file';
-import { logger } from '../helpers/logger';
-import { pascalCase } from '../helpers/text';
+import { analyzeAPI } from '../common/helpers/api';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { formatAndSaveFile } from '../common/helpers/file';
+import { logger } from '../common/helpers/logger';
+import { pascalCase } from '../common/helpers/text';
 
 export async function generateReactHooks(configPath: string) {
     logger.info(`  ∟ Generating Wagmi hooks...`);

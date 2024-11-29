@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { importPatchworkConfig } from '../helpers/config';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { logger } from '../helpers/logger';
+import { importPatchworkConfig } from '../common/helpers/config';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { logger } from '../common/helpers/logger';
 import { generateSchemaFile } from './schema';
 
 export async function generateSchema(configPath: string) {

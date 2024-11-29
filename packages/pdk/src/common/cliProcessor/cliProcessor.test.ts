@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { CLIProcessor } from './cliProcessor';
 
-const CONTRACT_SCHEMA = '../../schemas/patchwork-contract-config.schema.json';
-const PROJECT_SCHEMA = '../../schemas/patchwork-project-config.schema.json';
+const CONTRACT_SCHEMA = '../../../../../schemas/patchwork-contract-config.schema.json';
+const PROJECT_SCHEMA = '../../../../../schemas/patchwork-project-config.schema.json';
 
 const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 
 describe('CLI', () => {
-    const testDataDir = path.resolve(__dirname, '../../common/src/codegen/test_data');
+    const testDataDir = path.resolve(__dirname, '../../../../common/src/codegen/test_data');
     const projectConfigsDir = path.join(testDataDir, 'project_configs');
     const outputDir = path.resolve(__dirname, '../test_output');
 

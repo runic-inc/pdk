@@ -1,12 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { analyzeAPI } from '../helpers/api';
-import { loadPonderSchema } from '../helpers/config';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { formatAndSaveFile } from '../helpers/file';
-import { SchemaModule } from '../helpers/ponderSchemaMock';
-import { pascalCase } from '../helpers/text';
-import { logger } from '../helpers/logger';
+import { analyzeAPI } from '../common/helpers/api';
+import { loadPonderSchema } from '../common/helpers/config';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { formatAndSaveFile } from '../common/helpers/file';
+import { logger } from '../common/helpers/logger';
+import { SchemaModule } from '../common/helpers/ponderSchemaMock';
+import { pascalCase } from '../common/helpers/text';
 
 const trpcRouteToHookName = (route: string) => 'use' + pascalCase(route);
 

@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { ErrorCode, PDKError } from '../helpers/error';
-import { logger } from '../helpers/logger';
+import { ErrorCode, PDKError } from '../common/helpers/error';
+import { logger } from '../common/helpers/logger';
 
 async function getAbiJsonFiles(directory: string): Promise<string[]> {
     const files: string[] = [];

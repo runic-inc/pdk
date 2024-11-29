@@ -1,10 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { loadPonderSchema } from '../helpers/config';
+import { loadPonderSchema } from '../common/helpers/config';
 // import { FieldDefinition, Schema } from "./ponderMocks";
-import { formatAndSaveFile } from '../helpers/file';
-import { FieldDefinition, SchemaModule, TableDefinition } from '../helpers/ponderSchemaMock';
-import { logger } from '../helpers/logger';
+import { formatAndSaveFile } from '../common/helpers/file';
+import { logger } from '../common/helpers/logger';
+import { FieldDefinition, SchemaModule, TableDefinition } from '../common/helpers/ponderSchemaMock';
 
 export async function generateAPI(ponderSchema: string, apiOutputDir: string) {
     const schema = await loadPonderSchema(ponderSchema);
