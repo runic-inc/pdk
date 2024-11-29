@@ -4,9 +4,9 @@ import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../common/helpers/config';
 import { ErrorCode, PDKError } from '../common/helpers/error';
 import { formatAndSaveFile } from '../common/helpers/file';
+import LockFileManager from '../common/helpers/lockFile';
 import { logger } from '../common/helpers/logger';
 import { envVarCase } from '../common/helpers/text';
-import LockFileManager from '../localDev/lockFile';
 
 export async function generatePonderConfig(configPath: string) {
     // Resolve the full path of the config file

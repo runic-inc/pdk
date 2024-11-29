@@ -2,12 +2,12 @@ import fs from 'fs/promises';
 import _ from 'lodash';
 import path from 'path';
 import { Address } from 'viem';
+import LockFileManager from '../common/helpers/lockFile';
 import { generatePonderEnv } from '../generatePonderEnv';
 import { generateWWWEnv } from '../generateWWWEnv';
 import { getDeploymentBlockNumber } from './blocknumber';
 import { DeployConfig, DeploymentAddresses, processContracts } from './deployment';
 import { GeneratorManager } from './generators';
-import LockFileManager from './lockFile';
 
 interface BytecodeComparison {
     needsDeployment: boolean;

@@ -1,12 +1,12 @@
 import crypto from 'crypto';
 import path from 'path';
+import LockFileManager from '../../common/helpers/lockFile';
 import { generateABIs } from '../../generateABIs';
 import { generateAPI } from '../../generateApi';
 import { generateEventHooks } from '../../generateEventHooks';
 import { generatePonderConfig } from '../../generatePonderConfig';
 import { generateReactHooks } from '../../generateReactHooks';
 import { generateSchema } from '../../generateSchema';
-import LockFileManager from '../lockFile';
 
 export type GeneratorType = 'contracts' | 'deployScripts' | 'forgeBuild' | 'abis' | 'schema' | 'eventHooks' | 'ponderConfig' | 'api' | 'reactHooks';
 // | 'reactComponents'
