@@ -77,7 +77,7 @@ export async function generateContracts(targetDir: string, useLocalPackages: boo
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
-        execa(pdkCommand, ['generateContracts', configPath, '-o', outputDir], {
+        execa(pdkCommand, ['generate', 'contracts', configPath, '-o', outputDir], {
             cwd: targetDir,
         }),
         {
@@ -94,7 +94,7 @@ export async function generateDeployScripts(targetDir: string, useLocalPackages:
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
 
     await oraPromise(
-        execa(pdkCommand, ['generateDeployScripts', configPath, '-o', outputDir, '-c', '../src'], {
+        execa(pdkCommand, ['generate', 'deployScripts', configPath, '-o', outputDir, '-c', '../src'], {
             cwd: targetDir,
         }),
         {
@@ -145,7 +145,7 @@ export async function selectLocalNetwork(targetDir: string, useLocalPackages: bo
 export async function generateAllComponents(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
     await oraPromise(
-        execa(pdkCommand, ['generateAll', configPath], {
+        execa(pdkCommand, ['generate', 'all', configPath], {
             cwd: targetDir,
         }),
         {

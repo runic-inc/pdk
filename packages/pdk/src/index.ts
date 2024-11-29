@@ -1,28 +1,29 @@
-import { Command, OptionValues } from '@commander-js/extra-typings';
+import { Command } from '@commander-js/extra-typings';
 import path from 'path';
-import { CLIProcessor } from './cliProcessor';
-import { generateABIs } from './generateABIs';
-import { generateAll } from './generateAll';
-import { generateAPI } from './generateApi';
-import { generateDemoPage } from './generateDemoPage';
-import { generateEventHooks } from './generateEventHooks';
-import { generatePonderConfig } from './generatePonderConfig';
-import { generatePonderEnv } from './generatePonderEnv';
-import { generateReactComponents } from './generateReactComponents';
-import { generateReactHooks } from './generateReactHooks';
-import { generateSchema } from './generateSchema';
-import { generateWWWEnv } from './generateWWWEnv';
-import { findConfig } from './helpers/config';
-import { ErrorCode, PDKError } from './helpers/error';
-import { setLogLevel } from './helpers/logger';
-import { localDevDown, localDevUp } from './localDev';
-import { networkList, networkSwitch } from './localDev/network';
+import { cliProcessor } from './common/cliProcessor';
+import { findConfig } from './common/helpers/config';
+import { ErrorCode, PDKError } from './common/helpers/error';
+import { setLogLevel } from './common/helpers/logger';
+import { convertToJSON, convertToTS } from './convert';
+import { localDevDown, localDevUp } from './dev';
+import {
+    generateABIs,
+    generateAll,
+    generateAPI,
+    generateContractDeployScripts,
+    generateContracts,
+    generateDemoPage,
+    generateEventHooks,
+    generatePonderConfig,
+    generatePonderEnv,
+    generateReactComponents,
+    generateReactHooks,
+    generateSchema,
+    generateServices,
+    generateWWWEnv,
+} from './generate';
+import { networkList, networkSwitch } from './network';
 import { launchWizardApp } from './wizardServer';
-
-const CONTRACT_SCHEMA = `${__dirname}/schemas/patchwork-contract-config.schema.json`;
-const PROJECT_SCHEMA = `${__dirname}/schemas/patchwork-project-config.schema.json`;
-
-const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 
 async function getConfigPath(configFile?: string): Promise<string> {
     const configPath = configFile || (await findConfig());
@@ -32,26 +33,16 @@ async function getConfigPath(configFile?: string): Promise<string> {
     return configPath;
 }
 
-interface GlobalOptions extends OptionValues {
-    verbose?: boolean;
-}
+const program = new Command()
+    .name('pdk')
+    //.version('0.1.0')
 
-const program = new Command<[], GlobalOptions>();
-
-program.name('pdk').version('1.0.0');
-
-// Global error handler
-program.on('error', (err) => {
-    console.error('Global error:', err.message);
-    process.exit(1);
-});
-
-program.option('-v, --verbose', 'Enable verbose logging');
-
-program.hook('preAction', (thisCommand) => {
-    const opts = thisCommand.opts();
-    setLogLevel(opts.verbose ? 'debug' : 'info');
-});
+    // options and hook have to be chained for types to properly resolve in preAction hook
+    .option('-v, --verbose', 'Enable verbose logging')
+    .hook('preAction', (thisCommand) => {
+        const opts = thisCommand.opts();
+        setLogLevel(opts.verbose ? 'debug' : 'info');
+    });
 
 program
     .command('validate')
@@ -65,58 +56,23 @@ program
         }
     });
 
-program
-    .command('generateContracts')
-    .argument('[configFiles...]', 'Path to the JSON or TS files')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .option('-c, --contract <name>', 'Name of the specific contract to generate')
-    .description('Generate patchwork contracts')
-    .action(async (configFiles, options) => {
-        try {
-            cliProcessor.generateSolidity(configFiles, options.output, options.contract);
-        } catch (e) {
-            throw new PDKError(ErrorCode.PDK_ERROR, `Error generating solidity`, { configFiles, options });
-        }
-    });
-
-program
-    .command('convertToJSON')
+const convert = program.command('convert').description('convert commands');
+convert
+    .command('toJSON')
     .argument('[configFiles...]', 'Path to TS files')
     .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
     .description('Convert Typescript project configurations to JSON')
     .action(async (configFiles, options) => {
-        try {
-            cliProcessor.convertToJSON(configFiles, options.output);
-        } catch (e) {
-            throw new PDKError(ErrorCode.PDK_ERROR, `Error converting files`, { configFiles, options });
-        }
+        await convertToJSON(configFiles, options.output);
     });
 
-program
-    .command('convertToTS')
+convert
+    .command('toTS')
     .argument('[configFiles...]', 'Path to JSON files')
     .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
     .description('Convert JSON project configurations to Typescript')
     .action(async (configFiles, options) => {
-        try {
-            cliProcessor.convertToTS(configFiles, options.output);
-        } catch (e) {
-            throw new PDKError(ErrorCode.PDK_ERROR, `Error converting files`, { configFiles, options });
-        }
-    });
-
-program
-    .command('generateDeployScripts')
-    .argument('[configFiles...]', 'Path to the JSON or TS files')
-    .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .description('Generate deploy scripts')
-    .action(async (configFiles, options) => {
-        try {
-            cliProcessor.generateDeployScripts(configFiles, options.contractsDir, options.output);
-        } catch (e) {
-            throw new PDKError(ErrorCode.PDK_ERROR, `Error generating deploy scripts`, { configFiles, options });
-        }
+        await convertToTS(configFiles, options.output);
     });
 
 program
@@ -126,8 +82,30 @@ program
         launchWizardApp();
     });
 
-program
-    .command('generateTsABIs')
+const generate = program.command('generate').description('generate commands');
+
+generate
+    .command('contracts')
+    .argument('[configFiles...]', 'Path to the JSON or TS files')
+    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+    .option('-c, --contract <name>', 'Name of the specific contract to generate')
+    .description('Generate patchwork contracts')
+    .action(async (configFiles, options) => {
+        await generateContracts(configFiles, options.output, options.contract);
+    });
+
+generate
+    .command('deployScripts')
+    .argument('[configFiles...]', 'Path to the JSON or TS files')
+    .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
+    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+    .description('Generate deploy scripts')
+    .action(async (configFiles, options) => {
+        await generateContractDeployScripts(configFiles, options.contractsDir, options.output);
+    });
+
+generate
+    .command('ABIs')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate TypeScript ABIs for ponder')
     .action(async (configFile) => {
@@ -135,8 +113,8 @@ program
         await generateABIs(configPath);
     });
 
-program
-    .command('generateSchema')
+generate
+    .command('schema')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder schema')
     .action(async (configFile) => {
@@ -144,8 +122,8 @@ program
         await generateSchema(configPath);
     });
 
-program
-    .command('generateEventHooks')
+generate
+    .command('eventHooks')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder event code')
     .action(async (configFile) => {
@@ -153,8 +131,8 @@ program
         await generateEventHooks(configPath);
     });
 
-program
-    .command('generatePonderConfig')
+generate
+    .command('ponderConfig')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the ponder config code')
     .action(async (configFile) => {
@@ -162,8 +140,8 @@ program
         await generatePonderConfig(configPath);
     });
 
-program
-    .command('generatePonderEnv')
+generate
+    .command('ponderEnv')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate ponder env file')
     .action(async (configFile) => {
@@ -171,8 +149,8 @@ program
         await generatePonderEnv(configPath);
     });
 
-program
-    .command('generateWWWEnv')
+generate
+    .command('wwwEnv')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate www env file')
     .action(async (configFile) => {
@@ -180,16 +158,16 @@ program
         await generateWWWEnv(configPath);
     });
 
-program
-    .command('generateReactHooks')
+generate
+    .command('reactHooks')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the React hooks for app')
     .action(async (configFile) => {
         const configPath = await getConfigPath(configFile);
         await generateReactHooks(configPath);
     });
-program
-    .command('generateReactComponents')
+generate
+    .command('reactComponents')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the React components for app')
     .action(async (configFile) => {
@@ -197,8 +175,8 @@ program
         await generateReactComponents(configPath);
     });
 
-program
-    .command('generateDemoPage')
+generate
+    .command('demoPage')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the demo app page')
     .action(async (configFile) => {
@@ -206,8 +184,8 @@ program
         await generateDemoPage(configPath);
     });
 
-program
-    .command('generateAPI')
+generate
+    .command('api')
     .argument('[configFile]', 'Path to the config file')
     .description('Generate the trpc api')
     .action(async (configFile) => {
@@ -217,19 +195,27 @@ program
         await generateAPI(schemaPath, apiOutputDir);
     });
 
-program
-    .command('generateAll')
+generate
+    .command('all')
     .argument('[configFile]', 'Path to the config file')
-    .description('Generate all components')
+    .description('Generate all contracts and services')
     .action(async (configFile) => {
         const configPath = await getConfigPath(configFile);
         await generateAll(configPath);
     });
 
-const localDev = program.command('localDev').description('local dev commands');
+generate
+    .command('services')
+    .argument('[configFile]', 'Path to the config file')
+    .description('Generate all services')
+    .action(async (configFile) => {
+        const configPath = await getConfigPath(configFile);
+        await generateServices(configPath);
+    });
 
-localDev
-    .command('up')
+const dev = program.command('dev').description('local dev commands');
+
+dev.command('up')
     .description('Run docker compose up for local dev')
     .action(async () => {
         console.info('Setting up docker compose for local dev');
@@ -237,8 +223,7 @@ localDev
         await localDevUp(configPath);
     });
 
-localDev
-    .command('down')
+dev.command('down')
     .description('Run docker compose down for local dev')
     .action(async () => {
         console.info('Tearing down docker compose for local dev');
