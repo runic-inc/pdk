@@ -23,12 +23,10 @@ interface GeneratorConfig {
 async function generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const outputDir = './contracts/src';
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-
     const { execa } = await import('execa');
     const { oraPromise } = await import('ora');
-
     await oraPromise(
-        execa(pdkCommand, ['generateContracts', configPath, '-o', outputDir], {
+        execa(pdkCommand, ['generate', 'contracts', configPath, '-o', outputDir], {
             cwd: targetDir,
         }),
         {
@@ -42,12 +40,10 @@ async function generateContracts(targetDir: string, useLocalPackages: boolean, c
 async function generateDeployScripts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const outputDir = './contracts/script';
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-
     const { execa } = await import('execa');
     const { oraPromise } = await import('ora');
-
     await oraPromise(
-        execa(pdkCommand, ['generateDeployScripts', configPath, '-o', outputDir, '-c', '../src'], {
+        execa(pdkCommand, ['generate', 'deployScripts', configPath, '-o', outputDir, '-c', '../src'], {
             cwd: targetDir,
         }),
         {
