@@ -53,6 +53,11 @@ export type PatchworkPlugin = {
     commands?: (context: PDKContext) => Command;
 
     /**
+     * Called when user runs pdk network switch
+     */
+    onNetworkChange?: (context: PDKContext) => Promise<void> | void;
+
+    /**
      * Called to run deploy scripts
      */
     // deploy?: (context: PatchworkContext) => Promise<void> | void;

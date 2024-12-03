@@ -1,3 +1,4 @@
+import { Command } from '@commander-js/extra-typings';
 import { ProjectConfig } from '@patchworkdev/common/types';
 import { Address } from 'viem';
 
@@ -20,4 +21,5 @@ export type PluginContext = {
 export type PatchworkPlugin = {
     name: string;
     generate?: (props: PluginContext) => Promise<void> | void;
+    commands?: (program: Command) => Promise<any> | any;
 };

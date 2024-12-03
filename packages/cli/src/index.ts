@@ -1,4 +1,6 @@
 import { Command } from 'commander';
+import { consola } from 'consola';
+import { generateContracts, generateDeployScripts } from './generators';
 import { PDKContext, PatchworkPlugin } from './types';
 
 const context: PDKContext = {
@@ -15,10 +17,10 @@ export function react(): PatchworkPlugin {
     return {
         name: 'React',
         generate: (context: PDKContext) => {
-            console.log('Generating Wagmi hooks...');
+            //console.log('Generating Wagmi hooks...');
             if (context.artifacts['trpc']) {
-                console.log('Found valid tRPC router definition at: ', context.artifacts['trpc']);
-                console.log('Generating tRPC hooks...');
+                //console.log('Found valid tRPC router definition at: ', context.artifacts['trpc']);
+                //console.log('Generating tRPC hooks...');
             }
         },
     };
@@ -27,11 +29,11 @@ export function react(): PatchworkPlugin {
 export function ponder(): PatchworkPlugin {
     return {
         name: 'Ponder',
-        generate: ({ artifacts }: PDKContext) => {
-            console.log('Generating schema...');
-            console.log('Generating event filters...');
-            console.log('Generating tRPC API...');
-            artifacts['trpc'] = 'my/path/to/trpcRouter.ts';
+        generate: (context: PDKContext) => {
+            //console.log('Generating schema...');
+            //console.log('Generating event filters...');
+            //console.log('Generating tRPC API...');
+            context.artifacts['trpcRouterFile'] = 'my/path/to/trpcRouter.ts';
         },
     };
 }
@@ -59,7 +61,7 @@ async function runGenerateStack(plugins: PatchworkPlugin[], pluginNames: string[
         }
 
         if (plugin.generate) {
-            console.log(`Running generator for ${plugin.name}`);
+            consola.start(`Running generator for ${plugin.name}`);
             await plugin.generate(context);
         }
     }
@@ -99,9 +101,14 @@ const program = new Command();
         .command('all')
         .description('Run all generators')
         .action(async () => {
-            console.log('Running all generators...');
+            consola.start('Running all generators...');
+
+            await generateContracts(context);
+            await generateDeployScripts(context);
+
             const pluginNames = plugins.map((plugin) => plugin.name);
             await runGenerateStack(plugins, pluginNames);
+            consola.success('Finished!');
         });
 
     // Dynamic plugin-based subcommands for generate
@@ -113,7 +120,7 @@ const program = new Command();
             const validPlugins = plugins.map((plugin) => plugin.name);
 
             // Find any invalid plugin names
-            const invalidPlugins = pluginNames.filter((name) => !validPlugins.includes(name));
+            const invalidPlugins = pluginNames.filter((name) => !validPlugins.includes(name.toLowerCase()));
 
             if (invalidPlugins.length > 0) {
                 console.error(`Error: Unknown plugin(s): ${invalidPlugins.join(', ')}`);

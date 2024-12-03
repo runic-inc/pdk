@@ -52,21 +52,15 @@ const projectConfig: ProjectConfig = {
         },
     },
     plugins: [
-        docker(),
-        anvil(),
+        foundry(),
         ponder(),
         react({
             walletConnectId: 'my-project-id',
+        }),
+        docker({
+            anvil: true,
         }),
     ],
 };
 
 export default projectConfig;
-
-type DockerConfig = {
-    generate?: boolean;
-    deploy?: boolean;
-    config?: string;
-};
-
-function docker(config?: DockerConfig, ...rest) {}

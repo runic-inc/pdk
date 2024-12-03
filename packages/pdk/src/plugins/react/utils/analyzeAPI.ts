@@ -1,7 +1,7 @@
 import path from 'path';
 import * as ts from 'typescript';
-import { ErrorCode, PDKError } from './error';
-import { logger } from './logger';
+import { ErrorCode, PDKError } from '../../../helpers/error';
+import { logger } from '../../../helpers/logger';
 
 interface APIRoute {
     name: string;
