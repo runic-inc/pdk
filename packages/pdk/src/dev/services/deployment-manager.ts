@@ -1,7 +1,7 @@
 import { Address } from 'viem';
 import LockFileManager from '../../common/helpers/lockFile';
-import { getDeploymentBlockNumber } from '../blocknumber';
-import { DeploymentAddresses } from '../deployment';
+import { BlockNumberService } from '../services/block-number';
+import { DeploymentAddresses } from '../types';
 
 interface BytecodeComparison {
     needsDeployment: boolean;
@@ -62,7 +62,8 @@ export class DeploymentManager {
     }
 
     async logDeployments(deployedContracts: DeploymentAddresses, network: string, rpcUrl: string): Promise<void> {
-        const blockNumber = await getDeploymentBlockNumber(rpcUrl);
+        const blockNumberService = new BlockNumberService();
+        const blockNumber = await blockNumberService.getDeploymentBlockNumber(rpcUrl);
 
         for (const [contractName, deploymentInfo] of Object.entries(deployedContracts)) {
             this.lockFileManager.logDeployment(

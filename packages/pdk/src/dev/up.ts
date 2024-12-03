@@ -1,9 +1,10 @@
 import LockFileManager from '../common/helpers/lockFile';
-import { DeployConfig, DeploymentAddresses, processContracts } from './deployment';
-import { GeneratorManager } from './generators';
-import { DeploymentManager } from './services/deployment';
+import { ContractProcessor } from './services/contract-processor';
+import { DeploymentManager } from './services/deployment-manager';
 import { DockerService } from './services/docker';
 import { EnvGenerator } from './services/env';
+import { GeneratorService } from './services/generator';
+import { DeployConfig, DeploymentAddresses } from './types';
 
 async function initializeConfig(configPath: string, config: DeployConfig = {}): Promise<DeployConfig> {
     return {
@@ -16,11 +17,12 @@ async function initializeConfig(configPath: string, config: DeployConfig = {}): 
 
 async function deployIfNeeded(
     deploymentManager: DeploymentManager,
+    contractProcessor: ContractProcessor,
     configPath: string,
     deployConfig: DeployConfig,
     network: string,
 ): Promise<DeploymentAddresses> {
-    const bytecodeInfo = await processContracts(configPath, deployConfig, false);
+    const bytecodeInfo = await contractProcessor.processContracts(configPath, deployConfig, false);
     const comparison = await deploymentManager.compareWithPreviousDeployment(network, bytecodeInfo);
 
     if (comparison.changes.length > 0) {
@@ -32,11 +34,10 @@ async function deployIfNeeded(
             throw new Error('RPC URL is required for deployment');
         }
         console.info(`Deploying contracts to ${network}...`);
-        const deployedContracts = await processContracts(configPath, deployConfig, true);
+        const deployedContracts = await contractProcessor.processContracts(configPath, deployConfig, true);
         await deploymentManager.logDeployments(deployedContracts, network, deployConfig.rpcUrl);
         return deployedContracts;
     }
-
     return deploymentManager.getExistingDeployments(bytecodeInfo, network);
 }
 
@@ -47,16 +48,17 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     const lockFileManager = new LockFileManager(configPath);
     const dockerService = new DockerService(configPath);
     const deploymentManager = new DeploymentManager(lockFileManager);
+    const contractProcessor = new ContractProcessor();
     const envGenerator = new EnvGenerator(configPath);
+    const generatorService = new GeneratorService(configPath, lockFileManager);
 
     await dockerService.startServices();
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const dependencyManager = new GeneratorManager(configPath, lockFileManager);
-    await dependencyManager.processGenerators();
+    await generatorService.processGenerators();
 
     const network = lockFileManager.getCurrentNetwork();
-    const deployedContracts = await deployIfNeeded(deploymentManager, configPath, deployConfig, network);
+    const deployedContracts = await deployIfNeeded(deploymentManager, contractProcessor, configPath, deployConfig, network);
 
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();
