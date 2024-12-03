@@ -53,8 +53,6 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     const generatorService = new GeneratorService(configPath, lockFileManager);
 
     await dockerService.startServices();
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     await generatorService.processGenerators();
 
     const network = lockFileManager.getCurrentNetwork();
