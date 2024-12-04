@@ -54,7 +54,8 @@ const config: ContractConfig = {
             "description": "c8",
             "functionConfig": FunctionConfig.LOAD,
         }
-    ]
+    ],
+    "fragments": []
 }
 
 export default config;

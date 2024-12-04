@@ -50,11 +50,9 @@
                         "description": "Contract2",
                         "arrayLength": 4
                     }
-                ]
-            },
-            "fragments": [
-                "Contract2"
-            ]
+                ],
+                "fragments": ["Contract2"]
+            }
         },
         "Contract2": {
             "config": {

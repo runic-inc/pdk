@@ -24,6 +24,12 @@ export class JSONContractConfigGen implements Generator {
         if (schema.features && schema.features.length > 0) {
             out += `  "features": ${JSON.stringify(schema.features.map(f => f.toLowerCase()))},\n`;
         }
+        if (schema.fragments && schema.fragments.length > 0) {
+            out += `  "fragments": [\n` + schema.fragments.map(fragment => {
+                return `    "${fragment}"`;
+            }).join(',\n') +
+                `\n  ],\n`;
+        }
         if (schema.fields && schema.fields.length > 0) {
             out += `  "fields": [\n`;
             const fields = schema.fields.map(field => {

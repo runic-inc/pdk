@@ -1,4 +1,4 @@
-import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
+import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
 const contractConfigProjectProjectConfig: ProjectConfig = {
     name: "Contract Config Project",
@@ -45,7 +45,8 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                     arrayLength: 4,
                 }
             ],
-            features: [Feature.ACCOUNTPATCH]
+            features: [Feature.ACCOUNTPATCH],
+            fragments: ["Contract2"]
         },
         "Contract2": {
             scopeName: "test",
@@ -63,12 +64,8 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
                     functionConfig: FunctionConfig.ALL,
                 }
             ],
-            features: [Feature.PATCH, Feature.FRAGMENTSINGLE]
-        }
-    },
-    contractRelations: {
-        "Contract1": {
-            fragments: ["Contract2"]
+            features: [Feature.PATCH, Feature.FRAGMENTSINGLE],
+            fragments: []
         }
     }
 };

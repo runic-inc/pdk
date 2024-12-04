@@ -64,6 +64,7 @@ function generateContractSchemaPermutations(): ContractConfig[] {
     imageURI: "https://example.com/image",
     fields: [],
     features: [Feature.MINTABLE, Feature.LITEREF],
+    fragments: []
   };
 
   const fieldPermutations = generateFieldPermutations();

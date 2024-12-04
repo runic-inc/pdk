@@ -26,10 +26,7 @@
     },
     "contracts": {
         "Contract1": {
-            "config": "config1.json",
-            "fragments": [
-                "Contract2"
-            ]
+            "config": "config1.json"
         },
         "Contract2": {
             "config": "config2.json"

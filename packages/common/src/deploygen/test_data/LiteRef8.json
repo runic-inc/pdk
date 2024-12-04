@@ -1,25 +1,26 @@
 {
-  "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
-  "scopeName": "test",
-  "name": "LiteRef8",
-  "symbol": "LR8",
-  "baseURI": "https://mything/my/",
-  "schemaURI": "https://mything/my-metadata.json",
-  "imageURI": "https://mything/my/{tokenID}.png",
-  "fields": [
-      {
-          "id": 1,
-          "key": "attributeIDs",
-          "type": "literef",
-          "arrayLength": 8,
-          "description": "The attributes equipped by this this"
-      },
-      {
-          "id": 2,
-          "permissionId": 1,
-          "key": "counter",
-          "type": "uint32",
-          "description": "Counter"
-      }
-  ]
+    "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json",
+    "scopeName": "test",
+    "name": "LiteRef8",
+    "symbol": "LR8",
+    "baseURI": "https://mything/my/",
+    "schemaURI": "https://mything/my-metadata.json",
+    "imageURI": "https://mything/my/{tokenID}.png",
+    "fragments": ["FragmentSingle"],
+    "fields": [
+        {
+            "id": 1,
+            "key": "attributeIDs",
+            "type": "literef",
+            "arrayLength": 8,
+            "description": "The attributes equipped by this this"
+        },
+        {
+            "id": 2,
+            "permissionId": 1,
+            "key": "counter",
+            "type": "uint32",
+            "description": "Counter"
+        }
+    ]
 }

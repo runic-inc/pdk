@@ -1,4 +1,4 @@
-import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from '../types';
+import { ContractConfig, ProjectConfig, ScopeConfig } from '../types';
 
 export class TSProjectConfigGen {
     constructor() { }
@@ -6,7 +6,7 @@ export class TSProjectConfigGen {
     gen(projectConfig: ProjectConfig): string {
         const constantName = this.generateConstantName(projectConfig.name);
         
-        let out = `import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        let out = `import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
@@ -14,9 +14,6 @@ export class TSProjectConfigGen {
         out += `\n    ],\n`;
         out += `    contracts: {\n`;
         out += this.genContractsMap(projectConfig.contracts);
-        out += `\n    },\n`;
-        out += `    contractRelations: {\n`;
-        out += this.genContractRelationsMap(projectConfig.contractRelations);
         out += `\n    }\n`;
         out += `};\n\n`;
         out += `export default ${constantName};\n`;
@@ -103,18 +100,13 @@ export class TSProjectConfigGen {
             return fieldStr;
         }).join(',\n');
         out += '\n            ],\n';
-        out += `            features: [${config.features.map(f => this.formatFeature(f)).join(', ')}]\n`;
+        out += `            features: [${config.features.map(f => this.formatFeature(f)).join(', ')}],\n`;
+        out += `            fragments: [${config.fragments.map(f => `\"${f}\"`).join(', ')}]\n`;
         out += '        }';
         return out;
     }
     
     private formatFeature(feature: string): string {
         return feature === "1155PATCH" ? `Feature["${feature}"]` : `Feature.${feature}`;
-    }
-
-    private genContractRelationsMap(relations: Record<string, ContractRelation>): string {
-        return Object.entries(relations)
-            .map(([key, value]) => `        "${key}": { fragments: [${value.fragments.map(f => `"${f}"`).join(', ')}] }`)
-            .join(',\n');
     }
 }
