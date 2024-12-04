@@ -26,6 +26,7 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [],
+            fragments: ['Attribute'],
         },
         Attribute: {
             scopeName: 'elephants',
@@ -61,11 +62,6 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
-        },
-    },
-    contractRelations: {
-        Elephant: {
-            fragments: ['Attribute'],
         },
     },
     scopes: [
