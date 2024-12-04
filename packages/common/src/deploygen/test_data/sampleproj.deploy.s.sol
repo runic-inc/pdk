@@ -18,20 +18,38 @@ struct DeploymentAddresses {
 }
 
 contract SampleProjectDeploy is Script {
+    address private ownerAddress;
+    address private ppAddress;
+    bytes32 private salt;
+    address private constant CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
+
     function run() external returns (DeploymentAddresses memory) {
-        address ownerAddress = vm.envAddress("OWNER");
-        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");
-        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));
+        ownerAddress = vm.envAddress("OWNER");
+        ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");
+        salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));
         bool tryDeploy = vm.envOr("TRY_DEPLOY", false);
 
-        address create2DeployerAddress = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
+        logDeploymentInfo();
 
+        DeploymentAddresses memory deployments;
+
+        deployments = prepareDeployments();
+
+        if (tryDeploy) {
+            performDeployment(deployments);
+        }
+
+        return deployments;
+    }
+
+    function logDeploymentInfo() private view {
         console.log("Deployer starting");
         console.log("owner: ", ownerAddress);
         console.log("patchwork protocol: ", ppAddress);
         console.log("deployment salt: ", vm.toString(salt));
-        console.log("try deploy mode: ", tryDeploy);
+    }
 
+    function prepareDeployments() private view returns (DeploymentAddresses memory) {
         DeploymentAddresses memory deployments;
 
         bytes memory literef8CreationCode = type(LiteRef8).creationCode;
@@ -42,7 +60,7 @@ contract SampleProjectDeploy is Script {
         address predictedLiteRef8Address = vm.computeCreate2Address(
             salt,
             literef8BytecodeHash,
-            create2DeployerAddress
+            CREATE2_DEPLOYER
         );
         console.log("Predicted LiteRef8 address: ", predictedLiteRef8Address);
 
@@ -59,7 +77,7 @@ contract SampleProjectDeploy is Script {
         address predictedFragmentSingleAddress = vm.computeCreate2Address(
             salt,
             fragmentsingleBytecodeHash,
-            create2DeployerAddress
+            CREATE2_DEPLOYER
         );
         console.log("Predicted FragmentSingle address: ", predictedFragmentSingleAddress);
 
@@ -68,30 +86,38 @@ contract SampleProjectDeploy is Script {
             bytecodeHash: fragmentsingleBytecodeHash
         });
 
-        if (tryDeploy) {
-            vm.startBroadcast();
-            PatchworkProtocol pp = PatchworkProtocol(ppAddress);
-
-            if (pp.getScopeOwner("test") == address(0)) {
-                pp.claimScope("test");
-                pp.setScopeRules("test", false, false, true);
-            }
-            LiteRef8 literef8 = new LiteRef8{salt: salt}(ppAddress, ownerAddress);
-            assert(address(literef8) == predictedLiteRef8Address); // Verify prediction
-            console.log("LiteRef8 deployed at: ", address(literef8));
-            deployments.LiteRef8.deployedAddress = address(literef8);
-
-            FragmentSingle fragmentsingle = new FragmentSingle{salt: salt}(ppAddress, ownerAddress);
-            assert(address(fragmentsingle) == predictedFragmentSingleAddress); // Verify prediction
-            console.log("FragmentSingle deployed at: ", address(fragmentsingle));
-            deployments.FragmentSingle.deployedAddress = address(fragmentsingle);
-
-            literef8.registerReferenceAddress(address(fragmentsingle));
-            pp.addWhitelist("test", address(literef8));
-            pp.addWhitelist("test", address(fragmentsingle));
-            vm.stopBroadcast();
-        }
-
         return deployments;
     }
+
+    function performDeployment(DeploymentAddresses memory deployments) private {
+        vm.startBroadcast();
+
+        setupPatchworkProtocol();
+
+        LiteRef8 literef8 = new LiteRef8{salt: salt}(ppAddress, ownerAddress);
+        assert(address(literef8) == deployments.LiteRef8.deployedAddress);
+        console.log("LiteRef8 deployed at: ", address(literef8));
+        deployments.LiteRef8.deployedAddress = address(literef8);
+
+        FragmentSingle fragmentsingle = new FragmentSingle{salt: salt}(ppAddress, ownerAddress);
+        assert(address(fragmentsingle) == deployments.FragmentSingle.deployedAddress);
+        console.log("FragmentSingle deployed at: ", address(fragmentsingle));
+        deployments.FragmentSingle.deployedAddress = address(fragmentsingle);
+
+        literef8.registerReferenceAddress(address(fragmentsingle));
+        PatchworkProtocol pp = PatchworkProtocol(ppAddress);
+        pp.addWhitelist("test", address(literef8));
+        pp.addWhitelist("test", address(fragmentsingle));
+
+        vm.stopBroadcast();
+    }
+
+    function setupPatchworkProtocol() private {
+        PatchworkProtocol pp = PatchworkProtocol(ppAddress);
+        if (pp.getScopeOwner("test") == address(0)) {
+            pp.claimScope("test");
+            pp.setScopeRules("test", false, false, true);
+        }
+    }
+
 }
