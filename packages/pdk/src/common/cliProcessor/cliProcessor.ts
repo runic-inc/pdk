@@ -205,6 +205,27 @@ export class CLIProcessor {
         }
     }
 
+    async buildContracts(targetDir: string = process.cwd()): Promise<void> {
+        try {
+            const { oraPromise } = await import('ora');
+            const { execa } = await import('execa');
+
+            await oraPromise(
+                execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {
+                    cwd: targetDir,
+                }),
+                {
+                    text: `Building contracts`,
+                    failText: 'Failed to build contracts',
+                    successText: `Contracts built successfully`,
+                },
+            );
+        } catch (err: any) {
+            console.error('Error:', err.message);
+            throw new Error('Error building contracts');
+        }
+    }
+
     loadTSConfigFile(configFile: string): ContractSchemaImpl | ProjectConfig {
         const pdkRepoRoot = this.isPDKRepo(process.cwd());
 

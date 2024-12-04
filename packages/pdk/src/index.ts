@@ -213,6 +213,15 @@ generate
         await generateServices(configPath);
     });
 
+generate
+    .command('contractBuild')
+    .argument('[configFile]', 'Path to the config file')
+    .description('Build contracts using Forge')
+    .action(async (configFile) => {
+        const targetDir = configFile ? path.dirname(path.resolve(process.cwd(), configFile)) : process.cwd();
+        await cliProcessor.buildContracts(targetDir);
+    });
+
 const dev = program.command('dev').description('local dev commands');
 
 dev.command('up')
