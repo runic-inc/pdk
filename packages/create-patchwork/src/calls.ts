@@ -58,9 +58,11 @@ export async function initGitRepo(targetDir: string): Promise<void> {
     );
 }
 
-export async function forgeBuild(targetDir: string): Promise<void> {
+export async function forgeBuild(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
+    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
+
     await oraPromise(
-        execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {
+        execa(pdkCommand, ['generate', 'contractBuild'], {
             cwd: targetDir,
         }),
         {
