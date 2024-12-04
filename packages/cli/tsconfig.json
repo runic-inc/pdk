@@ -15,11 +15,11 @@
         "paths": {
             // "@wizard/*": ["./apps/wizard/app/*"],
             // "@common/*": ["./common/*"],
-            "@patchworkdev/common/*": ["../common/src/*"]
+            "@patchworkdev/common/*": ["../common/src/*"],
+            "@patchworkdev/pdk/*": ["./src/*"]
         }
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"],
-    "references": [{ "path": "../common" }]
+    "include": ["src/**/*", "patchwork.config.ts"],
+    "exclude": ["node_modules", "dist"]
     // "references": [{ "path": "../../apps/wizard/tsconfig.node.json" }]
 }

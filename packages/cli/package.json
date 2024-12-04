@@ -11,10 +11,10 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@commander-js/extra-typings": "12.1.0",
         "@patchworkdev/common": "workspace:*",
         "commander": "12.1.0",
         "consola": "^3.2.3",
+        "listr2": "^8.2.5",
         "picocolors": "1.1.0",
         "tsx": "^4.19.2"
     },

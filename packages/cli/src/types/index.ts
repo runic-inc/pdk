@@ -1,11 +1,12 @@
 import { Command } from 'commander';
+import { Listr, ListrTaskWrapper } from 'listr2';
 
 export type Compute<type> = { [key in keyof type]: type[key] } & unknown;
 export type RequiredBy<TType, TKeys extends keyof TType> = Required<Pick<TType, TKeys>> & Omit<TType, TKeys>;
 
 export type PatchworkProject = {
     src?: string; // Defaults to the src in stdout of forge config
-    plugins: PatchworkPlugin[];
+    plugins: PDKPlugin[];
 };
 
 export type PDKContext = {
@@ -29,7 +30,7 @@ export type PatchworkSetup = {
     scripts: string;
 };
 
-export type PatchworkPlugin = {
+export type PDKPlugin = {
     name: string;
 
     /**
@@ -45,7 +46,11 @@ export type PatchworkPlugin = {
     /**
      * Called to generate code or other artifacts using the context object.
      */
-    generate?: (context: PDKContext) => Promise<void> | void;
+    generate?: (props: {
+        context: PDKContext;
+        task: ListrTaskWrapper<any, any, any>;
+        log?: (message: string) => void;
+    }) => Promise<void> | void | Promise<Listr<any, any, any>> | Listr<any, any, any>;
 
     /**
      * Returns one or more commands to be added to the CLI.

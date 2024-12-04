@@ -1,81 +1,80 @@
 import { Command } from 'commander';
-import { consola } from 'consola';
-import { generateContracts, generateDeployScripts } from './generators';
-import { PDKContext, PatchworkPlugin } from './types';
+import { loadPatchworkConfig } from './lib/loadProjectConfig';
+import { GeneratorService } from './services/generator';
+import { PatchworkProject, PDKContext } from './types';
 
 const context: PDKContext = {
     rootDir: process.cwd(),
     network: 'local',
-    config: {
-        plugins: [ponder(), react()],
-    },
+    config: {} as PatchworkProject,
     contracts: [],
     artifacts: {},
 };
 
-export function react(): PatchworkPlugin {
-    return {
-        name: 'React',
-        generate: (context: PDKContext) => {
-            //console.log('Generating Wagmi hooks...');
-            if (context.artifacts['trpc']) {
-                //console.log('Found valid tRPC router definition at: ', context.artifacts['trpc']);
-                //console.log('Generating tRPC hooks...');
-            }
-        },
-    };
-}
+// // Run the generate stack
+// async function runGenerateStack(plugins: PDKPlugin[], pluginNames: string[]): Promise<void> {
+//     for (const plugin of plugins) {
+//         if (pluginNames.length > 0 && !pluginNames.includes(plugin.name)) {
+//             continue; // Skip plugins not in the specified list
+//         }
 
-export function ponder(): PatchworkPlugin {
-    return {
-        name: 'Ponder',
-        generate: (context: PDKContext) => {
-            //console.log('Generating schema...');
-            //console.log('Generating event filters...');
-            //console.log('Generating tRPC API...');
-            context.artifacts['trpcRouterFile'] = 'my/path/to/trpcRouter.ts';
-        },
-    };
-}
+//         if (plugin.generate) {
+//             consola.start(`Running generator for ${plugin.name}`);
+//             await plugin.generate({ context });
+//         }
+//     }
+// }
 
-// Dynamically load and initialize plugins
-async function loadPlugins(plugins: PatchworkPlugin[]): Promise<void> {
-    for (const plugin of plugins) {
-        // console.log(`Loading plugin: ${plugin.name}`);
-        if (plugin.commands) {
-            const commands = plugin.commands(context);
-            if (Array.isArray(commands)) {
-                commands.forEach((cmd) => program.addCommand(cmd));
-            } else {
-                program.addCommand(commands);
-            }
-        }
-    }
-}
+// async function runAllGenerators(context: PDKContext, plugins: PDKPlugin[]) {
+//     const tasks = new Listr([
+//         {
+//             title: 'Setting things up...',
+//             task: async () => {
+//                 context.config = await loadPatchworkConfig(context.rootDir);
+//             },
+//         },
+//         {
+//             title: 'Generating contracts',
+//             task: async () => {
+//                 await generateContracts(context);
+//             },
+//         },
+//         {
+//             title: 'Generating deployment scripts',
+//             task: async () => {
+//                 await generateDeployScripts(context);
+//             },
+//         },
+//         {
+//             title: 'Running plugin generators',
+//             task: async () => {
+//                 for (const plugin of plugins) {
+//                     if (plugin.generate) {
+//                         console.log(`Running generator for plugin: ${plugin.name}`);
+//                         await plugin.generate({ context });
+//                     }
+//                 }
+//             },
+//         },
+//     ]);
 
-// Run the generate stack
-async function runGenerateStack(plugins: PatchworkPlugin[], pluginNames: string[]): Promise<void> {
-    for (const plugin of plugins) {
-        if (pluginNames.length > 0 && !pluginNames.includes(plugin.name)) {
-            continue; // Skip plugins not in the specified list
-        }
-
-        if (plugin.generate) {
-            consola.start(`Running generator for ${plugin.name}`);
-            await plugin.generate(context);
-        }
-    }
-}
+//     await tasks.run();
+// }
 
 // CLI program
 const program = new Command();
 
 (async () => {
+    // Load project configuration
+    context.config = await loadPatchworkConfig();
+
+    const generatorService = new GeneratorService(context);
+
     // Example: Dynamically load plugins
-    const plugins: PatchworkPlugin[] = context.config.plugins;
+    //const plugins: PDKPlugin[] = context.config.plugins;
 
     // Load plugins and register commands
-    await loadPlugins(plugins);
+    //await loadPlugins(plugins, context, program);
 
     // Top-level generate command
     const generateCommand = program.command('generate').description('Run generators');
@@ -85,54 +84,39 @@ const program = new Command();
         .command('contracts')
         .description('Generate contract-related code')
         .action(async () => {
-            console.log('Generating contracts...');
-            // Add built-in logic for generating contracts here
+            await generatorService.runGeneratorByName('contracts');
         });
 
     generateCommand
         .command('deploy')
         .description('Generate deployment scripts')
         .action(async () => {
-            console.log('Generating deployment scripts...');
-            // Add built-in logic for generating deploy scripts here
+            await generatorService.runGeneratorByName('deploy');
         });
 
     generateCommand
         .command('all')
         .description('Run all generators')
         .action(async () => {
-            consola.start('Running all generators...');
-
-            await generateContracts(context);
-            await generateDeployScripts(context);
-
-            const pluginNames = plugins.map((plugin) => plugin.name);
-            await runGenerateStack(plugins, pluginNames);
-            consola.success('Finished!');
+            await generatorService.runAllGenerators();
         });
 
     // Dynamic plugin-based subcommands for generate
     generateCommand
-        .command('[plugins...]') // Accepts a list of plugin names
-        .description('Run generators for specific plugins')
-        .action(async (pluginNames: string[] = []) => {
-            // Get the list of valid plugin names
-            const validPlugins = plugins.map((plugin) => plugin.name);
-
-            // Find any invalid plugin names
-            const invalidPlugins = pluginNames.filter((name) => !validPlugins.includes(name.toLowerCase()));
-
-            if (invalidPlugins.length > 0) {
-                console.error(`Error: Unknown plugin(s): ${invalidPlugins.join(', ')}`);
-                console.error(`Available plugins: ${validPlugins.join(', ')}`);
+        .argument('[plugin]', 'Run generators for a specific plugin')
+        .description('Run generators for a specific plugin')
+        .action(async (plugin?: string) => {
+            if (!plugin) {
+                console.error('You must specify a generator name.');
                 process.exit(1);
             }
 
-            if (pluginNames.length > 0) {
-                console.log(`Running generators for plugins: ${pluginNames.join(', ')}`);
+            try {
+                await generatorService.runGeneratorByName(plugin);
+            } catch (error) {
+                console.error(error);
+                process.exit(1);
             }
-
-            await runGenerateStack(plugins, pluginNames);
         });
 
     program.parse(process.argv);
