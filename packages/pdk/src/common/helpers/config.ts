@@ -6,8 +6,8 @@ import * as path from 'path';
 import { register } from 'ts-node';
 import { Abi } from 'viem';
 import { ErrorCode, PDKError } from './error';
-import { SchemaModule } from './ponderSchemaMock';
 import { logger } from './logger';
+import { SchemaModule } from './ponderSchemaMock';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
