@@ -359,8 +359,8 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
             });
         }
 
-        if (projectConfig.contractRelations[contractName]?.fragments.length > 0) {
-            projectConfig.contractRelations[contractName].fragments.forEach((fragment) => {
+        if (contractConfig.fragments.length > 0) {
+            contractConfig.fragments.forEach((fragment) => {
                 table.relations[_.camelCase(fragment)] = {
                     type: 'many',
                     name: _.camelCase(fragment),
