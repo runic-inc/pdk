@@ -16,7 +16,8 @@ const config: ContractConfig = {
             "description": "Name",
             "functionConfig": FunctionConfig.ALL,
         }
-    ]
+    ],
+    "fragments": []
 }
 
 export default config;

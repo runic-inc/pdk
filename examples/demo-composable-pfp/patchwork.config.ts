@@ -27,6 +27,7 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [],
+            fragments: ['Attribute'],
         },
         Attribute: {
             scopeName: 'composable-pfp-demo',
@@ -56,11 +57,6 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
-        },
-    },
-    contractRelations: {
-        Character: {
-            fragments: ['Attribute'],
         },
     },
     scopes: [

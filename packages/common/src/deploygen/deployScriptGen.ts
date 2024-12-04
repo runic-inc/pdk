@@ -151,8 +151,8 @@ export class DeployScriptGen {
         // Register references
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
-            if (projectConfig.contractRelations !== undefined) {
-                for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
+            if (typeof value !== 'string') {
+                for (const fragment of value.fragments || []) {
                     script += `        ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
                 }
             }

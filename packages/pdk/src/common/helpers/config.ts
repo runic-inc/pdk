@@ -6,8 +6,8 @@ import * as path from 'path';
 import { register } from 'ts-node';
 import { Abi } from 'viem';
 import { ErrorCode, PDKError } from './error';
-import { SchemaModule } from './ponderSchemaMock';
 import { logger } from './logger';
+import { SchemaModule } from './ponderSchemaMock';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
@@ -163,13 +163,16 @@ export async function importABIFiles(abiDir: string) {
 
 export function getFragmentRelationships(projectConfig: ProjectConfig): Record<string, string[]> {
     const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
-    Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
-        fragments.forEach((fragment) => {
-            if (!fragmentRelationships[fragment]) {
-                fragmentRelationships[fragment] = [];
-            }
-            fragmentRelationships[fragment].push(contractName);
-        });
+
+    Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
+        if (typeof contractConfig !== 'string') {
+            contractConfig.fragments.forEach((fragment) => {
+                if (!fragmentRelationships[fragment]) {
+                    fragmentRelationships[fragment] = [];
+                }
+                fragmentRelationships[fragment].push(contractName);
+            });
+        }
     });
 
     return fragmentRelationships;

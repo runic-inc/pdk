@@ -95,12 +95,6 @@
                   "$schema": "https://patchwork.dev/schema/patchwork-contract-config.schema.json"
                 }
               ]
-            },
-            "fragments": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
             }
           }
         }

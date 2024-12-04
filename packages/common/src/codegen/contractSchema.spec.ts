@@ -12,7 +12,8 @@ describe('contractSchemas', () => {
             schemaURI: "https://testthing.xyz",
             imageURI: "https://testthing.xyz/images",
             fields: [],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.scopeName).toEqual(config.scopeName);
@@ -34,7 +35,8 @@ describe('contractSchemas', () => {
                 {id: 1, permissionId: 0, type: "char32", arrayLength: 1, visibility: "public", key: "name", description: ""},
                 {id: 2, permissionId: 0, type: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
             ],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.storage.fields.length).toEqual(2);
@@ -60,7 +62,8 @@ describe('contractSchemas', () => {
                 {id: 2, permissionId: 0, type: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
                 {id: 3, permissionId: 0, type: "char32", arrayLength: 1, visibility: "public", key: "name", description: ""},
             ],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.storage.fields.length).toEqual(3);
@@ -91,7 +94,8 @@ describe('contractSchemas', () => {
                 {id: 6, permissionId: 0, type: "uint8", arrayLength: 1, visibility: "public", key: "k6", description: ""},
                 {id: 7, permissionId: 0, type: "uint8", arrayLength: 1, visibility: "public", key: "k7", description: ""},
             ],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.storage.fields.length).toEqual(7);
@@ -121,7 +125,8 @@ describe('contractSchemas', () => {
                 {id: 1, permissionId: 0, type: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
                 {id: 2, permissionId: 0, type: "uint16", arrayLength: 4, visibility: "public", key: "arr", description: ""},
             ],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.storage.fields.length).toEqual(2);
@@ -146,7 +151,8 @@ describe('contractSchemas', () => {
                 {id: 2, permissionId: 0, type: "uint16", arrayLength: 4, visibility: "public", key: "arr", description: ""},
                 {id: 1, permissionId: 0, type: "uint128", arrayLength: 1, visibility: "public", key: "count", description: ""},
             ],
-            features: []
+            features: [],
+            fragments: []
         }
         let schema: ContractSchema = new ContractSchemaImpl(config);
         expect(schema.storage.fields.length).toEqual(2);

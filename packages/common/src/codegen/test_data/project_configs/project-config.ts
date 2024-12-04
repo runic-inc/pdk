@@ -1,6 +1,4 @@
-import { ContractConfig, ContractRelation, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
-
-
+import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";
 
 const exampleProjectProjectConfig: ProjectConfig = {
     name: "Example Project",
@@ -26,11 +24,6 @@ const exampleProjectProjectConfig: ProjectConfig = {
     contracts: {
         "Contract1": "config1.json",
         "Contract2": "config2.json"
-    },
-    contractRelations: {
-        "Contract1": {
-            fragments: ["Contract2"]
-        }
     }
 };
 

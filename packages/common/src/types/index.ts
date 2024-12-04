@@ -146,6 +146,7 @@ export type ContractConfig = {
     imageURI: string;
     fields: FieldConfig[];
     features: Feature[];
+    fragments: string[];
 };
 
 export type AssignmentNodeData = {
@@ -180,10 +181,6 @@ export enum FieldTypeEnum {
     //ENUM,
 }
 
-export type ContractRelation = {
-    fragments: string[];
-};
-
 export type DeployedContract = {
     name: string;
     address: `0x${string}`;
@@ -202,12 +199,9 @@ export type Network = {
 
 export type ContractsConfig = Record<string, ContractConfig | string>;
 
-export type ContractRelationsConfig = Record<string, ContractRelation>;
-
 export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
     name: ValidNameIdentifier;
     scopes: ScopeConfig[];
     contracts: ContractsConfig;
-    contractRelations: ContractRelationsConfig;
     networks?: Record<T, Network>;
 };

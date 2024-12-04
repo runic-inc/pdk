@@ -24,7 +24,6 @@ function compareContractConfigs(actual: ContractConfig, expected: ContractConfig
 function compareProjectConfigsWithContractConfig(actual: ProjectConfig, expected: ProjectConfig) {
     expect(actual.name).toEqual(expected.name);
     expect(actual.scopes).toEqual(expected.scopes);
-    expect(actual.contractRelations).toEqual(expected.contractRelations);
 
     // Compare contracts separately
     expect(actual.contracts.size).toEqual(expected.contracts.size);

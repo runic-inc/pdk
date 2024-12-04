@@ -1,7 +1,7 @@
 import { ContractSchemaImpl } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
 import { ind } from "../codegen/generator";
-import { ContractConfig, ContractRelation, MintConfig, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, MintConfig, ProjectConfig, ScopeConfig } from "../types";
 import { JSONContractConfigGen } from './jsonContractConfigGen';
 
 export class JSONProjectConfigGen {
@@ -11,7 +11,7 @@ export class JSONProjectConfigGen {
         let contractConfigString = '';
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             if (contractConfigString.length > 0) { contractConfigString += ',\n' };
-            contractConfigString += this.genContractConfig(key, value, projectConfig.contractRelations[key]);
+            contractConfigString += this.genContractConfig(key, value);
         });
         return `` +
             `{\n` +
@@ -78,19 +78,10 @@ export class JSONProjectConfigGen {
         return JSON.stringify(assignFees);
     }
 
-    genContractConfig(name: string, value: string | ContractConfig, relations: ContractRelation | undefined): string {
-        let fragments = '';
-        if (relations) {
-            fragments = `,\n            "fragments": [\n` + relations.fragments.map(fragment => {
-                return `                "${fragment}"`;
-            }).join(',\n') +
-                `\n            ]`;
-        }
-        
+    genContractConfig(name: string, value: string | ContractConfig): string {
         if (typeof value === 'string') {
             return `        "${name}": {\n` +
                    `            "config": "${value}"` +
-                   `${fragments}\n` +
                    `        }`;
         } else {
             const generator = new JSONContractConfigGen();
@@ -100,7 +91,6 @@ export class JSONProjectConfigGen {
 
             return `        "${name}": {\n` +
                    `            "config": ${contractConfigString.join('\n            ')}` +
-                   `${fragments}\n` +
                    `        }`;
         }
     }
