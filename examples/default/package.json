@@ -24,7 +24,7 @@
         "@openzeppelin/contracts": "5.0.2",
         "@patchworkdev/common": "0.3.0",
         "@patchworkdev/contracts": "2.0.6",
-        "@patchworkdev/pdk": "next",
+        "@patchworkdev/pdk": "0.3.0",
         "@types/node": "^20.9.0",
         "@wagmi/cli": "^2.1.18",
         "eslint": "^8.53.0",
