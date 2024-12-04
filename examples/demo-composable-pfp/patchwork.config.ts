@@ -1,15 +1,16 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
+import { anvil, base, baseSepolia } from 'viem/chains';
 
 const projectConfig: ProjectConfig = {
-    name: 'elephants',
+    name: 'Composable PFP Demo',
     contracts: {
-        Elephant: {
-            scopeName: 'elephants',
-            name: 'Elephants',
-            symbol: 'ELEPHANT',
-            baseURI: 'https://elephants.fun/metadata/elephant/',
-            schemaURI: 'https://elephants.fun/schemas/elephant.json',
-            imageURI: 'https://elephants.fun/assets/elephant/{tokenID}',
+        Character: {
+            scopeName: 'composable-pfp-demo',
+            name: 'Character',
+            symbol: 'CHAR',
+            baseURI: 'https://example.com/metadata/character',
+            schemaURI: 'https://example.com/schemas/character.json',
+            imageURI: 'https://example.com/assets/character/{tokenID}',
             fields: [
                 {
                     id: 0,
@@ -28,12 +29,12 @@ const projectConfig: ProjectConfig = {
             features: [],
         },
         Attribute: {
-            scopeName: 'elephants',
-            name: 'Elephants: Attributes',
-            symbol: 'ATTRIBUTE',
-            baseURI: 'https://elephants.fun/metadata/attribute/',
-            schemaURI: 'https://elephants.fun/schemas/attribute.json',
-            imageURI: 'https://elephants.fun/assets/attribute/{tokenID}',
+            scopeName: 'composable-pfp-demo',
+            name: 'Character Attributes',
+            symbol: 'CHARATTR',
+            baseURI: 'https://example.com/metadata/attribute',
+            schemaURI: 'https://example.com/schemas/attribute.json',
+            imageURI: 'https://example.com/assets/attribute/{tokenID}',
             fields: [
                 {
                     id: 0,
@@ -49,12 +50,6 @@ const projectConfig: ProjectConfig = {
                 },
                 {
                     id: 2,
-                    key: 'tier',
-                    type: 'uint8',
-                    description: 'Attribute Tier',
-                },
-                {
-                    id: 3,
                     key: 'name',
                     type: 'char16',
                     description: 'Attribute Name',
@@ -64,38 +59,29 @@ const projectConfig: ProjectConfig = {
         },
     },
     contractRelations: {
-        Elephant: {
+        Character: {
             fragments: ['Attribute'],
         },
     },
     scopes: [
         {
-            name: 'elephants',
+            name: 'composable-pfp-demo',
         },
     ],
     networks: {
-        base: {
-            chainId: 8453,
-            rpc: 'http://anvil:8545',
+        local: {
+            chain: anvil,
+            rpc: 'http://127.0.0.1:8545',
+        },
+        testnet: {
+            chain: baseSepolia,
+            rpc: 'http://127.0.0.1:8545',
+        },
+        mainnet: {
+            chain: base,
+            rpc: 'http://127.0.0.1:8545',
         },
     },
-    deployments: [
-        {
-            network: 'base',
-            contracts: {
-                Elephant: {
-                    name: 'Elephant',
-                    address: '0xbeefbeefbeefd8719828fc887effd1f4c85b2848',
-                    block: 10968348,
-                },
-                Attribute: {
-                    name: 'Attribute',
-                    address: '0xbeeeeeeeeeef0da9a8b35516d7b1ace4a33380ab',
-                    block: 10968348,
-                },
-            },
-        },
-    ],
 };
 
 export default projectConfig;
