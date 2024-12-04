@@ -1,95 +1,108 @@
 import { Listr, ListrTask } from 'listr2';
-import pc from 'picocolors';
-import { PDKContext, PDKPlugin } from '../types';
+import picocolors from 'picocolors';
+import { PDKContext } from '../types';
 
 export class GeneratorService {
     private context: PDKContext;
-    private builtInGenerators: Record<string, (props: { context: PDKContext; log: (message: string) => void }) => Promise<void>>;
+    private generatorMap: Map<string, ListrTask<PDKContext>>;
 
     constructor(context: PDKContext) {
         this.context = context;
-
-        // Define built-in generators
-        this.builtInGenerators = {
-            contracts: async ({ context, log }) => {
-                log('Starting contract generation...');
-                await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate work
-                log?.('Contracts generated!');
-            },
-            deploy: async ({ context, log }) => {
-                log('Starting deployment script generation...');
-                await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate work
-                log('Deployment scripts generated!');
-            },
-        };
+        this.generatorMap = new Map();
+        // Add built-in generators
+        this.addBuiltInGenerators();
+        // Add plugin generators
+        this.addPluginGenerators();
     }
 
     /**
-     * Load plugin generators as Listr tasks.
+     * Add built-in generators to the map
      */
-    private async loadPluginGenerators(): Promise<ListrTask<any>[]> {
-        const plugins: PDKPlugin[] = this.context.config.plugins || [];
-        return plugins
-            .filter((plugin) => plugin.generate)
-            .map((plugin) => ({
-                title: pc.bold(`Running ${plugin.name} generator`),
-                persistentOutput: true,
-                task: (ctx, task) => plugin.generate!({ context: this.context, task }),
-            }));
+    private addBuiltInGenerators(): void {
+        this.generatorMap
+            // Contract generation task
+            .set('contracts', {
+                title: picocolors.bold('Generating contracts'),
+                task: async (ctx, task) => {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                },
+            })
+            // Deploy script generation task
+            .set('deploy', {
+                title: picocolors.bold('Generating deployment scripts'),
+                task: async (ctx, task) => {
+                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                },
+            })
+            // Build step task
+            .set('build', {
+                title: picocolors.bold('Building contracts'),
+                task: async (ctx, task) => {
+                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                },
+            });
     }
 
     /**
-     * Run all generators (built-in + plugin).
+     * Add plugin generators to the map
      */
-    public async runAllGenerators(): Promise<void> {
-        const builtins = this.getBuiltInGeneratorTasks();
-        const plugins = await this.loadPluginGenerators();
-
-        const tasks = new Listr([...builtins, ...plugins], {
-            rendererOptions: {
-                collapseSubtasks: false,
-            },
+    private addPluginGenerators(): void {
+        [...this.context.config.plugins].forEach((plugin) => {
+            if (plugin.generate) {
+                this.generatorMap.set(plugin.name.toLowerCase(), {
+                    title: picocolors.bold(`Running ${plugin.name} generator`),
+                    task: (ctx, task) => plugin.generate!({ context: this.context, task }),
+                });
+            }
         });
-
-        await tasks.run();
     }
 
     /**
-     * Run a specific generator by name.
+     * Get a generator by key
      */
-    public async runGeneratorByName(generatorName: string): Promise<void> {
-        const builtins = this.getBuiltInGeneratorTasks();
-        const plugins = await this.loadPluginGenerators();
+    public getGenerator(key: string): ListrTask<PDKContext> | undefined {
+        return this.generatorMap.get(key.toLowerCase());
+    }
 
-        const allTasks = [...builtins, ...plugins];
+    /**
+     * Get all generators in insertion order
+     */
+    public getAllGenerators(): ListrTask<PDKContext>[] {
+        return Array.from(this.generatorMap.values());
+    }
 
-        const task = allTasks.find((t) => typeof t.title === 'string' && t.title.toLowerCase().includes(generatorName.toLowerCase()));
+    /**
+     * Get generator keys
+     */
+    public getGeneratorKeys(): string[] {
+        return Array.from(this.generatorMap.keys());
+    }
+
+    /**
+     * Check if generator exists
+     */
+    public hasGenerator(key: string): boolean {
+        return this.generatorMap.has(key);
+    }
+
+    /**
+     * Run a specific generator by key
+     */
+    public async runGenerator(key: string): Promise<void> {
+        const task = this.getGenerator(key);
         if (!task) {
-            throw new Error(`Generator "${generatorName}" not found.`);
+            throw new Error(`Unknown generator: ${key}`);
         }
 
-        await new Listr([task], {
-            rendererOptions: {
-                showSubtasks: true,
-            },
-        }).run();
+        const listr = new Listr([task]);
+        await listr.run(this.context);
     }
 
     /**
-     * Get built-in generators as Listr tasks.
+     * Run all generators in insertion order
      */
-    private getBuiltInGeneratorTasks(): ListrTask<any>[] {
-        return Object.keys(this.builtInGenerators).map((name) => ({
-            title: pc.bold(`Generating ${name}`),
-            persistentOutput: true, // Keeps logs visible after the task is completed
-            bottomBar: 'C',
-            task: (ctx, task) =>
-                this.builtInGenerators[name]({
-                    context: this.context,
-                    log: (message) => {
-                        task.output = message;
-                    },
-                }),
-        }));
+    public async runAllGenerators(): Promise<void> {
+        const listr = new Listr(this.getAllGenerators());
+        await listr.run(this.context);
     }
 }

@@ -11,56 +11,6 @@ const context: PDKContext = {
     artifacts: {},
 };
 
-// // Run the generate stack
-// async function runGenerateStack(plugins: PDKPlugin[], pluginNames: string[]): Promise<void> {
-//     for (const plugin of plugins) {
-//         if (pluginNames.length > 0 && !pluginNames.includes(plugin.name)) {
-//             continue; // Skip plugins not in the specified list
-//         }
-
-//         if (plugin.generate) {
-//             consola.start(`Running generator for ${plugin.name}`);
-//             await plugin.generate({ context });
-//         }
-//     }
-// }
-
-// async function runAllGenerators(context: PDKContext, plugins: PDKPlugin[]) {
-//     const tasks = new Listr([
-//         {
-//             title: 'Setting things up...',
-//             task: async () => {
-//                 context.config = await loadPatchworkConfig(context.rootDir);
-//             },
-//         },
-//         {
-//             title: 'Generating contracts',
-//             task: async () => {
-//                 await generateContracts(context);
-//             },
-//         },
-//         {
-//             title: 'Generating deployment scripts',
-//             task: async () => {
-//                 await generateDeployScripts(context);
-//             },
-//         },
-//         {
-//             title: 'Running plugin generators',
-//             task: async () => {
-//                 for (const plugin of plugins) {
-//                     if (plugin.generate) {
-//                         console.log(`Running generator for plugin: ${plugin.name}`);
-//                         await plugin.generate({ context });
-//                     }
-//                 }
-//             },
-//         },
-//     ]);
-
-//     await tasks.run();
-// }
-
 // CLI program
 const program = new Command();
 
@@ -70,35 +20,36 @@ const program = new Command();
 
     const generatorService = new GeneratorService(context);
 
-    // Example: Dynamically load plugins
-    //const plugins: PDKPlugin[] = context.config.plugins;
-
-    // Load plugins and register commands
-    //await loadPlugins(plugins, context, program);
-
     // Top-level generate command
     const generateCommand = program.command('generate').description('Run generators');
 
-    // Built-in subcommands for generate
     generateCommand
-        .command('contracts')
-        .description('Generate contract-related code')
-        .action(async () => {
-            await generatorService.runGeneratorByName('contracts');
-        });
-
-    generateCommand
-        .command('deploy')
-        .description('Generate deployment scripts')
-        .action(async () => {
-            await generatorService.runGeneratorByName('deploy');
-        });
-
-    generateCommand
-        .command('all')
+        .argument('all', 'Run all generators')
         .description('Run all generators')
         .action(async () => {
             await generatorService.runAllGenerators();
+        });
+
+    // Built-in subcommands for generate
+    generateCommand
+        .argument('contracts', 'Generate contract-related code')
+        .description('Generate contract-related code')
+        .action(async () => {
+            await generatorService.runGenerator('contracts');
+        });
+
+    generateCommand
+        .argument('deploy', 'Generate deployment scripts')
+        .description('Generate deployment scripts')
+        .action(async () => {
+            await generatorService.runGenerator('deploy');
+        });
+
+    generateCommand
+        .argument('build', 'Build contracts')
+        .description('Build contracts')
+        .action(async () => {
+            await generatorService.runGenerator('build');
         });
 
     // Dynamic plugin-based subcommands for generate
@@ -111,8 +62,13 @@ const program = new Command();
                 process.exit(1);
             }
 
+            if (!generatorService.hasGenerator(plugin)) {
+                console.error(`No generator found for ${plugin}.`);
+                process.exit(1);
+            }
+
             try {
-                await generatorService.runGeneratorByName(plugin);
+                await generatorService.runGenerator(plugin);
             } catch (error) {
                 console.error(error);
                 process.exit(1);
