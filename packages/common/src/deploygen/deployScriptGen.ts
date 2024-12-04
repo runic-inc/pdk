@@ -12,8 +12,21 @@ export class DeployScriptGen {
         }
 
         const contractNames = Object.keys(projectConfig.contracts);
+        const mainContractName = projectConfig.name.replace(/\s/g, '');
 
-        // Start building the script
+        let script = this.generateHeader(contractNames, contractsDir, projectConfig);
+        script += this.generateContractDefinition(mainContractName);
+        script += this.generateStateVariables();
+        script += this.generateRunFunction();
+        script += this.generateHelperFunctions(projectConfig);
+        script += this.generateDeploymentFunction(projectConfig);
+        script += this.generateSetupFunction(projectConfig);
+        script += "}\n"; // Close contract
+
+        return script;
+    }
+
+    private generateHeader(contractNames: string[], contractsDir: string, projectConfig: ProjectConfig): string {
         let script = `// SPDX-License-Identifier: UNLICENSED\n`;
         script += `pragma solidity ^0.8.13;\n\n`;
         script += `import "forge-std/Script.sol";\n`;
@@ -31,41 +44,64 @@ export class DeployScriptGen {
         });
         script += `import "@patchwork/PatchworkProtocol.sol";\n\n`;
 
-        // Define the DeploymentInfo struct to include bytecode
+        // Define structs
         script += `struct DeploymentInfo {\n`;
         script += `    address deployedAddress;\n`;
         script += `    bytes32 bytecodeHash;\n`;
         script += `}\n\n`;
 
-        // Define the DeploymentAddresses struct with extended info
         script += `struct DeploymentAddresses {\n`;
         contractNames.forEach((name) => {
             script += `    DeploymentInfo ${name};\n`;
         });
         script += `}\n\n`;
 
-        // Main contract
-        const mainContractName = projectConfig.name.replace(/\s/g, '');
-        script += `contract ${mainContractName}Deploy is Script {\n`;
-        script += `    function run() external returns (DeploymentAddresses memory) {\n`;
+        return script;
+    }
 
-        script += `        address ownerAddress = vm.envAddress("OWNER");\n`;
-        script += `        address ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
-        script += `        bytes32 salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
+    private generateContractDefinition(mainContractName: string): string {
+        return `contract ${mainContractName}Deploy is Script {\n`;
+    }
+
+    private generateStateVariables(): string {
+        let script = `    address private ownerAddress;\n`;
+        script += `    address private ppAddress;\n`;
+        script += `    bytes32 private salt;\n`;
+        script += `    address private constant CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C;\n\n`;
+        return script;
+    }
+
+    private generateRunFunction(): string {
+        let script = `    function run() external returns (DeploymentAddresses memory) {\n`;
+        script += `        ownerAddress = vm.envAddress("OWNER");\n`;
+        script += `        ppAddress = vm.envAddress("PATCHWORK_PROTOCOL");\n`;
+        script += `        salt = bytes32(vm.envOr("DEPLOY_SALT", uint256(0)));\n`;
         script += `        bool tryDeploy = vm.envOr("TRY_DEPLOY", false);\n\n`;
+        script += `        logDeploymentInfo();\n\n`;
+        script += `        DeploymentAddresses memory deployments;\n\n`;
+        
+        // We'll generate individual prepare calls for each contract
+        script += `        deployments = prepareDeployments();\n\n`;
+        script += `        if (tryDeploy) {\n`;
+        script += `            performDeployment(deployments);\n`;
+        script += `        }\n\n`;
+        script += `        return deployments;\n`;
+        script += `    }\n\n`;
+        return script;
+    }
 
-        // Add Create2Deployer address constant
-        script += `        address create2DeployerAddress = 0x4e59b44847b379578588920cA78FbF26c0B4956C;\n\n`;
-
+    private generateHelperFunctions(projectConfig: ProjectConfig): string {
+        let script = `    function logDeploymentInfo() private view {\n`;
         script += `        console.log("Deployer starting");\n`;
         script += `        console.log("owner: ", ownerAddress);\n`;
         script += `        console.log("patchwork protocol: ", ppAddress);\n`;
         script += `        console.log("deployment salt: ", vm.toString(salt));\n`;
-        script += `        console.log("try deploy mode: ", tryDeploy);\n\n`;
+        script += `    }\n\n`;
 
+        // Generate prepareDeployments function
+        script += `    function prepareDeployments() private view returns (DeploymentAddresses memory) {\n`;
         script += `        DeploymentAddresses memory deployments;\n\n`;
-
-        // Calculate bytecode hashes and predicted addresses for all contracts
+        
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
@@ -76,11 +112,10 @@ export class DeployScriptGen {
             script += `        bytes32 ${contractKeyName}BytecodeHash = keccak256(${contractKeyName}CreationBytecode);\n`;
             script += `        console.log("${contractName} codehash: ", Strings.toHexString(uint256(${contractKeyName}BytecodeHash)));\n\n`;
             
-            // Add predicted address calculation
             script += `        address predicted${contractName}Address = vm.computeCreate2Address(\n`;
             script += `            salt,\n`;
             script += `            ${contractKeyName}BytecodeHash,\n`;
-            script += `            create2DeployerAddress\n`;
+            script += `            CREATE2_DEPLOYER\n`;
             script += `        );\n`;
             script += `        console.log("Predicted ${contractName} address: ", predicted${contractName}Address);\n\n`;
             
@@ -90,59 +125,80 @@ export class DeployScriptGen {
             script += `        });\n\n`;
         });
 
-        script += `        if (tryDeploy) {\n`;
-        script += `            vm.startBroadcast();\n`;
-        script += `            PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n\n`;
+        script += `        return deployments;\n`;
+        script += `    }\n\n`;
 
-        // Scope configuration (inside if block)
-        for (const scopeConfig of projectConfig.scopes) {
-            script += `            if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
-            script += `                pp.claimScope("${scopeConfig.name}");\n`;
-            script += `                pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
-            script += `            }\n`;
-        }
+        return script;
+    }
 
-        // Deploy contracts using CREATE2 (inside if block)
+    private generateDeploymentFunction(projectConfig: ProjectConfig): string {
+        let script = `    function performDeployment(DeploymentAddresses memory deployments) private {\n`;
+        script += `        vm.startBroadcast();\n\n`;
+        script += `        setupPatchworkProtocol();\n\n`;
+    
+        // Deploy contracts
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
             const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
-
-            script += `            ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
-            script += `            assert(address(${contractKeyName}) == predicted${contractName}Address); // Verify prediction\n`;
-            script += `            console.log("${contractName} deployed at: ", address(${contractKeyName}));\n`;
-            script += `            deployments.${key}.deployedAddress = address(${contractKeyName});\n\n`;
+    
+            script += `        ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
+            script += `        assert(address(${contractKeyName}) == deployments.${key}.deployedAddress);\n`;
+            script += `        console.log("${contractName} deployed at: ", address(${contractKeyName}));\n`;
+            script += `        deployments.${key}.deployedAddress = address(${contractKeyName});\n\n`;
         });
-
-        // Register references (inside if block)
+    
+        // Register references
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
             if (projectConfig.contractRelations !== undefined) {
                 for (const fragment of projectConfig.contractRelations[key]?.fragments || []) {
-                    script += `            ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
+                    script += `        ${contractName.toLowerCase()}.registerReferenceAddress(address(${fragment.toLowerCase()}));\n`;
                 }
             }
         });
-
-        // Whitelist (inside if block)
-        Object.entries(projectConfig.contracts).forEach(([key, value]) => {
-            const contractName = key;
+    
+        // Check if we need whitelist operations
+        const hasWhitelistOperations = Object.values(projectConfig.contracts).some(value => {
             const contractConfig = value as ContractConfig;
-            const scopeName = contractConfig.scopeName;
-            const scopeConfig = this.findScope(scopeName, projectConfig);
-            if (scopeConfig.whitelist) {
-                script += `            pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
-            }
+            const scopeConfig = this.findScope(contractConfig.scopeName, projectConfig);
+            return scopeConfig.whitelist;
         });
+    
+        // Only add pp declaration if we have whitelist operations
+        if (hasWhitelistOperations) {
+            script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
+            
+            // Whitelist operations
+            Object.entries(projectConfig.contracts).forEach(([key, value]) => {
+                const contractName = key;
+                const contractConfig = value as ContractConfig;
+                const scopeName = contractConfig.scopeName;
+                const scopeConfig = this.findScope(scopeName, projectConfig);
+                if (scopeConfig.whitelist) {
+                    script += `        pp.addWhitelist("${scopeName}", address(${contractName.toLowerCase()}));\n`;
+                }
+            });
+        }
+    
+        script += `\n        vm.stopBroadcast();\n`;
+        script += `    }\n\n`;
+    
+        return script;
+    }
 
-        script += `            vm.stopBroadcast();\n`;
-        script += `        }\n\n`;
-
-        // Return the deployment addresses and bytecode hashes
-        script += `        return deployments;\n`;
-        script += `    }\n`;
-        script += `}\n`;
-
+    private generateSetupFunction(projectConfig: ProjectConfig): string {
+        let script = `    function setupPatchworkProtocol() private {\n`;
+        script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
+        
+        for (const scopeConfig of projectConfig.scopes) {
+            script += `        if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
+            script += `            pp.claimScope("${scopeConfig.name}");\n`;
+            script += `            pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
+            script += `        }\n`;
+        }
+        
+        script += `    }\n\n`;
         return script;
     }
 
