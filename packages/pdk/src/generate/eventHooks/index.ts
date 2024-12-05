@@ -15,10 +15,10 @@ export async function generateEventHooks(configPath: string) {
     const eventDir = path.join(configDir, 'ponder', 'src', 'generated');
     const ponderSchemaPath = path.join(configDir, 'ponder', 'ponder.schema.ts');
 
-    logger.debug('Config path:', fullConfigPath);
-    logger.debug('ABI directory:', abiDir);
-    logger.debug('Event directory:', eventDir);
-    logger.debug('Ponder schema path:', ponderSchemaPath);
+    logger.debug(`Config path: ${fullConfigPath}`);
+    logger.debug(`ABI directory: ${abiDir}`);
+    logger.debug(`Event directory: ${eventDir}`);
+    logger.debug(`Ponder schema path: ${ponderSchemaPath}`);
 
     // Check if output directory exists
     try {
