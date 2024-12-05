@@ -30,7 +30,7 @@ export async function generateSchema(configPath: string) {
         await generateSchemaFile(projectConfig, ponderSchema);
         logger.info(`Ponder schema generated successfully at ${ponderSchema}`);
     } catch (error) {
-        logger.error('Failed to generate schema:', error);
+        logger.error(`Failed to generate schema: ${error}`);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate schema');
     }
 }

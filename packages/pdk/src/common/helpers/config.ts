@@ -120,7 +120,7 @@ export function getFragmentRelationships(projectConfig: ProjectConfig): Record<s
 
     Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
         if (typeof contractConfig !== 'string') {
-            contractConfig.fragments.forEach((fragment) => {
+            contractConfig.fragments?.forEach((fragment) => {
                 if (!fragmentRelationships[fragment]) {
                     fragmentRelationships[fragment] = [];
                 }
