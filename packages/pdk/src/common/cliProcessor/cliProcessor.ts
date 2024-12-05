@@ -240,7 +240,10 @@ export class CLIProcessor {
                 },
                 moduleOverrides: {
                     ...(pdkRepoRoot && {
-                        '@patchworkdev/common/types': path.join(pdkRepoRoot, 'packages/common/src/types'),
+                        '@patchworkdev/common/types': path.relative(
+                            path.dirname(absoluteConfigFile),
+                            path.resolve(process.cwd(), path.join(pdkRepoRoot, 'packages/common/src')),
+                        ),
                     }),
                 },
             }).default;
