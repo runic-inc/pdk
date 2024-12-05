@@ -45,7 +45,7 @@ const projectConfig: ProjectConfig = {
                 },
                 {
                     id: 1,
-                    key: 'type',
+                    key: 'trait_type',
                     type: 'uint8',
                     description: 'Trait Type',
                 },
