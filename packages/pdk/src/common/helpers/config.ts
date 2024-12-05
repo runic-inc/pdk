@@ -117,13 +117,16 @@ export async function importABIFiles(abiDir: string) {
 
 export function getFragmentRelationships(projectConfig: ProjectConfig): Record<string, string[]> {
     const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
-    Object.entries(projectConfig.contractRelations).forEach(([contractName, { fragments }]) => {
-        fragments.forEach((fragment) => {
-            if (!fragmentRelationships[fragment]) {
-                fragmentRelationships[fragment] = [];
-            }
-            fragmentRelationships[fragment].push(contractName);
-        });
+
+    Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {
+        if (typeof contractConfig !== 'string') {
+            contractConfig.fragments.forEach((fragment) => {
+                if (!fragmentRelationships[fragment]) {
+                    fragmentRelationships[fragment] = [];
+                }
+                fragmentRelationships[fragment].push(contractName);
+            });
+        }
     });
 
     return fragmentRelationships;

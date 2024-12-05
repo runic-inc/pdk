@@ -1,12 +1,11 @@
 import { parseJson } from '../codegen/contractSchemaJsonParser';
-import { ContractConfig, ContractRelation, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ProjectConfig, ScopeConfig } from "../types";
 
 export class JSONProjectConfigLoader {
     constructor() { }
 
     load(jsonString: string): ProjectConfig {
         let projectConfig = JSON.parse(jsonString);
-        let contractRelations: Record<string, ContractRelation> = {};
         let contracts: Record<string, string | ContractConfig> = {};
 
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
@@ -16,9 +15,6 @@ export class JSONProjectConfigLoader {
             } else {
                 contracts[key] = parseJson(v.config);
             }
-            if (v.fragments && Array.isArray(v.fragments)) {
-                contractRelations[key] = { fragments: v.fragments };
-            }
         });
 
         return {
@@ -26,8 +22,7 @@ export class JSONProjectConfigLoader {
             scopes: Object.entries(projectConfig.scopes).map(([key, value]) => {
                 return this.loadScopeConfig(key, value);
             }),
-            contracts: contracts,
-            contractRelations: contractRelations
+            contracts: contracts
         };
     }
 

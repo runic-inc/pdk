@@ -25,10 +25,7 @@
     },
     "contracts": {
         "LiteRef8": {
-            "config": "LiteRef8.json",
-            "fragments": [
-                "FragmentSingle"
-            ]
+            "config": "LiteRef8.json"
         },
         "FragmentSingle": {
             "config": "FragmentSingle.json"

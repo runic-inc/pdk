@@ -29,7 +29,6 @@ const projectConfig: ProjectConfig = {
             features: [Feature.MINTABLE],
         },
     },
-    contractRelations: {},
     scopes: [
         {
             name: 'myapp',

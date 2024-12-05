@@ -60,6 +60,7 @@ export class ContractSchemaImpl implements ContractSchema {
     imageURI!: string;
     fields!: FieldConfig[];
     features!: Feature[];
+    fragments!: string[];
     storage: ContractStorage;
 
     constructor(config: ContractConfig) {
@@ -71,6 +72,7 @@ export class ContractSchemaImpl implements ContractSchema {
         this.imageURI = config.imageURI;
         this.fields = config.fields;
         this.features = config.features || [];
+        this.fragments = config.fragments || [];
         this.storage = this.buildStorage(config.fields);
     }
 

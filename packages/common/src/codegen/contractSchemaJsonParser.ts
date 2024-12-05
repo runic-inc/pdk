@@ -13,6 +13,7 @@ export function parseJson(jsonData: any): ContractConfig {
         imageURI: jsonData.imageURI,
         fields: parseFieldEntries(jsonData),
         features: parseFeatures(jsonData),
+        fragments: parseFragments(jsonData),
     };
     return contractConfig;
 }
@@ -51,4 +52,8 @@ function parseFieldEntries(jsonData: any): FieldConfig[] {
         };
         return entry;
     });
+}
+
+function parseFragments(jsonData: any): string[] {
+    return jsonData.fragments ? jsonData.fragments as string[] : [];
 }

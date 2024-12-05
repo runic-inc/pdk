@@ -26,6 +26,7 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE],
+            fragments: ['Bubble'],
         },
         Bubble: {
             scopeName: 'canvas',
@@ -56,11 +57,6 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE, Feature.WEAKREF],
-        },
-    },
-    contractRelations: {
-        Canvas: {
-            fragments: ['Bubble'],
         },
     },
     scopes: [
