@@ -48,9 +48,9 @@ export type PDKPlugin = {
      */
     generate?: (props: {
         context: PDKContext;
-        task: ListrTaskWrapper<any, any, any>;
+        task: ListrTaskWrapper<PDKContext, any, any>;
         log?: (message: string) => void;
-    }) => Promise<void> | void | Promise<Listr<any, any, any>> | Listr<any, any, any>;
+    }) => Promise<Listr<PDKContext>> | Listr<PDKContext>;
 
     /**
      * Returns one or more commands to be added to the CLI.

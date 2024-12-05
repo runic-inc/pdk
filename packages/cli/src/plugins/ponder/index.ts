@@ -1,4 +1,4 @@
-import { PDKContext, PDKPlugin } from '../../types';
+import { PDKPlugin } from '../../types';
 
 type PonderPluginProps = {
     trpc: boolean;
@@ -8,7 +8,7 @@ function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
     return {
         name: 'Ponder',
         generate: async ({ context, task }) => {
-            return task.newListr<PDKContext>(
+            return task.newListr(
                 [
                     {
                         title: 'Processing ABIs...',

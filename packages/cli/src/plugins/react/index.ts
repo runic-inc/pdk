@@ -1,4 +1,4 @@
-import { PDKContext, PDKPlugin } from '../../types';
+import { PDKPlugin } from '../../types';
 
 type ReactPluginProps = {
     reownProjectId: string;
@@ -8,7 +8,7 @@ function react(props: ReactPluginProps): PDKPlugin {
     return {
         name: 'React',
         generate: async ({ context, task }) => {
-            return task.newListr<PDKContext>(
+            return task.newListr(
                 [
                     {
                         title: 'Generating Wagmi hooks...',
