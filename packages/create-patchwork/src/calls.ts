@@ -58,55 +58,6 @@ export async function initGitRepo(targetDir: string): Promise<void> {
     );
 }
 
-export async function forgeBuild(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
-    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-
-    await oraPromise(
-        execa(pdkCommand, ['generate', 'contractBuild'], {
-            cwd: targetDir,
-        }),
-        {
-            text: `Building contracts`,
-            failText: 'Failed to build contracts',
-            successText: `Contracts built successfully`,
-        },
-    );
-}
-
-export async function generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
-    const outputDir = './contracts/src';
-
-    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-
-    await oraPromise(
-        execa(pdkCommand, ['generate', 'contracts', configPath, '-o', outputDir], {
-            cwd: targetDir,
-        }),
-        {
-            text: `Generating contracts`,
-            failText: 'Failed to generate contracts',
-            successText: `Contracts generated successfully`,
-        },
-    );
-}
-
-export async function generateDeployScripts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
-    const outputDir = './contracts/script';
-
-    const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-
-    await oraPromise(
-        execa(pdkCommand, ['generate', 'deployScripts', configPath, '-o', outputDir, '-c', '../src'], {
-            cwd: targetDir,
-        }),
-        {
-            text: `Generating deploy scripts`,
-            failText: 'Failed to generate deploy scripts',
-            successText: `Deploy scripts generated successfully`,
-        },
-    );
-}
-
 export async function linkLocalPackages(targetDir: string): Promise<void> {
     await oraPromise(
         execa('pnpm', ['link', '--global', '@patchworkdev/pdk'], {
