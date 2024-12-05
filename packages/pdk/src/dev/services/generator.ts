@@ -1,10 +1,9 @@
-// services/generator.ts
 import crypto from 'crypto';
 import path from 'path';
 import LockFileManager from '../../common/helpers/lockFile';
 import { generateABIs, generateAPI, generateEventHooks, generatePonderConfig, generateReactHooks, generateSchema } from '../../generate';
 
-export type GeneratorType = 'contracts' | 'deployScripts' | 'forgeBuild' | 'abis' | 'schema' | 'eventHooks' | 'ponderConfig' | 'api' | 'reactHooks';
+export type GeneratorType = 'contracts' | 'deployScripts' | 'buildContracts' | 'abis' | 'schema' | 'eventHooks' | 'ponderConfig' | 'api' | 'reactHooks';
 
 interface GeneratorConfig {
     inputs: string[];
@@ -22,7 +21,7 @@ export class GeneratorService {
         this.configPath = configPath;
         this.lockFile = lockFile;
         this.generators = this.initializeGenerators();
-        this.generatorOrder = ['contracts', 'deployScripts', 'forgeBuild', 'abis', 'schema', 'eventHooks', 'ponderConfig', 'api', 'reactHooks'];
+        this.generatorOrder = ['contracts', 'deployScripts', 'buildContracts', 'abis', 'schema', 'eventHooks', 'ponderConfig', 'api', 'reactHooks'];
     }
 
     private async runGenerateContracts(): Promise<void> {
@@ -75,19 +74,20 @@ export class GeneratorService {
         );
     }
 
-    private async runForgeBuild(): Promise<void> {
+    private async buildContracts(): Promise<void> {
         const targetDir = path.dirname(this.configPath);
+        const pdkCommand = path.join(targetDir, 'node_modules', '.bin', 'pdk');
         const { execa } = await import('execa');
         const { oraPromise } = await import('ora');
 
         await oraPromise(
-            execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {
+            execa(pdkCommand, ['generate', 'contractBuild', this.configPath], {
                 cwd: targetDir,
             }),
             {
-                text: `Building contracts`,
+                text: 'Building contracts',
                 failText: 'Failed to build contracts',
-                successText: `Contracts built successfully`,
+                successText: 'Contracts built successfully',
             },
         );
     }
@@ -104,10 +104,10 @@ export class GeneratorService {
                 outputs: ['contracts/script/**/*.sol'],
                 run: () => this.runGenerateDeployScripts(),
             },
-            forgeBuild: {
+            buildContracts: {
                 inputs: ['contracts/src/**/*.sol', 'contracts/script/**/*.sol'],
                 outputs: ['contracts/out/**/*.json'],
-                run: () => this.runForgeBuild(),
+                run: () => this.buildContracts(),
             },
             abis: {
                 inputs: ['contracts/out/**/*.abi.json'],
