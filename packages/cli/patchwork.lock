@@ -1,0 +1,18 @@
+{
+  "rootDir": "/Users/brockpetrie/Work/Runic/Dev/pdk/packages/cli",
+  "network": "local",
+  "config": {
+    "plugins": [
+      {
+        "name": "Ponder"
+      },
+      {
+        "name": "React"
+      }
+    ]
+  },
+  "contracts": [],
+  "artifacts": {
+    "trpc": "my-trpc-router.ts"
+  }
+}

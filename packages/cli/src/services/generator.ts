@@ -1,6 +1,7 @@
 import { Listr, ListrTask } from 'listr2';
 import picocolors from 'picocolors';
 import { PDKContext } from '../types';
+import { saveContext } from '../utils/context';
 
 export class GeneratorService {
     private context: PDKContext;
@@ -29,14 +30,14 @@ export class GeneratorService {
             })
             // Deploy script generation task
             .set('deploy', {
-                title: picocolors.bold('Generating deployment scripts'),
+                title: picocolors.bold('Generating deploy scripts'),
                 task: async (ctx, task) => {
-                    await new Promise((resolve) => setTimeout(resolve, 1500));
+                    await new Promise((resolve) => setTimeout(resolve, 600));
                 },
             })
             // Build step task
-            .set('build', {
-                title: picocolors.bold('Building contracts'),
+            .set('artfacts', {
+                title: picocolors.bold('Compiling contracts and generating artifacts'),
                 task: async (ctx, task) => {
                     await new Promise((resolve) => setTimeout(resolve, 1500));
                 },
@@ -79,13 +80,6 @@ export class GeneratorService {
     }
 
     /**
-     * Check if generator exists
-     */
-    public hasGenerator(key: string): boolean {
-        return this.generatorMap.has(key);
-    }
-
-    /**
      * Run a specific generator by key
      */
     public async runGenerator(key: string): Promise<void> {
@@ -94,15 +88,23 @@ export class GeneratorService {
             throw new Error(`Unknown generator: ${key}`);
         }
 
-        const listr = new Listr([task]);
-        await listr.run(this.context);
+        const listr = new Listr<PDKContext>([task]);
+        await listr.run(this.context).then((ctx) => {
+            saveContext(ctx);
+        });
     }
 
     /**
      * Run all generators in insertion order
      */
     public async runAllGenerators(): Promise<void> {
-        const listr = new Listr(this.getAllGenerators());
-        await listr.run(this.context);
+        const listr = new Listr<PDKContext>(this.getAllGenerators(), {
+            rendererOptions: {
+                collapseSubtasks: true,
+            },
+        });
+        await listr.run(this.context).then((ctx) => {
+            saveContext(ctx);
+        });
     }
 }

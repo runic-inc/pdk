@@ -5,7 +5,7 @@
     "type": "module",
     "main": "index.ts",
     "scripts": {
-        "dev": "tsx src/index.ts"
+        "pdk": "tsx src/index.ts"
     },
     "keywords": [],
     "author": "",
