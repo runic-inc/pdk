@@ -151,7 +151,7 @@ export async function generateAllComponents(targetDir: string, useLocalPackages:
             cwd: targetDir,
         }),
         {
-            text: `Generating abis, apis, ponder schema, scripts, and hooks`,
+            text: `Generating contracts, deploy scripts, abis, apis, ponder schema, scripts, and hooks`,
             failText: 'Failed to generate all components',
             successText: `All components generated successfully`,
         },

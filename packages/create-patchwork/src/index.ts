@@ -6,16 +6,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pico from 'picocolors';
-import {
-    forgeBuild,
-    generateAllComponents,
-    generateContracts,
-    generateDeployScripts,
-    initGitRepo,
-    installNodeDependencies,
-    linkLocalPackages,
-    selectLocalNetwork,
-} from './calls.js';
+import { generateAllComponents, initGitRepo, installNodeDependencies, linkLocalPackages, selectLocalNetwork } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,15 +64,6 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
 
     // Initialize git repo
     await initGitRepo(targetDir);
-
-    // Generate contracts using the appropriate pdk version
-    await generateContracts(targetDir, useLocalPackages, targetConfigPath);
-
-    // Generate contracts using the appropriate pdk version
-    await generateDeployScripts(targetDir, useLocalPackages, targetConfigPath);
-
-    // Build contracts with Forge
-    await forgeBuild(targetDir);
 
     // Generate all components using pdk
     await generateAllComponents(targetDir, useLocalPackages, targetConfigPath);
