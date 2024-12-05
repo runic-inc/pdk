@@ -1,13 +1,12 @@
 // import * as fs from 'fs';
 import { ProjectConfig } from '@patchworkdev/common';
 import fs from 'fs/promises';
-import Module from 'module';
 import * as path from 'path';
-import { register } from 'ts-node';
 import { Abi } from 'viem';
 import { ErrorCode, PDKError } from './error';
 import { logger } from './logger';
 import { SchemaModule } from './ponderSchemaMock';
+import { Default, tsLoader } from './tsLoader';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
     const filePath = path.join(directory, filename);
@@ -37,68 +36,35 @@ export async function findPonderSchema() {
 }
 
 export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModule> {
+    const mock = path.resolve(__dirname, './ponderSchemaMock');
+
     try {
-        await fs.access(ponderSchema);
+        return await tsLoader<SchemaModule>(ponderSchema, {
+            compilerOptions: {
+                strict: false,
+                noImplicitAny: false,
+            },
+            moduleOverrides: {
+                '@ponder/core': mock,
+            },
+        });
     } catch (error) {
-        // logger.error(`Error: Unable to access Ponder schema file at ${ponderSchema}`);
-        throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Unable to access Ponder schema file at  ${ponderSchema}`);
-    }
-    let schemaModule: SchemaModule = {};
-    // Set up ts-node
-    register({
-        transpileOnly: true,
-        compilerOptions: {
-            module: 'CommonJS',
-            moduleResolution: 'node',
-        },
-    });
-    const originalRequire = Module.prototype.require;
-    const newRequire = function (this: NodeModule, id: string) {
-        if (id === '@ponder/core') {
-            return require(path.resolve(__dirname, './ponderSchemaMock'));
-        }
-        return originalRequire.call(this, id);
-    } as NodeRequire;
-    Object.assign(newRequire, originalRequire);
-    Module.prototype.require = newRequire;
-    try {
-        schemaModule = await require(ponderSchema);
-        return schemaModule as SchemaModule;
-    } catch (error) {
+        logger.error(error);
         if (error instanceof TypeError && error.message.includes('is not a function')) {
             logger.error('Error: It seems a method is missing from our mock implementation.');
             logger.error('Full error:', error);
             logger.error('Please add this method to the mockSchemaBuilder in ponderSchemaMocks.ts');
-        } else {
-            throw new PDKError(ErrorCode.MOCK_NOT_FOUND, `Missing mock implementation in ponderSchemaMocks.ts`);
         }
-    } finally {
-        Module.prototype.require = originalRequire;
+        throw new PDKError(ErrorCode.MOCK_NOT_FOUND, `Missing mock implementation in ponderSchemaMocks.ts`);
     }
-    return schemaModule as SchemaModule;
 }
 
 export async function importPatchworkConfig(config: string): Promise<ProjectConfig> {
-    // Register ts-node to handle TypeScript files
-    register({
-        transpileOnly: true,
-        compilerOptions: {
-            module: 'CommonJS',
-            moduleResolution: 'node',
-        },
-    });
-
     try {
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
 
-        // Check if the file exists
-        await fs.access(fullPath);
-
-        // Import the config file
-        // const module = await import(fullPath);
-        const module = require(fullPath);
-        return module.default as ProjectConfig;
+        return (await tsLoader<Default<ProjectConfig>>(fullPath)).default;
     } catch (error) {
         if (error instanceof Error) {
             logger.error('Error importing ProjectConfig:', error.message);
@@ -116,14 +82,6 @@ export async function importABIFiles(abiDir: string) {
         logger.error(`- ABI directory not found: ${abiDir}`);
         throw new PDKError(ErrorCode.DIR_NOT_FOUND, `ABI directory not found at ${abiDir}`);
     }
-    // Register ts-node to handle TypeScript files
-    register({
-        transpileOnly: true,
-        compilerOptions: {
-            module: 'CommonJS',
-            moduleResolution: 'node',
-        },
-    });
 
     const abiObjects: Record<string, Abi> = {};
     try {
@@ -131,13 +89,13 @@ export async function importABIFiles(abiDir: string) {
         const abiFiles = (await fs.readdir(abiDir)).filter((file) => file.endsWith('.abi.ts'));
 
         // Dynamically import all ABI files
-        const abiModules = await Promise.all(
+        // -- NOTE: Seems like we should prune this? There's a LOT of artifacts
+        // -- NOTE: Should consider only importing ABIs for project's contracts + PatchworkProtocol
+        await Promise.all(
             abiFiles.map(async (file) => {
                 const filePath = path.join(abiDir, file);
 
-                // Import the TypeScript file
-                // const module = await import(filePath);
-                const module = await require(filePath);
+                const module = await tsLoader<{ [key: string]: Abi }>(filePath);
                 const baseName = path.basename(file, '.abi.ts');
                 abiObjects[baseName] = module[baseName];
 
@@ -145,10 +103,6 @@ export async function importABIFiles(abiDir: string) {
                 return { name: baseName, abi: module[baseName] };
             }),
         );
-
-        // Filter out any null results and return the ABI objects
-        // return abiModules.filter((module): module is { name: string; abi: Abi } => module !== null);
-        // return abiObjects;
     } catch (error) {
         logger.error('Error importing ABI files:', error);
         throw new PDKError(ErrorCode.ABI_IMPORT_ERROR, `Error importing ABIs at ${abiDir}`);

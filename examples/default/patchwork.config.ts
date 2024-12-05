@@ -27,6 +27,7 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE],
+            fragments: [],
         },
     },
     scopes: [

@@ -15,7 +15,8 @@ import {
 } from '@patchworkdev/common';
 import fs from 'fs';
 import path from 'path';
-import { register } from 'ts-node';
+import { logger } from '../helpers/logger';
+import { tsLoaderSync } from '../helpers/tsLoader';
 
 export class CLIProcessor {
     contractSchema: string;
@@ -205,49 +206,53 @@ export class CLIProcessor {
         }
     }
 
-    loadTSConfigFile(configFile: string): ContractSchemaImpl | ProjectConfig {
+    async buildContracts(targetDir: string = process.cwd()): Promise<void> {
+        try {
+            const { oraPromise } = await import('ora');
+            const { execa } = await import('execa');
+
+            await oraPromise(
+                execa('forge', ['build', '--extra-output-files', 'abi', '--force'], {
+                    cwd: targetDir,
+                }),
+                {
+                    text: `Building contracts`,
+                    failText: 'Failed to build contracts',
+                    successText: `Contracts built successfully`,
+                },
+            );
+        } catch (err: any) {
+            console.error('Error:', err.message);
+            throw new Error('Error building contracts');
+        }
+    }
+
+    loadTSConfigFile(configFile: string): ProjectConfig | ContractSchemaImpl {
         const pdkRepoRoot = this.isPDKRepo(process.cwd());
 
-        const tsNode = register({
-            compilerOptions: {
-                target: 'ES2020',
-                module: 'CommonJS',
-                moduleResolution: 'Node',
-                rootDir: 'src',
-                outDir: 'dist',
-            },
-        });
+        const absoluteConfigFile = path.resolve(configFile);
+
         try {
-            let result;
-            const absoluteConfigFile = path.resolve(configFile);
-            console.log('ts-node start', absoluteConfigFile);
-            // const result = tsNode.compile("", configFile);
-            if (pdkRepoRoot !== null) {
-                console.log('PDK repository found at', pdkRepoRoot);
-                const fileContent = fs.readFileSync(absoluteConfigFile, 'utf8');
-                const relativePath = path.relative(
-                    path.dirname(absoluteConfigFile),
-                    path.resolve(process.cwd(), path.join(pdkRepoRoot, 'packages/common/src')),
-                );
-                const updatedContent = fileContent.replace('@patchworkdev/common/types', path.join(relativePath, 'types'));
-                const tmpFile = absoluteConfigFile.replace('.ts', '.tmp.ts');
-                fs.writeFileSync(tmpFile, updatedContent);
-                // console.log(`Rewritten types in ${tmpFile}`);
-                try {
-                    result = require(tmpFile).default;
-                } finally {
-                    fs.unlinkSync(tmpFile);
-                }
+            const config = tsLoaderSync<{ default: ProjectConfig | ContractConfig }>(absoluteConfigFile, {
+                compilerOptions: {
+                    rootDir: 'src',
+                    outDir: 'dist',
+                },
+                moduleOverrides: {
+                    ...(pdkRepoRoot && {
+                        '@patchworkdev/common/types': path.relative(
+                            path.dirname(absoluteConfigFile),
+                            path.resolve(process.cwd(), path.join(pdkRepoRoot, 'packages/common/src')),
+                        ),
+                    }),
+                },
+            }).default;
+            if (Object.hasOwn(config, 'contracts')) {
+                logger.debug('Project Config detected');
+                return config as ProjectConfig;
             } else {
-                result = require(absoluteConfigFile).default;
-            }
-            console.log('ts-node compile success');
-            if (result.contracts) {
-                console.log('ProjectConfig detected');
-                return result as ProjectConfig;
-            } else {
-                console.log('Individual contract config detected');
-                return new ContractSchemaImpl(result);
+                logger.debug('Individual contract config detected');
+                return new ContractSchemaImpl(config as ContractConfig);
             }
         } catch (err: any) {
             console.log('Error:', err.message);
@@ -255,7 +260,7 @@ export class CLIProcessor {
         }
     }
 
-    isPDKRepo(rootDir: string): string | null {
+    isPDKRepo(rootDir: string): string | undefined {
         // walk up the directory tree to find package.json and see if the package is packworkdev/common
         let currentDir = rootDir;
         while (currentDir !== '/') {
@@ -268,7 +273,7 @@ export class CLIProcessor {
             }
             currentDir = path.resolve(currentDir, '..');
         }
-        return null;
+        return undefined;
     }
 
     findJSConfigFile(dir: string, filename: string): string | null {
