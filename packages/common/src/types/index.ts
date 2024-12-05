@@ -146,7 +146,7 @@ export type ContractConfig = {
     imageURI: string;
     fields: FieldConfig[];
     features: Feature[];
-    fragments: string[];
+    fragments?: string[];
 };
 
 export type AssignmentNodeData = {

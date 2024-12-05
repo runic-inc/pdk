@@ -2,6 +2,7 @@ import { ProjectConfig } from '@patchworkdev/common';
 import * as _ from 'lodash';
 import { getFragmentRelationships } from '../../common/helpers/config';
 import { formatAndSaveFile } from '../../common/helpers/file';
+import { logger } from '../../common/helpers/logger';
 
 type Table = {
     fields: {
@@ -30,6 +31,7 @@ type TableStructure = Record<string, Table>;
 type EnumStructure = Record<string, string[]>;
 
 export async function generateSchemaFile(projectConfig: ProjectConfig, outputFile: string): Promise<void> {
+    logger.debug(`Attempting to generate ponder schema at ${outputFile}`);
     const coreEnums = coreEnumStructure();
     const coreTables = coreTableStructure();
     const contractTables = getUserContractTableStructure(projectConfig);
@@ -359,16 +361,14 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
             });
         }
 
-        if (contractConfig.fragments.length > 0) {
-            contractConfig.fragments.forEach((fragment) => {
-                table.relations[_.camelCase(fragment)] = {
-                    type: 'many',
-                    name: _.camelCase(fragment),
-                    table: _.camelCase(fragment),
-                    relationName: `${_.camelCase(contractName)}Id`,
-                };
-            });
-        }
+        contractConfig.fragments?.forEach((fragment) => {
+            table.relations[_.camelCase(fragment)] = {
+                type: 'many',
+                name: _.camelCase(fragment),
+                table: _.camelCase(fragment),
+                relationName: `${_.camelCase(contractName)}Id`,
+            };
+        });
 
         table.fields.push({ key: 'timestamp', value: 'p.bigint()' });
         tables[contractName] = table;

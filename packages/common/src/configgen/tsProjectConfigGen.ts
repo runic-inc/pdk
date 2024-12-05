@@ -101,7 +101,7 @@ export class TSProjectConfigGen {
         }).join(',\n');
         out += '\n            ],\n';
         out += `            features: [${config.features.map(f => this.formatFeature(f)).join(', ')}],\n`;
-        out += `            fragments: [${config.fragments.map(f => `\"${f}\"`).join(', ')}]\n`;
+        out += `            fragments: [${config.fragments?.map(f => `\"${f}\"`).join(', ')}]\n`;
         out += '        }';
         return out;
     }
