@@ -16,6 +16,7 @@ type TsLoaderOptions = {
     moduleOverrides?: Record<string, string>;
 };
 
+// Generic helper for commonjs default exports
 export type Default<T> = {
     default: T;
 };
