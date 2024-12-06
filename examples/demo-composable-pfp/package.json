@@ -1,5 +1,5 @@
 {
-    "name": "create-patchwork-default",
+    "name": "create-patchwork-composable-pfp",
     "version": "0.1.0",
     "private": true,
     "type": "commonjs",
@@ -23,9 +23,9 @@
     "dependencies": {},
     "devDependencies": {
         "@openzeppelin/contracts": "5.0.2",
-        "@patchworkdev/common": "0.3.1",
+        "@patchworkdev/common": "next",
         "@patchworkdev/contracts": "2.0.6",
-        "@patchworkdev/pdk": "^0.3.0-rc.7",
+        "@patchworkdev/pdk": "next",
         "@types/node": "^20.9.0",
         "@wagmi/cli": "^2.1.18",
         "chalk": "^5.3.0",
