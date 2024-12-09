@@ -78,7 +78,7 @@ function coreTableStructure(): TableStructure {
     const tables: TableStructure = {
         Chain: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'namespace', value: 'p.text().notNull()' },
                 { key: 'patchworkAddress', value: 'p.hex().notNull()' },
@@ -95,7 +95,7 @@ function coreTableStructure(): TableStructure {
         },
         Block: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'extraData', value: 'p.hex().notNull()' },
                 { key: 'number', value: 'p.bigint().notNull()' },
                 { key: 'timestamp', value: 'p.bigint().notNull()' },
@@ -113,7 +113,7 @@ function coreTableStructure(): TableStructure {
         },
         Tx: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'blockId', value: 'p.text().notNull()' },
                 { key: 'timestamp', value: 'p.bigint().notNull()' },
                 { key: 'fromId', value: 'p.text().notNull()' },
@@ -156,7 +156,7 @@ function coreTableStructure(): TableStructure {
         },
         GlobalAddress: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'address', value: 'p.hex().notNull()' },
                 { key: 'timestamp', value: 'p.bigint().notNull()' },
             ],
@@ -171,7 +171,7 @@ function coreTableStructure(): TableStructure {
         },
         Address: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'addressId', value: 'p.text().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
                 { key: 'type', value: 'p.text().notNull()' },
@@ -209,7 +209,7 @@ function coreTableStructure(): TableStructure {
         },
         Scope: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'addressId', value: 'p.text().notNull()' },
                 { key: 'txId', value: 'p.text().notNull()' },
@@ -242,7 +242,7 @@ function coreTableStructure(): TableStructure {
         },
         Contract: {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'name', value: 'p.text().notNull()' },
                 { key: 'symbol', value: 'p.text().notNull()' },
                 { key: 'chainId', value: 'p.text().notNull()' },
@@ -275,7 +275,7 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
 
         const table: Table = {
             fields: [
-                { key: 'id', value: 'p.text().notNull()' },
+                { key: 'id', value: 'p.text().primaryKey()' },
                 { key: 'owner', value: 'p.hex().notNull()' },
                 { key: 'tokenId', value: 'p.bigint().notNull()' },
                 { key: 'mintTxId', value: 'p.text().notNull()' },
@@ -314,7 +314,7 @@ function getUserContractTableStructure(projectConfig: ProjectConfig): TableStruc
 
                 const refTable: Table = {
                     fields: [
-                        { key: 'id', value: 'p.text().notNull()' },
+                        { key: 'id', value: 'p.text().primaryKey()' },
                         { key: `${_.camelCase(contractName)}Id`, value: `p.text().notNull()` },
                         { key: 'value', value: `${getFieldType(field.type)}.notNull()` },
                         { key: 'timestamp', value: 'p.bigint().notNull()' },
