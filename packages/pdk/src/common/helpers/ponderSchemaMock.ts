@@ -13,6 +13,11 @@ export function onchainTable(tableName: string, tableDefinition: (t: TableBuilde
                 fieldDef.isOptional = false;
                 return chainable;
             },
+            primaryKey: () => {
+                fieldDef.primaryKey = true;
+                fieldDef.isOptional = false;
+                return chainable;
+            },
             _build: () => fieldDef,
         };
         return chainable;
@@ -118,6 +123,7 @@ export function relations(table: any, relationDefinition: (builders: RelationBui
 type FieldType = 'bigint' | 'int' | 'hex' | 'boolean' | 'string' | 'many' | 'one';
 export type FieldDefinition = {
     type: FieldType;
+    primaryKey?: boolean;
     reference?: string;
     isOptional?: boolean;
     relatedModel?: string;
@@ -126,6 +132,7 @@ export type FieldDefinition = {
 
 type ChainableTableFieldDefinition = {
     notNull: () => ChainableTableFieldDefinition;
+    primaryKey: () => ChainableTableFieldDefinition;
     _build: () => FieldDefinition;
 };
 
