@@ -1,6 +1,12 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 import { anvil, base, baseSepolia } from 'viem/chains';
 
+enum Rules {
+    Require = 'require-one',
+    MaximumOne = 'maximum-one',
+}
+function mintableWithFragments(config) {}
+
 const projectConfig: ProjectConfig = {
     name: 'Composable PFP Demo',
     contracts: {
@@ -26,8 +32,24 @@ const projectConfig: ProjectConfig = {
                     description: 'Name',
                 },
             ],
-            features: [],
             fragments: ['Trait'],
+            extensions: [
+                mintableWithFragments({
+                    mintPrice: 0,
+                    fieldRules: {
+                        attributeLiteRefs: {
+                            key: 'attributeLiteRefs',
+                            fragmentRules: [
+                                Rules.Unique('trait_type'),
+                                Rules.One('trait_type', 'Background'),
+                                Rules.One('trait_type', 'Base'),
+                                Rules.One('trait_type', 'Eyes'),
+                                Rules.One('trait_type', 'Mouth'),
+                            ],
+                        },
+                    },
+                }),
+            ],
         },
         Trait: {
             scopeName: 'composable-pfp-demo',
@@ -39,15 +61,16 @@ const projectConfig: ProjectConfig = {
             fields: [
                 {
                     id: 0,
-                    key: 'id',
-                    type: 'uint16',
-                    description: 'Trait ID',
-                },
-                {
-                    id: 1,
                     key: 'trait_type',
                     type: 'uint8',
                     description: 'Trait Type',
+                    enum: ['Background', 'Body', 'Eyes', 'Mouth', 'Head', 'Accessory', 'Clothing'],
+                },
+                {
+                    id: 1,
+                    key: 'id',
+                    type: 'uint16',
+                    description: 'Trait ID',
                 },
                 {
                     id: 2,
@@ -57,6 +80,12 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
+            features: [
+                mintableWithData({
+                    random: true,
+                    mintPrice: 0.001,
+                }),
+            ],
         },
     },
     scopes: [
