@@ -1,4 +1,4 @@
-import { log } from '@clack/prompts';
+import * as p from '@clack/prompts';
 import { Command } from '@commander-js/extra-typings';
 import cpy from 'cpy';
 import _ from 'lodash';
@@ -6,7 +6,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pico from 'picocolors';
-import { generateAllComponents, initGitRepo, installNodeDependencies, linkLocalPackages, selectLocalNetwork } from './calls.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,9 +30,36 @@ type CreatePatchworkOptions = Awaited<ReturnType<typeof program.opts>>;
 })();
 
 async function createPatchwork(configFile: string | undefined, options: CreatePatchworkOptions) {
-    console.log('createPatchwork', configFile, options);
+    const prompts = await p.group(
+        {
+            template: ({ results }) =>
+                p.select({
+                    message: `Which starter template would you like to use?`,
+                    options: [
+                        { value: 'default', label: 'Default', hint: 'Barebones starter template you can start customizing' },
+                        { value: 'composable-pfp', label: 'Composable PFP demo', hint: 'A functional NFT app where users can compose dynamic PFPs' },
+                        { value: 'canvas', label: 'Canvas demo', hint: 'A function NFT app where users collectively attach elements to a collaborative NFT' },
+                        { value: 'custom', label: 'Custom', hint: 'Use a custom Patchwork configuration file' },
+                    ],
+                }),
+            dirName: () =>
+                p.text({
+                    message: 'Where would you like to install the project?',
+                    placeholder: 'my-patchwork-app',
+                    defaultValue: 'my-patchwork-app',
+                }),
+        },
+        {
+            onCancel: () => {
+                p.cancel('Cancelled.');
+                process.exit(0);
+            },
+        },
+    );
 
-    const templateProject = 'default';
+    console.log('createPatchwork', prompts);
+
+    /*
     const targetPath = process.cwd();
     const templatePath = path.join(__dirname, '', 'templates', templateProject);
     const exampleProjectPath = path.join(__dirname, '', 'templates');
@@ -71,6 +97,7 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
     await selectLocalNetwork(targetDir, useLocalPackages, targetConfigPath);
 
     console.log(pico.green(`Patchwork app "${projectName}" created successfully in directory "${projectFolderName}"!`));
+    */
 }
 
 async function copyFiles(src: string, dest: string, message = 'copying from src to dest') {
