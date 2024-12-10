@@ -30,7 +30,7 @@ export class FeeService {
             transport: http(deployConfig.rpcUrl),
         });
 
-        this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;\
+        this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;
 
         //this gets loaded on configureFeesForDeployment
         this.projectConfig = {
@@ -49,7 +49,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getMintConfiguration(address addr) external view returns (tuple(uint256 flatFee, bool active))')],
+                abi: [parseAbiItem('function getMintConfiguration(address addr) view returns ((uint256 flatFee, bool active))')],
                 functionName: 'getMintConfiguration',
                 args: [contractAddress],
             });
@@ -64,7 +64,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getAssignFee(address fragmentAddress) external view returns (uint256)')],
+                abi: [parseAbiItem('function getAssignFee(address fragmentAddress) view returns (uint256)')],
                 functionName: 'getAssignFee',
                 args: [contractAddress],
             });
@@ -79,7 +79,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getPatchFee(address addr) external view returns (uint256)')],
+                abi: [parseAbiItem('function getPatchFee(address addr) view returns (uint256)')],
                 functionName: 'getPatchFee',
                 args: [contractAddress],
             });
@@ -154,7 +154,7 @@ export class FeeService {
                 const { request } = await this.publicClient.simulateContract({
                     account: this.account,
                     address: this.patchworkAddress,
-                    abi: [parseAbiItem('function setMintConfiguration(address addr, tuple(uint256 flatFee, bool active) memory config)')],
+                    abi: [parseAbiItem('function setMintConfiguration(address addr, (uint256 flatFee, bool active)) nonpayable')],
                     functionName: 'setMintConfiguration',
                     args: [
                         contractAddress,
@@ -175,7 +175,7 @@ export class FeeService {
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function setAssignFee(address fragmentAddress, uint256 baseFee)')],
+                abi: [parseAbiItem('function setAssignFee(address fragmentAddress, uint256 baseFee) nonpayable')],
                 functionName: 'setAssignFee',
                 args: [contractAddress, feeInWei] as const,
             });
@@ -189,7 +189,7 @@ export class FeeService {
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function setPatchFee(address addr, uint256 baseFee)')],
+                abi: [parseAbiItem('function setPatchFee(address addr, uint256 baseFee) nonpayable')],
                 functionName: 'setPatchFee',
                 args: [contractAddress, feeInWei] as const,
             });
