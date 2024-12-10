@@ -10,6 +10,7 @@ type HandlerAndImport = { handler: string; imports: Set<string> };
 export async function createPonderEventFile(handlers: GeneratedHandlers, eventFile: string) {
     const output: string[] = [];
     output.push(`import { ponder } from "@/generated";`);
+    output.push(`import { patchwork } from "./patchwork";`);
     output.push(`import {${[...handlers.imports].sort().join(',')}} from "../../ponder.schema";`);
     handlers.handlers.forEach((handler) => {
         output.push(handler);
@@ -24,7 +25,7 @@ export function generateEntityEventHandlers(projectConfig: ProjectConfig, ponder
     Object.entries(projectConfig.contracts).flatMap(([contractName, contractConfig]) => {
         const key = (typeof contractConfig !== 'string' && contractConfig.name.replace(/\s+/g, '')) || contractName;
         const abi = abis[contractName] ?? abis[key];
-        const filteredEvents = abi.filter((abiEvent) => abiEvent.type === 'event')?.filter((abiEvent) => entityEvents.includes(abiEvent.name));
+        const filteredEvents = abi.filter((abiEvent) => abiEvent.type === 'event');
         return filteredEvents
             .map((event) => generatePonderOnHandler(contractName, event, projectConfig, ponderSchema, abis))
             .map((handler) => {
@@ -47,14 +48,12 @@ export function generatePonderOnHandler(
         string,
         (args: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: SchemaModule; abis: Record<string, Abi> }) => HandlerAndImport
     > = {
-        Frozen: frozenHandler,
-        Locked: lockedHandler,
         Transfer: transferHandler,
-        Unlocked: unlockedHandler,
-        Thawed: thawedHandler,
     };
 
-    const handler = templateFunctions[event.name]({ entity, event, projectConfig, ponderSchema, abis });
+    const handler = templateFunctions[event.name]
+        ? templateFunctions[event.name]({ entity, event, projectConfig, ponderSchema, abis })
+        : genericEventTemplate({ entity, event });
     return handler;
 }
 
@@ -109,39 +108,11 @@ export function transferHandler({
     };
 }
 
-export function frozenHandler({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
+export function genericEventTemplate({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
     return {
         imports: new Set(),
         handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
-
-    
-})`,
-    };
-}
-export function lockedHandler({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
-    return {
-        imports: new Set(),
-        handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
-
-    
-})`,
-    };
-}
-export function unlockedHandler({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
-    return {
-        imports: new Set(),
-        handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
-
-    
-})`,
-    };
-}
-export function thawedHandler({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
-    return {
-        imports: new Set(),
-        handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
-
-    
-})`,
+            await patchwork.emit('${entity}:${event.name}', { event, context });
+        });`,
     };
 }
