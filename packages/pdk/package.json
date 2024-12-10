@@ -41,6 +41,7 @@
         "@patchworkdev/common": "workspace:*",
         "@ponder/core": "^0.5.17",
         "commander": "12.1.0",
+        "dockerode": "4.0.2",
         "execa": "9.5.0",
         "glob": "^11.0.0",
         "hono": "4.6.3",
@@ -59,6 +60,7 @@
         "pdk": "dist/index.js"
     },
     "devDependencies": {
+        "@types/dockerode": "3.3.32",
         "@types/glob": "^8.1.0",
         "@types/jest": "29.5.12",
         "@types/lodash": "4.17.12",

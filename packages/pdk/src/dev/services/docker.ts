@@ -1,6 +1,15 @@
+import Docker from 'dockerode';
 import path from 'path';
 import { getPonderContainerName, getProjectNameFromConfig } from '../utils';
 
+const docker = new Docker();
+
+export type ContainerStatus = {
+    id: string;
+    name: string;
+    privatePort: number;
+    publicPort: number;
+};
 export class DockerService {
     private targetDir: string;
     private configPath: string;
@@ -28,12 +37,25 @@ export class DockerService {
         });
     }
 
-    async displayContainerStatus(): Promise<void> {
-        const { execa } = await import('execa');
-        const { stdout } = await execa('docker', ['container', 'ls', '--format', '{{.ID}}\t{{.Names}}\t{{.Ports}}', '-a'], {
-            cwd: this.targetDir,
+    async getContainerStatus(prefix?: string): Promise<ContainerStatus[]> {
+        const status: ContainerStatus[] = [];
+
+        const containers = await docker.listContainers({
+            filters: {
+                name: [prefix ?? ''],
+            },
+            all: true,
         });
-        console.info('Docker containers and network ports:');
-        console.info(stdout);
+
+        containers.map((container) => {
+            status.push({
+                id: container.Id.substring(0, 12),
+                name: container.Names[0].replace('/', ''),
+                privatePort: container.Ports[0]['PrivatePort'],
+                publicPort: container.Ports[0]['PublicPort'],
+            });
+        });
+
+        return status;
     }
 }
