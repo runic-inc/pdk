@@ -20,19 +20,19 @@ export class FeeService {
         this.account = privateKeyToAccount(deployConfig.privateKey as `0x${string}`);
 
         this.publicClient = createPublicClient({
-            chain: foundry,
+            chain: foundry, //TODO: Don't hard code this
             transport: http(deployConfig.rpcUrl),
         });
 
         this.walletClient = createWalletClient({
             account: this.account,
-            chain: foundry,
+            chain: foundry, //TODO: Don't hard code this
             transport: http(deployConfig.rpcUrl),
         });
 
-        this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;
+        this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;\
 
-        //ProjectConfig gets loaded on configureFeesForDeployment
+        //this gets loaded on configureFeesForDeployment
         this.projectConfig = {
             name: 'Temp',
             scopes: [],
@@ -131,18 +131,43 @@ export class FeeService {
         }
 
         // Configure fees that are specified and not already set
-        if (fees.mintFee !== undefined && (!mintConfig || mintConfig.flatFee === 0n)) {
-            const feeInWei = BigInt(Math.floor(fees.mintFee * 1e18));
-            const { request } = await this.publicClient.simulateContract({
-                account: this.account,
-                address: this.patchworkAddress,
-                abi: [parseAbiItem('function setMintConfiguration(address addr, tuple(uint256 flatFee, bool active) memory config)')],
-                functionName: 'setMintConfiguration',
-                args: [contractAddress, { flatFee: feeInWei, active: true }] as const,
-            });
+        if (fees.mintFee !== undefined) {
+            let shouldSetMintConfig = isLocal;
+            let shouldActivate = isLocal;
 
-            const hash = await this.walletClient.writeContract(request);
-            console.info(`Set mint fee for ${contractAddress} to ${fees.mintFee} ETH (tx: ${hash})`);
+            if (!isLocal && (!mintConfig || mintConfig.flatFee === 0n)) {
+                shouldSetMintConfig = await confirm({
+                    message: 'Would you like to configure the mint fee?',
+                    default: true,
+                });
+            }
+
+            if (!isLocal && mintConfig && !mintConfig.active) {
+                shouldActivate = await confirm({
+                    message: 'Minting is currently not active for this contract. Would you like to enable minting?',
+                    default: true,
+                });
+            }
+
+            if (shouldSetMintConfig || shouldActivate) {
+                const feeInWei = BigInt(Math.floor(fees.mintFee * 1e18));
+                const { request } = await this.publicClient.simulateContract({
+                    account: this.account,
+                    address: this.patchworkAddress,
+                    abi: [parseAbiItem('function setMintConfiguration(address addr, tuple(uint256 flatFee, bool active) memory config)')],
+                    functionName: 'setMintConfiguration',
+                    args: [
+                        contractAddress,
+                        {
+                            flatFee: shouldSetMintConfig ? feeInWei : mintConfig?.flatFee || 0n,
+                            active: true,
+                        },
+                    ] as const,
+                });
+
+                const hash = await this.walletClient.writeContract(request);
+                console.info(`Set mint config for ${contractAddress} to ${fees.mintFee} ETH, minting active: true (tx: ${hash})`);
+            }
         }
 
         if (fees.assignFee !== undefined && (!assignFee || assignFee === 0n)) {
