@@ -3,6 +3,7 @@ import { ContractProcessor } from './services/contract-processor';
 import { DeploymentManager } from './services/deployment-manager';
 import { DockerService } from './services/docker';
 import { EnvGenerator } from './services/env';
+import { FeeService } from './services/fees';
 import { GeneratorService } from './services/generator';
 import { DeployConfig, DeploymentAddresses } from './types';
 
@@ -43,7 +44,6 @@ async function deployIfNeeded(
 
 export async function localDevUp(configPath: string, config: DeployConfig = {}): Promise<DeploymentAddresses> {
     console.info('Running local development environment...');
-
     const deployConfig = await initializeConfig(configPath, config);
     const lockFileManager = new LockFileManager(configPath);
     const dockerService = new DockerService(configPath);
@@ -51,17 +51,19 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     const contractProcessor = new ContractProcessor();
     const envGenerator = new EnvGenerator(configPath);
     const generatorService = new GeneratorService(configPath, lockFileManager);
+    const feeService = new FeeService(configPath, deployConfig);
 
     await dockerService.startServices();
     await generatorService.processGenerators();
-
     const network = lockFileManager.getCurrentNetwork();
     const deployedContracts = await deployIfNeeded(deploymentManager, contractProcessor, configPath, deployConfig, network);
+
+    // Configure fees for all deployed contracts
+    await feeService.configureFeesForDeployment(deployedContracts, network === 'local');
 
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();
     const status = await dockerService.getContainerStatus();
     console.table(status);
-
     return deployedContracts;
 }
