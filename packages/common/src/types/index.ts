@@ -137,6 +137,12 @@ type Letter =
 
 export type ValidNameIdentifier = `${Letter}${string}`;
 
+export type ContractFeeConfig = {
+    mintFee?: number;
+    assignFee?: number;
+    patchFee?: number;
+  };
+
 export type ContractConfig = {
     scopeName: string;
     name: ValidNameIdentifier;
@@ -147,6 +153,7 @@ export type ContractConfig = {
     fields: FieldConfig[];
     features: Feature[];
     fragments?: string[];
+    fees?: ContractFeeConfig;
 };
 
 export type AssignmentNodeData = {
