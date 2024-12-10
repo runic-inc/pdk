@@ -57,6 +57,11 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
+            fees: {
+                mintFee: 0.000111,
+                assignFee: 0,
+                patchFee: 0,
+            },
         },
     },
     scopes: [
