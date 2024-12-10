@@ -60,7 +60,8 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();
-    await dockerService.displayContainerStatus();
+    const status = await dockerService.getContainerStatus();
+    console.table(status);
 
     return deployedContracts;
 }

@@ -23,6 +23,7 @@ import {
     generateWWWEnv,
 } from './generate';
 import { networkList, networkSwitch } from './network';
+import { status } from './status';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -54,6 +55,14 @@ program
                 throw new PDKError(ErrorCode.PDK_ERROR, `Error validating config ${configFile}`);
             }
         }
+    });
+
+program
+    .command('status')
+    .description('Show the status of the current project')
+    .action(async () => {
+        const configPath = await getConfigPath();
+        await status(configPath);
     });
 
 const convert = program.command('convert').description('convert commands');

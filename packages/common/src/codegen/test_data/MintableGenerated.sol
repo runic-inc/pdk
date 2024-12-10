@@ -65,14 +65,14 @@ abstract contract MintableGenerated is Patchwork721, IPatchworkMintable {
         return data;
     }
 
-    function mint(address to, bytes calldata data) public payable returns (uint256 tokenId) {
+    function mint(address to, bytes calldata data) public virtual payable returns (uint256 tokenId) {
         if (msg.sender != _manager) {
             return IPatchworkProtocol(_manager).mint{value: msg.value}(to, address(this), data);
         }
         return _mintSingle(to, data);
     }
 
-    function mintBatch(address to, bytes calldata data, uint256 quantity) public payable returns (uint256[] memory tokenIds) {
+    function mintBatch(address to, bytes calldata data, uint256 quantity) public virtual payable returns (uint256[] memory tokenIds) {
         if (msg.sender != _manager) {
             return IPatchworkProtocol(_manager).mintBatch{value: msg.value}(to, address(this), data, quantity);
         }
@@ -82,7 +82,7 @@ abstract contract MintableGenerated is Patchwork721, IPatchworkMintable {
         }
     }
 
-    function _mintSingle(address to, bytes calldata /* data */) internal returns (uint256) {
+    function _mintSingle(address to, bytes calldata /* data */) internal virtual returns (uint256) {
         uint256 tokenId = _nextTokenId;
         _metadataStorage[tokenId] = new uint256[](1);
         _nextTokenId++;
