@@ -6,7 +6,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { foundry } from 'viem/chains';
 import { importPatchworkConfig } from '../../common/helpers/config';
 import { DeployConfig, DeploymentAddresses } from '../types';
-import { PatchworkProtocol } from './PatchworkProtocol.abi';
+import { PatchworkProtocol } from './abis/PatchworkProtocol.abi';
 
 export class FeeService {
     private publicClient: PublicClient;
