@@ -1,11 +1,12 @@
 import { confirm } from '@inquirer/prompts';
 import { ProjectConfig } from '@patchworkdev/common/types';
 import path from 'path';
-import { createPublicClient, createWalletClient, http, parseAbiItem, type PublicClient, type WalletClient } from 'viem';
+import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { foundry } from 'viem/chains';
 import { importPatchworkConfig } from '../../common/helpers/config';
 import { DeployConfig, DeploymentAddresses } from '../types';
+import { PatchworkProtocol } from './PatchworkProtocol.abi';
 
 export class FeeService {
     private publicClient: PublicClient;
@@ -32,9 +33,8 @@ export class FeeService {
 
         this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;
 
-        //this gets loaded on configureFeesForDeployment
         this.projectConfig = {
-            name: 'Temp',
+            name: 'temp',
             scopes: [],
             contracts: {},
         };
@@ -49,7 +49,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getMintConfiguration(address addr) view returns ((uint256 flatFee, bool active))')],
+                abi: PatchworkProtocol,
                 functionName: 'getMintConfiguration',
                 args: [contractAddress],
             });
@@ -64,7 +64,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getAssignFee(address fragmentAddress) view returns (uint256)')],
+                abi: PatchworkProtocol,
                 functionName: 'getAssignFee',
                 args: [contractAddress],
             });
@@ -79,7 +79,7 @@ export class FeeService {
         try {
             const result = await this.publicClient.readContract({
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function getPatchFee(address addr) view returns (uint256)')],
+                abi: PatchworkProtocol,
                 functionName: 'getPatchFee',
                 args: [contractAddress],
             });
@@ -100,7 +100,6 @@ export class FeeService {
             if (typeof contractConfig === 'string' || !contractConfig?.fees) {
                 continue;
             }
-
             await this.configureFees(deployment.deployedAddress as `0x${string}`, contractConfig.fees, isLocal);
         }
     }
@@ -154,7 +153,7 @@ export class FeeService {
                 const { request } = await this.publicClient.simulateContract({
                     account: this.account,
                     address: this.patchworkAddress,
-                    abi: [parseAbiItem('function setMintConfiguration(address addr, (uint256 flatFee, bool active)) nonpayable')],
+                    abi: PatchworkProtocol,
                     functionName: 'setMintConfiguration',
                     args: [
                         contractAddress,
@@ -162,7 +161,7 @@ export class FeeService {
                             flatFee: shouldSetMintConfig ? feeInWei : mintConfig?.flatFee || 0n,
                             active: true,
                         },
-                    ] as const,
+                    ],
                 });
 
                 const hash = await this.walletClient.writeContract(request);
@@ -175,9 +174,9 @@ export class FeeService {
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function setAssignFee(address fragmentAddress, uint256 baseFee) nonpayable')],
+                abi: PatchworkProtocol,
                 functionName: 'setAssignFee',
-                args: [contractAddress, feeInWei] as const,
+                args: [contractAddress, feeInWei],
             });
 
             const hash = await this.walletClient.writeContract(request);
@@ -189,9 +188,9 @@ export class FeeService {
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
                 address: this.patchworkAddress,
-                abi: [parseAbiItem('function setPatchFee(address addr, uint256 baseFee) nonpayable')],
+                abi: PatchworkProtocol,
                 functionName: 'setPatchFee',
-                args: [contractAddress, feeInWei] as const,
+                args: [contractAddress, feeInWei],
             });
 
             const hash = await this.walletClient.writeContract(request);
