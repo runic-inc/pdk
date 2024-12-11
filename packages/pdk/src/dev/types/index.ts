@@ -14,3 +14,18 @@ export type DeploymentInfo = {
 export type DeploymentAddresses = {
     [contractName: string]: DeploymentInfo;
 };
+
+export interface TaskExecuteParams {
+    deployConfig: DeployConfig;
+    deployedContracts: DeploymentAddresses;
+}
+
+export type TaskExecuteFn = (params: TaskExecuteParams) => Promise<void>;
+
+export interface Task {
+    name: string;
+    description: string;
+    enabled: boolean;
+    order: number;
+    execute: TaskExecuteFn;
+}

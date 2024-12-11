@@ -5,6 +5,7 @@ import { DockerService } from './services/docker';
 import { EnvGenerator } from './services/env';
 import { FeeService } from './services/fees';
 import { GeneratorService } from './services/generator';
+import { TaskService } from './services/tasks';
 import { DeployConfig, DeploymentAddresses } from './types';
 
 async function initializeConfig(configPath: string, config: DeployConfig = {}): Promise<DeployConfig> {
@@ -56,6 +57,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     const envGenerator = new EnvGenerator(configPath);
     const generatorService = new GeneratorService(configPath, lockFileManager);
     const feeService = new FeeService(configPath, deployConfig);
+    const taskService = new TaskService(configPath);
 
     await dockerService.startServices();
     await generatorService.processGenerators();
@@ -64,6 +66,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
 
     // Configure fees for all deployed contracts
     await feeService.configureFeesForDeployment(deployedContracts);
+    await taskService.runTasks({ deployConfig, deployedContracts });
 
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();

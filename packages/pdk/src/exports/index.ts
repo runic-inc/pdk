@@ -4,3 +4,5 @@ export const processContracts = async (configPath: string, config = {}, shouldDe
     const processor = new ContractProcessor();
     return processor.processContracts(configPath, config, shouldDeploy);
 };
+
+export * from '../dev/types';
