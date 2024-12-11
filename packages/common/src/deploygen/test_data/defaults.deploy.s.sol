@@ -105,6 +105,9 @@ contract SampleProjectDeploy is Script {
         deployments.FragmentSingle.deployedAddress = address(fragmentsingle);
 
         literef8.registerReferenceAddress(address(fragmentsingle));
+        PatchworkProtocol pp = PatchworkProtocol(ppAddress);
+        pp.addWhitelist("test", address(literef8));
+        pp.addWhitelist("test", address(fragmentsingle));
 
         vm.stopBroadcast();
     }
@@ -113,7 +116,7 @@ contract SampleProjectDeploy is Script {
         PatchworkProtocol pp = PatchworkProtocol(ppAddress);
         if (pp.getScopeOwner("test") == address(0)) {
             pp.claimScope("test");
-            pp.setScopeRules("test", true, true, false);
+            pp.setScopeRules("test", false, false, true);
         }
     }
 
