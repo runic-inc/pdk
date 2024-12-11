@@ -9,11 +9,4 @@ export const tasks: Task[] = [
         order: 0,
         execute: exampleTask,
     },
-    {
-        name: 'Example Task 3',
-        description: 'Runs  example task 2 on dev up',
-        enabled: true,
-        order: 1,
-        execute: exampleTask,
-    },
 ];
