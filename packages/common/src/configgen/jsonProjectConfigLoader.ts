@@ -30,9 +30,9 @@ export class JSONProjectConfigLoader {
         return {
             name: scopeConfig.name,
             owner: scopeConfig.owner,
-            whitelist: scopeConfig.whitelist,
-            userAssign: scopeConfig.userAssign,
-            userPatch: scopeConfig.userPatch,
+            whitelist: scopeConfig.whitelist !== undefined ? scopeConfig.whitelist : true,
+            userAssign: scopeConfig.userAssign !== undefined ? scopeConfig.userAssign : false,
+            userPatch: scopeConfig.userPatch !== undefined ? scopeConfig.userPatch : false,
             bankers: scopeConfig.bankers,
             operators: scopeConfig.operators,
             mintConfigs: scopeConfig.mintConfigs || {},
