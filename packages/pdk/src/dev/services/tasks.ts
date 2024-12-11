@@ -1,5 +1,6 @@
 import path from 'path';
-import { register } from 'ts-node';
+import { logger } from '../../common/helpers/logger';
+import { tsLoader } from '../../common/helpers/tsLoader';
 import { Task, TaskExecuteParams } from '../types';
 
 export class TaskService {
@@ -7,23 +8,18 @@ export class TaskService {
 
     constructor(configPath: string) {
         this.configPath = configPath;
-
-        register({
-            transpileOnly: true,
-            compilerOptions: {
-                module: 'CommonJS',
-            },
-        });
     }
 
     private async loadTasks(): Promise<Task[]> {
         try {
             const configDir = path.dirname(path.isAbsolute(this.configPath) ? this.configPath : path.resolve(process.cwd(), this.configPath));
 
-            const tasksModule = await import(path.join(configDir, 'tasks/index.ts'));
+            const tasksPath = path.join(configDir, 'tasks/index.ts');
+            const tasksModule = await tsLoader<{ tasks: Task[] }>(tasksPath);
+
             return tasksModule.tasks || [];
         } catch (error) {
-            console.warn('No custom tasks found:', error);
+            logger.warn('No custom tasks found:', error);
             return [];
         }
     }
@@ -34,12 +30,12 @@ export class TaskService {
         const enabledTasks = tasks.filter((task) => task.enabled).sort((a, b) => a.order - b.order);
 
         for (const task of enabledTasks) {
-            console.info(`Executing task: ${task.name} - ${task.description}`);
+            logger.info(`Executing task: ${task.name} - ${task.description}`);
             try {
                 await task.execute(params);
-                console.info(`Successfully completed task: ${task.name}`);
+                logger.info(`Successfully completed task: ${task.name}`);
             } catch (error) {
-                console.error(`Failed to execute task ${task.name}:`, error);
+                logger.error(`Failed to execute task ${task.name}:`, error);
                 throw error;
             }
         }
