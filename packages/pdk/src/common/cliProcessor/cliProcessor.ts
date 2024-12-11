@@ -249,7 +249,7 @@ export class CLIProcessor {
             }).default;
             if (Object.hasOwn(config, 'contracts')) {
                 logger.debug('Project Config detected');
-                return config as ProjectConfig;
+                return this.setProjectConfigDefaults(config as ProjectConfig);
             } else {
                 logger.debug('Individual contract config detected');
                 return new ContractSchemaImpl(config as ContractConfig);
@@ -365,5 +365,22 @@ export class CLIProcessor {
                 throw new Error(`Invalid Typescript filename: ${configFile}`);
             }
         }
+    }
+
+    // Set default values for project config
+    setProjectConfigDefaults(projectConfig: ProjectConfig): ProjectConfig {
+        const projectConfigCopy = { ...projectConfig };
+        Object.entries(projectConfigCopy.scopes).forEach(([key, value]) => {
+            if (value.whitelist === undefined) {
+                value.whitelist = true;
+            }
+            if (value.userAssign === undefined) {
+                value.userAssign = false;
+            }
+            if (value.userPatch === undefined) {
+                value.userPatch = false;
+            }
+        });
+        return projectConfigCopy;
     }
 }
