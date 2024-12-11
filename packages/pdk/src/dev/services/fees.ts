@@ -1,5 +1,5 @@
 import { confirm } from '@inquirer/prompts';
-import { ProjectConfig } from '@patchworkdev/common/types';
+import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 import path from 'path';
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -90,6 +90,10 @@ export class FeeService {
         }
     }
 
+    private hasFeature(features: Feature[], ...requiredFeatures: Feature[]): boolean {
+        return requiredFeatures.some(feature => features.includes(feature));
+    }
+
     async configureFeesForDeployment(deployedContracts: DeploymentAddresses, isLocal: boolean): Promise<void> {
         await this.loadConfig();
 
@@ -100,7 +104,7 @@ export class FeeService {
             if (typeof contractConfig === 'string' || !contractConfig?.fees) {
                 continue;
             }
-            await this.configureFees(deployment.deployedAddress as `0x${string}`, contractConfig.fees, isLocal);
+            await this.configureFees(deployment.deployedAddress as `0x${string}`, contractConfig.fees, contractConfig.features, isLocal);
         }
     }
 
@@ -111,6 +115,7 @@ export class FeeService {
             assignFee?: number;
             patchFee?: number;
         },
+        features: Feature[],
         isLocal: boolean,
     ): Promise<void> {
         const mintConfig = await this.checkMintConfig(contractAddress);
@@ -129,8 +134,8 @@ export class FeeService {
             }
         }
 
-        // Configure fees that are specified and not already set
-        if (fees.mintFee !== undefined) {
+        // Configure mint fee only if MINTABLE feature is present
+        if (fees.mintFee !== undefined && this.hasFeature(features, Feature.MINTABLE)) {
             let shouldSetMintConfig = isLocal;
             let shouldActivate = isLocal;
 
@@ -167,9 +172,14 @@ export class FeeService {
                 const hash = await this.walletClient.writeContract(request);
                 console.info(`Set mint config for ${contractAddress} to ${fees.mintFee} ETH, minting active: true (tx: ${hash})`);
             }
+        } else if (fees.mintFee !== undefined) {
+            console.warn(`Skipping mint fee configuration for ${contractAddress} - MINTABLE feature not present`);
         }
 
-        if (fees.assignFee !== undefined && (!assignFee || assignFee === 0n)) {
+        // Configure assign fee only if FRAGMENTMULTI or FRAGMENTSINGLE features are present
+        if (fees.assignFee !== undefined && 
+            this.hasFeature(features, Feature.FRAGMENTMULTI, Feature.FRAGMENTSINGLE) && 
+            (!assignFee || assignFee === 0n)) {
             const feeInWei = BigInt(Math.floor(fees.assignFee * 1e18));
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
@@ -181,9 +191,14 @@ export class FeeService {
 
             const hash = await this.walletClient.writeContract(request);
             console.info(`Set assign fee for ${contractAddress} to ${fees.assignFee} ETH (tx: ${hash})`);
+        } else if (fees.assignFee !== undefined) {
+            console.warn(`Skipping assign fee configuration for ${contractAddress} - FRAGMENTMULTI or FRAGMENTSINGLE features not present`);
         }
 
-        if (fees.patchFee !== undefined && (!patchFee || patchFee === 0n)) {
+        // Configure patch fee only if PATCH, 1155PATCH, or ACCOUNTPATCH features are present
+        if (fees.patchFee !== undefined && 
+            this.hasFeature(features, Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH) && 
+            (!patchFee || patchFee === 0n)) {
             const feeInWei = BigInt(Math.floor(fees.patchFee * 1e18));
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
@@ -195,6 +210,8 @@ export class FeeService {
 
             const hash = await this.walletClient.writeContract(request);
             console.info(`Set patch fee for ${contractAddress} to ${fees.patchFee} ETH (tx: ${hash})`);
+        } else if (fees.patchFee !== undefined) {
+            console.warn(`Skipping patch fee configuration for ${contractAddress} - PATCH, 1155PATCH, or ACCOUNTPATCH features not present`);
         }
     }
 }
