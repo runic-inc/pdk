@@ -40,6 +40,7 @@
         "@hono/node-server": "1.12.2",
         "@patchworkdev/common": "workspace:*",
         "@ponder/core": "^0.5.17",
+        "@inquirer/prompts": "^7.2.0",
         "commander": "12.1.0",
         "dockerode": "4.0.2",
         "execa": "9.5.0",
