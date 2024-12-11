@@ -3,7 +3,7 @@ import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 import path from 'path';
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { foundry } from 'viem/chains';
+import { base } from 'viem/chains';
 import { importPatchworkConfig } from '../../common/helpers/config';
 import { DeployConfig, DeploymentAddresses } from '../types';
 import { PatchworkProtocol } from './abis/PatchworkProtocol.abi';
@@ -21,13 +21,12 @@ export class FeeService {
         this.account = privateKeyToAccount(deployConfig.privateKey as `0x${string}`);
 
         this.publicClient = createPublicClient({
-            chain: foundry, //TODO: Don't hard code this
             transport: http(deployConfig.rpcUrl),
         });
 
         this.walletClient = createWalletClient({
             account: this.account,
-            chain: foundry, //TODO: Don't hard code this
+            chain: base, //TODO: Don't hard code this
             transport: http(deployConfig.rpcUrl),
         });
 
@@ -91,7 +90,7 @@ export class FeeService {
     }
 
     private hasFeature(features: Feature[], ...requiredFeatures: Feature[]): boolean {
-        return requiredFeatures.some(feature => features.includes(feature));
+        return requiredFeatures.some((feature) => features.includes(feature));
     }
 
     async configureFeesForDeployment(deployedContracts: DeploymentAddresses, isLocal: boolean): Promise<void> {
@@ -177,9 +176,7 @@ export class FeeService {
         }
 
         // Configure assign fee only if FRAGMENTMULTI or FRAGMENTSINGLE features are present
-        if (fees.assignFee !== undefined && 
-            this.hasFeature(features, Feature.FRAGMENTMULTI, Feature.FRAGMENTSINGLE) && 
-            (!assignFee || assignFee === 0n)) {
+        if (fees.assignFee !== undefined && this.hasFeature(features, Feature.FRAGMENTMULTI, Feature.FRAGMENTSINGLE) && (!assignFee || assignFee === 0n)) {
             const feeInWei = BigInt(Math.floor(fees.assignFee * 1e18));
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
@@ -196,9 +193,11 @@ export class FeeService {
         }
 
         // Configure patch fee only if PATCH, 1155PATCH, or ACCOUNTPATCH features are present
-        if (fees.patchFee !== undefined && 
-            this.hasFeature(features, Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH) && 
-            (!patchFee || patchFee === 0n)) {
+        if (
+            fees.patchFee !== undefined &&
+            this.hasFeature(features, Feature.PATCH, Feature['1155PATCH'], Feature.ACCOUNTPATCH) &&
+            (!patchFee || patchFee === 0n)
+        ) {
             const feeInWei = BigInt(Math.floor(fees.patchFee * 1e18));
             const { request } = await this.publicClient.simulateContract({
                 account: this.account,
