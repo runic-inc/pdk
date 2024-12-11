@@ -40,6 +40,7 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
     /*
      * Intro logging
      */
+    console.log('\n');
     p.intro('🚀 ' + pico.bold(pico.cyan('create-patchwork')) + pico.dim(` v${version}`));
     if (useLocalPackages) p.log.warn(pico.yellow('Using local packages!'));
 
@@ -102,11 +103,6 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
         },
     );
 
-    const templatesDir = path.join(__dirname, 'templates');
-    const boilerplatePath = path.join(templatesDir, 'default');
-    const targetDir = path.join(targetPath, prompts.dirName);
-    const targetConfigPath = path.join(targetDir, 'patchwork.config.ts');
-
     /*
      * Task formatting utils
      */
@@ -116,6 +112,11 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
     /*
      * Task runner
      */
+    const templatesDir = path.join(__dirname, 'templates');
+    const boilerplatePath = path.join(templatesDir, 'default');
+    const targetDir = path.join(targetPath, prompts.dirName);
+    const targetConfigPath = path.join(targetDir, 'patchwork.config.ts');
+
     await p
         .tasks([
             {
