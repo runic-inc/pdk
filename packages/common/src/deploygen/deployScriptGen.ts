@@ -194,7 +194,7 @@ export class DeployScriptGen {
         for (const scopeConfig of projectConfig.scopes) {
             script += `        if (pp.getScopeOwner("${scopeConfig.name}") == address(0)) {\n`;
             script += `            pp.claimScope("${scopeConfig.name}");\n`;
-            script += `            pp.setScopeRules("${scopeConfig.name}", false, false, true);\n`;
+            script += `            pp.setScopeRules("${scopeConfig.name}", ${scopeConfig.userPatch}, ${scopeConfig.userAssign}, ${scopeConfig.whitelist});\n`;
             script += `        }\n`;
         }
         
