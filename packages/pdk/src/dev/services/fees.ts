@@ -3,10 +3,10 @@ import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 import path from 'path';
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { base } from 'viem/chains';
 import { importPatchworkConfig } from '../../common/helpers/config';
 import { DeployConfig, DeploymentAddresses } from '../types';
 import { PatchworkProtocol } from './abis/PatchworkProtocol.abi';
+import { getChainForNetwork } from './helpers';
 
 export class FeeService {
     private publicClient: PublicClient;
@@ -15,9 +15,11 @@ export class FeeService {
     private account: ReturnType<typeof privateKeyToAccount>;
     private configPath: string;
     private projectConfig: ProjectConfig;
+    private deployConfig: DeployConfig;
 
     constructor(configPath: string, deployConfig: DeployConfig) {
         this.configPath = configPath;
+        this.deployConfig = deployConfig;
         this.account = privateKeyToAccount(deployConfig.privateKey as `0x${string}`);
 
         this.publicClient = createPublicClient({
@@ -26,7 +28,7 @@ export class FeeService {
 
         this.walletClient = createWalletClient({
             account: this.account,
-            chain: base, //TODO: Don't hard code this
+            chain: getChainForNetwork(deployConfig.network),
             transport: http(deployConfig.rpcUrl),
         });
 
@@ -93,7 +95,7 @@ export class FeeService {
         return requiredFeatures.some((feature) => features.includes(feature));
     }
 
-    async configureFeesForDeployment(deployedContracts: DeploymentAddresses, isLocal: boolean): Promise<void> {
+    async configureFeesForDeployment(deployedContracts: DeploymentAddresses): Promise<void> {
         await this.loadConfig();
 
         for (const [contractName, deployment] of Object.entries(deployedContracts)) {
@@ -103,7 +105,7 @@ export class FeeService {
             if (typeof contractConfig === 'string' || !contractConfig?.fees) {
                 continue;
             }
-            await this.configureFees(deployment.deployedAddress as `0x${string}`, contractConfig.fees, contractConfig.features, isLocal);
+            await this.configureFees(deployment.deployedAddress as `0x${string}`, contractConfig.fees, contractConfig.features);
         }
     }
 
@@ -115,11 +117,12 @@ export class FeeService {
             patchFee?: number;
         },
         features: Feature[],
-        isLocal: boolean,
     ): Promise<void> {
         const mintConfig = await this.checkMintConfig(contractAddress);
         const assignFee = await this.checkAssignFee(contractAddress);
         const patchFee = await this.checkPatchFee(contractAddress);
+
+        const isLocal = this.deployConfig.network === 'local';
 
         if (!isLocal) {
             const shouldConfigure = await confirm({
