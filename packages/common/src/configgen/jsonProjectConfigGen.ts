@@ -49,15 +49,6 @@ export class JSONProjectConfigGen {
         if (scopeConfig.operators) {
             scopeProps.push(`"operators": [${scopeConfig.operators.map(operator => `"${operator}"`).join(',')}]`);
         }
-        if (scopeConfig.mintConfigs) {
-            scopeProps.push(`"mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)}`);
-        }
-        if (scopeConfig.patchFees) {
-            scopeProps.push(`"patchFees": ${this.genPatchFees(scopeConfig.patchFees)}`);
-        }
-        if (scopeConfig.assignFees) {
-            scopeProps.push(`"assignFees": ${this.genAssignFees(scopeConfig.assignFees)}`);
-        }
         return `        "${scopeConfig.name}": {\n` +
             ind(12, scopeProps.join(',\n')) +
             `        }`;

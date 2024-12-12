@@ -43,15 +43,6 @@ export class TSProjectConfigGen {
         if (scopeConfig.operators && scopeConfig.operators.length > 0) {
             out += `            operators: [${scopeConfig.operators.map(operator => `"${operator}"`).join(', ')}],\n`;
         }
-        if (scopeConfig.mintConfigs) {
-            out += `            mintConfigs: {${this.genRecordEntries(scopeConfig.mintConfigs)}},\n`;
-        }
-        if (scopeConfig.patchFees) {
-            out += `            patchFees: {${this.genRecordEntries(scopeConfig.patchFees)}},\n`;
-        }
-        if (scopeConfig.assignFees) {
-            out += `            assignFees: {${this.genRecordEntries(scopeConfig.assignFees)}}\n`;
-        }
         out += `        }`;
         return out;
     }
