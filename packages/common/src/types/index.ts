@@ -141,7 +141,7 @@ export type ContractFeeConfig = {
     mintFee?: number;
     assignFee?: number;
     patchFee?: number;
-  };
+};
 
 export type ContractConfig = {
     scopeName: string;
