@@ -6,7 +6,7 @@ export class TSProjectConfigGen {
     gen(projectConfig: ProjectConfig): string {
         const constantName = this.generateConstantName(projectConfig.name);
         
-        let out = `import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        let out = `import { ContractConfig, Feature, FunctionConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;

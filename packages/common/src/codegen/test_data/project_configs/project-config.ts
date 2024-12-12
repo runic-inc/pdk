@@ -1,4 +1,4 @@
-import { ProjectConfig } from "@patchworkdev/common/types";
+import { ContractConfig, Feature, FunctionConfig, ProjectConfig } from "@patchworkdev/common/types";
 
 const exampleProjectProjectConfig: ProjectConfig = {
     name: "Example Project",
