@@ -1,4 +1,4 @@
-import { Chain, base, baseSepolia } from 'viem/chains';
+import { Chain, anvil, base, baseSepolia } from 'viem/chains';
 
 export function getChainForNetwork(network?: string): Chain {
     switch (network) {
@@ -7,7 +7,7 @@ export function getChainForNetwork(network?: string): Chain {
         case 'base-sepolia':
             return baseSepolia;
         case 'local':
-            return base; // Use base for local development
+            return anvil;
         default:
             console.warn(`Unknown network ${network}, defaulting to base`);
             return base;
