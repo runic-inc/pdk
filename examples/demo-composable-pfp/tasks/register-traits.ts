@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { createPublicClient, createWalletClient, http, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { traits, TraitType, type Trait } from '../assets/tratis';
+import { traits, TraitType, type Trait } from '../assets/traits';
 
 const characterTraitsAbi = [
     parseAbiItem('event Register(uint16 indexed traitId, uint8 indexed traitType, string name)'),
@@ -34,8 +34,8 @@ export async function registerTraitsTask({ deployConfig, deployedContracts }: Ta
         transport: http(deployConfig.rpcUrl),
     });
 
-    const traitContractAddress = deployedContracts.Trait.deployedAddress as `0x${string}`;
-    const deploymentBlock = BigInt(deployedContracts.Trait.deploymentBlock);
+    const traitContractAddress = deployedContracts.CharacterTraits.deployedAddress as `0x${string}`;
+    const deploymentBlock = BigInt(deployedContracts.CharacterTraits.deploymentBlock);
 
     console.log('Contract:', traitContractAddress);
     console.log('Deployment Block:', deploymentBlock.toString());

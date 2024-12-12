@@ -27,9 +27,9 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [],
-            fragments: ['Trait'],
+            fragments: ['CharacterTraits'],
         },
-        Trait: {
+        CharacterTraits: {
             scopeName: 'composable-pfp-demo',
             name: 'Character Traits',
             symbol: 'CHARTRAIT',
@@ -39,7 +39,7 @@ const projectConfig: ProjectConfig = {
             fields: [
                 {
                     id: 0,
-                    key: 'id',
+                    key: 'trait_id',
                     type: 'uint16',
                     description: 'Trait ID',
                 },
@@ -51,7 +51,7 @@ const projectConfig: ProjectConfig = {
                 },
                 {
                     id: 2,
-                    key: 'name',
+                    key: 'trait_name',
                     type: 'char16',
                     description: 'Trait Name',
                 },

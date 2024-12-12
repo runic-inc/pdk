@@ -141,7 +141,7 @@ export type ContractFeeConfig = {
     mintFee?: number;
     assignFee?: number;
     patchFee?: number;
-  };
+};
 
 export type ContractConfig = {
     scopeName: string;
@@ -204,11 +204,9 @@ export type Network = {
     rpc: string;
 };
 
-export type ContractsConfig = Record<string, ContractConfig | string>;
-
 export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
     name: ValidNameIdentifier;
     scopes: ScopeConfig[];
-    contracts: ContractsConfig;
+    contracts: Record<string, ContractConfig | string>;
     networks?: Record<T, Network>;
 };
