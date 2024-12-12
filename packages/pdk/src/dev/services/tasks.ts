@@ -13,19 +13,22 @@ export class TaskService {
     private async loadTasks(): Promise<Task[]> {
         try {
             const configDir = path.dirname(path.isAbsolute(this.configPath) ? this.configPath : path.resolve(process.cwd(), this.configPath));
-
             const tasksPath = path.join(configDir, 'tasks/index.ts');
+            logger.debug(`Loading tasks from ${tasksPath}`);
             const tasksModule = await tsLoader<{ tasks: Task[] }>(tasksPath);
-
             return tasksModule.tasks || [];
         } catch (error) {
-            logger.warn('No custom tasks found:', error);
+            logger.warn(`No custom tasks found: ${error}`);
             return [];
         }
     }
 
     async runTasks(params: TaskExecuteParams): Promise<void> {
         const tasks = await this.loadTasks();
+
+        if (!tasks.length) {
+            return logger.info('No tasks to execute.');
+        }
 
         const enabledTasks = tasks.filter((task) => task.enabled).sort((a, b) => a.order - b.order);
 
