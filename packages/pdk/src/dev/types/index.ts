@@ -9,6 +9,7 @@ export type DeployConfig = {
 export type DeploymentInfo = {
     deployedAddress: string;
     bytecodeHash: string;
+    deploymentBlock: number;
 };
 
 export type DeploymentAddresses = {
@@ -26,6 +27,5 @@ export interface Task {
     name: string;
     description: string;
     enabled: boolean;
-    order: number;
     execute: TaskExecuteFn;
 }
