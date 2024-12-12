@@ -15,7 +15,11 @@ export class TaskService {
             const configDir = path.dirname(path.isAbsolute(this.configPath) ? this.configPath : path.resolve(process.cwd(), this.configPath));
             const tasksPath = path.join(configDir, 'tasks/index.ts');
             logger.debug(`Loading tasks from ${tasksPath}`);
-            const tasksModule = await tsLoader<{ tasks: Task[] }>(tasksPath);
+            const tasksModule = await tsLoader<{ tasks: Task[] }>(tasksPath, {
+                moduleOverrides: {
+                    '@patchworkdev/pdk/utils': '../../exports',
+                },
+            });
             return tasksModule.tasks || [];
         } catch (error) {
             logger.warn(`No custom tasks found: ${error}`);
