@@ -1,8 +1,15 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { BlockNumberService } from '../services/block-number';
 import { DeployConfig, DeploymentAddresses } from '../types';
 
 export class ContractProcessor {
+    private blockNumberService: BlockNumberService;
+
+    constructor() {
+        this.blockNumberService = new BlockNumberService();
+    }
+
     async processContracts(configPath: string, config: DeployConfig = {}, shouldDeploy = false): Promise<DeploymentAddresses> {
         const action = shouldDeploy ? 'Deploying' : 'Calculating addresses and bytecode for';
         console.info(`${action} contracts...`);
@@ -31,7 +38,11 @@ export class ContractProcessor {
 
             const forgeArgs = await this.buildForgeArgs(deployScript, shouldDeploy, deployConfig);
             const { stdout } = await this.runForgeCommand(forgeArgs, scriptDir, deployConfig);
-            const deployedContracts = await this.parseDeploymentOutput(stdout, contractNames);
+
+            // Get deployment block if deploying
+            const deploymentBlock = shouldDeploy && deployConfig.rpcUrl ? await this.blockNumberService.getDeploymentBlockNumber(deployConfig.rpcUrl) : 0n;
+
+            const deployedContracts = await this.parseDeploymentOutput(stdout, contractNames, Number(deploymentBlock));
 
             this.displayResults(deployedContracts);
             return deployedContracts;
@@ -96,7 +107,7 @@ export class ContractProcessor {
         });
     }
 
-    private async parseDeploymentOutput(output: string, contractNames: string[]): Promise<DeploymentAddresses> {
+    private async parseDeploymentOutput(output: string, contractNames: string[], deploymentBlock: number): Promise<DeploymentAddresses> {
         const deployedContracts: DeploymentAddresses = {};
         const lines = output.split('\n');
         const returnLine = lines.find((line) => line.includes('DeploymentAddresses({'));
@@ -116,6 +127,7 @@ export class ContractProcessor {
                 deployedContracts[contractName] = {
                     deployedAddress: match[1],
                     bytecodeHash: match[2],
+                    deploymentBlock,
                 };
             }
         }
@@ -131,12 +143,12 @@ export class ContractProcessor {
 
     private displayResults(deployedContracts: DeploymentAddresses): void {
         console.info('\nResults:');
-        console.info('═══════════════════════════════════════════════════════════════════════════');
-        console.info('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Bytecode Hash');
-        console.info('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(66));
+        console.info('═════════════════════════════════════════════════════════════════════════════════════════');
+        console.info('Contract Name'.padEnd(20), '│', 'Address'.padEnd(42), '│', 'Block'.padEnd(10), '│', 'Bytecode Hash');
+        console.info('─'.repeat(20), '┼', '─'.repeat(42), '┼', '─'.repeat(10), '┼', '─'.repeat(66));
         Object.entries(deployedContracts).forEach(([contract, info]) => {
-            console.info(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.bytecodeHash);
+            console.info(contract.padEnd(20), '│', info.deployedAddress.padEnd(42), '│', info.deploymentBlock.toString().padEnd(10), '│', info.bytecodeHash);
         });
-        console.info('═══════════════════════════════════════════════════════════════════════════');
+        console.info('═════════════════════════════════════════════════════════════════════════════════════════');
     }
 }

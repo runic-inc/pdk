@@ -87,6 +87,7 @@ export class DeploymentManager {
                     {
                         deployedAddress: lastDeployment.address,
                         bytecodeHash: lastDeployment.hash,
+                        deploymentBlock: lastDeployment.block,
                     },
                 ];
             }),

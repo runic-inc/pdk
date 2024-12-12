@@ -10,6 +10,7 @@ export enum ErrorCode {
     PDK_ERROR = 'PDK_ERROR',
     UNKNOWN_ERROR = 'UNKNOWN_ERROR',
     FILE_READ_ERROR = 'FILE_READ_ERROR',
+    COMPILATION_ERROR = 'COMPILATION_ERROR',
 }
 
 export class PDKError extends Error {
