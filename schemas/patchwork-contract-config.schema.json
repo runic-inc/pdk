@@ -35,6 +35,24 @@
                 "type": "string"
             }
         },
+        "fees": {
+            "type": "object",
+            "properties": {
+                "mintFee": {
+                    "type": "number",
+                    "description": "Fee for minting"
+                },
+                "assignFee": {
+                    "type": "number",
+                    "description": "Fee for assignment"
+                },
+                "patchFee": {
+                    "type": "number",
+                    "description": "Fee for patching"
+                }
+            },
+            "additionalProperties": false
+        },
         "fields": {
             "type": "array",
             "items": {
