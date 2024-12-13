@@ -6,7 +6,7 @@ export class TSProjectConfigGen {
     gen(projectConfig: ProjectConfig): string {
         const constantName = this.generateConstantName(projectConfig.name);
         
-        let out = `import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        let out = `import { ContractConfig, Feature, FunctionConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
@@ -42,15 +42,6 @@ export class TSProjectConfigGen {
         }
         if (scopeConfig.operators && scopeConfig.operators.length > 0) {
             out += `            operators: [${scopeConfig.operators.map(operator => `"${operator}"`).join(', ')}],\n`;
-        }
-        if (scopeConfig.mintConfigs) {
-            out += `            mintConfigs: {${this.genRecordEntries(scopeConfig.mintConfigs)}},\n`;
-        }
-        if (scopeConfig.patchFees) {
-            out += `            patchFees: {${this.genRecordEntries(scopeConfig.patchFees)}},\n`;
-        }
-        if (scopeConfig.assignFees) {
-            out += `            assignFees: {${this.genRecordEntries(scopeConfig.assignFees)}}\n`;
         }
         out += `        }`;
         return out;

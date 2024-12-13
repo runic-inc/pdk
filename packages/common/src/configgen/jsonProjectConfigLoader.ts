@@ -35,9 +35,6 @@ export class JSONProjectConfigLoader {
             userPatch: scopeConfig.userPatch !== undefined ? scopeConfig.userPatch : false,
             bankers: scopeConfig.bankers,
             operators: scopeConfig.operators,
-            mintConfigs: scopeConfig.mintConfigs || {},
-            patchFees: scopeConfig.patchFees || {},
-            assignFees: scopeConfig.assignFees || {}
         };
     }
 }

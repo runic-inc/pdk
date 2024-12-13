@@ -76,9 +76,6 @@ export type ScopeConfig = {
     userPatch?: boolean;
     bankers?: string[];
     operators?: string[];
-    mintConfigs?: MintConfigs;
-    patchFees?: PatchFees;
-    assignFees?: AssignFees;
 };
 
 type Letter =
