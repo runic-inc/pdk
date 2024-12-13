@@ -1,3 +1,8 @@
+/*
+ * Directive needed to correctly infer all of our tRPC response types
+ */
+/// <reference types="../../../../ponder/ponder-env.d.ts" />
+
 import type { AppRouter } from '#/ponder/src/api';
 import { createTRPCReact, httpBatchLink } from '@trpc/react-query';
 import { useState } from 'react';

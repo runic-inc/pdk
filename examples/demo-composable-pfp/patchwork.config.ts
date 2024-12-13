@@ -72,15 +72,15 @@ const projectConfig: ProjectConfig = {
     networks: {
         local: {
             chain: anvil,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
         testnet: {
             chain: baseSepolia,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
         mainnet: {
             chain: base,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
     },
 };
