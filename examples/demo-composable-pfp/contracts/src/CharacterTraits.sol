@@ -49,8 +49,8 @@ contract CharacterTraits is CharacterTraitsGenerated {
             
             // Pre-register the metadata
             Metadata memory metadata = Metadata({
-                name: names[i],
-                id: ids[i],
+                trait_name: names[i],
+                trait_id: ids[i],
                 trait_type: traitTypes[i]
             });
             _traitDefinitions[ids[i]] = metadata;
