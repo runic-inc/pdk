@@ -1,30 +1,16 @@
 import { Command } from '@commander-js/extra-typings';
 import path from 'path';
+import { convertToJSON, convertToTS } from './commands/convert';
+import { localDevDown, localDevUp } from './commands/dev';
+import { generateAll, generateContractDeployScripts, generateContracts, generateTypescriptSchemas } from './commands/generate';
+import { networkList, networkSwitch } from './commands/network';
+import { status } from './commands/status';
 import { cliProcessor } from './common/cliProcessor';
-import { findConfig } from './common/helpers/config';
+import { findConfig, importPatchworkConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
-import { convertToJSON, convertToTS } from './convert';
-import { localDevDown, localDevUp } from './dev';
-import {
-    generateABIs,
-    generateAll,
-    generateAPI,
-    generateContractDeployScripts,
-    generateContracts,
-    generateDemoPage,
-    generateEventHooks,
-    generatePonderConfig,
-    generatePonderEnv,
-    generateReactComponents,
-    generateReactHooks,
-    generateSchema,
-    generateServices,
-    generateWWWEnv,
-} from './generate';
-import { generateTypescriptSchemas } from './generate/typescriptSchemas';
-import { networkList, networkSwitch } from './network';
-import { status } from './status';
+import { GeneratorService } from './services/generator';
+import LockFileManager from './services/lockFile';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -46,239 +32,257 @@ const program = new Command()
         setLogLevel(opts.verbose ? 'debug' : 'info');
     });
 
-program
-    .command('validate')
-    .argument('[configFiles...]', 'Path to the JSON files')
-    .description('Validate Patchwork contract or project configuration files')
-    .action(async (configFiles) => {
-        for (const configFile of configFiles || []) {
-            if (!cliProcessor.validateConfig(configFile)) {
-                throw new PDKError(ErrorCode.PDK_ERROR, `Error validating config ${configFile}`);
-            }
-        }
-    });
-
-program
-    .command('status')
-    .description('Show the status of the current project')
-    .action(async () => {
-        const configPath = await getConfigPath();
-        await status(configPath);
-    });
-
-const convert = program.command('convert').description('convert commands');
-convert
-    .command('toJSON')
-    .argument('[configFiles...]', 'Path to TS files')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .description('Convert Typescript project configurations to JSON')
-    .action(async (configFiles, options) => {
-        await convertToJSON(configFiles, options.output);
-    });
-
-convert
-    .command('toTS')
-    .argument('[configFiles...]', 'Path to JSON files')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .description('Convert JSON project configurations to Typescript')
-    .action(async (configFiles, options) => {
-        await convertToTS(configFiles, options.output);
-    });
-
-program
-    .command('wizard')
-    .description('Launch the Patchwork Wizard')
-    .action(async () => {
-        launchWizardApp();
-    });
-
-const generate = program.command('generate').description('generate commands');
-
-generate
-    .command('contracts')
-    .argument('[configFiles...]', 'Path to the JSON or TS files')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .option('-c, --contract <name>', 'Name of the specific contract to generate')
-    .description('Generate patchwork contracts')
-    .action(async (configFiles, options) => {
-        await generateContracts(configFiles, options.output, options.contract);
-    });
-
-generate
-    .command('deployScripts')
-    .argument('[configFiles...]', 'Path to the JSON or TS files')
-    .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
-    .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-    .description('Generate deploy scripts')
-    .action(async (configFiles, options) => {
-        await generateContractDeployScripts(configFiles, options.contractsDir, options.output);
-    });
-
-generate
-    .command('ABIs')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate TypeScript ABIs for ponder')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateABIs(configPath);
-    });
-
-generate
-    .command('typescriptSchemas')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate TypeScript contract schemas for ponder')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateTypescriptSchemas(configPath);
-    });
-
-generate
-    .command('schema')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the ponder schema')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateSchema(configPath);
-    });
-
-generate
-    .command('eventHooks')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the ponder event code')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateEventHooks(configPath);
-    });
-
-generate
-    .command('ponderConfig')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the ponder config code')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generatePonderConfig(configPath);
-    });
-
-generate
-    .command('ponderEnv')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate ponder env file')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generatePonderEnv(configPath);
-    });
-
-generate
-    .command('wwwEnv')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate www env file')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateWWWEnv(configPath);
-    });
-
-generate
-    .command('reactHooks')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the React hooks for app')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateReactHooks(configPath);
-    });
-generate
-    .command('reactComponents')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the React components for app')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateReactComponents(configPath);
-    });
-
-generate
-    .command('demoPage')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the demo app page')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateDemoPage(configPath);
-    });
-
-generate
-    .command('api')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate the trpc api')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        const schemaPath = path.join(path.dirname(configPath), 'ponder', 'ponder.schema.ts');
-        const apiOutputDir = path.join(path.dirname(configPath), 'ponder', 'src', 'generated');
-        await generateAPI(schemaPath, apiOutputDir);
-    });
-
-generate
-    .command('all')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate all contracts and services')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateAll(configPath);
-    });
-
-generate
-    .command('services')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Generate all services')
-    .action(async (configFile) => {
-        const configPath = await getConfigPath(configFile);
-        await generateServices(configPath);
-    });
-
-generate
-    .command('contractBuild')
-    .argument('[configFile]', 'Path to the config file')
-    .description('Build contracts using Forge')
-    .action(async (configFile) => {
-        const targetDir = configFile ? path.dirname(path.resolve(process.cwd(), configFile)) : process.cwd();
-        await cliProcessor.buildContracts(targetDir);
-    });
-
-const dev = program.command('dev').description('local dev commands');
-
-dev.command('up')
-    .description('Run docker compose up for local dev')
-    .action(async () => {
-        console.info('Setting up docker compose for local dev');
-        const configPath = await getConfigPath();
-        await localDevUp(configPath);
-    });
-
-dev.command('down')
-    .description('Run docker compose down for local dev')
-    .action(async () => {
-        console.info('Tearing down docker compose for local dev');
-        const configPath = await getConfigPath();
-        await localDevDown(configPath);
-    });
-
-const network = program.command('network').description('network commands');
-
-network
-    .command('list')
-    .description('list configured networks')
-    .action(async () => {
-        const configPath = await getConfigPath();
-        await networkList(configPath);
-    });
-
-network
-    .command('switch')
-    .argument('<network>', 'Network to switch to')
-    .description('switch selected network')
-    .action(async (network) => {
-        const configPath = await getConfigPath();
-        await networkSwitch(configPath, network);
-    });
-
 (async () => {
+    const configPath = await getConfigPath();
+    const projectConfig = await importPatchworkConfig(configPath);
+    const lockFileManager = new LockFileManager(configPath);
+    const ctx = lockFileManager.getCtx();
+    ctx.config = projectConfig;
+    ctx.rootDir = path.dirname(configPath);
+    if (!ctx.artifacts) ctx.artifacts = {};
+    lockFileManager.updateAndSaveCtx(ctx);
+    const generatorService = new GeneratorService(lockFileManager);
+
+    program
+        .command('validate')
+        .argument('[configFiles...]', 'Path to the JSON files')
+        .description('Validate Patchwork contract or project configuration files')
+        .action(async (configFiles) => {
+            for (const configFile of configFiles || []) {
+                if (!cliProcessor.validateConfig(configFile)) {
+                    throw new PDKError(ErrorCode.PDK_ERROR, `Error validating config ${configFile}`);
+                }
+            }
+        });
+
+    program
+        .command('status')
+        .description('Show the status of the current project')
+        .action(async () => {
+            const configPath = await getConfigPath();
+            await status(configPath);
+        });
+
+    const convert = program.command('convert').description('convert commands');
+    convert
+        .command('toJSON')
+        .argument('[configFiles...]', 'Path to TS files')
+        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+        .description('Convert Typescript project configurations to JSON')
+        .action(async (configFiles, options) => {
+            await convertToJSON(configFiles, options.output);
+        });
+
+    convert
+        .command('toTS')
+        .argument('[configFiles...]', 'Path to JSON files')
+        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+        .description('Convert JSON project configurations to Typescript')
+        .action(async (configFiles, options) => {
+            await convertToTS(configFiles, options.output);
+        });
+
+    program
+        .command('wizard')
+        .description('Launch the Patchwork Wizard')
+        .action(async () => {
+            launchWizardApp();
+        });
+
+    const generate = program.command('generate').description('generate commands');
+
+    generate
+        .command('contracts')
+        .argument('[configFiles...]', 'Path to the JSON or TS files')
+        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+        .option('-c, --contract <name>', 'Name of the specific contract to generate')
+        .description('Generate patchwork contracts')
+        .action(async (configFiles, options) => {
+            await generateContracts(configFiles, options.output, options.contract);
+        });
+
+    generate
+        .command('deployScripts')
+        .argument('[configFiles...]', 'Path to the JSON or TS files')
+        .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
+        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
+        .description('Generate deploy scripts')
+        .action(async (configFiles, options) => {
+            await generateContractDeployScripts(configFiles, options.contractsDir, options.output);
+        });
+
+    generate
+        .command('typescriptSchemas')
+        .description('Generate TypeScript contract schemas for ponder')
+        .action(async () => {
+            const configPath = await getConfigPath();
+            await generateTypescriptSchemas(configPath);
+        });
+    // generate
+    //     .command('ABIs')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate TypeScript ABIs for ponder')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateABIs(configPath);
+    //     });
+
+    // generate
+    //     .command('schema')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the ponder schema')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateSchema(configPath);
+    //     });
+
+    // generate
+    //     .command('eventHooks')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the ponder event code')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateEventHooks(configPath);
+    //     });
+
+    // generate
+    //     .command('ponderConfig')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the ponder config code')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generatePonderConfig(configPath);
+    //     });
+
+    // generate
+    //     .command('ponderEnv')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate ponder env file')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generatePonderEnv(configPath);
+    //     });
+
+    // generate
+    //     .command('wwwEnv')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate www env file')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateWWWEnv(configPath);
+    //     });
+
+    // generate
+    //     .command('reactHooks')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the React hooks for app')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateReactHooks(configPath);
+    //     });
+    // generate
+    //     .command('reactComponents')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the React components for app')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateReactComponents(configPath);
+    //     });
+
+    // generate
+    //     .command('demoPage')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the demo app page')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         await generateDemoPage(configPath);
+    //     });
+
+    // generate
+    //     .command('api')
+    //     .argument('[configFile]', 'Path to the config file')
+    //     .description('Generate the trpc api')
+    //     .action(async (configFile) => {
+    //         const configPath = await getConfigPath(configFile);
+    //         const schemaPath = path.join(path.dirname(configPath), 'ponder', 'ponder.schema.ts');
+    //         const apiOutputDir = path.join(path.dirname(configPath), 'ponder', 'src', 'generated');
+    //         await generateAPI(schemaPath, apiOutputDir);
+    //     });
+
+    generate
+        .command('all')
+        // .argument('[configFile]', 'Path to the config file')
+        .description('Generate all contracts and services')
+        .action(async () => {
+            const configPath = await getConfigPath();
+            await generateAll(configPath);
+            await generatorService.runAllGenerators();
+        });
+
+    generate
+        .command('services')
+        // .argument('[configFile]', 'Path to the config file')
+        .description('Generate all services')
+        .action(async () => {
+            await generatorService.runAllGenerators();
+        });
+
+    generate
+        .command('contractBuild')
+        // .argument('[configFile]', 'Path to the config file')
+        .description('Build contracts using Forge')
+        .action(async () => {
+            await cliProcessor.buildContracts(ctx.rootDir);
+        });
+
+    for (const plugin of ctx.config.plugins) {
+        if (plugin.generate) {
+            generate
+                .command(plugin.name.toLowerCase())
+                .description(`Run ${plugin.name} plugin generators`)
+                .action(async () => {
+                    await generatorService.runGenerator(plugin.name.toLowerCase());
+                });
+        }
+    }
+
+    const dev = program.command('dev').description('local dev commands');
+
+    dev.command('up')
+        .description('Run docker compose up for local dev')
+        .action(async () => {
+            console.info('Setting up docker compose for local dev');
+            const configPath = await getConfigPath();
+            await localDevUp(configPath, {}, generatorService);
+        });
+
+    dev.command('down')
+        .description('Run docker compose down for local dev')
+        .action(async () => {
+            console.info('Tearing down docker compose for local dev');
+            const configPath = await getConfigPath();
+            await localDevDown(configPath);
+        });
+
+    const network = program.command('network').description('network commands');
+
+    network
+        .command('list')
+        .description('list configured networks')
+        .action(async () => {
+            const configPath = await getConfigPath();
+            await networkList(configPath);
+        });
+
+    network
+        .command('switch')
+        .argument('<network>', 'Network to switch to')
+        .description('switch selected network')
+        .action(async (network) => {
+            const configPath = await getConfigPath();
+            await networkSwitch(configPath, network);
+        });
+
     try {
         await program.parseAsync();
     } catch (error) {
