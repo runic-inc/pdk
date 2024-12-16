@@ -1,4 +1,7 @@
+/// <reference types="https://cdn.jsdelivr.net/npm/@patchworkdev/common@0.2.5/dist/types/index.d.ts" />
+
 import { Feature, type ProjectConfig } from '@patchworkdev/common/types';
+import { ponder, react } from '@patchworkdev/pdk/plugins';
 import { anvil, base, baseSepolia } from 'viem/chains';
 
 const projectConfig: ProjectConfig = {
@@ -48,6 +51,14 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [
+        // foundry(),
+        ponder(),
+        react({}),
+        // docker({
+        //     anvil: true,
+        // }),
+    ],
 };
 
 export default projectConfig;

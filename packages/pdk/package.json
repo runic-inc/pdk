@@ -12,6 +12,14 @@
         "./utils": {
             "default": "./dist/exports/index.js",
             "types": "./dist/exports/index.d.ts"
+        },
+        "./plugins": {
+            "default": "./dist/plugins/index.js",
+            "types": "./dist/plugins/index.d.ts"
+        },
+        "./types": {
+            "default": "./dist/types/index.js",
+            "types": "./dist/types/index.d.ts"
         }
     },
     "files": [
@@ -36,7 +44,7 @@
     "author": "Runic Labs, Inc",
     "license": "MIT",
     "dependencies": {
-        "@commander-js/extra-typings": "12.1.0",
+        "@commander-js/extra-typings": "next",
         "@hono/node-server": "1.12.2",
         "@patchworkdev/common": "workspace:*",
         "@ponder/core": "^0.5.17",
@@ -45,8 +53,10 @@
         "execa": "9.5.0",
         "glob": "^11.0.0",
         "hono": "4.6.3",
+        "listr2": "8.2.5",
         "lodash": "4.17.21",
         "ora": "8.1.0",
+        "picocolors": "1.1.1",
         "pino": "^9.5.0",
         "pino-pretty": "^13.0.0",
         "prettier": "3.3.3",

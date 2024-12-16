@@ -3,6 +3,7 @@ import { ProjectConfig } from '@patchworkdev/common';
 import fs from 'fs/promises';
 import * as path from 'path';
 import { Abi } from 'viem';
+import { PatchworkProject } from '../../types';
 import { ErrorCode, PDKError } from './error';
 import { logger } from './logger';
 import { SchemaModule } from './ponderSchemaMock';
@@ -59,12 +60,12 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
     }
 }
 
-export async function importPatchworkConfig(config: string): Promise<ProjectConfig> {
+export async function importPatchworkConfig(config: string): Promise<PatchworkProject> {
     try {
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
 
-        return (await tsLoader<Default<ProjectConfig>>(fullPath)).default;
+        return (await tsLoader<Default<PatchworkProject>>(fullPath)).default;
     } catch (error) {
         if (error instanceof Error) {
             logger.error('Error importing ProjectConfig:', error.message);
