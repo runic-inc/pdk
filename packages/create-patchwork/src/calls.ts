@@ -98,7 +98,7 @@ export async function selectLocalNetwork(targetDir: string, useLocalPackages: bo
 export async function generateAllComponents(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
     await oraPromise(
-        execa(pdkCommand, ['generate', 'all', configPath], {
+        execa(pdkCommand, ['generate', 'all'], {
             cwd: targetDir,
         }),
         {
