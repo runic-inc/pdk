@@ -7,9 +7,10 @@ const docker = new Docker();
 export type ContainerStatus = {
     id: string;
     name: string;
-    privatePort: number;
-    publicPort: number;
+    privatePort?: number;
+    publicPort?: number;
 };
+
 export class DockerService {
     private targetDir: string;
     private configPath: string;
@@ -39,7 +40,6 @@ export class DockerService {
 
     async getContainerStatus(prefix?: string): Promise<ContainerStatus[]> {
         const status: ContainerStatus[] = [];
-
         const containers = await docker.listContainers({
             filters: {
                 name: [prefix ?? ''],
@@ -48,11 +48,12 @@ export class DockerService {
         });
 
         containers.map((container) => {
+            const ports = container.Ports?.[0] ?? {};
             status.push({
                 id: container.Id.substring(0, 12),
                 name: container.Names[0].replace('/', ''),
-                privatePort: container.Ports[0]['PrivatePort'],
-                publicPort: container.Ports[0]['PublicPort'],
+                privatePort: ports['PrivatePort'],
+                publicPort: ports['PublicPort'],
             });
         });
 

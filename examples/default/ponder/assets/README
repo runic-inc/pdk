@@ -1,0 +1,1 @@
+You can safely delete this file. Place your generated assets here. They'll get served at `/assets/*` appended with the directory structure you use here, with extensions removed. For example, if you have a file at `/assets/images/mycontract/0`.png, it will be served at `/assets/images/mycontract/0`.

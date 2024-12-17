@@ -134,6 +134,12 @@ type Letter =
 
 export type ValidNameIdentifier = `${Letter}${string}`;
 
+export type ContractFeeConfig = {
+    mintFee?: number;
+    assignFee?: number;
+    patchFee?: number;
+};
+
 export type ContractConfig = {
     scopeName: string;
     name: ValidNameIdentifier;
@@ -144,6 +150,7 @@ export type ContractConfig = {
     fields: FieldConfig[];
     features: Feature[];
     fragments?: string[];
+    fees?: ContractFeeConfig;
 };
 
 export type AssignmentNodeData = {
@@ -194,11 +201,9 @@ export type Network = {
     rpc: string;
 };
 
-export type ContractsConfig = Record<string, ContractConfig | string>;
-
 export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
     name: ValidNameIdentifier;
     scopes: ScopeConfig[];
-    contracts: ContractsConfig;
+    contracts: Record<string, ContractConfig | string>;
     networks?: Record<T, Network>;
 };

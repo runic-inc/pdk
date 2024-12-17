@@ -1,6 +1,9 @@
 import _ from 'lodash';
 
-export function pascalCase(str: string): string {
+export function pascalCase(str: string, stripWhitespace?: boolean): string {
+    if (stripWhitespace) {
+        str = str.replace(/\s/g, '');
+    }
     return _.upperFirst(_.camelCase(str));
 }
 

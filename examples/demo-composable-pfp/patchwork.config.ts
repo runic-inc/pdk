@@ -27,36 +27,41 @@ const projectConfig: ProjectConfig = {
                 },
             ],
             features: [],
-            fragments: ['Attribute'],
+            fragments: ['CharacterTraits'],
         },
-        Attribute: {
+        CharacterTraits: {
             scopeName: 'composable-pfp-demo',
-            name: 'Character Attributes',
-            symbol: 'CHARATTR',
-            baseURI: 'https://example.com/metadata/attribute',
-            schemaURI: 'https://example.com/schemas/attribute.json',
-            imageURI: 'https://example.com/assets/attribute/{tokenID}',
+            name: 'Character Traits',
+            symbol: 'CHARTRAIT',
+            baseURI: 'https://example.com/metadata/trait',
+            schemaURI: 'https://example.com/schemas/trait.json',
+            imageURI: 'https://example.com/assets/trait/{tokenID}',
             fields: [
                 {
                     id: 0,
-                    key: 'attributeType',
-                    type: 'uint8',
-                    description: 'Attribute Type',
+                    key: 'trait_id',
+                    type: 'uint16',
+                    description: 'Trait ID',
                 },
                 {
                     id: 1,
-                    key: 'attributeId',
-                    type: 'uint16',
-                    description: 'Attribute ID',
+                    key: 'trait_type',
+                    type: 'uint8',
+                    description: 'Trait Type',
                 },
                 {
                     id: 2,
-                    key: 'name',
+                    key: 'trait_name',
                     type: 'char16',
-                    description: 'Attribute Name',
+                    description: 'Trait Name',
                 },
             ],
             features: [Feature.MINTABLE, Feature.FRAGMENTSINGLE],
+            fees: {
+                mintFee: 0.000111,
+                assignFee: 0,
+                patchFee: 0,
+            },
         },
     },
     scopes: [
@@ -67,15 +72,15 @@ const projectConfig: ProjectConfig = {
     networks: {
         local: {
             chain: anvil,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
         testnet: {
             chain: baseSepolia,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
         mainnet: {
             chain: base,
-            rpc: 'http://127.0.0.1:8545',
+            rpc: 'http://anvil:8545',
         },
     },
 };

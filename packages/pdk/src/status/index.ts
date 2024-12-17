@@ -10,6 +10,7 @@ export async function status(configPath: string) {
         console.error('Error loading Patchwork config');
         return;
     }
+
     const lockFileManager = new LockFileManager(configPath);
     const dockerService = new DockerService(configPath);
 
@@ -40,13 +41,12 @@ export async function status(configPath: string) {
     }
 
     const containers = await dockerService.getContainerStatus(dockerProjectName(patchworkConfig.name));
-
     const containerTable: TableData = {};
     containers.map((container) => {
         containerTable[container.id] = {
             name: container.name,
-            privatePort: container.privatePort,
-            publicPort: container.publicPort,
+            privatePort: container.privatePort?.toString() ?? '-',
+            publicPort: container.publicPort?.toString() ?? '-',
         };
     });
 

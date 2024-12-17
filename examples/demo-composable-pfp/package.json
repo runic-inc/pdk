@@ -1,0 +1,43 @@
+{
+    "name": "create-patchwork-composable-pfp",
+    "version": "0.1.0",
+    "private": true,
+    "type": "commonjs",
+    "scripts": {
+        "dev": "pnpm www-dev && pnpm ponder-dev",
+        "build": "pnpm --filter ./www build",
+        "start": "pnpm next-start && pnpm ponder-start",
+        "ponder-dev": "pnpm --filter ./ponder dev",
+        "ponder-start": "pnpm --filter ./ponder start",
+        "www-dev": "pnpm --filter ./www dev",
+        "www-start": "pnpm --filter ./www start",
+        "lint": "pnpm -r lint",
+        "codegen": "pnpm --filter ./ponder codegen",
+        "typecheck": "tsc",
+        "register-traits": "tsx scripts/register-traits.ts"
+    },
+    "workspaces": [
+        "ponder",
+        "www"
+    ],
+    "dependencies": {},
+    "devDependencies": {
+        "@openzeppelin/contracts": "5.0.2",
+        "@patchworkdev/common": "next",
+        "@patchworkdev/contracts": "2.0.6",
+        "@patchworkdev/pdk": "next",
+        "@types/node": "^20.17.10",
+        "@wagmi/cli": "^2.1.18",
+        "chalk": "^5.3.0",
+        "eslint": "^8.53.0",
+        "eslint-config-next": "14.2.5",
+        "eslint-config-ponder": "^0.5.17",
+        "forge-std": "github:foundry-rs/forge-std",
+        "typescript": "^5.2.2",
+        "tsx": "^4.7.1",
+        "viem": "2.21.51"
+    },
+    "engines": {
+        "node": ">=18.14"
+    }
+}

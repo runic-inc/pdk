@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../common/helpers/logger';
 import { generateABIs, generateAPI, generateEventHooks, generatePonderConfig, generatePonderEnv, generateReactHooks, generateSchema, generateWWWEnv } from './';
+import { generateTypescriptSchemas } from './typescriptSchemas';
 
 export async function generateServices(configPath: string) {
     logger.info('Generating all components...');
@@ -10,6 +11,10 @@ export async function generateServices(configPath: string) {
     // Generate TypeScript ABIs
     logger.info('Generating TypeScript ABIs...');
     await generateABIs(configPath);
+
+    // Generate TypeScript ABIs
+    logger.info('Generating TypeScript contract schemas...');
+    await generateTypescriptSchemas(configPath);
 
     // Generate Ponder Schema
     logger.info('Generating Ponder schema...');

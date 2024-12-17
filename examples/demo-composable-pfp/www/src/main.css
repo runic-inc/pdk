@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    #wrapper {
+        @apply !p-8 bg-white h-screen w-screen overflow-hidden;
+        background-image: radial-gradient(#333 5%, transparent 5%),
+            radial-gradient(#333 5%, transparent 5%);
+        background-position:
+            0 0,
+            20px 20px;
+        background-size: 20px 20px;
+    }
+    .header-wrapper > div > button {
+        border: 1px solid black !important;
+    }
+}
