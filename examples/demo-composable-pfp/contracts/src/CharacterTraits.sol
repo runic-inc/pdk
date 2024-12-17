@@ -5,7 +5,17 @@ import "./CharacterTraitsGenerated.sol";
 
 contract CharacterTraits is CharacterTraitsGenerated {
     // Constants
-    uint8 constant NUM_TRAIT_TYPES = 5;
+    uint8 constant NUM_TRAIT_TYPES = 7;
+
+    enum TraitType {
+        BACKGROUND,
+        BASE,
+        EYE,
+        MOUTH,
+        CLOTHING,
+        HAIR,
+        ACCESSORY
+    }
     
     event Register(uint16 indexed traitId, uint8 indexed traitType, string name);
     event SupplyLock(uint16 indexed traitId);

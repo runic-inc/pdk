@@ -6,6 +6,17 @@ import "@patchwork/interfaces/IPatchworkProtocol.sol";
 import "@patchwork/interfaces/IPatchworkSingleAssignable.sol";
 
 contract Character is CharacterGenerated {
+
+    struct TraitTypeCounts {
+        bool background;
+        bool base;
+        bool eye;
+        bool mouth;
+        bool clothing;
+        bool hair;
+        bool accessory;
+    }
+
     event Forge(
         address indexed owner,
         uint256 indexed tokenId,
@@ -49,6 +60,8 @@ contract Character is CharacterGenerated {
         );
 
         address owner_ = msg.sender;
+
+        _checkRules(owner_, traitAddresses, traitTokenIds);
 
         // Mint the character token
         uint256 newTokenId = _nextTokenId;
@@ -112,6 +125,9 @@ contract Character is CharacterGenerated {
 
         // Emit change event with updated traits
         (address[] memory traitAddresses, uint256[] memory traitTokenIds) = loadTraits(tokenId);
+
+        _checkRules(msg.sender, traitAddresses, traitTokenIds);
+        
         emit Change(msg.sender, tokenId, traitAddresses, traitTokenIds);
         emit MetadataUpdate(tokenId);
     }
@@ -172,5 +188,60 @@ contract Character is CharacterGenerated {
 
         // Load all static references (traits)
         return loadAllStaticReferences(tokenId);
+    }
+
+    function _checkRules(
+        address owner,
+        address[] memory traitAddresses,
+        uint256[] memory traitTokenIds
+    ) internal view {
+        // Initialize a struct for counting trait types
+        TraitTypeCounts memory counts;
+
+        // Check ownership and count trait types
+        for (uint256 i = 0; i < traitAddresses.length; i++) {
+            if (traitAddresses[i] == address(0)) {
+                continue;
+            }
+            
+            // Verify ownership
+            require(
+                IERC721(traitAddresses[i]).ownerOf(traitTokenIds[i]) == owner,
+                "Must own all traits"
+            );
+
+            // Get trait type from CharacterTraits contract
+            uint8 traitType = CharacterTraits(traitAddresses[i]).loadTraitType(traitTokenIds[i]);
+
+            // Update counts based on trait type
+            if (traitType == uint8(TraitType.BACKGROUND)) {
+                require(!counts.background, "Duplicate background trait");
+                counts.background = true;
+            } else if (traitType == uint8(TraitType.BASE)) {
+                require(!counts.base, "Duplicate base trait");
+                counts.base = true;
+            } else if (traitType == uint8(TraitType.EYE)) {
+                require(!counts.eye, "Duplicate eye trait");
+                counts.eye = true;
+            } else if (traitType == uint8(TraitType.MOUTH)) {
+                require(!counts.mouth, "Duplicate mouth trait");
+                counts.mouth = true;
+            } else if (traitType == uint8(TraitType.CLOTHING)) {
+                require(!counts.clothing, "Duplicate clothing trait");
+                counts.clothing = true;
+            } else if (traitType == uint8(TraitType.HAIR)) {
+                require(!counts.hair, "Duplicate hair trait");
+                counts.hair = true;
+            } else if (traitType == uint8(TraitType.ACCESSORY)) {
+                require(!counts.accessory, "Duplicate accessory trait");
+                counts.accessory = true;
+            }
+        }
+
+        // Verify required traits are present
+        require(counts.background, "Background trait required");
+        require(counts.base, "Base trait required");
+        require(counts.eye, "Eye trait required");
+        require(counts.mouth, "Mouth trait required");
     }
 }

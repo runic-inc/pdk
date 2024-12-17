@@ -1,9 +1,11 @@
 export enum TraitType {
-    BODY = 0,
-    CLOTHING = 1,
-    EXPRESSION = 2,
-    HAIR = 3,
-    ACCESSORY = 4,
+    BACKGROUND = 0,
+    BASE = 1,
+    EYE = 2,
+    MOUTH = 3,
+    CLOTHING = 4,
+    HAIR = 5,
+    ACCESSORY = 6,
 }
 
 export interface Trait {
@@ -36,35 +38,41 @@ export const contractLabels: {
 
 // Define traits
 const traitDefinitions: Record<number, Trait> = {
-    // Backgrounds
-    1: { id: 1, type: TraitType.BODY, name: 'Pale', image: 'body/pale.svg' },
-    2: { id: 2, type: TraitType.BODY, name: 'Dark', image: 'body/dark.svg' },
-    3: { id: 3, type: TraitType.BODY, name: 'Yellow', image: 'body/yellow.svg' },
-    4: { id: 4, type: TraitType.BODY, name: 'Green', image: 'body/green.svg' },
+    // BACKGROUND
+    1: { id: 1, type: TraitType.BACKGROUND, name: 'Sky Blue', image: 'background/skyblue.svg' },
+    2: { id: 2, type: TraitType.BACKGROUND, name: 'Sunset', image: 'background/sunset.svg' },
+    3: { id: 3, type: TraitType.BACKGROUND, name: 'Forest', image: 'background/forest.svg' },
+    4: { id: 4, type: TraitType.BACKGROUND, name: 'Desert', image: 'background/desert.svg' },
 
-    // Characters
-    11: { id: 11, type: TraitType.CLOTHING, name: 'Skull Tee', image: 'clothing/skulltee.svg' },
-    12: { id: 12, type: TraitType.CLOTHING, name: 'Hoodie', image: 'clothing/hoodie.svg' },
-    13: { id: 13, type: TraitType.CLOTHING, name: 'Blazer', image: 'clothing/blazer.svg' },
-    14: { id: 14, type: TraitType.CLOTHING, name: 'Overalls', image: 'clothing/overalls.svg' },
+    // BASE
+    11: { id: 11, type: TraitType.BASE, name: 'Light Skin', image: 'base/lightskin.svg' },
+    12: { id: 12, type: TraitType.BASE, name: 'Dark Skin', image: 'base/darkskin.svg' },
+    13: { id: 13, type: TraitType.BASE, name: 'Alien', image: 'base/alien.svg' },
 
-    // Eyes
-    21: { id: 21, type: TraitType.EXPRESSION, name: 'Angry', image: 'expression/angry.svg' },
-    22: { id: 22, type: TraitType.EXPRESSION, name: 'Happy', image: 'expression/happy.svg' },
-    23: { id: 23, type: TraitType.EXPRESSION, name: 'Sad', image: 'expression/sad.svg' },
-    24: { id: 24, type: TraitType.EXPRESSION, name: 'Silly', image: 'expression/silly.svg' },
+    // EYE
+    21: { id: 21, type: TraitType.EYE, name: 'Round Eyes', image: 'eye/round.svg' },
+    22: { id: 22, type: TraitType.EYE, name: 'Narrow Eyes', image: 'eye/narrow.svg' },
+    23: { id: 23, type: TraitType.EYE, name: 'Starry Eyes', image: 'eye/starry.svg' },
 
-    // Mouths
-    31: { id: 31, type: TraitType.HAIR, name: 'Short', image: 'hair/short.svg' },
-    32: { id: 32, type: TraitType.HAIR, name: 'Waves', image: 'hair/waves.svg' },
-    33: { id: 33, type: TraitType.HAIR, name: 'Mullet', image: 'hair/mullet.svg' },
-    34: { id: 34, type: TraitType.HAIR, name: 'Floral', image: 'hair/floral.svg' },
+    // MOUTH
+    31: { id: 31, type: TraitType.MOUTH, name: 'Smile', image: 'mouth/smile.svg' },
+    32: { id: 32, type: TraitType.MOUTH, name: 'Frown', image: 'mouth/frown.svg' },
+    33: { id: 33, type: TraitType.MOUTH, name: 'Surprised', image: 'mouth/surprised.svg' },
 
-    // Accessories
-    41: { id: 41, type: TraitType.ACCESSORY, name: 'Glasses', image: 'accessories/glasses.svg' },
-    42: { id: 42, type: TraitType.ACCESSORY, name: 'Sunglasses', image: 'accessories/sunglasses.svg' },
-    43: { id: 43, type: TraitType.ACCESSORY, name: 'Winter Hat', image: 'accessories/winterhat.svg' },
-    44: { id: 44, type: TraitType.ACCESSORY, name: 'Hat', image: 'accessories/hat.svg' },
+    // CLOTHING
+    41: { id: 41, type: TraitType.CLOTHING, name: 'T-Shirt', image: 'clothing/tshirt.svg' },
+    42: { id: 42, type: TraitType.CLOTHING, name: 'Jacket', image: 'clothing/jacket.svg' },
+    43: { id: 43, type: TraitType.CLOTHING, name: 'Sweater', image: 'clothing/sweater.svg' },
+
+    // HAIR
+    51: { id: 51, type: TraitType.HAIR, name: 'Short Hair', image: 'hair/short.svg' },
+    52: { id: 52, type: TraitType.HAIR, name: 'Curly Hair', image: 'hair/curly.svg' },
+    53: { id: 53, type: TraitType.HAIR, name: 'Bald', image: 'hair/bald.svg' },
+
+    // ACCESSORY
+    61: { id: 61, type: TraitType.ACCESSORY, name: 'Glasses', image: 'accessory/glasses.svg' },
+    62: { id: 62, type: TraitType.ACCESSORY, name: 'Earrings', image: 'accessory/earrings.svg' },
+    63: { id: 63, type: TraitType.ACCESSORY, name: 'Necklace', image: 'accessory/necklace.svg' },
 };
 
 // Helper function to get traits by type
