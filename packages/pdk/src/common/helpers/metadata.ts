@@ -48,23 +48,42 @@ export type FieldTypeMap = {
     string: string;
 };
 
-export type InferSchemaType<S extends ContractJSONSchema> = {
-    [F in S['fields'][number] as F['key']]: F['arrayLength'] extends 1 | undefined ? FieldTypeMap[F['type']] : FieldTypeMap[F['type']][];
+export type InferSchemaType<
+    S extends ContractJSONSchema,
+    ExcludedKeys extends string = never, // Keys to exclude (default: none)
+    ExcludedTypes extends keyof FieldTypeMap = never, // Types to exclude (default: none)
+> = {
+    [F in S['fields'][number] as F['key'] extends ExcludedKeys ? never : F['type'] extends ExcludedTypes ? never : F['key']]: F['arrayLength'] extends
+        | 1
+        | undefined
+        ? FieldTypeMap[F['type']] | undefined
+        : FieldTypeMap[F['type']][] | undefined;
 };
+
+export type Prettify<T> = {
+    [K in keyof T]: T[K];
+} & {};
 
 /*
  * Given a parsed contract JSON schema and packed metadata (uint256 array), walks through each field and
  * attemps to unpack its corresponding metadata from the packed array
  */
-export async function unpackMetadata<S extends ContractJSONSchema>(schema: S, packedMetadata: readonly bigint[]): Promise<InferSchemaType<S>> {
-    if (!schema?.fields?.length) return {} as InferSchemaType<S>;
+export async function unpackMetadata<S extends ContractJSONSchema, ExcludedKeys extends string = never, ExcludedTypes extends keyof FieldTypeMap = never>(
+    schema: S,
+    packedMetadata: readonly bigint[],
+    excludedKeys: ExcludedKeys[] = [],
+    excludedTypes: ExcludedTypes[] = [],
+): Promise<Prettify<InferSchemaType<S, ExcludedKeys, ExcludedTypes>>> {
+    if (!schema?.fields?.length) throw new Error('Schema is empty');
 
-    const processedFields: Partial<InferSchemaType<S>> = {}; // Start as Partial for flexibility
+    const processedFields: Partial<InferSchemaType<S, ExcludedKeys, ExcludedTypes>> = {};
 
     for (const field of schema.fields) {
-        const values = splitPackedValues(packedMetadata, Number(field.slot), Number(field.arrayLength || 1), getBitLength(field.type), Number(field.offset));
+        // Skip fields based on key or type
+        if (excludedKeys.includes(field.key as ExcludedKeys)) continue;
+        if (excludedTypes.includes(field.type as ExcludedTypes)) continue;
 
-        // Use assertions to ensure TypeScript understands the key-value relationship
+        const values = splitPackedValues(packedMetadata, Number(field.slot), Number(field.arrayLength || 1), getBitLength(field.type), Number(field.offset));
         (processedFields as any)[field.key] =
             field.arrayLength === 1 || field.arrayLength === undefined
                 ? convertValue(values[0], field.type) // Single value
@@ -72,7 +91,7 @@ export async function unpackMetadata<S extends ContractJSONSchema>(schema: S, pa
     }
 
     // Cast processedFields to InferSchemaType<S> safely
-    return processedFields as unknown as InferSchemaType<S>;
+    return processedFields as Prettify<InferSchemaType<S, ExcludedKeys, ExcludedTypes>>;
 }
 
 /*

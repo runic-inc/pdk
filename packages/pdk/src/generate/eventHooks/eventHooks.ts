@@ -11,6 +11,7 @@ export async function createPonderEventFile(handlers: GeneratedHandlers, eventFi
     const output: string[] = [];
     output.push(`import { ponder } from "@/generated";`);
     output.push(`import { patchwork } from "./patchwork";`);
+    output.push(`import { getMetadata } from "./utils";`);
     output.push(`import {${[...handlers.imports].sort().join(',')}} from "../../ponder.schema";`);
     handlers.handlers.forEach((handler) => {
         output.push(handler);
@@ -49,6 +50,7 @@ export function generatePonderOnHandler(
         (args: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: SchemaModule; abis: Record<string, Abi> }) => HandlerAndImport
     > = {
         Transfer: transferHandler,
+        MetadataUpdate: metadataUpdateHandler,
     };
 
     const handler = templateFunctions[event.name]
@@ -83,14 +85,15 @@ export function transferHandler({
         imports: new Set([_.camelCase(entity)]),
         handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
         if (parseInt(event.args.from, 16) === 0) {
+	        const metadata = await getMetadata(event.args.tokenId, '${entity}', context);
             await context.db.insert(${_.camelCase(entity)}).values({
                 id: \`\${event.log.address}:\$\{event.args.tokenId}\`,
                 ${Object.keys(data)
                     .map((key) => {
                         return `${key}: ${data[key]}`;
                     })
-                    .join(',\n')}
-    
+                    .join(',\n')},
+                ...metadata,
             });
         } else if (parseInt(event.args.to, 16) === 0) {
             await context.db.update(${_.camelCase(entity)}, { id: \`\${event.log.address}:\$\{event.args.tokenId}\` })
@@ -104,13 +107,29 @@ export function transferHandler({
             await context.db.update(${_.camelCase(entity)}, { id: \`\${event.log.address}:\$\{event.args.tokenId}\` })
                 .set((row) => ({ owner: event.args.to }));
         }
+	    await patchwork.emit('${entity}:${event.name}', { event, context });
     });`,
+    };
+}
+
+export function metadataUpdateHandler({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
+    return {
+        imports: new Set([_.camelCase(entity)]),
+        handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
+            const metadata = await getMetadata(event.args._tokenId, '${entity}', context);
+            await context.db
+                .update(${_.camelCase(entity)}, {
+                    id: \`\${event.log.address}:\$\{event.args._tokenId}\`,
+                })
+                .set(() => metadata);
+            await patchwork.emit('${entity}:${event.name}', { event, context });
+        });`,
     };
 }
 
 export function genericEventTemplate({ entity, event }: { entity: string; event: AbiEvent }): HandlerAndImport {
     return {
-        imports: new Set(),
+        imports: new Set([_.camelCase(entity)]),
         handler: `ponder.on('${entity}:${event.name}', async ({ event, context }) => {
             await patchwork.emit('${entity}:${event.name}', { event, context });
         });`,

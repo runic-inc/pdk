@@ -62,7 +62,7 @@ export async function generateTypescriptSchemas(configPath: string) {
                 const fileContent = await fs.readFile(file, { encoding: 'utf8' });
 
                 // Generate the content for the .abi.ts file
-                let tsContent = `import { ContractJSONSchema } from '@patchworkdev/pdk/utils\n\n`;
+                let tsContent = `import { ContractJSONSchema } from '@patchworkdev/pdk/utils';\n\n`;
                 tsContent += `export const ${baseName}Schema = ${fileContent.trim()} as const satisfies ContractJSONSchema;\n`;
 
                 indexList.push(baseName);
