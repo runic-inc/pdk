@@ -22,6 +22,7 @@ import {
     generateServices,
     generateWWWEnv,
 } from './generate';
+import { generateTypescriptSchemas } from './generate/typescriptSchemas';
 import { networkList, networkSwitch } from './network';
 import { status } from './status';
 import { launchWizardApp } from './wizardServer';
@@ -120,6 +121,15 @@ generate
     .action(async (configFile) => {
         const configPath = await getConfigPath(configFile);
         await generateABIs(configPath);
+    });
+
+generate
+    .command('typescriptSchemas')
+    .argument('[configFile]', 'Path to the config file')
+    .description('Generate TypeScript contract schemas for ponder')
+    .action(async (configFile) => {
+        const configPath = await getConfigPath(configFile);
+        await generateTypescriptSchemas(configPath);
     });
 
 generate

@@ -6,6 +6,6 @@ export const processContracts = async (configPath: string, config = {}, shouldDe
     return processor.processContracts(configPath, config, shouldDeploy);
 };
 
+export * from '../common/helpers/metadata';
 export * from '../dev/types';
 export { getChainForNetwork };
-    
