@@ -48,12 +48,11 @@ export class DockerService {
         });
 
         containers.map((container) => {
-            const ports = container.Ports?.[0] ?? {};
             status.push({
                 id: container.Id.substring(0, 12),
                 name: container.Names[0].replace('/', ''),
-                privatePort: ports['PrivatePort'],
-                publicPort: ports['PublicPort'],
+                privatePort: container.Ports[0] ? container.Ports[0]['PrivatePort'] : 0,
+                publicPort: container.Ports[0] ? container.Ports[0]['PublicPort'] : 0,
             });
         });
 
