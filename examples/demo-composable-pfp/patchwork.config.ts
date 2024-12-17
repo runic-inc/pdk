@@ -1,4 +1,5 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
+import { ponder, react } from '@patchworkdev/pdk/plugins';
 import { anvil, base, baseSepolia } from 'viem/chains';
 
 const projectConfig: ProjectConfig = {
@@ -83,6 +84,10 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [
+        ponder(),
+        react({}),
+    ],
 };
 
 export default projectConfig;

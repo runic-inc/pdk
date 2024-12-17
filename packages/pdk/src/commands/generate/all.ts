@@ -23,9 +23,4 @@ export async function generateAll(configPath: string) {
     // Build the contracts using cliProcessor
     logger.info('Building contracts...');
     await cliProcessor.buildContracts(process.cwd());
-
-    // // Generate all services
-    // logger.info('Generating services...');
-    // await generateServices(configPath);
-    // logger.info('All components generated successfully!');
 }

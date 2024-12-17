@@ -52,12 +52,8 @@ const projectConfig: ProjectConfig = {
         },
     },
     plugins: [
-        // foundry(),
         ponder(),
         react({}),
-        // docker({
-        //     anvil: true,
-        // }),
     ],
 };
 
