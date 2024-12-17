@@ -25,9 +25,9 @@ async function getSchemaJsonFiles(directory: string): Promise<string[]> {
     }
 }
 
-export async function generateTypescriptSchemas(configPath: string) {
-    const buildOutDir = path.join(path.dirname(configPath), 'contracts', 'src');
-    const srcDir = path.join(path.dirname(configPath), 'ponder', 'schemas');
+export async function generateTypescriptSchemas(rootDir: string) {
+    const buildOutDir = path.join(rootDir, 'contracts', 'src');
+    const srcDir = path.join(rootDir, 'ponder', 'schemas');
 
     logger.debug('Build output directory:', buildOutDir);
     logger.debug('Schema output directory:', srcDir);

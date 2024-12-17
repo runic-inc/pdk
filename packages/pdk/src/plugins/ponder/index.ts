@@ -5,6 +5,7 @@ import { generateConfig } from './config';
 import { generatePonderEnv } from './env';
 import { generateEventHooks } from './eventHooks';
 import { generateSchema } from './schema';
+import { generateTypescriptSchemas } from './typescriptSchemas';
 
 type PonderPluginProps = {
     trpc: boolean;
@@ -27,6 +28,12 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                         title: 'Generating Ponder schema...',
                         task: async () => {
                             await generateSchema(context.rootDir);
+                        },
+                    },
+                    {
+                        title: 'Generating Typescript schemas...',
+                        task: async () => {
+                            await generateTypescriptSchemas(context.rootDir);
                         },
                     },
                     {

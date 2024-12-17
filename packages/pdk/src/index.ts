@@ -2,7 +2,7 @@ import { Command } from '@commander-js/extra-typings';
 import path from 'path';
 import { convertToJSON, convertToTS } from './commands/convert';
 import { localDevDown, localDevUp } from './commands/dev';
-import { generateAll, generateContractDeployScripts, generateContracts, generateTypescriptSchemas } from './commands/generate';
+import { generateAll, generateContractDeployScripts, generateContracts } from './commands/generate';
 import { networkList, networkSwitch } from './commands/network';
 import { status } from './commands/status';
 import { cliProcessor } from './common/cliProcessor';
@@ -110,104 +110,6 @@ const program = new Command()
         .action(async (configFiles, options) => {
             await generateContractDeployScripts(configFiles, options.contractsDir, options.output);
         });
-
-    generate
-        .command('typescriptSchemas')
-        .description('Generate TypeScript contract schemas for ponder')
-        .action(async () => {
-            const configPath = await getConfigPath();
-            await generateTypescriptSchemas(configPath);
-        });
-    // generate
-    //     .command('ABIs')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate TypeScript ABIs for ponder')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateABIs(configPath);
-    //     });
-
-    // generate
-    //     .command('schema')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the ponder schema')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateSchema(configPath);
-    //     });
-
-    // generate
-    //     .command('eventHooks')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the ponder event code')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateEventHooks(configPath);
-    //     });
-
-    // generate
-    //     .command('ponderConfig')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the ponder config code')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generatePonderConfig(configPath);
-    //     });
-
-    // generate
-    //     .command('ponderEnv')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate ponder env file')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generatePonderEnv(configPath);
-    //     });
-
-    // generate
-    //     .command('wwwEnv')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate www env file')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateWWWEnv(configPath);
-    //     });
-
-    // generate
-    //     .command('reactHooks')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the React hooks for app')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateReactHooks(configPath);
-    //     });
-    // generate
-    //     .command('reactComponents')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the React components for app')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateReactComponents(configPath);
-    //     });
-
-    // generate
-    //     .command('demoPage')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the demo app page')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         await generateDemoPage(configPath);
-    //     });
-
-    // generate
-    //     .command('api')
-    //     .argument('[configFile]', 'Path to the config file')
-    //     .description('Generate the trpc api')
-    //     .action(async (configFile) => {
-    //         const configPath = await getConfigPath(configFile);
-    //         const schemaPath = path.join(path.dirname(configPath), 'ponder', 'ponder.schema.ts');
-    //         const apiOutputDir = path.join(path.dirname(configPath), 'ponder', 'src', 'generated');
-    //         await generateAPI(schemaPath, apiOutputDir);
-    //     });
 
     generate
         .command('all')
