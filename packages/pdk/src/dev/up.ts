@@ -1,4 +1,5 @@
 import LockFileManager from '../common/helpers/lockFile';
+import { generatePonderConfig } from '../generate';
 import { ContractProcessor } from './services/contract-processor';
 import { DeploymentManager } from './services/deployment-manager';
 import { DockerService } from './services/docker';
@@ -68,6 +69,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}):
     await feeService.configureFeesForDeployment(deployedContracts);
     await taskService.runTasks({ deployConfig, deployedContracts });
 
+    await generatePonderConfig(configPath);
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();
     const status = await dockerService.getContainerStatus();
