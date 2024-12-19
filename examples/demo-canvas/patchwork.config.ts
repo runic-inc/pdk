@@ -1,4 +1,5 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
+import { ponder, react } from '@patchworkdev/pdk/plugins';
 
 const projectConfig: ProjectConfig = {
     name: 'canvas',
@@ -70,6 +71,10 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [
+        ponder(),
+        react({}),
+    ],
     deployments: [
         {
             network: 'base',

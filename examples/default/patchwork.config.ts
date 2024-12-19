@@ -1,7 +1,11 @@
-import { Feature, type ProjectConfig } from '@patchworkdev/common/types';
+/// <reference types="https://cdn.jsdelivr.net/npm/@patchworkdev/common@0.2.5/dist/types/index.d.ts" />
+
+import { Feature } from '@patchworkdev/common/types';
+import { ponder, react } from '@patchworkdev/pdk/plugins';
+import { PatchworkProject } from '@patchworkdev/pdk/types';
 import { anvil, base, baseSepolia } from 'viem/chains';
 
-const projectConfig: ProjectConfig = {
+const projectConfig: PatchworkProject = {
     name: 'My Patchwork App',
     contracts: {
         MyFirstContract: {
@@ -48,6 +52,7 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [ponder(), react({})],
 };
 
 export default projectConfig;
