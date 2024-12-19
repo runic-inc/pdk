@@ -70,6 +70,7 @@ export async function localDevUp(configPath: string, config: DeployConfig = {}, 
     await taskService.runTasks({ deployConfig, deployedContracts });
 
     await genService.runGenerator('ponder');
+    await genService.runGenerator('react');
     await envGenerator.generateEnvironments();
     await dockerService.restartPonderContainer();
     const status = await dockerService.getContainerStatus();

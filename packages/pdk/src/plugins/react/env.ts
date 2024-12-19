@@ -33,6 +33,7 @@ export async function generateEnv(rootDir: string) {
     const lockFileManager = new LockFileManager(configPath);
     const selectedNetwork = lockFileManager.getCurrentNetwork();
     env['VITE_NETWORK'] = selectedNetwork;
+    env['VITE_NAME'] = projectConfig.name;
     /*
     * superfluous for now, commenting out
     *

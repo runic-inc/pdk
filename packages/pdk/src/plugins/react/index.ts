@@ -1,6 +1,4 @@
 import { PDKPlugin } from '../../types';
-import { generateReactComponents } from './components';
-import { generateDemoPage } from './demoPage';
 import { generateEnv } from './env';
 import { generateTrpcHooks, generateWagmiHooks } from './hooks';
 
@@ -29,18 +27,18 @@ export function react(props: ReactPluginProps): PDKPlugin {
                             await generateTrpcHooks(ctx.rootDir);
                         },
                     },
-                    {
-                        title: 'Generating components...',
-                        task: async (ctx) => {
-                            await generateReactComponents(ctx.rootDir);
-                        },
-                    },
-                    {
-                        title: 'Generating demo page...',
-                        task: async (ctx) => {
-                            await generateDemoPage(ctx.rootDir);
-                        },
-                    },
+                    // {
+                    //     title: 'Generating components...',
+                    //     task: async (ctx) => {
+                    //         await generateReactComponents(ctx.rootDir);
+                    //     },
+                    // },
+                    // {
+                    //     title: 'Generating demo page...',
+                    //     task: async (ctx) => {
+                    //         await generateDemoPage(ctx.rootDir);
+                    //     },
+                    // },
                     {
                         title: 'Generating env...',
                         task: async (ctx) => {
