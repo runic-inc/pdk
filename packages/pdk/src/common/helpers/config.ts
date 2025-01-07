@@ -64,7 +64,6 @@ export async function importPatchworkConfig(config: string): Promise<PatchworkPr
     try {
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
-
         return (await tsLoader<Default<PatchworkProject>>(fullPath)).default;
     } catch (error) {
         if (error instanceof Error) {
