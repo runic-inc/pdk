@@ -1,6 +1,5 @@
 import { Command } from '@commander-js/extra-typings';
 import path from 'path';
-import { convertToJSON, convertToTS } from './commands/convert';
 import { localDevDown, localDevUp } from './commands/dev';
 import { generateAll, generateContractDeployScripts, generateContracts } from './commands/generate';
 import { networkList, networkSwitch } from './commands/network';
@@ -44,42 +43,11 @@ const program = new Command()
     const generatorService = new GeneratorService(lockFileManager);
 
     program
-        .command('validate')
-        .argument('[configFiles...]', 'Path to the JSON files')
-        .description('Validate Patchwork contract or project configuration files')
-        .action(async (configFiles) => {
-            for (const configFile of configFiles || []) {
-                if (!cliProcessor.validateConfig(configFile)) {
-                    throw new PDKError(ErrorCode.PDK_ERROR, `Error validating config ${configFile}`);
-                }
-            }
-        });
-
-    program
         .command('status')
         .description('Show the status of the current project')
         .action(async () => {
             const configPath = await getConfigPath();
             await status(configPath);
-        });
-
-    const convert = program.command('convert').description('convert commands');
-    convert
-        .command('toJSON')
-        .argument('[configFiles...]', 'Path to TS files')
-        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-        .description('Convert Typescript project configurations to JSON')
-        .action(async (configFiles, options) => {
-            await convertToJSON(configFiles, options.output);
-        });
-
-    convert
-        .command('toTS')
-        .argument('[configFiles...]', 'Path to JSON files')
-        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-        .description('Convert JSON project configurations to Typescript')
-        .action(async (configFiles, options) => {
-            await convertToTS(configFiles, options.output);
         });
 
     program
@@ -93,22 +61,20 @@ const program = new Command()
 
     generate
         .command('contracts')
-        .argument('[configFiles...]', 'Path to the JSON or TS files')
         .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
         .option('-c, --contract <name>', 'Name of the specific contract to generate')
         .description('Generate patchwork contracts')
-        .action(async (configFiles, options) => {
-            await generateContracts(configFiles, options.output, options.contract);
+        .action(async (options) => {
+            await generateContracts(ctx.config, options.output, options.contract);
         });
 
     generate
         .command('deployScripts')
-        .argument('[configFiles...]', 'Path to the JSON or TS files')
         .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
         .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
         .description('Generate deploy scripts')
-        .action(async (configFiles, options) => {
-            await generateContractDeployScripts(configFiles, options.contractsDir, options.output);
+        .action(async (options) => {
+            await generateContractDeployScripts(ctx.config, options.contractsDir, options.output);
         });
 
     generate
@@ -116,8 +82,7 @@ const program = new Command()
         // .argument('[configFile]', 'Path to the config file')
         .description('Generate all contracts and services')
         .action(async () => {
-            const configPath = await getConfigPath();
-            await generateAll(configPath);
+            await generateAll(ctx.config);
             await generatorService.runAllGenerators();
         });
 
