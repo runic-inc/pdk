@@ -1,10 +1,11 @@
 import { cliProcessor } from '../../common/cliProcessor';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
+import { PatchworkProject } from '../../types';
 
-export async function generateContractDeployScripts(configFiles: string[], contractsDir?: string, output?: string) {
+export async function generateContractDeployScripts(config: PatchworkProject, contractsDir?: string, output?: string) {
     try {
-        cliProcessor.generateDeployScripts(configFiles, contractsDir, output);
+        await cliProcessor.generateDeployScripts(config, contractsDir, output);
     } catch (e) {
-        throw new PDKError(ErrorCode.PDK_ERROR, `Error generating solidity`, { configFiles, contractsDir, output });
+        throw new PDKError(ErrorCode.PDK_ERROR, `Error generating solidity`, { config, contractsDir, output });
     }
 }
