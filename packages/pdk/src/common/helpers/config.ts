@@ -65,7 +65,13 @@ export async function importPatchworkConfig(config: string): Promise<PatchworkPr
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
 
-        return (await tsLoader<Default<PatchworkProject>>(fullPath)).default;
+        return (
+            await tsLoader<Default<PatchworkProject>>(fullPath, {
+                moduleOverrides: {
+                    '@patchworkdev/pdk/plugins': path.resolve(__dirname, '..', '..', 'plugins'),
+                },
+            })
+        ).default;
     } catch (error) {
         if (error instanceof Error) {
             logger.error('Error importing ProjectConfig:', error.message);
