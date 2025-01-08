@@ -18,6 +18,15 @@ const Toolbar = () => {
     const { scopeConfig, setEditor, updateScopeConfig, updateContractsConfig, updateContractsOrder } = useStore();
     const [projectConfigJsonData, setProjectConfigJsonData] = useState<ProjectConfig | null>(null);
     const [valid, setValid] = useState(false);
+    const [aiTextValid, setAITextValid] = useState(false);
+    const [appText, setAppText] = useState('');
+
+    const validateAITextInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e);
+        const content = e.target.value;
+        setAITextValid(!!(content && content.length > 0));
+        setAppText(content?.toString() ?? '');
+    };
 
     const validateProjectConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
         console.log(e);
@@ -52,7 +61,7 @@ const Toolbar = () => {
             const contracts: Record<string, UContractConfig> = {};
             Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
                 if (typeof contractConfig === 'string') return;
-                const fragments = new Set<string>(projectConfigJsonData.contractRelations[_uid]?.fragments ?? []);
+                const fragments = new Set<string>(contractConfig.fragments);
                 contracts[_uid] = {
                     ...(contractConfig as unknown as UContractConfig),
                     _uid,
@@ -63,7 +72,7 @@ const Toolbar = () => {
                         } as UFieldConfig;
                     }),
                     fragments,
-                    mintFee: (scope.mintConfigs && scope.mintConfigs[_uid]?.flatFee.toString()) ?? '',
+                    mintFee: contractConfig.fees?.mintFee?.toString() ?? '',
                     patchFee: '',
                     assignFee: '',
                 };
@@ -80,6 +89,33 @@ const Toolbar = () => {
     const handleSaveProjectZip = async () => {
         await ProjectSaver.saveProject();
     };
+
+    const handleRunTextToApp = async () => {
+        // TODO show loading spinner
+        const response = await fetch('https://wizard.patchwork.dev/api/text2app/generate_project', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                description: appText,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+        const projectConfig = data.project_config;
+        const schema = new JSONProjectConfigLoader().load(projectConfig);
+        setProjectConfigJsonData(schema);
+        handleImportProjectConfig();
+        setAppText('');
+        setAITextValid(false);
+    };
+
     return (
         <header className='col-span-2 flex items-stretch justify-start gap-4'>
             <div
@@ -95,6 +131,36 @@ const Toolbar = () => {
             </div>
             <ContractList />
             <div className='flex grow justify-end items-stretch gap-2'>
+                <Dialog onOpenChange={() => {}}>
+                    <DialogTrigger asChild>
+                        <Button variant={'outline'} className='h-auto gap-2'>
+                            <Icon icon='fa-wand-magic-sparkles' />
+                            Use AI to configure
+                        </Button>
+                    </DialogTrigger>
+
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Describe your project</DialogTitle>
+                            <DialogDescription className='py-2'>
+                                Describe your project and let our AI build a configuration for you.{' '}
+                                <span className='underline'>This will overwrite your current Wizard project!</span>{' '}
+                            </DialogDescription>
+                            <div>
+                                <Input type='text' onChange={validateAITextInput} />
+                            </div>
+                            <DialogFooter className='pt-4'>
+                                <DialogClose asChild>
+                                    <Button disabled={!aiTextValid} className='gap-2' onClick={() => handleRunTextToApp()}>
+                                        <Icon icon='fa-file-import' />
+                                        Generate
+                                    </Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogHeader>
+                    </DialogContent>
+                </Dialog>
+
                 <Dialog onOpenChange={() => {}}>
                     <DialogTrigger asChild>
                         <Button variant={'outline'} className='h-auto gap-2'>

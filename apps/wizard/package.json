@@ -37,6 +37,7 @@
         "@radix-ui/react-tabs": "^1.1.0",
         "@radix-ui/react-tooltip": "^1.1.2",
         "cmdk": "1.0.0",
+        "fetch": "^1.1.0",
         "framer-motion": "^11.0.15",
         "immer": "10.1.1",
         "jszip": "3.10.1",
