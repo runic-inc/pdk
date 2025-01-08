@@ -4,11 +4,11 @@ import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../../common/helpers/config';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
 import { formatAndSaveFile } from '../../common/helpers/file';
-import { logger } from '../../common/helpers/logger';
+import { TaskLogger } from '../../common/helpers/logger';
 import { envVarCase } from '../../common/helpers/text';
 import LockFileManager from '../../services/lockFile';
 
-export async function generateConfig(rootDir: string) {
+export async function generateConfig(rootDir: string, logger: TaskLogger) {
     // Define paths relative to the root dir
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const abiDir = path.join(rootDir, 'ponder', 'abis');
@@ -49,7 +49,7 @@ export async function generateConfig(rootDir: string) {
     const config = configTemplate(imports, networks.join(), contracts.join());
 
     await formatAndSaveFile(ponderConfigPath, config);
-    logger.info(`Ponder config generated successfully: ${ponderConfigPath}`);
+    //logger.info(`Ponder config generated successfully: ${ponderConfigPath}`);
 }
 
 function configTemplate(imports: Set<string>, networkConfig: string, contractConfig: string): string {
@@ -98,7 +98,7 @@ export function contractTemplate(lockFileManager: LockFileManager, name: string,
 function contractNetworkTemplate(lockFileManager: LockFileManager, name: string, networkName: string, network: Network): string | undefined {
     const deployment = lockFileManager.getLatestDeploymentForContract(name, networkName);
     if (!deployment) {
-        logger.info(`No deployment found for ${name} on ${networkName} network`);
+        //logger.info(`No deployment found for ${name} on ${networkName} network`);
         return undefined;
     }
     return `${networkName}: {

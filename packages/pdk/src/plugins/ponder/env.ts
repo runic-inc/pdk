@@ -3,11 +3,11 @@ import { ContractProcessor } from '../../commands/dev/services/contract-processo
 import { importPatchworkConfig } from '../../common/helpers/config';
 import { getEnvFile, writeEnvFile } from '../../common/helpers/env';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
-import { logger } from '../../common/helpers/logger';
+import { TaskLogger } from '../../common/helpers/logger';
 import { envVarCase } from '../../common/helpers/text';
 import LockFileManager from '../../services/lockFile';
 
-export async function generatePonderEnv(rootDir: string) {
+export async function generatePonderEnv(rootDir: string, logger: TaskLogger) {
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const ponderEnvPath = path.join(rootDir, 'ponder', '.env.local');
     const projectConfig = await importPatchworkConfig(configPath);
@@ -45,5 +45,4 @@ export async function generatePonderEnv(rootDir: string) {
     }
 
     writeEnvFile(env, ponderEnvPath);
-    logger.info(`Ponder env generated successfully: ${ponderEnvPath}`);
 }

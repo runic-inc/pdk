@@ -3,10 +3,10 @@ import path from 'path';
 import { loadPonderSchema } from '../../common/helpers/config';
 // import { FieldDefinition, Schema } from "./ponderMocks";
 import { formatAndSaveFile } from '../../common/helpers/file';
-import { logger } from '../../common/helpers/logger';
+import { TaskLogger } from '../../common/helpers/logger';
 import { FieldDefinition, SchemaModule, TableDefinition } from '../../common/helpers/ponderSchemaMock';
 
-export async function generateAPI(rootDir: string): Promise<{ [key: string]: string }> {
+export async function generateAPI(rootDir: string, logger: TaskLogger): Promise<{ [key: string]: string }> {
     const schemaPath = path.join(rootDir, 'ponder', 'ponder.schema.ts');
     const apiOutputDir = path.join(rootDir, 'ponder', 'src', 'generated');
     const schema = await loadPonderSchema(schemaPath);
@@ -15,7 +15,7 @@ export async function generateAPI(rootDir: string): Promise<{ [key: string]: str
     try {
         await fs.access(apiOutputDir);
     } catch (error) {
-        logger.info(`API output directory does not exist. Creating ${apiOutputDir}`);
+        logger.debug(`API output directory does not exist. Creating ${apiOutputDir}`);
         await fs.mkdir(apiOutputDir, { recursive: true });
     }
 
@@ -26,7 +26,7 @@ export async function generateAPI(rootDir: string): Promise<{ [key: string]: str
     const outputPath = path.join(apiOutputDir, 'api.ts');
     // await fs.writeFile(outputPath, apiContent, 'utf8');
     await formatAndSaveFile(outputPath, output.join('\n'));
-    logger.info(`tRPC API generation completed. Output written to ${outputPath}`);
+    logger.debug(`tRPC API generation completed. Output written to ${outputPath}`);
     return { trpc: apiOutputDir };
 }
 

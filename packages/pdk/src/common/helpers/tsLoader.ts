@@ -87,7 +87,7 @@ function tryResolveCompiled(request: string, containingPath: string, compiledFil
 
 export function tsLoaderSync<T>(filePath: string, options?: TsLoaderOptions): T {
     try {
-        logger.debug(`Attempting to access ${filePath}`);
+        //logger.debug(`Attempting to access ${filePath}`);
         fs.accessSync(filePath);
     } catch (error) {
         throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Unable to access file at ${filePath}`);
@@ -95,7 +95,6 @@ export function tsLoaderSync<T>(filePath: string, options?: TsLoaderOptions): T 
 
     // Collect all dependencies first
     const dependencies = collectDependencies(filePath);
-    logger.debug(`Found ${dependencies.size} dependencies`);
 
     // Create a new project instance with in-memory filesystem
     const project = new Project({
@@ -131,7 +130,7 @@ export function tsLoaderSync<T>(filePath: string, options?: TsLoaderOptions): T 
     // Set up module interception
     let originalRequire: NodeRequire | undefined;
     if (options?.moduleOverrides || compiledFiles.size > 1) {
-        logger.debug(`Setting up module interception for ${compiledFiles.size} files`);
+        //logger.debug(`Setting up module interception for ${compiledFiles.size} files`);
         originalRequire = Module.prototype.require;
         const newRequire = function (this: NodeModule, id: string) {
             // First check explicit overrides
@@ -177,7 +176,7 @@ export function tsLoaderSync<T>(filePath: string, options?: TsLoaderOptions): T 
         // Execute the compiled code
         const compiledCode = compiledFiles.get(filePath)!;
         moduleObj._compile(compiledCode, filePath);
-        logger.debug(`File compiled successfully: ${filePath}`);
+        //logger.debug(`File compiled successfully: ${filePath}`);
         return moduleObj.exports;
     } finally {
         if (originalRequire) {

@@ -1,7 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
-import { logger } from '../../common/helpers/logger';
 
 async function getSchemaJsonFiles(directory: string): Promise<string[]> {
     const files: string[] = [];
@@ -10,22 +9,22 @@ async function getSchemaJsonFiles(directory: string): Promise<string[]> {
         for (const entry of entries) {
             const filePath = path.join(directory, entry.name);
             if (entry.isDirectory()) {
-                logger.debug('Scanning directory:', filePath);
+                //logger.debug('Scanning directory:', filePath);
                 const subFiles = await getSchemaJsonFiles(filePath);
                 files.push(...subFiles);
             } else if (entry.isFile() && entry.name.endsWith('-schema.json')) {
-                logger.debug('Found contract schema file:', entry.name);
+                //logger.debug('Found contract schema file:', entry.name);
                 files.push(filePath);
             }
         }
         return files;
     } catch (error) {
-        logger.error(`Error scanning directory ${directory}:`, error);
+        //logger.error(`Error scanning directory ${directory}:`, error);
         throw new PDKError(ErrorCode.DIR_NOT_FOUND, `Failed to scan directory ${directory}`);
     }
 }
 
-export async function generateTypescriptSchemas(rootDir: string) {
+export async function generateTypescriptSchemas(rootDir: string, logger: any) {
     const buildOutDir = path.join(rootDir, 'contracts', 'src');
     const srcDir = path.join(rootDir, 'ponder', 'schemas');
 
@@ -48,7 +47,7 @@ export async function generateTypescriptSchemas(rootDir: string) {
             if (file === 'README') continue;
             const filePath = path.join(srcDir, file);
             await fs.unlink(filePath);
-            logger.debug('Removed file:', file);
+            //logger.debug('Removed file:', file);
         }
 
         const indexList: string[] = [];
@@ -70,9 +69,9 @@ export async function generateTypescriptSchemas(rootDir: string) {
                 // Write the .abi.ts file
                 const outputPath = path.join(srcDir, `${baseName}.schema.ts`);
                 await fs.writeFile(outputPath, tsContent);
-                logger.debug(`Generated: ${baseName}.ts`);
+                //logger.debug(`Generated: ${baseName}.ts`);
             } catch (error) {
-                logger.error(`Failed to process schema file ${baseName}:`, error);
+                //logger.error(`Failed to process schema file ${baseName}:`, error);
                 throw new PDKError(ErrorCode.PDK_ERROR, `Failed to process schema file ${baseName}`);
             }
         }
@@ -84,9 +83,8 @@ export async function generateTypescriptSchemas(rootDir: string) {
 
         // Write the index file
         await fs.writeFile(path.join(srcDir, 'index.ts'), indexContent);
-        logger.info('Successfully generated all TypeScript schemas');
     } catch (error) {
-        logger.error('Failed to generate TypeScript schemas:', error);
+        //logger.error('Failed to generate TypeScript schemas:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate TypeScript schemas');
     }
 }

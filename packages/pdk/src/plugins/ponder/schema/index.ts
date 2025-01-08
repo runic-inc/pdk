@@ -2,15 +2,14 @@ import fs from 'fs/promises';
 import path from 'path';
 import { importPatchworkConfig } from '../../../common/helpers/config';
 import { ErrorCode, PDKError } from '../../../common/helpers/error';
-import { logger } from '../../../common/helpers/logger';
+import { TaskLogger } from '../../../common/helpers/logger';
 import { generateSchemaFile } from './schema';
 
-export async function generateSchema(rootDir: string) {
+export async function generateSchema(rootDir: string, logger: TaskLogger) {
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const abiDir = path.join(rootDir, 'ponder', 'abis');
     const ponderSchema = path.join(rootDir, 'ponder', 'ponder.schema.ts');
 
-    logger.debug('Config directory:', rootDir);
     logger.debug('ABI directory:', abiDir);
     logger.debug('Schema output path:', ponderSchema);
 
@@ -28,7 +27,7 @@ export async function generateSchema(rootDir: string) {
         logger.debug('Project config loaded successfully');
 
         await generateSchemaFile(projectConfig, ponderSchema);
-        logger.info(`Ponder schema generated successfully at ${ponderSchema}`);
+        //logger.info(`Ponder schema generated successfully at ${ponderSchema}`);
     } catch (error) {
         logger.error(`Failed to generate schema: ${error}`);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate schema');

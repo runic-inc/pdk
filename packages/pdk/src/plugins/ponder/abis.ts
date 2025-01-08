@@ -10,11 +10,11 @@ async function getAbiJsonFiles(directory: string): Promise<string[]> {
         for (const entry of entries) {
             const filePath = path.join(directory, entry.name);
             if (entry.isDirectory()) {
-                logger.debug('Scanning directory:', filePath);
+                //logger.debug('Scanning directory:', filePath);
                 const subFiles = await getAbiJsonFiles(filePath);
                 files.push(...subFiles);
             } else if (entry.isFile() && entry.name.endsWith('.abi.json')) {
-                logger.debug('Found ABI file:', entry.name);
+                //logger.debug('Found ABI file:', entry.name);
                 files.push(filePath);
             }
         }
@@ -25,7 +25,7 @@ async function getAbiJsonFiles(directory: string): Promise<string[]> {
     }
 }
 
-export async function generateABIs(rootDir: string) {
+export async function generateABIs(rootDir: string, logger: any) {
     const buildOutDir = path.join(rootDir, 'contracts', 'out');
     const abiDir = path.join(rootDir, 'ponder', 'abis');
 
@@ -75,7 +75,6 @@ export async function generateABIs(rootDir: string) {
 
         // Write the index file
         await fs.writeFile(path.join(abiDir, 'index.ts'), indexContent);
-        logger.info('Successfully generated all TypeScript ABIs');
     } catch (error) {
         logger.error('Failed to generate TypeScript ABIs:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate TypeScript ABIs');

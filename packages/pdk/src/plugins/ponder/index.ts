@@ -1,3 +1,6 @@
+import pino from 'pino';
+import pretty from 'pino-pretty';
+import { TaskLogger } from '../../common/helpers/logger';
 import { PDKPlugin } from '../../types';
 import { generateABIs } from './abis';
 import { generateAPI } from './api';
@@ -11,6 +14,11 @@ type PonderPluginProps = {
     trpc: boolean;
 };
 
+const rendererOptions = {
+    persistentOutput: true,
+    outputBar: Infinity,
+};
+
 export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
     return {
         name: 'Ponder',
@@ -19,50 +27,75 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                 [
                     {
                         title: 'Processing ABIs...',
-                        task: async () => {
-                            // await new Promise((resolve) => setTimeout(resolve, 1000));
-                            await generateABIs(context.rootDir);
+                        skip: true,
+                        task: async (ctx, task) => {
+                            const logger = new TaskLogger(task);
+                            await generateABIs(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                     {
                         title: 'Generating Ponder schema...',
-                        task: async () => {
-                            await generateSchema(context.rootDir);
+                        task: async (ctx, task) => {
+                            const logger = new TaskLogger(task);
+                            await generateSchema(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                     {
                         title: 'Generating Typescript schemas...',
-                        task: async () => {
-                            await generateTypescriptSchemas(context.rootDir);
+                        task: async (ctx, task) => {
+                            const logger = new TaskLogger(task);
+                            await generateTypescriptSchemas(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                     {
                         title: 'Generating event filters',
                         task: async () => {
-                            await generateEventHooks(context.rootDir);
+                            const logger = new TaskLogger(task);
+                            await generateEventHooks(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                     {
-                        title: 'Generating ponder config',
-                        task: async () => {
-                            await generateConfig(context.rootDir);
+                        title: 'Generating Ponder config',
+                        task: async (ctx, task) => {
+                            const stream = pretty({
+                                colorize: true,
+                            });
+                            const lg = pino(stream);
+                            stream.pipe(task.stdout());
+
+                            // Nothing is printed
+                            lg.info('hi');
+                            lg.info('hi');
+                            lg.info('hi');
+                            lg.info('hi');
+                            const logger = new TaskLogger(task);
+                            await generateConfig(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                     {
                         title: 'Generating tRPC endpoints...',
                         enabled: () => props.trpc,
-                        task: async (ctx) => {
-                            const artifacts = await generateAPI(context.rootDir);
+                        task: async (ctx, task) => {
+                            const logger = new TaskLogger(task);
+                            const artifacts = await generateAPI(context.rootDir, logger);
                             for (const [key, value] of Object.entries(artifacts)) {
                                 ctx.artifacts[key] = value;
                             }
                         },
+                        rendererOptions,
                     },
                     {
                         title: 'Generating Ponder env...',
-                        task: async (ctx) => {
-                            await generatePonderEnv(context.rootDir);
+                        task: async (ctx, task) => {
+                            const logger = new TaskLogger(task);
+                            await generatePonderEnv(context.rootDir, logger);
                         },
+                        rendererOptions,
                     },
                 ],
                 { concurrent: false },

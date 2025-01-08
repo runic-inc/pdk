@@ -12,7 +12,7 @@ export class ContractProcessor {
 
     async processContracts(configPath: string, config: DeployConfig = {}, shouldDeploy = false): Promise<DeploymentAddresses> {
         const action = shouldDeploy ? 'Deploying' : 'Calculating addresses and bytecode for';
-        console.info(`${action} contracts...`);
+        //console.info(`${action} contracts...`);
 
         const targetDir = path.dirname(configPath);
         const contractsDir = path.join(targetDir, 'contracts');
@@ -34,7 +34,7 @@ export class ContractProcessor {
             const scriptPath = path.join(scriptDir, deployScript);
             const contractNames = await this.extractContractNamesFromScript(scriptPath);
 
-            console.info(`\nFound contracts: ${contractNames.join(', ')}`);
+            //console.info(`\nFound contracts: ${contractNames.join(', ')}`);
 
             const forgeArgs = await this.buildForgeArgs(deployScript, shouldDeploy, deployConfig);
             const { stdout } = await this.runForgeCommand(forgeArgs, scriptDir, deployConfig);
@@ -44,7 +44,7 @@ export class ContractProcessor {
 
             const deployedContracts = await this.parseDeploymentOutput(stdout, contractNames, Number(deploymentBlock));
 
-            this.displayResults(deployedContracts);
+            //this.displayResults(deployedContracts);
             return deployedContracts;
         } catch (error) {
             console.error(`${shouldDeploy ? 'Deployment' : 'Calculation'} failed:`, error);

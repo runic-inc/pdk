@@ -92,7 +92,11 @@ export class GeneratorService {
             throw new Error(`Unknown generator: ${key}`);
         }
 
-        const listr = new Listr<PDKContext>([task]);
+        const listr = new Listr<PDKContext>([task], {
+            rendererOptions: {
+                collapseSubtasks: false,
+            },
+        });
         await listr.run(this.lockFileManager.getCtx()).then((ctx) => {
             this.lockFileManager.updateAndSaveCtx(ctx);
         });

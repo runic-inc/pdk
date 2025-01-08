@@ -2,10 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig, loadPonderSchema } from '../../../common/helpers/config';
 import { ErrorCode, PDKError } from '../../../common/helpers/error';
-import { logger } from '../../../common/helpers/logger';
+import { TaskLogger } from '../../../common/helpers/logger';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
-export async function generateEventHooks(rootDir: string) {
+export async function generateEventHooks(rootDir: string, logger: TaskLogger) {
     // Resolve the full path of the config file
     // const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
     // const configDir = path.dirname(fullConfigPath);
@@ -16,7 +16,6 @@ export async function generateEventHooks(rootDir: string) {
     const eventDir = path.join(rootDir, 'ponder', 'src', 'generated');
     const ponderSchemaPath = path.join(rootDir, 'ponder', 'ponder.schema.ts');
 
-    logger.debug(`Root path: ${rootDir}`);
     logger.debug(`ABI directory: ${abiDir}`);
     logger.debug(`Event directory: ${eventDir}`);
     logger.debug(`Ponder schema path: ${ponderSchemaPath}`);
@@ -34,7 +33,6 @@ export async function generateEventHooks(rootDir: string) {
         // Import required files
         const abis = await importABIFiles(abiDir);
         const projectConfig = await importPatchworkConfig(configPath);
-        logger.debug('Project config loaded');
 
         // Process configuration
         const fragmentRelationships = getFragmentRelationships(projectConfig);
@@ -55,8 +53,6 @@ export async function generateEventHooks(rootDir: string) {
         const outputPath = path.join(eventDir, 'events.ts');
         logger.debug('Creating event file:', outputPath);
         await createPonderEventFile(handlers, outputPath);
-
-        logger.info(`Event hooks generated successfully at ${outputPath}`);
     } catch (error) {
         logger.error('Failed to generate event hooks:', error);
         throw error instanceof PDKError ? error : new PDKError(ErrorCode.UNKNOWN_ERROR, 'Failed to generate event hooks', { error });
