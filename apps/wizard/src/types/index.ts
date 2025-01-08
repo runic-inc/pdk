@@ -35,7 +35,7 @@ export type FeatureConfig = {
     options: FeatureOption[];
 };
 
-export type UContractConfig = Omit<ContractConfig, 'fields' | 'scopeName'> & {
+export type UContractConfig = Omit<ContractConfig, 'fields' | 'scopeName' | 'fragments'> & {
     _uid: string;
     fields: UFieldConfig[];
     mintFee?: string;

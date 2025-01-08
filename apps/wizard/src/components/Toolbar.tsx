@@ -52,7 +52,7 @@ const Toolbar = () => {
             const contracts: Record<string, UContractConfig> = {};
             Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
                 if (typeof contractConfig === 'string') return;
-                const fragments = new Set<string>(projectConfigJsonData.contractRelations[_uid]?.fragments ?? []);
+                const fragments = new Set<string>(contractConfig.fragments);
                 contracts[_uid] = {
                     ...(contractConfig as unknown as UContractConfig),
                     _uid,
@@ -63,7 +63,7 @@ const Toolbar = () => {
                         } as UFieldConfig;
                     }),
                     fragments,
-                    mintFee: (scope.mintConfigs && scope.mintConfigs[_uid]?.flatFee.toString()) ?? '',
+                    mintFee: contractConfig.fees?.mintFee?.toString() ?? '',
                     patchFee: '',
                     assignFee: '',
                 };
