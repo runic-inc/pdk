@@ -1,8 +1,9 @@
-import { Feature, ProjectConfig } from '@patchworkdev/common/types';
+import { PatchworkProject } from '@patchworkdev/pdk/types';
 import { ponder, react } from '@patchworkdev/pdk/plugins';
+import { Feature } from '@patchworkdev/common/types';
 import { anvil, base, baseSepolia } from 'viem/chains';
 
-const projectConfig: ProjectConfig = {
+const projectConfig: PatchworkProject = {
     name: 'Composable PFP Demo',
     contracts: {
         Character: {
@@ -25,6 +26,12 @@ const projectConfig: ProjectConfig = {
                     key: 'name',
                     type: 'char32',
                     description: 'Name',
+                },
+                {
+                    id: 2,
+                    key: 'bg_color',
+                    type: 'bytes8',
+                    description: 'Background Color',
                 },
             ],
             features: [],
@@ -84,10 +91,7 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
-    plugins: [
-        ponder(),
-        react({}),
-    ],
+    plugins: [ponder(), react({})],
 };
 
 export default projectConfig;
