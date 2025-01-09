@@ -15,7 +15,7 @@ export interface Trait {
 
 // Our main contract address
 const TraitContract = {
-    default: process.env.TRAIT_CONTRACT_ADDRESS as `0x${string}`,
+    default: typeof process !== 'undefined' ? (process?.env.TRAIT_CONTRACT_ADDRESS as `0x${string}`) : '0x0',
 };
 
 type TraitContractKeys = keyof typeof TraitContract;
