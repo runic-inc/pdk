@@ -1,7 +1,7 @@
 import path from 'path';
 import * as ts from 'typescript';
 import { ErrorCode, PDKError } from './error';
-import { logger } from './logger';
+import { TaskLogger } from './logger';
 
 interface APIRoute {
     name: string;
@@ -13,6 +13,7 @@ interface APIStructure {
 }
 
 export function analyzeAPI(filePath: string): APIStructure {
+    const logger = TaskLogger.getLogger();
     const configPath = ts.findConfigFile(path.dirname(filePath), ts.sys.fileExists, 'tsconfig.json');
     if (!configPath) {
         throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Could not find a valid 'tsconfig.json' at ${configPath}`);

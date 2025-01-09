@@ -1,10 +1,12 @@
 import { ListrTaskWrapper } from 'listr2';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import path from 'node:path';
 import * as pico from 'picocolors';
 import pino from 'pino';
 import sourceMapSupport from 'source-map-support';
 import { PDKContext } from '../../types';
 
+// Pino logger for non-task logs
 export const logger = pino({
     transport: {
         target: 'pino-pretty',
@@ -14,22 +16,37 @@ export const logger = pino({
             colorize: true,
         },
     },
-    level: 'info', // Default level
+    level: 'debug',
 });
 export const setLogLevel = (level: pino.LevelWithSilent): void => {
     logger.level = level;
 };
 
+// Task-specific local context for capturing logs
+export interface LoggerContext {
+    logger: TaskLogger;
+}
+export const asyncLocalStorage = new AsyncLocalStorage<LoggerContext>();
+
+// Task logger
 export class TaskLogger {
     private _task: ListrTaskWrapper<PDKContext, any, any> | undefined;
     private _projectRoot: string;
 
-    constructor(task: ListrTaskWrapper<PDKContext, any, any>) {
+    constructor(task?: ListrTaskWrapper<PDKContext, any, any>) {
         this._task = task;
         this._projectRoot = process.cwd();
-        if (logger.level === 'debug') {
+        if (logger.isLevelEnabled('debug')) {
             sourceMapSupport.install();
         }
+    }
+
+    static getLogger(): TaskLogger {
+        const context = asyncLocalStorage.getStore();
+        if (!context?.logger) {
+            return new TaskLogger();
+        }
+        return context.logger;
     }
 
     private getCallerInfo(depth = 1): string {
@@ -61,7 +78,7 @@ export class TaskLogger {
     }
 
     debug(...args: any[]) {
-        if (logger.level !== 'debug') return;
+        if (!logger.isLevelEnabled('debug')) return;
         const msg = `${pico.blue(this.getCallerInfo())}${pico.cyan(args.join('  '))}`;
         this.transport('debug', msg);
     }

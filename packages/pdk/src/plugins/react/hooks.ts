@@ -3,24 +3,18 @@ import path from 'path';
 import { analyzeAPI } from '../../common/helpers/api';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
 import { formatAndSaveFile } from '../../common/helpers/file';
-import { logger } from '../../common/helpers/logger';
+import { TaskLogger } from '../../common/helpers/logger';
 import { pascalCase } from '../../common/helpers/text';
 
-export async function generateHooks(rootDir: string) {
-    logger.info(`  ∟ Generating Wagmi hooks...`);
-    await generateWagmiHooks(rootDir);
-    logger.info(`  ∟ Generating tRPC API hooks...`);
-    await generateTrpcHooks(rootDir);
-    logger.info(`React hooks generated successfully`);
-}
-
 export async function generateWagmiHooks(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const wagmiConfig = path.join(rootDir, 'wagmi.config.ts');
 
     try {
         await fs.access(wagmiConfig);
+        logger.debug(`Wagmi config file found at ${wagmiConfig}`);
     } catch (error) {
-        console.error(`Error: Unable to access Wagmi config file at ${wagmiConfig}`);
+        logger.error(`Error: Unable to access Wagmi config file at ${wagmiConfig}`);
         throw new PDKError(ErrorCode.FILE_NOT_FOUND, `Error: Unable to access Wagmi config file at ${wagmiConfig}`);
     }
 
@@ -31,6 +25,7 @@ export async function generateWagmiHooks(rootDir: string) {
 }
 
 export async function generateTrpcHooks(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const trpcRouter = path.join(rootDir, 'ponder', 'src', 'generated', 'api.ts');
     const hooksDir = path.join(rootDir, 'www', 'src', 'generated', 'hooks');
     const trpcHooksFile = path.join(hooksDir, 'trpc.ts');

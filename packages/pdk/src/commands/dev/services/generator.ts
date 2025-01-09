@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import path from 'path';
 // import { generateAPI } from '../../../commands/generate';
+import { GeneratorService as Gen } from '../../../services/generator';
 import LockFileManager from '../../../services/lockFile';
 
 export type GeneratorType = 'contracts' | 'deployScripts' | 'buildContracts'; //| 'abis' | 'schema' | 'eventHooks' | 'ponderConfig' | 'api' | 'reactHooks';
@@ -14,6 +15,7 @@ interface GeneratorConfig {
 export class GeneratorService {
     private lockFile: LockFileManager;
     private configPath: string;
+    private PDKGenerator: Gen;
     private generators: Record<GeneratorType, GeneratorConfig>;
     private generatorOrder: GeneratorType[];
 
@@ -21,6 +23,7 @@ export class GeneratorService {
         this.configPath = configPath;
         this.lockFile = lockFile;
         this.generators = this.initializeGenerators();
+        this.PDKGenerator = new Gen(lockFile);
         this.generatorOrder = ['contracts', 'deployScripts', 'buildContracts' /*'abis', 'schema', 'eventHooks', 'ponderConfig', 'api', 'reactHooks'*/];
     }
 
@@ -41,55 +44,15 @@ export class GeneratorService {
     // }
 
     private async generateContracts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
-        const outputDir = './contracts/src';
-        const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-        const { execa } = await import('execa');
-        const { oraPromise } = await import('ora');
-        await oraPromise(
-            execa(pdkCommand, ['generate', 'contracts', configPath, '-o', outputDir], {
-                cwd: targetDir,
-            }),
-            {
-                text: `Generating contracts`,
-                failText: 'Failed to generate contracts',
-                successText: `Contracts generated successfully`,
-            },
-        );
+        this.PDKGenerator.runGenerator('contracts');
     }
 
     private async generateDeployScripts(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
-        const outputDir = './contracts/script';
-        const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
-        const { execa } = await import('execa');
-        const { oraPromise } = await import('ora');
-        await oraPromise(
-            execa(pdkCommand, ['generate', 'deployScripts', configPath, '-o', outputDir, '-c', '../src'], {
-                cwd: targetDir,
-            }),
-            {
-                text: `Generating deploy scripts`,
-                failText: 'Failed to generate deploy scripts',
-                successText: `Deploy scripts generated successfully`,
-            },
-        );
+        this.PDKGenerator.runGenerator('deploy');
     }
 
     private async buildContracts(): Promise<void> {
-        const targetDir = path.dirname(this.configPath);
-        const pdkCommand = path.join(targetDir, 'node_modules', '.bin', 'pdk');
-        const { execa } = await import('execa');
-        const { oraPromise } = await import('ora');
-
-        await oraPromise(
-            execa(pdkCommand, ['generate', 'contractBuild', this.configPath], {
-                cwd: targetDir,
-            }),
-            {
-                text: 'Building contracts',
-                failText: 'Failed to build contracts',
-                successText: 'Contracts built successfully',
-            },
-        );
+        this.PDKGenerator.runGenerator('artifacts');
     }
 
     private initializeGenerators(): Record<GeneratorType, GeneratorConfig> {
@@ -109,36 +72,6 @@ export class GeneratorService {
                 outputs: ['contracts/out/**/*.json'],
                 run: () => this.buildContracts(),
             },
-            // abis: {
-            //     inputs: ['contracts/out/**/*.abi.json'],
-            //     outputs: ['ponder/abis/**/*.ts'],
-            //     run: () => generateABIs(this.configPath),
-            // },
-            // schema: {
-            //     inputs: ['ponder/abis/**/*.ts', 'patchwork.config.ts'],
-            //     outputs: ['ponder/ponder.schema.ts'],
-            //     run: () => generateSchema(this.configPath),
-            // },
-            // eventHooks: {
-            //     inputs: ['ponder/abis/**/*.ts', 'ponder/ponder.schema.ts', 'patchwork.config.ts'],
-            //     outputs: ['ponder/src/generated/events.ts'],
-            //     run: () => generateEventHooks(this.configPath),
-            // },
-            // ponderConfig: {
-            //     inputs: ['ponder/abis/**/*.ts', 'ponder/ponder.schema.ts'],
-            //     outputs: ['ponder/ponder.config.ts'],
-            //     run: () => generatePonderConfig(this.configPath),
-            // },
-            // api: {
-            //     inputs: ['ponder/ponder.schema.ts'],
-            //     outputs: ['ponder/src/generated/api.ts'],
-            //     run: () => this.runGenerateAPI(),
-            // },
-            // reactHooks: {
-            //     inputs: ['ponder/src/generated/api.ts'],
-            //     outputs: ['www/generated/hooks/index.ts'],
-            //     run: () => generateReactHooks(this.configPath),
-            // },
         };
     }
 

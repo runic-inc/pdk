@@ -5,7 +5,8 @@ import { ErrorCode, PDKError } from '../../../common/helpers/error';
 import { TaskLogger } from '../../../common/helpers/logger';
 import { createPonderEventFile, GeneratedHandlers, generateEntityEventHandlers } from './eventHooks';
 
-export async function generateEventHooks(rootDir: string, logger: TaskLogger) {
+export async function generateEventHooks(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     // Resolve the full path of the config file
     // const fullConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath);
     // const configDir = path.dirname(fullConfigPath);

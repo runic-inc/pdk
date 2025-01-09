@@ -5,7 +5,7 @@ import * as path from 'path';
 import { Abi } from 'viem';
 import { PatchworkProject } from '../../types';
 import { ErrorCode, PDKError } from './error';
-import { logger } from './logger';
+import { TaskLogger } from './logger';
 import { SchemaModule } from './ponderSchemaMock';
 import { Default, tsLoader } from './tsLoader';
 
@@ -37,6 +37,7 @@ export async function findPonderSchema() {
 }
 
 export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModule> {
+    const logger = TaskLogger.getLogger();
     const mock = path.resolve(__dirname, './ponderSchemaMock');
 
     try {
@@ -61,6 +62,7 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
 }
 
 export async function importPatchworkConfig(config: string): Promise<PatchworkProject> {
+    const logger = TaskLogger.getLogger();
     try {
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
@@ -83,6 +85,7 @@ export async function importPatchworkConfig(config: string): Promise<PatchworkPr
 }
 
 export async function importABIFiles(abiDir: string) {
+    const logger = TaskLogger.getLogger();
     try {
         await fs.access(abiDir);
     } catch (error) {

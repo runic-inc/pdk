@@ -1,25 +1,21 @@
-import path from 'path';
 import { cliProcessor } from '../../common/cliProcessor';
-import { logger } from '../../common/helpers/logger';
+import { getForgePaths } from '../../common/helpers/getForgePaths';
 import { PatchworkProject } from '../../types';
 import { generateContractDeployScripts } from './contractDeployScripts';
 import { generateContracts } from './contracts';
 
-export async function generateAll(config: PatchworkProject) {
-    logger.info('Starting full generation process...');
+export async function generateCore(config: PatchworkProject) {
+    //logger.info('Starting full generation process...');
 
-    logger.info('Getting forge configuration...');
-    const { execa } = await import('execa');
-    const forgeConfig = JSON.parse((await execa('forge', ['config', '--json'])).stdout);
-    const srcDir = forgeConfig.src || path.join(process.cwd(), 'contracts', 'src');
-    const scriptDir = path.join(process.cwd(), 'contracts', 'script');
+    //logger.info('Getting forge configuration...');
+    const { src, script, out } = await getForgePaths();
 
     //logger.info('Generating contracts...');
-    await generateContracts(config, srcDir);
+    await generateContracts(config, src);
 
     // Generate deploy scripts
     //logger.info('Generating deploy scripts...');
-    await generateContractDeployScripts(config, '../src', scriptDir);
+    await generateContractDeployScripts(config, '../src', script);
 
     // Build the contracts using cliProcessor
     //logger.info('Building contracts...');

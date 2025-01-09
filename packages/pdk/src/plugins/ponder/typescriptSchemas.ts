@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
+import { TaskLogger } from '../../common/helpers/logger';
 
 async function getSchemaJsonFiles(directory: string): Promise<string[]> {
     const files: string[] = [];
@@ -24,7 +25,8 @@ async function getSchemaJsonFiles(directory: string): Promise<string[]> {
     }
 }
 
-export async function generateTypescriptSchemas(rootDir: string, logger: any) {
+export async function generateTypescriptSchemas(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const buildOutDir = path.join(rootDir, 'contracts', 'src');
     const srcDir = path.join(rootDir, 'ponder', 'schemas');
 

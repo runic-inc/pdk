@@ -1,6 +1,4 @@
-import pino from 'pino';
-import pretty from 'pino-pretty';
-import { TaskLogger } from '../../common/helpers/logger';
+import { asyncLocalStorage, TaskLogger } from '../../common/helpers/logger';
 import { PDKPlugin } from '../../types';
 import { generateABIs } from './abis';
 import { generateAPI } from './api';
@@ -27,10 +25,11 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                 [
                     {
                         title: 'Processing ABIs...',
-                        skip: true,
                         task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            await generateABIs(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generateABIs(ctx.rootDir);
+                            });
                         },
                         rendererOptions,
                     },
@@ -38,42 +37,38 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                         title: 'Generating Ponder schema...',
                         task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            await generateSchema(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generateSchema(ctx.rootDir);
+                            });
                         },
-                        rendererOptions,
                     },
                     {
                         title: 'Generating Typescript schemas...',
                         task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            await generateTypescriptSchemas(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generateTypescriptSchemas(ctx.rootDir);
+                            });
                         },
                         rendererOptions,
                     },
                     {
                         title: 'Generating event filters',
-                        task: async () => {
+                        task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            await generateEventHooks(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generateEventHooks(ctx.rootDir);
+                            });
                         },
                         rendererOptions,
                     },
                     {
                         title: 'Generating Ponder config',
                         task: async (ctx, task) => {
-                            const stream = pretty({
-                                colorize: true,
-                            });
-                            const lg = pino(stream);
-                            stream.pipe(task.stdout());
-
-                            // Nothing is printed
-                            lg.info('hi');
-                            lg.info('hi');
-                            lg.info('hi');
-                            lg.info('hi');
                             const logger = new TaskLogger(task);
-                            await generateConfig(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generateConfig(ctx.rootDir);
+                            });
                         },
                         rendererOptions,
                     },
@@ -82,10 +77,12 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                         enabled: () => props.trpc,
                         task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            const artifacts = await generateAPI(context.rootDir, logger);
-                            for (const [key, value] of Object.entries(artifacts)) {
-                                ctx.artifacts[key] = value;
-                            }
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                const artifacts = await generateAPI(ctx.rootDir);
+                                for (const [key, value] of Object.entries(artifacts)) {
+                                    ctx.artifacts[key] = value;
+                                }
+                            });
                         },
                         rendererOptions,
                     },
@@ -93,7 +90,9 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                         title: 'Generating Ponder env...',
                         task: async (ctx, task) => {
                             const logger = new TaskLogger(task);
-                            await generatePonderEnv(context.rootDir, logger);
+                            await asyncLocalStorage.run({ logger }, async () => {
+                                await generatePonderEnv(ctx.rootDir);
+                            });
                         },
                         rendererOptions,
                     },

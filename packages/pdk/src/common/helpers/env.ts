@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
 import { ErrorCode, PDKError } from './error';
-import { logger } from './logger';
+import { TaskLogger } from './logger';
 
 export async function getEnvFile(filePath: string, createIfNotExists = true, example?: string) {
+    const logger = TaskLogger.getLogger();
     try {
         await fs.access(filePath);
     } catch {
@@ -40,6 +41,7 @@ export async function getEnvFile(filePath: string, createIfNotExists = true, exa
 }
 
 export async function writeEnvFile(content: Record<string, string>, filePath: string) {
+    const logger = TaskLogger.getLogger();
     const output: string[] = [];
     for (const key in content) {
         output.push(`${key}=${content[key]}`);

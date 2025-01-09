@@ -1,9 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { ErrorCode, PDKError } from '../../common/helpers/error';
-import { logger } from '../../common/helpers/logger';
+import { TaskLogger } from '../../common/helpers/logger';
 
 async function getAbiJsonFiles(directory: string): Promise<string[]> {
+    const logger = TaskLogger.getLogger();
     const files: string[] = [];
     try {
         const entries = await fs.readdir(directory, { withFileTypes: true });
@@ -25,7 +26,8 @@ async function getAbiJsonFiles(directory: string): Promise<string[]> {
     }
 }
 
-export async function generateABIs(rootDir: string, logger: any) {
+export async function generateABIs(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const buildOutDir = path.join(rootDir, 'contracts', 'out');
     const abiDir = path.join(rootDir, 'ponder', 'abis');
 

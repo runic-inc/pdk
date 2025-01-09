@@ -45,11 +45,11 @@ function collectDependencies(filePath: string): Set<string> {
                         queue.push(resolvedPath);
                     }
                 } catch (error) {
-                    logger.debug(`Could not resolve import ${importPath}: ${error}`);
+                    logger.warn(`Could not resolve import ${importPath}: ${error}`);
                 }
             }
         } catch (error) {
-            logger.debug(`Error processing dependency ${currentPath}: ${error}`);
+            logger.warn(`Error processing dependency ${currentPath}: ${error}`);
         }
     }
 

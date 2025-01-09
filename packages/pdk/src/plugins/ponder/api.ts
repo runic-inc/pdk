@@ -6,7 +6,8 @@ import { formatAndSaveFile } from '../../common/helpers/file';
 import { TaskLogger } from '../../common/helpers/logger';
 import { FieldDefinition, SchemaModule, TableDefinition } from '../../common/helpers/ponderSchemaMock';
 
-export async function generateAPI(rootDir: string, logger: TaskLogger): Promise<{ [key: string]: string }> {
+export async function generateAPI(rootDir: string): Promise<{ [key: string]: string }> {
+    const logger = TaskLogger.getLogger();
     const schemaPath = path.join(rootDir, 'ponder', 'ponder.schema.ts');
     const apiOutputDir = path.join(rootDir, 'ponder', 'src', 'generated');
     const schema = await loadPonderSchema(schemaPath);

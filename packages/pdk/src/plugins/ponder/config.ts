@@ -8,7 +8,8 @@ import { TaskLogger } from '../../common/helpers/logger';
 import { envVarCase } from '../../common/helpers/text';
 import LockFileManager from '../../services/lockFile';
 
-export async function generateConfig(rootDir: string, logger: TaskLogger) {
+export async function generateConfig(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     // Define paths relative to the root dir
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const abiDir = path.join(rootDir, 'ponder', 'abis');

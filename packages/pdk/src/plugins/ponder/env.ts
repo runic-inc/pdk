@@ -7,7 +7,8 @@ import { TaskLogger } from '../../common/helpers/logger';
 import { envVarCase } from '../../common/helpers/text';
 import LockFileManager from '../../services/lockFile';
 
-export async function generatePonderEnv(rootDir: string, logger: TaskLogger) {
+export async function generatePonderEnv(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const ponderEnvPath = path.join(rootDir, 'ponder', '.env.local');
     const projectConfig = await importPatchworkConfig(configPath);

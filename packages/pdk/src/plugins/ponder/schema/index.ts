@@ -5,7 +5,8 @@ import { ErrorCode, PDKError } from '../../../common/helpers/error';
 import { TaskLogger } from '../../../common/helpers/logger';
 import { generateSchemaFile } from './schema';
 
-export async function generateSchema(rootDir: string, logger: TaskLogger) {
+export async function generateSchema(rootDir: string) {
+    const logger = TaskLogger.getLogger();
     const configPath = path.join(rootDir, 'patchwork.config.ts');
     const abiDir = path.join(rootDir, 'ponder', 'abis');
     const ponderSchema = path.join(rootDir, 'ponder', 'ponder.schema.ts');

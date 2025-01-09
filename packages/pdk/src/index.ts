@@ -1,10 +1,8 @@
 import { Command } from '@commander-js/extra-typings';
 import path from 'path';
 import { localDevDown, localDevUp } from './commands/dev';
-import { generateAll, generateContractDeployScripts, generateContracts } from './commands/generate';
 import { networkList, networkSwitch } from './commands/network';
 import { status } from './commands/status';
-import { cliProcessor } from './common/cliProcessor';
 import { findConfig, importPatchworkConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
@@ -61,20 +59,16 @@ const program = new Command()
 
     generate
         .command('contracts')
-        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
-        .option('-c, --contract <name>', 'Name of the specific contract to generate')
         .description('Generate patchwork contracts')
         .action(async (options) => {
-            await generateContracts(ctx.config, options.output, options.contract);
+            await generatorService.runGenerator('contracts');
         });
 
     generate
         .command('deployScripts')
-        .option('-c, --contractsDir <dir>', 'Directory containing the source Solidity files to deploy')
-        .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
         .description('Generate deploy scripts')
         .action(async (options) => {
-            await generateContractDeployScripts(ctx.config, options.contractsDir, options.output);
+            await generatorService.runGenerator('deploy');
         });
 
     generate
@@ -82,25 +76,34 @@ const program = new Command()
         // .argument('[configFile]', 'Path to the config file')
         .description('Generate all contracts and services')
         .action(async () => {
-            await generateAll(ctx.config);
+            //await generateCore(ctx.config);
             await generatorService.runAllGenerators();
         });
 
     generate
-        .command('services')
+        .command('core')
         // .argument('[configFile]', 'Path to the config file')
-        .description('Generate all services')
+        .description('Generate contracts and deploy scripts, and build artifacts')
         .action(async () => {
-            await generatorService.runAllGenerators();
+            //await generateCore(ctx.config);
+            await generatorService.runAllCoreGenerators();
         });
 
     generate
-        .command('contractBuild')
+        .command('plugins')
         // .argument('[configFile]', 'Path to the config file')
-        .description('Build contracts using Forge')
+        .description('Run all plugin generators')
         .action(async () => {
-            await cliProcessor.buildContracts(ctx.rootDir);
+            await generatorService.runAllPluginGenerators();
         });
+
+    // generate
+    //     .command('contractBuild')
+    //     // .argument('[configFile]', 'Path to the config file')
+    //     .description('Build contracts using Forge')
+    //     .action(async () => {
+    //         await cliProcessor.buildContracts(ctx.rootDir);
+    //     });
 
     for (const plugin of ctx.config.plugins) {
         if (plugin.generate) {
