@@ -1,4 +1,4 @@
-import { ContractConfig, ContractRelation, Feature, MintConfig, ProjectConfig, ScopeConfig } from '@patchworkdev/common/types';
+import { ContractConfig, Feature, MintConfig, ProjectConfig, ScopeConfig } from '@patchworkdev/common/types';
 import _ from 'lodash';
 import useStore from '../store';
 import sanitizeName from './sanitizeName';
@@ -7,7 +7,6 @@ function storeToSchema(): ProjectConfig {
     const { contractsConfig, scopeConfig } = useStore.getState();
     const contracts: Record<string, ContractConfig> = {};
     const mintConfigs: Record<string, MintConfig> = {};
-    const contractRelations: Record<string, ContractRelation> = {};
     //const patchFees = new Map();
     //const assignFees = new Map();
 
@@ -20,6 +19,9 @@ function storeToSchema(): ProjectConfig {
         contracts[sanitizedName] = {
             ...contract,
             scopeName: sanitizeName(scopeConfig.name),
+            fragments: Array.from(contract.fragments).map((fragment) => {
+                return sanitizeName(contractNameByUid(fragment));
+            }),
         };
         if (contract.features.includes(Feature.MINTABLE) && contract.mintFee) {
             mintConfigs[sanitizedName] = {
@@ -29,13 +31,6 @@ function storeToSchema(): ProjectConfig {
         }
         if (contract.features.includes(Feature.LITEREF)) {
             if (contract.assignFee) {
-            }
-            if (contract.fragments) {
-                contractRelations[sanitizedName] = {
-                    fragments: Array.from(contract.fragments).map((fragment) => {
-                        return sanitizeName(contractNameByUid(fragment));
-                    }),
-                };
             }
         }
         if (contract.patchFee) {
@@ -48,14 +43,12 @@ function storeToSchema(): ProjectConfig {
             name: sanitizeName(scopeConfig.name),
             bankers: _.compact(scopeConfig.bankers),
             operators: _.compact(scopeConfig.operators),
-            mintConfigs,
         },
     ];
     return {
-        name: scopeConfig.name,
+        name: sanitizeName(scopeConfig.name) as any,
         scopes,
         contracts,
-        contractRelations,
     };
 }
 

@@ -89,7 +89,7 @@ const Toolbar = () => {
     };
 
     const handleSaveProjectConfig = async () => {
-        await ProjectSaver.saveProjectConfig();
+        await ProjectSaver.saveProjectConfig('ts');
     };
 
     const handleSaveProjectZip = async () => {

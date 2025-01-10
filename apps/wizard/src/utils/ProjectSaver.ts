@@ -3,7 +3,7 @@ import { JSONSchemaGen } from '@patchworkdev/common/codegen/jsonSchemaGen';
 import { MainContractGen } from '@patchworkdev/common/codegen/mainContractGen';
 import { UserContractGen } from '@patchworkdev/common/codegen/userContractGen';
 import { cleanAndCapitalizeFirstLetter } from '@patchworkdev/common/codegen/utils';
-import { JSONProjectConfigGen } from '@patchworkdev/common/index';
+import { JSONProjectConfigGen, TSProjectConfigGen } from '@patchworkdev/common/index';
 import { ContractConfig } from '@patchworkdev/common/types';
 import JSZip from 'jszip';
 import useStore from '../store';
@@ -11,11 +11,22 @@ import sanitizeName from './sanitizeName';
 import storeToSchema from './storeToSchema';
 
 export class ProjectSaver {
-    static async saveProjectConfig(): Promise<void> {
-        const generatedConfig = new JSONProjectConfigGen().gen(storeToSchema());
-        const content = new Blob([generatedConfig], { type: 'application/json' });
-        const fileName = `patchwork.config.json`;
-
+    static async saveProjectConfig(type: string): Promise<void> {
+        let generatedConfig;
+        let content;
+        let fileName;
+        if (type === 'json') {
+            generatedConfig = new JSONProjectConfigGen().gen(storeToSchema());
+            content = new Blob([generatedConfig], { type: 'application/json' });
+            fileName = `patchwork.config.json`;
+        } else if (type === 'ts') {
+            console.log('storeToSchema', storeToSchema());
+            generatedConfig = new TSProjectConfigGen().gen(storeToSchema());
+            content = new Blob([generatedConfig], { type: 'text/ts' });
+            fileName = `patchwork.config.ts`;
+        } else {
+            throw new Error(`Invalid file type: ${type}`);
+        }
         const link = document.createElement('a');
         link.href = URL.createObjectURL(content);
         link.download = fileName;
@@ -31,6 +42,7 @@ export class ProjectSaver {
             {
                 ...config,
                 scopeName: sanitizeName(scopeConfig.name),
+                fragments: Array.from(config.fragments).map((fragment) => sanitizeName(useStore.getState().contractsConfig[fragment].name)),
             },
             zip,
         );
@@ -46,6 +58,7 @@ export class ProjectSaver {
                 {
                     ...config,
                     scopeName: sanitizeName(scopeConfig.name),
+                    fragments: Array.from(config.fragments).map((fragment) => sanitizeName(useStore.getState().contractsConfig[fragment].name)),
                 },
                 zip,
             );
