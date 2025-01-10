@@ -114,6 +114,12 @@ const program = new Command()
                     await generatorService.runGenerator(plugin.name.toLowerCase());
                 });
         }
+        if (plugin.commands) {
+            for (const command of plugin.commands()) {
+                command.withContext(ctx);
+                program.addCommand(command.getCommand());
+            }
+        }
     }
 
     const dev = program.command('dev').description('local dev commands');

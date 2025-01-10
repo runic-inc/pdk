@@ -1,5 +1,5 @@
+import { Command, OptionValues } from '@commander-js/extra-typings';
 import { ContractConfig, Network, ScopeConfig, ValidNameIdentifier } from '@patchworkdev/common';
-import { Command } from 'commander';
 import { Listr, ListrTaskWrapper } from 'listr2';
 
 export type TableData = { [key: string]: { [key: string]: string | number } };
@@ -37,6 +37,73 @@ export type PatchworkSetup = {
     scripts: string;
 };
 
+export class PDKPluginCommand<Options extends OptionValues = {}> {
+    private command: Command<[], Options>;
+    protected _ctx?: PDKContext;
+
+    constructor() {
+        this.command = new Command<[], Options>();
+    }
+
+    name(name: string): this {
+        this.command.name(name);
+        return this;
+    }
+
+    option<T extends string | boolean>(flags: string, description?: string, defaultValue?: T): PDKPluginCommand<Options & { [key: string]: T }> {
+        this.command.option(flags, description, defaultValue);
+        return this as PDKPluginCommand<Options & { [key: string]: T }>;
+    }
+
+    withContext(ctx: PDKContext): this {
+        this._ctx = ctx;
+        // Store context directly on command
+        (this.command as any)._ctx = ctx;
+
+        // Propagate to subcommands
+        this.command.commands.forEach((cmd) => {
+            if (cmd instanceof Command) {
+                (cmd as any)._ctx = ctx;
+            }
+        });
+        return this;
+    }
+
+    protected getContext(): PDKContext {
+        if (!this._ctx) {
+            throw new Error('Command context not initialized');
+        }
+        return this._ctx;
+    }
+
+    addSubCommand<SubOptions extends OptionValues = {}>(subCommand: PDKPluginCommand<SubOptions>): PDKPluginCommand<SubOptions> {
+        if (this._ctx) {
+            subCommand.withContext(this._ctx);
+        }
+        this.command.addCommand(subCommand.command);
+        return subCommand;
+    }
+
+    action(fn: (opts: Options, ctx: PDKContext) => Promise<void> | void): this {
+        this.command.action(function (this: Command<[], Options>, opts: Options) {
+            const ctx = (this as any)._ctx as PDKContext;
+            if (!ctx) {
+                throw new Error('Command context not initialized');
+            }
+            return fn(opts, ctx);
+        });
+        return this;
+    }
+
+    getCommand(): Command<[], Options> {
+        // Make sure context is set on the command before returning
+        if (this._ctx) {
+            (this.command as any)._ctx = this._ctx;
+        }
+        return this.command;
+    }
+}
+
 export type PDKPlugin = {
     name: string;
 
@@ -62,7 +129,7 @@ export type PDKPlugin = {
     /**
      * Returns one or more commands to be added to the CLI.
      */
-    commands?: (context: PDKContext) => Command;
+    commands?: () => PDKPluginCommand[];
 
     /**
      * Called when user runs pdk network switch
