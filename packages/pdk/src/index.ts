@@ -8,6 +8,7 @@ import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
+import { PDKPluginCommand } from './types';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -39,6 +40,7 @@ const program = new Command()
     if (!ctx.artifacts) ctx.artifacts = {};
     lockFileManager.updateAndSaveCtx(ctx);
     const generatorService = new GeneratorService(lockFileManager);
+    PDKPluginCommand.setLockFileManager(lockFileManager);
 
     program
         .command('status')
@@ -116,7 +118,6 @@ const program = new Command()
         }
         if (plugin.commands) {
             for (const command of plugin.commands()) {
-                command.withContext(ctx);
                 program.addCommand(command.getCommand());
             }
         }

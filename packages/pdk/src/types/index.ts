@@ -1,6 +1,8 @@
 import { Command, OptionValues } from '@commander-js/extra-typings';
 import { ContractConfig, Network, ScopeConfig, ValidNameIdentifier } from '@patchworkdev/common';
+import { produce } from 'immer';
 import { Listr, ListrTaskWrapper } from 'listr2';
+import LockFileManager from '../services/lockFile';
 
 export type TableData = { [key: string]: { [key: string]: string | number } };
 
@@ -39,10 +41,14 @@ export type PatchworkSetup = {
 
 export class PDKPluginCommand<Options extends OptionValues = {}> {
     private command: Command<[], Options>;
-    protected _ctx?: PDKContext;
+    private static lockFileManager?: LockFileManager;
 
     constructor() {
         this.command = new Command<[], Options>();
+    }
+
+    static setLockFileManager(manager: LockFileManager): void {
+        PDKPluginCommand.lockFileManager = manager;
     }
 
     name(name: string): this {
@@ -55,51 +61,38 @@ export class PDKPluginCommand<Options extends OptionValues = {}> {
         return this as PDKPluginCommand<Options & { [key: string]: T }>;
     }
 
-    withContext(ctx: PDKContext): this {
-        this._ctx = ctx;
-        // Store context directly on command
-        (this.command as any)._ctx = ctx;
-
-        // Propagate to subcommands
-        this.command.commands.forEach((cmd) => {
-            if (cmd instanceof Command) {
-                (cmd as any)._ctx = ctx;
-            }
-        });
-        return this;
-    }
-
-    protected getContext(): PDKContext {
-        if (!this._ctx) {
-            throw new Error('Command context not initialized');
+    protected static getContext(): PDKContext {
+        if (!PDKPluginCommand.lockFileManager) {
+            throw new Error('LockFileManager not initialized');
         }
-        return this._ctx;
+        return PDKPluginCommand.lockFileManager.getCtx();
     }
 
     addSubCommand<SubOptions extends OptionValues = {}>(subCommand: PDKPluginCommand<SubOptions>): PDKPluginCommand<SubOptions> {
-        if (this._ctx) {
-            subCommand.withContext(this._ctx);
-        }
         this.command.addCommand(subCommand.command);
         return subCommand;
     }
 
     action(fn: (opts: Options, ctx: PDKContext) => Promise<void> | void): this {
-        this.command.action(function (this: Command<[], Options>, opts: Options) {
-            const ctx = (this as any)._ctx as PDKContext;
-            if (!ctx) {
-                throw new Error('Command context not initialized');
+        this.command.action(async function (this: Command<[], Options>, opts: Options) {
+            const ctx = PDKPluginCommand.getContext();
+            const draftCtx = { ...ctx };
+
+            await fn(opts, draftCtx);
+
+            const nextCtx = produce(ctx, (draft) => {
+                Object.assign(draft, draftCtx);
+            });
+
+            if (nextCtx !== ctx && PDKPluginCommand.lockFileManager) {
+                PDKPluginCommand.lockFileManager.updateAndSaveCtx(nextCtx);
             }
-            return fn(opts, ctx);
         });
         return this;
     }
 
     getCommand(): Command<[], Options> {
-        // Make sure context is set on the command before returning
-        if (this._ctx) {
-            (this.command as any)._ctx = this._ctx;
-        }
+        (this.command as any)._pdkCommand = this;
         return this.command;
     }
 }
