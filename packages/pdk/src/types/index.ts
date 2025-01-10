@@ -39,6 +39,7 @@ export type PatchworkSetup = {
     scripts: string;
 };
 
+// TODO move this out of types :P
 export class PDKPluginCommand<Options extends OptionValues = {}> {
     private command: Command<[], Options>;
     private static lockFileManager?: LockFileManager;

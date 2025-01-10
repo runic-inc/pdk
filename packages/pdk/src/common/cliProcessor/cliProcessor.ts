@@ -13,14 +13,6 @@ import path from 'path';
 import { PatchworkProject } from '../../types';
 
 export class CLIProcessor {
-    contractSchema: string;
-    projectSchema: string;
-
-    constructor(contractSchema: string, projectSchema: string) {
-        this.contractSchema = contractSchema;
-        this.projectSchema = projectSchema;
-    }
-
     generateSolidity(config: PatchworkProject, outputDir: string = process.cwd(), contract?: string) {
         //console.log('Generating Solidity files...');
         const _config = this.setProjectConfigDefaults(config);
