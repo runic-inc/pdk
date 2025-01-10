@@ -30,8 +30,8 @@
     "type": "commonjs",
     "scripts": {
         "start": "node dist/index.js",
-        "test": "jest",
-        "test:coverage": "jest --coverage",
+        "test": "jest --passWithNoTests",
+        "test:coverage": "jest --coverage --passWithNoTests",
         "build": "tsc --build && cp -r ../../schemas dist",
         "build:wizard": "cd ../../apps/wizard && BUILD_OUT_DIR=../../packages/pdk/dist/wizard vite build",
         "build:all": "pnpm build && pnpm build:wizard"
