@@ -10,6 +10,7 @@ import { Separator } from '../primitives/separator';
 import useStore from '../store';
 import { UContractConfig, UFieldConfig } from '../types';
 import { ProjectSaver } from '../utils/ProjectSaver';
+import { ProjectTSCompiler } from '../utils/ProjectTSCompiler';
 import ContractList from './ContractList';
 import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
@@ -36,6 +37,20 @@ const Toolbar = () => {
                 }
             };
             reader.readAsText(file);
+        } else if (file && file.name.endsWith('.ts')) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const content = e.target?.result as string;
+                    const schema = await ProjectTSCompiler.compileProject(content);
+                    setProjectConfigJsonData(schema);
+                    setValid(true);
+                    console.log('Config data:', schema);
+                } catch (error) {
+                    console.error('Error compiling TS:', error);
+                }
+            };
+            reader.readAsText(file);
         } else {
             console.error('Please upload a valid JSON file');
         }
@@ -52,7 +67,7 @@ const Toolbar = () => {
             const contracts: Record<string, UContractConfig> = {};
             Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
                 if (typeof contractConfig === 'string') return;
-                const fragments = new Set<string>(projectConfigJsonData.contractRelations[_uid]?.fragments ?? []);
+                const fragments = new Set<string>(contractConfig.fragments);
                 contracts[_uid] = {
                     ...(contractConfig as unknown as UContractConfig),
                     _uid,
@@ -63,7 +78,7 @@ const Toolbar = () => {
                         } as UFieldConfig;
                     }),
                     fragments,
-                    mintFee: (scope.mintConfigs && scope.mintConfigs[_uid]?.flatFee.toString()) ?? '',
+                    mintFee: contractConfig.fees?.mintFee?.toString() ?? '',
                     patchFee: '',
                     assignFee: '',
                 };
@@ -74,7 +89,7 @@ const Toolbar = () => {
     };
 
     const handleSaveProjectConfig = async () => {
-        await ProjectSaver.saveProjectConfig();
+        await ProjectSaver.saveProjectConfig('ts');
     };
 
     const handleSaveProjectZip = async () => {
@@ -111,7 +126,7 @@ const Toolbar = () => {
                                 Only single-scope configurations are supported at the moment.
                             </DialogDescription>
                             <div>
-                                <Input type='file' accept='.json' onChange={validateProjectConfig} />
+                                <Input type='file' accept='.json,.ts' onChange={validateProjectConfig} />
                             </div>
                             <DialogFooter className='pt-4'>
                                 <DialogClose asChild>
