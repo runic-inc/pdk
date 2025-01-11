@@ -1,7 +1,7 @@
 import { JSONProjectConfigLoader } from '@patchworkdev/common/index';
 import { ProjectConfig } from '@patchworkdev/common/types';
 import { nanoid } from 'nanoid';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '../primitives/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../primitives/dialog';
 import Icon from '../primitives/icon';
@@ -17,20 +17,20 @@ import Logo from './Logo';
 
 const Toolbar = () => {
     const { scopeConfig, setEditor, updateScopeConfig, updateContractsConfig, updateContractsOrder } = useStore();
-    const [projectConfigJsonData, setProjectConfigJsonData] = useState<ProjectConfig | null>(null);
+    const [projectConfigState, setProjectConfigState] = useState<ProjectConfig | null>(null);
     const [valid, setValid] = useState(false);
     const [aiTextValid, setAITextValid] = useState(false);
     const [appText, setAppText] = useState('');
+    const [inProgress, setInProgress] = useState(false);
+    const closeRef = useRef<HTMLButtonElement>(null);
 
     const validateAITextInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e);
         const content = e.target.value;
         setAITextValid(!!(content && content.length > 0));
         setAppText(content?.toString() ?? '');
     };
 
     const validateProjectConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e);
         const file = e.target.files?.[0]; // Get the selected file
         if (file && file.type === 'application/json') {
             const reader = new FileReader();
@@ -38,7 +38,7 @@ const Toolbar = () => {
                 try {
                     const content = e.target?.result as string;
                     const schema = new JSONProjectConfigLoader().load(content);
-                    setProjectConfigJsonData(schema);
+                    setProjectConfigState(schema);
                     setValid(true);
                     console.log('Config data:', schema);
                 } catch (error) {
@@ -52,7 +52,7 @@ const Toolbar = () => {
                 try {
                     const content = e.target?.result as string;
                     const schema = await ProjectTSCompiler.compileProject(content);
-                    setProjectConfigJsonData(schema);
+                    setProjectConfigState(schema);
                     setValid(true);
                     console.log('Config data:', schema);
                 } catch (error) {
@@ -66,35 +66,42 @@ const Toolbar = () => {
     };
 
     const handleImportProjectConfig = async () => {
-        if (projectConfigJsonData) {
-            setEditor(null);
-            const scope = Object.values(projectConfigJsonData.scopes)[0]!;
-            updateScopeConfig({
-                ...scope,
-                name: projectConfigJsonData.name,
-            });
-            const contracts: Record<string, UContractConfig> = {};
-            Object.entries(projectConfigJsonData.contracts).forEach(([_uid, contractConfig]) => {
-                if (typeof contractConfig === 'string') return;
-                const fragments = new Set<string>(contractConfig.fragments);
-                contracts[_uid] = {
-                    ...(contractConfig as unknown as UContractConfig),
-                    _uid,
-                    fields: contractConfig.fields.map((field) => {
-                        return {
-                            ...field,
-                            _uid: nanoid(),
-                        } as UFieldConfig;
-                    }),
-                    fragments,
-                    mintFee: contractConfig.fees?.mintFee?.toString() ?? '',
-                    patchFee: '',
-                    assignFee: '',
-                };
-            });
-            updateContractsConfig(contracts);
-            updateContractsOrder(Object.keys(contracts));
+        if (projectConfigState !== null) {
+            await importProjectConfig(projectConfigState);
+        } else {
+            console.log('No schema available to import');
         }
+    };
+
+    const importProjectConfig = async (projectConfig: ProjectConfig) => {
+        console.log('importing', projectConfig);
+        setEditor(null);
+        const scope = Object.values(projectConfig.scopes)[0]!;
+        updateScopeConfig({
+            ...scope,
+            name: projectConfig.name,
+        });
+        const contracts: Record<string, UContractConfig> = {};
+        Object.entries(projectConfig.contracts).forEach(([_uid, contractConfig]) => {
+            if (typeof contractConfig === 'string') return;
+            const fragments = new Set<string>(contractConfig.fragments);
+            contracts[_uid] = {
+                ...(contractConfig as unknown as UContractConfig),
+                _uid,
+                fields: contractConfig.fields.map((field) => {
+                    return {
+                        ...field,
+                        _uid: nanoid(),
+                    } as UFieldConfig;
+                }),
+                fragments,
+                mintFee: contractConfig.fees?.mintFee?.toString() ?? '',
+                patchFee: '',
+                assignFee: '',
+            };
+        });
+        updateContractsConfig(contracts);
+        updateContractsOrder(Object.keys(contracts));
     };
 
     const handleSaveProjectConfig = async () => {
@@ -122,11 +129,10 @@ const Toolbar = () => {
         }
 
         const data = await response.json();
-        console.log(data);
         const projectConfig = data.project_config;
-        const schema = new JSONProjectConfigLoader().load(projectConfig);
-        setProjectConfigJsonData(schema);
-        handleImportProjectConfig();
+        const schema = await ProjectTSCompiler.compileProject(projectConfig);
+        setProjectConfigState(schema);
+        await importProjectConfig(schema);
         setAppText('');
         setAITextValid(false);
     };
@@ -164,13 +170,29 @@ const Toolbar = () => {
                             <div>
                                 <Input type='text' onChange={validateAITextInput} />
                             </div>
+                            {inProgress && (
+                                <div className='flex justify-center py-2'>
+                                    <Icon icon='fa-spinner' className='animate-spin text-xl' />
+                                </div>
+                            )}
                             <DialogFooter className='pt-4'>
-                                <DialogClose asChild>
-                                    <Button disabled={!aiTextValid} className='gap-2' onClick={() => handleRunTextToApp()}>
-                                        <Icon icon='fa-file-import' />
-                                        Generate
-                                    </Button>
-                                </DialogClose>
+                                <Button
+                                    disabled={!aiTextValid || inProgress}
+                                    className='gap-2'
+                                    onClick={async () => {
+                                        setInProgress(true);
+                                        try {
+                                            await handleRunTextToApp();
+                                            closeRef.current?.click();
+                                        } finally {
+                                            setInProgress(false);
+                                        }
+                                    }}
+                                >
+                                    <Icon icon={inProgress ? 'fa-spinner' : 'fa-file-import'} className={inProgress ? 'animate-spin' : ''} />
+                                    {inProgress ? 'Generating...' : 'Generate'}
+                                </Button>
+                                <DialogClose ref={closeRef} className='hidden' />
                             </DialogFooter>
                         </DialogHeader>
                     </DialogContent>
@@ -205,7 +227,6 @@ const Toolbar = () => {
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
-
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button className='h-auto gap-2'>
@@ -239,9 +260,7 @@ const Toolbar = () => {
                         </DialogHeader>
                     </DialogContent>
                 </Dialog>
-
                 <Separator orientation='vertical' className='bg-muted-border ml-2' />
-
                 <DarkModeToggle />
             </div>
         </header>
