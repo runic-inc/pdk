@@ -214,11 +214,21 @@ export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = 
 `;
 
 export class ProjectTSCompiler {
+    static isEsbuildInitialized = false;
+
+    static async ensureEsbuildInitialized() {
+        // May only be called once
+        if (!ProjectTSCompiler.isEsbuildInitialized) {
+            await esbuild.initialize({
+                wasmURL: 'https://unpkg.com/esbuild-wasm@latest/esbuild.wasm', // Load WASM from a CDN
+            });
+            ProjectTSCompiler.isEsbuildInitialized = true; // Mark as initialized
+        }
+    }
+
     static async compileProject(tsCode: string): Promise<ProjectConfig> {
         // Initialize esbuild-wasm
-        await esbuild.initialize({
-            wasmURL: 'https://unpkg.com/esbuild-wasm@latest/esbuild.wasm', // Load WASM from a CDN
-        });
+        await ProjectTSCompiler.ensureEsbuildInitialized();
         const result = await esbuild.build({
             stdin: {
                 contents: tsCode,
@@ -249,15 +259,15 @@ export class ProjectTSCompiler {
             ],
         });
 
-        console.log('compiling');
+        // console.log('compiling');
         // Extract the compiled code
         const compiledCode = result.outputFiles?.[0]?.text;
 
-        console.log('done compiling');
+        // console.log('done compiling');
         if (!compiledCode) {
             throw new Error('No output generated from esbuild.');
         }
-        console.log(compiledCode);
+        // console.log(compiledCode);
         // Evaluate the compiled code into a variable
         const module: { exports: { default?: any } } = { exports: {} };
         const func = new Function('exports', 'module', compiledCode);

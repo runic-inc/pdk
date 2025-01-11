@@ -1,5 +1,5 @@
 //import { parseJson } from '../../codegen/contractSchemaJsonParser';
-import { JSONProjectConfigGen } from '@patchworkdev/common/index';
+import { TSProjectConfigGen } from '@patchworkdev/common/index';
 import { memo, useEffect, useState } from 'react';
 import { codeToHtml } from 'shiki';
 import { useKeyDown } from '../hooks/useKeyDown';
@@ -14,9 +14,9 @@ const themes = {
 
 const files = {
     schema: {
-        lang: 'json',
+        lang: 'typescript',
         generate: () => {
-            return new JSONProjectConfigGen().gen(storeToSchema());
+            return new TSProjectConfigGen().gen(storeToSchema());
         },
     },
 };

@@ -21,7 +21,7 @@ const ProjectCodeView = () => {
                 <div className='w-4' />
                 <TabsTrigger value='schema' className='gap-2'>
                     Project Config
-                    <Badge className='ext'>.json</Badge>
+                    <Badge className='ext'>.ts</Badge>
                 </TabsTrigger>
 
                 <div className='grow flex justify-end items-start'>

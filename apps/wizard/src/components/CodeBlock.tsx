@@ -52,6 +52,7 @@ const CodeBlock = memo(
                 _code = files[viewType].generate({
                     ...contractConfig,
                     scopeName: sanitizeName(scopeConfig.name),
+                    fragments: Array.from(contractConfig.fragments),
                 });
                 codeToHtml(_code, {
                     lang: files[viewType].lang,
