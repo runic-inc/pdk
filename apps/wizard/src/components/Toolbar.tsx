@@ -10,6 +10,7 @@ import { Separator } from '../primitives/separator';
 import useStore from '../store';
 import { UContractConfig, UFieldConfig } from '../types';
 import { ProjectSaver } from '../utils/ProjectSaver';
+import { ProjectTSCompiler } from '../utils/ProjectTSCompiler';
 import ContractList from './ContractList';
 import DarkModeToggle from './DarkModeToggle';
 import Logo from './Logo';
@@ -42,6 +43,20 @@ const Toolbar = () => {
                     console.log('Config data:', schema);
                 } catch (error) {
                     console.error('Invalid JSON format:', error);
+                }
+            };
+            reader.readAsText(file);
+        } else if (file && file.name.endsWith('.ts')) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const content = e.target?.result as string;
+                    const schema = await ProjectTSCompiler.compileProject(content);
+                    setProjectConfigJsonData(schema);
+                    setValid(true);
+                    console.log('Config data:', schema);
+                } catch (error) {
+                    console.error('Error compiling TS:', error);
                 }
             };
             reader.readAsText(file);
@@ -83,7 +98,7 @@ const Toolbar = () => {
     };
 
     const handleSaveProjectConfig = async () => {
-        await ProjectSaver.saveProjectConfig();
+        await ProjectSaver.saveProjectConfig('ts');
     };
 
     const handleSaveProjectZip = async () => {
@@ -177,7 +192,7 @@ const Toolbar = () => {
                                 Only single-scope configurations are supported at the moment.
                             </DialogDescription>
                             <div>
-                                <Input type='file' accept='.json' onChange={validateProjectConfig} />
+                                <Input type='file' accept='.json,.ts' onChange={validateProjectConfig} />
                             </div>
                             <DialogFooter className='pt-4'>
                                 <DialogClose asChild>
