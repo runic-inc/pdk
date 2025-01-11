@@ -113,7 +113,6 @@ const Toolbar = () => {
     };
 
     const handleRunTextToApp = async () => {
-        // TODO show loading spinner
         const response = await fetch('https://wizard.patchwork.dev/api/text2app/generate_project', {
             method: 'POST',
             headers: {
@@ -130,11 +129,16 @@ const Toolbar = () => {
 
         const data = await response.json();
         const projectConfig = data.project_config;
-        const schema = await ProjectTSCompiler.compileProject(projectConfig);
-        setProjectConfigState(schema);
-        await importProjectConfig(schema);
-        setAppText('');
-        setAITextValid(false);
+        try {
+            const schema = await ProjectTSCompiler.compileProject(projectConfig);
+            setProjectConfigState(schema);
+            await importProjectConfig(schema);
+            setAppText('');
+            setAITextValid(false);
+        } catch (error) {
+            console.log('Attempted to compile:', projectConfig);
+            throw error;
+        }
     };
 
     return (
