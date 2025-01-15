@@ -1,7 +1,10 @@
-import { Feature, ProjectConfig } from '@patchworkdev/common/types';
-import { ponder, react } from '@patchworkdev/pdk/plugins';
+/// <reference types="https://cdn.jsdelivr.net/npm/@patchworkdev/common@0.2.5/dist/types/index.d.ts" />
 
-const projectConfig: ProjectConfig = {
+import { Feature } from '@patchworkdev/common/types';
+import { ponder, react } from '@patchworkdev/pdk/plugins';
+import { PatchworkProject } from '@patchworkdev/pdk/types';
+
+const projectConfig: PatchworkProject = {
     name: 'canvas',
     contracts: {
         Canvas: {
@@ -71,10 +74,7 @@ const projectConfig: ProjectConfig = {
             rpc: 'http://anvil:8545',
         },
     },
-    plugins: [
-        ponder(),
-        react({}),
-    ],
+    plugins: [ponder(), react({})],
     deployments: [
         {
             network: 'base',
