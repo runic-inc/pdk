@@ -276,9 +276,14 @@ class LockFileManager {
         return this.rootDir;
     }
 
+    // Only update, do not write lockfile
+    public updateCtx(ctx: PDKContext): void {
+        this.lockData.context = ctx;
+    }
+
     //ctx related functions
     public updateAndSaveCtx(ctx: PDKContext): void {
-        this.lockData.context = ctx;
+        this.updateCtx(ctx);
         this.saveLockFile();
     }
 
