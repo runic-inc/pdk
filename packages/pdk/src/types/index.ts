@@ -2,6 +2,7 @@ import { ContractConfig, ScopeConfig, ValidNameIdentifier } from '@patchworkdev/
 import { Command } from 'commander';
 import { Listr, ListrTaskWrapper } from 'listr2';
 import { Chain } from 'viem';
+import LockFileManager from '../services/lockFile';
 
 export type TableData = { [key: string]: { [key: string]: string | number } };
 
@@ -26,6 +27,8 @@ export type PatchworkProject = {
 export type PDKContext = {
     rootDir: string;
     config: PatchworkProject;
+    configPath: string;
+    lockFileManager: LockFileManager;
     network: 'local' | 'testnet' | 'mainnet';
     contracts: {
         name: string;
