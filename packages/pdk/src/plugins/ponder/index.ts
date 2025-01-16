@@ -14,6 +14,7 @@ type PonderPluginProps = {
 export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
     return {
         name: 'Ponder',
+        configProps: props,
         generate: async ({ context, task }) => {
             return task.newListr(
                 [

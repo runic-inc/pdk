@@ -5,12 +5,12 @@ import {
     DeployScriptGen,
     JSONSchemaGen,
     MainContractGen,
-    ProjectConfig,
     UserContractGen,
 } from '@patchworkdev/common';
 import fs from 'fs';
 import path from 'path';
 import { PatchworkProject } from '../../types';
+import { exportProjectConfig } from '../helpers/project';
 
 export class CLIProcessor {
     contractSchema: string;
@@ -51,9 +51,9 @@ export class CLIProcessor {
      * @param configFile - The path to the original project config file - needed to find relative contract config paths.
      * @returns The full project configuration with all contract configurations loaded.
      */
-    loadFullProjectConfig(config: ProjectConfig): ProjectConfig {
-        const fullProjectConfig = { ...config };
-        Object.entries(config.contracts).forEach(([key, value]) => {
+    loadFullProjectConfig(project: PatchworkProject): PatchworkProject {
+        const fullProjectConfig = { ...project };
+        Object.entries(project.contracts).forEach(([key, value]) => {
             fullProjectConfig.contracts[key] = new ContractSchemaImpl(value as ContractConfig);
         });
         return fullProjectConfig;
@@ -93,7 +93,8 @@ export class CLIProcessor {
         const _config = this.setProjectConfigDefaults(config);
         const projectConfig = this.loadFullProjectConfig(_config);
         try {
-            const deployScriptCode = new DeployScriptGen().gen(projectConfig, contractsDir);
+            // TODO hack b/c the deploy script generator is in common and doesn't know about the PDK project stuff
+            const deployScriptCode = new DeployScriptGen().gen(exportProjectConfig(projectConfig), contractsDir);
             const deployerFilename = cleanAndCapitalizeFirstLetter(projectConfig.name) + '-deploy.s.sol';
             let outputPath = path.join(outputDir, deployerFilename);
             fs.writeFileSync(outputPath, deployScriptCode);

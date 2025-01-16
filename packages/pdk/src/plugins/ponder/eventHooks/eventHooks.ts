@@ -1,8 +1,8 @@
-import { ProjectConfig } from '@patchworkdev/common';
 import _ from 'lodash';
 import { Abi, AbiEvent } from 'viem';
 import { formatAndSaveFile } from '../../../common/helpers/file';
 import { SchemaModule } from '../../../common/helpers/ponderSchemaMock';
+import { PatchworkProject } from '../../../types';
 
 export type GeneratedHandlers = { imports: Set<string>; handlers: string[] };
 type HandlerAndImport = { handler: string; imports: Set<string> };
@@ -19,7 +19,7 @@ export async function createPonderEventFile(handlers: GeneratedHandlers, eventFi
     await formatAndSaveFile(eventFile, output.join('\n'));
 }
 
-export function generateEntityEventHandlers(projectConfig: ProjectConfig, ponderSchema: SchemaModule, abis: Record<string, Abi>): GeneratedHandlers {
+export function generateEntityEventHandlers(projectConfig: PatchworkProject, ponderSchema: SchemaModule, abis: Record<string, Abi>): GeneratedHandlers {
     const handlers: GeneratedHandlers = { imports: new Set(), handlers: [] };
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
 
@@ -41,13 +41,13 @@ export function generateEntityEventHandlers(projectConfig: ProjectConfig, ponder
 export function generatePonderOnHandler(
     entity: string,
     event: AbiEvent,
-    projectConfig: ProjectConfig,
+    projectConfig: PatchworkProject,
     ponderSchema: SchemaModule,
     abis: Record<string, Abi>,
 ): HandlerAndImport {
     const templateFunctions: Record<
         string,
-        (args: { entity: string; event: AbiEvent; projectConfig: ProjectConfig; ponderSchema: SchemaModule; abis: Record<string, Abi> }) => HandlerAndImport
+        (args: { entity: string; event: AbiEvent; projectConfig: PatchworkProject; ponderSchema: SchemaModule; abis: Record<string, Abi> }) => HandlerAndImport
     > = {
         Transfer: transferHandler,
         MetadataUpdate: metadataUpdateHandler,
@@ -69,7 +69,7 @@ export function transferHandler({
 }: {
     entity: string;
     event: AbiEvent;
-    projectConfig: ProjectConfig;
+    projectConfig: PatchworkProject;
     ponderSchema: SchemaModule;
     abis: Record<string, Abi>;
 }): HandlerAndImport {

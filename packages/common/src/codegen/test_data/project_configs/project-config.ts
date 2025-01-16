@@ -16,7 +16,7 @@ const exampleProjectProjectConfig: ProjectConfig = {
     contracts: {
         "Contract1": "config1.json",
         "Contract2": "config2.json"
-    }
+    },
 };
 
 export default exampleProjectProjectConfig;

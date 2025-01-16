@@ -1,12 +1,19 @@
-import { ContractConfig, Network, ScopeConfig, ValidNameIdentifier } from '@patchworkdev/common';
+import { ContractConfig, ScopeConfig, ValidNameIdentifier } from '@patchworkdev/common';
 import { Command } from 'commander';
 import { Listr, ListrTaskWrapper } from 'listr2';
+import { Chain } from 'viem';
 
 export type TableData = { [key: string]: { [key: string]: string | number } };
 
 export type Compute<type> = { [key in keyof type]: type[key] } & unknown;
 export type RequiredBy<TType, TKeys extends keyof TType> = Required<Pick<TType, TKeys>> & Omit<TType, TKeys>;
 
+export type Network = {
+    chain: Chain;
+    rpc: string;
+};
+
+// Workspace and implementations of the Patchwork Project Configuration
 export type PatchworkProject = {
     src?: string; // Defaults to the src in stdout of forge config
     plugins: PDKPlugin[];
@@ -39,6 +46,7 @@ export type PatchworkSetup = {
 
 export type PDKPlugin = {
     name: string;
+    configProps: any;
 
     /**
      * Called before any compilation/build/codegen to provide setup context to PDK

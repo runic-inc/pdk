@@ -14,7 +14,19 @@ export class TSProjectConfigGen {
         out += `\n    ],\n`;
         out += `    contracts: {\n`;
         out += this.genContractsMap(projectConfig.contracts);
-        out += `\n    }\n`;
+        out += `\n    },\n`;
+        if (projectConfig.networks) {
+            out += `    networks: {\n`;
+            out += `        ${Object.entries(projectConfig.networks).map(([key, network]) => {
+                return `        ${key}: {\n            chain: "${network.chain}",\n            rpc: "${network.rpc}"\n        }`;
+            }).join(',\n')}\n`;
+            out += `    },\n`;
+        }
+        if (projectConfig.plugins) {
+            out += `    plugins: [\n`;
+            out += projectConfig.plugins.map(plugin => `        { name: "${plugin.name}", props: ${plugin.props} }`).join(',\n');
+            out += `\n    ],\n`;
+        }
         out += `};\n\n`;
         out += `export default ${constantName};\n`;
         return out;

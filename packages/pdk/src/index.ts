@@ -1,5 +1,6 @@
 import { Command } from '@commander-js/extra-typings';
 import path from 'path';
+import { anvil, base, baseSepolia } from 'viem/chains';
 import { localDevDown, localDevUp } from './commands/dev';
 import { generateAll, generateContractDeployScripts, generateContracts } from './commands/generate';
 import { networkList, networkSwitch } from './commands/network';
@@ -8,6 +9,7 @@ import { cliProcessor } from './common/cliProcessor';
 import { findConfig, importPatchworkConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
+import { ponder, react } from './plugins';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
 import { launchWizardApp } from './wizardServer';
@@ -36,6 +38,10 @@ const program = new Command()
     const projectConfig = await importPatchworkConfig(configPath);
     const lockFileManager = new LockFileManager(configPath);
     const ctx = lockFileManager.getCtx();
+    if (!projectConfig.plugins) {
+        console.log('Using default plugins');
+        projectConfig.plugins = [ponder(), react({})];
+    }
     ctx.config = projectConfig;
     ctx.rootDir = path.dirname(configPath);
     if (!ctx.artifacts) ctx.artifacts = {};
