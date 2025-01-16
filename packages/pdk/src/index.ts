@@ -10,7 +10,6 @@ import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
-import { PDKContext } from './types';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -35,7 +34,7 @@ const program = new Command()
         setLogLevel(opts.verbose ? 'debug' : 'info');
     });
 
-async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
+async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileManager> {
     const configPath = await getConfigPath(optionalConfigPath);
     const projectConfig = await importPatchworkConfig(configPath);
     const lockFileManager = new LockFileManager(configPath);
@@ -45,7 +44,7 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
     ctx.rootDir = path.dirname(configPath);
     if (!ctx.artifacts) ctx.artifacts = {};
     lockFileManager.updateAndSaveCtx(ctx);
-    return ctx;
+    return lockFileManager;
 }
 
 (async () => {
@@ -73,7 +72,7 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .option('-c, --contract <name>', 'Name of the specific contract to generate')
         .description('Generate patchwork contracts')
         .action(async (configFile, options) => {
-            const ctx = await createCtx(configFile);
+            const ctx = (await createLockFileMgr(configFile)).getCtx();
             await generateContracts(ctx.config, options.output, options.contract);
         });
 
@@ -84,7 +83,7 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .option('-o, --output <dir>', 'Output directory for the generated Solidity files')
         .description('Generate deploy scripts')
         .action(async (configFile, options) => {
-            const ctx = await createCtx(configFile);
+            const ctx = (await createLockFileMgr(configFile)).getCtx();
             await generateContractDeployScripts(ctx.config, options.contractsDir, options.output);
         });
 
@@ -93,9 +92,9 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .argument('[configFile]', 'Path to the patchwork project configuration file')
         .description('Generate all contracts and services')
         .action(async (configFile) => {
-            const ctx = await createCtx(configFile);
-            await generateAll(ctx.config);
-            const generatorService = new GeneratorService(ctx.lockFileManager);
+            const lockFileMgr = await createLockFileMgr(configFile);
+            await generateAll(lockFileMgr.getCtx().config);
+            const generatorService = new GeneratorService(lockFileMgr);
             await generatorService.runAllGenerators();
         });
 
@@ -104,8 +103,8 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .argument('[configFile]', 'Path to the patchwork project configuration file')
         .description('Generate all services')
         .action(async (configFile) => {
-            const ctx = await createCtx(configFile);
-            await new GeneratorService(ctx.lockFileManager).runAllGenerators();
+            const lockFileMgr = await createLockFileMgr(configFile);
+            await new GeneratorService(lockFileMgr).runAllGenerators();
         });
 
     generate
@@ -113,20 +112,20 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .argument('[configFile]', 'Path to the patchwork project configuration file')
         .description('Build contracts using Forge')
         .action(async (configFile) => {
-            const ctx = await createCtx(configFile);
+            const ctx = (await createLockFileMgr(configFile)).getCtx();
             await cliProcessor.buildContracts(ctx.rootDir);
         });
 
     // create a default ctx as plugins cannot take a special config file since they are discovered before CLI command configuration
     try {
-        const ctx = await createCtx();
-        for (const plugin of ctx.config.plugins) {
+        const lockFileMgr = await createLockFileMgr();
+        for (const plugin of lockFileMgr.getCtx().config.plugins) {
             if (plugin.generate) {
                 generate
                     .command(plugin.name.toLowerCase())
                     .description(`Run ${plugin.name} plugin generators`)
                     .action(async () => {
-                        await new GeneratorService(ctx.lockFileManager).runGenerator(plugin.name.toLowerCase());
+                        await new GeneratorService(lockFileMgr).runGenerator(plugin.name.toLowerCase());
                     });
             }
         }
@@ -141,16 +140,16 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .description('Run docker compose up for local dev')
         .action(async () => {
             console.info('Setting up docker compose for local dev');
-            const ctx = await createCtx();
-            await localDevUp(ctx.configPath, {}, new GeneratorService(ctx.lockFileManager));
+            const lockFileMgr = await createLockFileMgr();
+            await localDevUp(lockFileMgr.getCtx().configPath, {}, new GeneratorService(lockFileMgr));
         });
 
     dev.command('down')
         .description('Run docker compose down for local dev')
         .action(async () => {
             console.info('Tearing down docker compose for local dev');
-            const ctx = await createCtx();
-            await localDevDown(ctx.configPath);
+            const lockFileMgr = await createLockFileMgr();
+            await localDevDown(lockFileMgr.getCtx().configPath);
         });
 
     const network = program.command('network').description('network commands');
@@ -159,8 +158,8 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .command('list')
         .description('list configured networks')
         .action(async () => {
-            const ctx = await createCtx();
-            await networkList(ctx.configPath);
+            const lockFileMgr = await createLockFileMgr();
+            await networkList(lockFileMgr.getCtx().configPath);
         });
 
     network
@@ -168,8 +167,8 @@ async function createCtx(optionalConfigPath?: string): Promise<PDKContext> {
         .argument('<network>', 'Network to switch to')
         .description('switch selected network')
         .action(async (network) => {
-            const ctx = await createCtx();
-            await networkSwitch(ctx.configPath, network);
+            const lockFileMgr = await createLockFileMgr();
+            await networkSwitch(lockFileMgr.getCtx().configPath, network);
         });
 
     try {
