@@ -1,9 +1,10 @@
 import { confirm } from '@inquirer/prompts';
-import { Feature, ProjectConfig } from '@patchworkdev/common/types';
+import { Feature } from '@patchworkdev/common/types';
 import path from 'path';
 import { createPublicClient, createWalletClient, http, type PublicClient, type WalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { importPatchworkConfig } from '../../../common/helpers/config';
+import { PatchworkProject } from '../../../types';
 import { DeployConfig, DeploymentAddresses } from '../types';
 import { PatchworkProtocol } from './abis/PatchworkProtocol.abi';
 import { getChainForNetwork } from './helpers';
@@ -14,7 +15,7 @@ export class FeeService {
     private patchworkAddress: `0x${string}`;
     private account: ReturnType<typeof privateKeyToAccount>;
     private configPath: string;
-    private projectConfig: ProjectConfig;
+    private project: PatchworkProject;
     private deployConfig: DeployConfig;
 
     constructor(configPath: string, deployConfig: DeployConfig) {
@@ -34,16 +35,17 @@ export class FeeService {
 
         this.patchworkAddress = deployConfig.patchworkProtocol as `0x${string}`;
 
-        this.projectConfig = {
+        this.project = {
             name: 'temp',
             scopes: [],
             contracts: {},
+            plugins: [],
         };
     }
 
     private async loadConfig(): Promise<void> {
         const fullConfigPath = path.isAbsolute(this.configPath) ? this.configPath : path.resolve(process.cwd(), this.configPath);
-        this.projectConfig = await importPatchworkConfig(fullConfigPath);
+        this.project = await importPatchworkConfig(fullConfigPath);
     }
 
     private async checkMintConfig(contractAddress: `0x${string}`): Promise<{ flatFee: bigint; active: boolean } | null> {
@@ -99,7 +101,7 @@ export class FeeService {
         await this.loadConfig();
 
         for (const [contractName, deployment] of Object.entries(deployedContracts)) {
-            const contractConfig = this.projectConfig.contracts[contractName];
+            const contractConfig = this.project.contracts[contractName];
 
             // Skip if it's a string (reference to another contract) or doesn't have fees configured
             if (typeof contractConfig === 'string' || !contractConfig?.fees) {

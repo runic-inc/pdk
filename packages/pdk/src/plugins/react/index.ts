@@ -9,6 +9,7 @@ type ReactPluginProps = {
 export function react(props: ReactPluginProps): PDKPlugin {
     return {
         name: 'React',
+        configProps: props,
         generate: async ({ context, task }) => {
             return task.newListr(
                 [

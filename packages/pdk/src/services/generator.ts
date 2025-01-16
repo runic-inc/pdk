@@ -1,5 +1,6 @@
 import { Listr, ListrTask } from 'listr2';
 import picocolors from 'picocolors';
+import { ponder, react } from '../plugins';
 import { PDKContext } from '../types';
 import LockFileManager from './lockFile';
 // import { saveContext } from '../utils/context';

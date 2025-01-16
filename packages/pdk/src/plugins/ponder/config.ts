@@ -1,4 +1,3 @@
-import { Network } from '@patchworkdev/common';
 import _ from 'lodash';
 import path from 'path';
 import { getFragmentRelationships, importABIFiles, importPatchworkConfig } from '../../common/helpers/config';
@@ -7,6 +6,7 @@ import { formatAndSaveFile } from '../../common/helpers/file';
 import { logger } from '../../common/helpers/logger';
 import { envVarCase } from '../../common/helpers/text';
 import LockFileManager from '../../services/lockFile';
+import { Network } from '../../types';
 
 export async function generateConfig(rootDir: string) {
     // Define paths relative to the root dir
@@ -16,33 +16,33 @@ export async function generateConfig(rootDir: string) {
 
     const abis = await importABIFiles(abiDir);
 
-    const projectConfig = await importPatchworkConfig(configPath);
+    const project = await importPatchworkConfig(configPath);
 
-    if (!projectConfig.networks) {
+    if (!project.networks) {
         logger.error(`No networks found in the project config. Cannot build network configuration.`);
         throw new PDKError(ErrorCode.PROJECT_CONFIG_MISSING_NETWORKS, `No networks found in the project config at  ${configPath}`);
     }
 
     const lockFileManager = new LockFileManager(configPath);
-    const fragmentRelationships = getFragmentRelationships(projectConfig);
+    const fragmentRelationships = getFragmentRelationships(project);
 
     const entityEvents = ['Frozen', 'Locked', 'Transfer', 'Unlocked', 'Thawed'];
     const imports: Set<string> = new Set();
 
     // ToDo
     // Need to add in the contract config for the Patchwork Protocol. Config needs to be added to the contracts array either before or after the entities
-    const contracts = Object.entries(projectConfig.contracts)
+    const contracts = Object.entries(project.contracts)
         .map(([contractName, contractConfig]) => {
             imports.add(contractName);
-            if (!projectConfig.networks) {
+            if (!project.networks) {
                 logger.warn(`No networks found. Cannot build contract config for ${contractName}`);
                 return '';
             }
-            return contractTemplate(lockFileManager, contractName, projectConfig.networks);
+            return contractTemplate(lockFileManager, contractName, project.networks);
         })
         .filter(Boolean);
 
-    const networks = Object.entries(projectConfig.networks).map(([networkName, network]) => {
+    const networks = Object.entries(project.networks).map(([networkName, network]) => {
         return networkTemplate(networkName, network);
     });
 

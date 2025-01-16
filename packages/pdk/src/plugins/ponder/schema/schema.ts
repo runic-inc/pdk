@@ -1,8 +1,8 @@
-import { ProjectConfig } from '@patchworkdev/common';
 import * as _ from 'lodash';
 import { getFragmentRelationships } from '../../../common/helpers/config';
 import { formatAndSaveFile } from '../../../common/helpers/file';
 import { logger } from '../../../common/helpers/logger';
+import { PatchworkProject } from '../../../types';
 
 type Table = {
     fields: {
@@ -30,7 +30,7 @@ type TableStructure = Record<string, Table>;
 
 type EnumStructure = Record<string, string[]>;
 
-export async function generateSchemaFile(projectConfig: ProjectConfig, outputFile: string): Promise<void> {
+export async function generateSchemaFile(projectConfig: PatchworkProject, outputFile: string): Promise<void> {
     logger.debug(`Attempting to generate ponder schema at ${outputFile}`);
     const coreEnums = coreEnumStructure();
     const coreTables = coreTableStructure();
@@ -266,7 +266,7 @@ function coreTableStructure(): TableStructure {
     return tables;
 }
 
-function getUserContractTableStructure(projectConfig: ProjectConfig): TableStructure {
+function getUserContractTableStructure(projectConfig: PatchworkProject): TableStructure {
     const fragmentRelationships = getFragmentRelationships(projectConfig);
     const tables: TableStructure = {};
 
