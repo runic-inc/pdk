@@ -59,7 +59,7 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
             features: [Feature.PATCH, Feature.FRAGMENTSINGLE],
             fragments: []
         }
-    }
+    },
 };
 
 export default contractConfigProjectProjectConfig;
