@@ -26,6 +26,7 @@ export type PatchworkProject = {
 export type PDKContext = {
     rootDir: string;
     config: PatchworkProject;
+    configPath: string;
     network: 'local' | 'testnet' | 'mainnet';
     contracts: {
         name: string;
