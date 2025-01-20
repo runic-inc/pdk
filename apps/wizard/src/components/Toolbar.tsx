@@ -113,7 +113,7 @@ const Toolbar = () => {
     };
 
     const handleRunTextToApp = async () => {
-        const response = await fetch('https://wizard.patchwork.dev/api/text2app/generate_project', {
+        const response = await fetch('/api/text2app/generate_project', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
