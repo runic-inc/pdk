@@ -1,9 +1,6 @@
-import { PatchworkProject } from '@patchworkdev/pdk/types';
-import { ponder, react } from '@patchworkdev/pdk/plugins';
-import { Feature } from '@patchworkdev/common/types';
-import { anvil, base, baseSepolia } from 'viem/chains';
+import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 
-const projectConfig: PatchworkProject = {
+const projectConfig: ProjectConfig = {
     name: 'Composable PFP Demo',
     contracts: {
         Character: {
@@ -79,19 +76,19 @@ const projectConfig: PatchworkProject = {
     ],
     networks: {
         local: {
-            chain: anvil,
+            chain: 'anvil',
             rpc: 'http://anvil:8545',
         },
         testnet: {
-            chain: baseSepolia,
+            chain: 'baseSepolia',
             rpc: 'http://anvil:8545',
         },
         mainnet: {
-            chain: base,
+            chain: 'base',
             rpc: 'http://anvil:8545',
         },
     },
-    plugins: [ponder(), react({})],
+    plugins: [{ name: 'ponder' }, { name: 'react' }],
 };
 
 export default projectConfig;
