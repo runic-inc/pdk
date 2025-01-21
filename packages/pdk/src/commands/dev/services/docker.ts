@@ -1,6 +1,6 @@
 import Docker from 'dockerode';
 import path from 'path';
-import { getPonderContainerName, getProjectNameFromConfig } from '../utils';
+import { getPonderContainerName } from '../utils';
 
 const docker = new Docker();
 
@@ -13,10 +13,8 @@ export type ContainerStatus = {
 
 export class DockerService {
     private targetDir: string;
-    private configPath: string;
 
     constructor(configPath: string) {
-        this.configPath = configPath;
         this.targetDir = path.dirname(configPath);
     }
 
@@ -30,8 +28,7 @@ export class DockerService {
 
     async restartPonderContainer(): Promise<void> {
         const { execa } = await import('execa');
-        const projectName = await getProjectNameFromConfig(this.configPath);
-        const ponderContainer = getPonderContainerName(projectName);
+        const ponderContainer = getPonderContainerName(this.targetDir);
         console.log(`Restarting Ponder container: ${ponderContainer}`);
         await execa('docker', ['container', 'restart', ponderContainer], {
             cwd: this.targetDir,
@@ -46,7 +43,6 @@ export class DockerService {
             },
             all: true,
         });
-
         containers.map((container) => {
             status.push({
                 id: container.Id.substring(0, 12),
@@ -55,7 +51,6 @@ export class DockerService {
                 publicPort: container.Ports[0] ? container.Ports[0]['PublicPort'] : 0,
             });
         });
-
         return status;
     }
 }
