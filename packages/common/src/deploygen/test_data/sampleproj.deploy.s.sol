@@ -105,6 +105,9 @@ contract SampleProjectDeploy is Script {
         deployments.FragmentSingle.deployedAddress = address(fragmentsingle);
 
         literef8.registerReferenceAddress(address(fragmentsingle));
+        PatchworkProtocol pp = PatchworkProtocol(ppAddress);
+        pp.addOperator("test", address(0x000000111129296a45a3885639ac7E10f9D54979));
+        pp.addOperator("test", address(literef8));
 
         vm.stopBroadcast();
     }
