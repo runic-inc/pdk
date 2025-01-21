@@ -5,7 +5,7 @@
             "name": "test",
             "owner": "0x222222cf1046e68e36E1aA2E0E07105eDDD1f08E",
             "bankers": ["0x000000254729296a45a3885639AC7E10F9d54979", "LiteRef8"],
-            "operators": ["0x000000111129296a45a3885639AC7E10F9d54979", "LiteRef8"],
+            "operators": ["0x000000111129296a45a3885639ac7E10f9D54979", "LiteRef8"],
             "mintConfigs": {
                 "0xc0ffee254729296a45a3885639AC7E10F9d54979": {
                     "flatFee": 0,

@@ -166,7 +166,9 @@ export class DeployScriptGen {
         });
     
         // Only add pp declaration if we have whitelist operations
+        let ppAdded = false;
         if (hasWhitelistOperations) {
+            ppAdded = true;
             script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
             
             // Whitelist operations
@@ -181,6 +183,27 @@ export class DeployScriptGen {
             });
         }
     
+        for (const scopeConfig of projectConfig.scopes) {
+            for (const operator of scopeConfig.operators || []) {
+                if (!ppAdded) {
+                    script += `        PatchworkProtocol pp = PatchworkProtocol(ppAddress);\n`;
+                    ppAdded = true;
+                }
+                if (operator.startsWith('0x')) {
+                    script += `        pp.addOperator("${scopeConfig.name}", address(${operator}));\n`;
+                } else {
+                    const cc = projectConfig.contracts[operator];
+                    if (typeof cc !== 'string') {
+                        const contractConfig = cc as ContractConfig;
+                        const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name).toLowerCase();
+                        script += `        pp.addOperator("${scopeConfig.name}", address(${contractName}));\n`;
+                    } else {
+                        throw new Error(`Cannot use a file reference as an operator: ${operator}`);
+                    }
+                }
+            }
+        }
+
         script += `\n        vm.stopBroadcast();\n`;
         script += `    }\n\n`;
     
