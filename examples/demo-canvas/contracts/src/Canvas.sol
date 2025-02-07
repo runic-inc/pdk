@@ -18,6 +18,7 @@ contract Canvas is CanvasGenerated {
         uint256 tokenId = _nextTokenId;
         _nextTokenId++;
         _safeMint(to, tokenId);
+        //TODO: set canvas name in metadata
         _metadataStorage[tokenId] = new uint256[](1);
         return tokenId;
     }
