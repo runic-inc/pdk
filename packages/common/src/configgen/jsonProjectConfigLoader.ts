@@ -5,8 +5,8 @@ export class JSONProjectConfigLoader {
     constructor() { }
 
     load(jsonString: string): ProjectConfig {
-        let projectConfig = JSON.parse(jsonString);
-        let contracts: Record<string, string | ContractConfig> = {};
+        const projectConfig = JSON.parse(jsonString);
+        const contracts: Record<string, string | ContractConfig> = {};
 
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const v = value as any;
@@ -17,12 +17,23 @@ export class JSONProjectConfigLoader {
             }
         });
 
+        // Add default plugins if none are provided
+        const plugins = projectConfig.plugins || [
+            { name: 'ponder' },
+            { name: 'react' }
+        ];
+
+        // If networks exists, include it as-is
+        const networks = projectConfig.networks;
+
         return {
             name: projectConfig.name,
             scopes: Object.entries(projectConfig.scopes).map(([key, value]) => {
                 return this.loadScopeConfig(key, value);
             }),
-            contracts: contracts
+            contracts: contracts,
+            ...(networks ? { networks } : {}),
+            plugins: plugins,
         };
     }
 

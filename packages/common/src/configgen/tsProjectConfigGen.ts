@@ -22,10 +22,17 @@ export class TSProjectConfigGen {
             }).join(',\n')}\n`;
             out += `    },\n`;
         }
-        if (projectConfig.plugins) {
+        if (projectConfig.plugins && projectConfig.plugins.length > 0) {
             out += `    plugins: [\n`;
-            out += projectConfig.plugins.map(plugin => `        { name: "${plugin.name}", props: ${plugin.props} }`).join(',\n');
+            out += projectConfig.plugins
+                .map(plugin => `        { name: "${plugin.name}" }`)
+                .join(',\n');
             out += `\n    ],\n`;
+        } else {
+            out += `    plugins: [\n`;
+            out += `        { name: 'ponder' },\n`;
+            out += `        { name: 'react' }\n`;
+            out += `    ],\n`;
         }
         out += `};\n\n`;
         out += `export default ${constantName};\n`;

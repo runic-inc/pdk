@@ -60,6 +60,7 @@ const contractConfigProjectProjectConfig: ProjectConfig = {
             fragments: []
         }
     },
+    plugins: [{ name: "ponder" },{ name: "react" }],
 };
 
 export default contractConfigProjectProjectConfig;
