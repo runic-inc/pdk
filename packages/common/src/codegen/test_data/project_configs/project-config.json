@@ -1,7 +1,6 @@
 {
     "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",
     "name": "Example Project",
-    "plugins": [{ "name": "ponder" }, { "name": "react" }],
     "scopes": {
         "test": {
             "name": "test",
