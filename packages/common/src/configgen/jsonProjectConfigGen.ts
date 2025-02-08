@@ -13,10 +13,18 @@ export class JSONProjectConfigGen {
             if (contractConfigString.length > 0) { contractConfigString += ',\n' };
             contractConfigString += this.genContractConfig(key, value);
         });
+
+        // Create default plugins if none specified
+        const plugins = projectConfig.plugins || [
+            { name: 'ponder' },
+            { name: 'react' }
+        ];
+
         return `` +
             `{\n` +
             `    "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",\n` +
             `    "name": "${projectConfig.name}",\n` +
+            `    "plugins": ${JSON.stringify(plugins, null, 4).replace(/^/gm, '    ')},\n` + // Add plugins with proper indentation
             `    "scopes": {\n` +
             projectConfig.scopes.map(scope => {
                 return this.genScopeConfig(scope);

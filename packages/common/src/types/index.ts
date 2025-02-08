@@ -207,7 +207,7 @@ export type NetworkConfig = {
 
 export type PluginConfig = {
     name: string;
-    props: any;
+    props?: any;
 };
 
 export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
