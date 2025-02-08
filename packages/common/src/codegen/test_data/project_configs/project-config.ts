@@ -17,7 +17,6 @@ const exampleProjectProjectConfig: ProjectConfig = {
         "Contract1": "config1.json",
         "Contract2": "config2.json"
     },
-    plugins: [{ name: "ponder" },{ name: "react" }],
 };
 
 export default exampleProjectProjectConfig;
