@@ -220,7 +220,7 @@ export class ProjectTSCompiler {
         // May only be called once
         if (!ProjectTSCompiler.isEsbuildInitialized) {
             await esbuild.initialize({
-                wasmURL: 'https://unpkg.com/esbuild-wasm@latest/esbuild.wasm', // Load WASM from a CDN
+                wasmURL: 'https://unpkg.com/esbuild-wasm@0.24.2/esbuild.wasm', // Load WASM from a CDN
             });
             ProjectTSCompiler.isEsbuildInitialized = true; // Mark as initialized
         }
