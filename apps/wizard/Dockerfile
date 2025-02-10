@@ -8,7 +8,9 @@ COPY --from=root package.json .
 COPY --from=root pnpm-workspace.yaml .
 COPY --from=root packages/common/package.json packages/common/package.json
 COPY --from=root ./apps/wizard/package.json apps/wizard/package.json
-RUN corepack enable
+RUN apk add --no-cache curl
+RUN curl -fsSL https://raw.githubusercontent.com/nodejs/corepack/main/shims/pnpm | sh -s -- install
+RUN corepack prepare pnpm@latest --activate
 
 # Install dependencies only when needed
 FROM base AS deps
