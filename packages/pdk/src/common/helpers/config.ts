@@ -79,11 +79,10 @@ export async function importPatchworkConfig(config: string): Promise<PatchworkPr
         return project;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error('Error importing ProjectConfig:', error.message);
+            throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, error.message);
         } else {
-            logger.error('An unknown error occurred while importing ProjectConfig');
+            throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`, error);
         }
-        throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`, error);
     }
 }
 

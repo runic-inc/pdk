@@ -8,9 +8,9 @@ import { cliProcessor } from './common/cliProcessor';
 import { findConfig, importPatchworkConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
-import { validatePatchworkProject } from './common/helpers/validatePatchworkProject';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
+import { PatchworkProject } from './types';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -37,12 +37,12 @@ const program = new Command()
 
 async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileManager> {
     const configPath = await getConfigPath(optionalConfigPath);
-    const projectConfig = await importPatchworkConfig(configPath);
-
+    let projectConfig: PatchworkProject;
     try {
-        validatePatchworkProject(projectConfig);
+        projectConfig = await importPatchworkConfig(configPath);
     } catch (error: any) {
-        console.error(`Project configuration validation error: ${error.message}`);
+        console.error(error.message);
+        //        console.error(`Error loading project configuration: ${error.message}`);
         process.exit(1);
     }
 
@@ -53,7 +53,6 @@ async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileM
     ctx.rootDir = path.dirname(configPath);
     if (!ctx.artifacts) ctx.artifacts = {};
     if (optionalConfigPath !== undefined) {
-        // Do not write lock file to disk when specifying a config file
         lockFileManager.updateCtx(ctx);
     } else {
         lockFileManager.updateAndSaveCtx(ctx);
