@@ -36,7 +36,7 @@ const program = new Command()
 
 async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileManager> {
     const configPath = await getConfigPath(optionalConfigPath);
-    let projectConfig = await importPatchworkConfig(configPath);
+    const projectConfig = await importPatchworkConfig(configPath);
     const lockFileManager = new LockFileManager(configPath);
     const ctx = lockFileManager.getCtx();
     ctx.configPath = configPath;
