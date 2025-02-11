@@ -52,13 +52,9 @@ export type FieldType =
 
 export type Visibility = 'public' | 'private';
 
-export type ReservedWord = 'metadata';
-
-type ExcludeReservedWordPrefix<T extends string> = T extends `${ReservedWord}${string}` ? never : T;
-
 export type FieldConfig = {
     id: number;
-    key: ExcludeReservedWordPrefix<string>;
+    key: string;
     description?: string;
     type: FieldType;
     arrayLength?: number;

@@ -83,7 +83,7 @@ function validateProjectConfig(jsonData: unknown): ValidationResult {
   }
 }
 
-export function validateSchema(jsonData: unknown, schemaFile: string): ValidationResult {
+export function validateJsonSchema(jsonData: unknown, schemaFile: string): ValidationResult {
   try {
     const schemaData: object = JSON.parse(fs.readFileSync(schemaFile, 'utf8'));
     const ajv: Ajv2019 = new Ajv2019();

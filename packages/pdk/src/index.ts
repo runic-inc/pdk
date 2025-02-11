@@ -8,6 +8,7 @@ import { cliProcessor } from './common/cliProcessor';
 import { findConfig, importPatchworkConfig } from './common/helpers/config';
 import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
+import { validatePatchworkProject } from './common/helpers/validatePatchworkProject';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
 import { launchWizardApp } from './wizardServer';
@@ -37,6 +38,14 @@ const program = new Command()
 async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileManager> {
     const configPath = await getConfigPath(optionalConfigPath);
     const projectConfig = await importPatchworkConfig(configPath);
+
+    try {
+        validatePatchworkProject(projectConfig);
+    } catch (error: any) {
+        console.error(`Project configuration validation error: ${error.message}`);
+        process.exit(1);
+    }
+
     const lockFileManager = new LockFileManager(configPath);
     const ctx = lockFileManager.getCtx();
     ctx.configPath = configPath;
