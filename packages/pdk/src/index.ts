@@ -10,7 +10,6 @@ import { ErrorCode, PDKError } from './common/helpers/error';
 import { setLogLevel } from './common/helpers/logger';
 import { GeneratorService } from './services/generator';
 import LockFileManager from './services/lockFile';
-import { PatchworkProject } from './types';
 import { launchWizardApp } from './wizardServer';
 
 async function getConfigPath(configFile?: string): Promise<string> {
@@ -37,15 +36,7 @@ const program = new Command()
 
 async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileManager> {
     const configPath = await getConfigPath(optionalConfigPath);
-    let projectConfig: PatchworkProject;
-    try {
-        projectConfig = await importPatchworkConfig(configPath);
-    } catch (error: any) {
-        console.error(error.message);
-        //        console.error(`Error loading project configuration: ${error.message}`);
-        process.exit(1);
-    }
-
+    let projectConfig = await importPatchworkConfig(configPath);
     const lockFileManager = new LockFileManager(configPath);
     const ctx = lockFileManager.getCtx();
     ctx.configPath = configPath;
