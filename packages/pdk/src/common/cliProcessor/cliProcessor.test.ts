@@ -5,6 +5,9 @@
 // const PROJECT_SCHEMA = path.join(__dirname, '../../../../../schemas/patchwork-project-config.schema.json');
 // const cliProcessor = new CLIProcessor(CONTRACT_SCHEMA, PROJECT_SCHEMA);
 
+import { ProjectConfig, ValidNameIdentifier } from '@patchworkdev/common';
+import { importProjectConfig } from '../helpers/project';
+
 //TODO: Uncomment adn add back commented out tests.
 describe('CLI', () => {
     // Placeholder test to keep Jest happy while other tests are commented out
@@ -70,4 +73,36 @@ describe('CLI', () => {
     //     expect(generatedFiles).toContain('SecondContract.sol');
     //     expect(generatedFiles).toContain('SecondContract-schema.json');
     // });
+});
+
+describe('ProjectConfig validation', () => {
+    it('throws an error when a contract field key starts with the reserved word "metadata"', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [{ id: 1, key: 'metadata', type: 'uint256', description: 'Test field' }],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid field key "metadata" in contract "MyContract": field keys cannot start with reserved word "metadata"',
+        );
+    });
 });
