@@ -28,14 +28,17 @@ export function importProjectConfig(config: ProjectConfig): PatchworkProject {
             networks[key] = loadNetwork(networkConfig);
         }
     }
-
-    return {
+    const project: PatchworkProject = {
         name: config.name,
         scopes: config.scopes,
         contracts: config.contracts,
         networks: networks,
         plugins: plugins,
     };
+
+    validatePatchworkProject(project);
+
+    return project;
 }
 
 export function exportProjectConfig(config: PatchworkProject): ProjectConfig {
@@ -85,4 +88,23 @@ function loadNetwork(config: NetworkConfig): any {
         throw new Error(`Chain ${config.chain} not found`);
     }
     return { chain: chain, rpc: config.rpc };
+}
+
+const RESERVED_WORDS = ['metadata'];
+
+function validatePatchworkProject(project: PatchworkProject): void {
+    Object.entries(project.contracts).forEach(([contractKey, contractConfig]) => {
+        // If the contract configuration is a string reference, skip validation.
+        if (typeof contractConfig !== 'object') return;
+
+        contractConfig.fields.forEach((field) => {
+            RESERVED_WORDS.forEach((reserved) => {
+                if (field.key.startsWith(reserved)) {
+                    throw new Error(
+                        `Invalid field key "${field.key}" in contract "${contractConfig.name}": field keys cannot start with reserved word "${reserved}".`,
+                    );
+                }
+            });
+        });
+    });
 }

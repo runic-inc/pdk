@@ -1,7 +1,7 @@
 import { ErrorObject } from "ajv";
 import fs from "fs";
 import path from "path";
-import { validateSchema } from "./validateSchema";
+import { validateJsonSchema } from "./validateJsonSchema";
 
 const schemaFile: string = "../../schemas/patchwork-contract-config.schema.json";
 const projectSchemaFile: string = "../../schemas/patchwork-project-config.schema.json";
@@ -42,7 +42,7 @@ describe("validateJsonSchema", () => {
         const jsonData: unknown = JSON.parse(
           fs.readFileSync(files.json, "utf8")
         );
-        const result = validateSchema(jsonData, schemaFile);
+        const result = validateJsonSchema(jsonData, schemaFile);
 
         if (!result.isValid) {
           console.error(`Validation errors for ${baseName}.json:`, result.errors);
@@ -74,7 +74,7 @@ describe("validateSchema", () => {
         },
       ],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors.some(
@@ -104,7 +104,7 @@ describe("validateSchema", () => {
         },
       ],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors.some(
@@ -126,7 +126,7 @@ describe("validateSchema", () => {
       "fields": [],
       "features": ["patch", "1155patch"]
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0].message).toBe('PATCH, 1155PATCH, and ACCOUNTPATCH are mutually exclusive.');
   });
@@ -144,7 +144,7 @@ describe("validateSchema", () => {
       fields: [],
       features: ["fragmentmulti", "fragmentsingle"],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0].message).toBe(
       "FRAGMENTMULTI and FRAGMENTSINGLE are mutually exclusive."
@@ -164,7 +164,7 @@ describe("validateSchema", () => {
       fields: [],
       features: ["reversible"],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0].message).toBe(
       "REVERSIBLE feature requires at least one of PATCH, 1155PATCH, or ACCOUNTPATCH to be present."
@@ -184,7 +184,7 @@ describe("validateSchema", () => {
       fields: [],
       features: ["weakref"],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0].message).toBe(
       "WEAKREF feature requires FRAGMENTSINGLE feature"
@@ -204,7 +204,7 @@ describe("validateSchema", () => {
       fields: [],
       features: ["dynamicreflibrary"],
     };
-    const result = validateSchema(invalidJson, schemaFile);
+    const result = validateJsonSchema(invalidJson, schemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0].message).toBe(
       "DYNAMICREFLIBRARY feature requires a dynamic array length literef field"
@@ -224,7 +224,7 @@ describe("validateSchema", () => {
       fields: [],
       features: ["patch", "fragmentsingle"],
     };
-    const result = validateSchema(validJson, schemaFile);
+    const result = validateJsonSchema(validJson, schemaFile);
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -242,7 +242,7 @@ describe("validateSchema", () => {
         fields: [],
         features: ["patch"]
       };
-      const result = validateSchema(invalidJson, schemaFile);
+      const result = validateJsonSchema(invalidJson, schemaFile);
       
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toEqual(
@@ -265,7 +265,7 @@ describe("validateSchema", () => {
         fields: [],
         features: ["patch"]
       };
-      const result = validateSchema(validJson, schemaFile);
+      const result = validateJsonSchema(validJson, schemaFile);
       
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -281,7 +281,7 @@ describe("validateSchema", () => {
         contracts: {},
         contractRelations: {}
       };
-      const result = validateSchema(invalidJson, projectSchemaFile);
+      const result = validateJsonSchema(invalidJson, projectSchemaFile);
       
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toEqual(
@@ -300,7 +300,7 @@ describe("validateSchema", () => {
         contracts: {},
         contractRelations: {}
       };
-      const result = validateSchema(validJson, projectSchemaFile);
+      const result = validateJsonSchema(validJson, projectSchemaFile);
       
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -314,7 +314,7 @@ describe("validateSchema", () => {
         contracts: {},
         contractRelations: {}
       };
-      const result = validateSchema(validJson, projectSchemaFile);
+      const result = validateJsonSchema(validJson, projectSchemaFile);
       
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -332,7 +332,7 @@ describe("validateProjectConfigSchema", () => {
       const jsonData: unknown = JSON.parse(
         fs.readFileSync(path.join(testDirectory, jsonFile), "utf8")
       );
-      const result = validateSchema(jsonData, projectSchemaFile);
+      const result = validateJsonSchema(jsonData, projectSchemaFile);
 
       if (!result.isValid) {
         console.error(`Validation errors for ${jsonFile}:`, result.errors);
@@ -348,7 +348,7 @@ describe("validateProjectConfigSchema", () => {
       scopes: {},
       contracts: {}
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
@@ -368,7 +368,7 @@ describe("validateProjectConfigSchema", () => {
       scopes: {},
       contracts: {}
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
@@ -393,7 +393,7 @@ describe("validateProjectConfigSchema", () => {
       // missing 'scopes' field
       contracts: {}
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors.some(
@@ -432,7 +432,7 @@ describe("validateProjectConfigSchema", () => {
       },
       contracts: {}
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -453,7 +453,7 @@ describe("validateProjectConfigSchema", () => {
         }
       }
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
@@ -516,7 +516,7 @@ describe("validateProjectConfigSchema", () => {
         }
       }
     };
-    const result = validateSchema(validJson, projectSchemaFile);
+    const result = validateJsonSchema(validJson, projectSchemaFile);
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -560,7 +560,7 @@ describe("validateProjectConfigSchema", () => {
       },
       contractRelations: {}
     };
-    const result = validateSchema(invalidJson, projectSchemaFile);
+    const result = validateJsonSchema(invalidJson, projectSchemaFile);
     expect(result.isValid).toBe(false);
     expect(result.errors[0]).toEqual(
       expect.objectContaining({

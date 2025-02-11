@@ -44,7 +44,6 @@ async function createLockFileMgr(optionalConfigPath?: string): Promise<LockFileM
     ctx.rootDir = path.dirname(configPath);
     if (!ctx.artifacts) ctx.artifacts = {};
     if (optionalConfigPath !== undefined) {
-        // Do not write lock file to disk when specifying a config file
         lockFileManager.updateCtx(ctx);
     } else {
         lockFileManager.updateAndSaveCtx(ctx);
