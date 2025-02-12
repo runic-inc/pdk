@@ -102,7 +102,134 @@ describe('ProjectConfig validation', () => {
         };
 
         expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
-            'Invalid field key "metadata" in contract "MyContract": field keys cannot start with reserved word "metadata"',
+            'Invalid field key "metadata" in contract "MyContract": field keys cannot be exactly the reserved word "metadata"',
         );
+    });
+});
+
+describe('ProjectConfig field ID validation', () => {
+    it('passes when field ids are sequential starting at 0 with no duplicates regardless of order', () => {
+        const validProjectConfig: ProjectConfig = {
+            name: 'validProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 2, key: 'fieldC', type: 'uint256', description: 'Field C' },
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 1, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(validProjectConfig)).not.toThrow();
+    });
+
+    it('throws an error if there are duplicate field ids', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 0, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field IDs/);
+    });
+
+    it('throws an error if field ids do not start at 0', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 1, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 2, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/must start at 0/);
+    });
+
+    it('throws an error if field ids have gaps', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 2, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/must be sequential with no gaps/);
     });
 });

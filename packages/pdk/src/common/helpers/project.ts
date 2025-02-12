@@ -94,17 +94,38 @@ const RESERVED_WORDS = ['metadata'];
 
 function validatePatchworkProject(project: PatchworkProject): void {
     Object.entries(project.contracts).forEach(([contractKey, contractConfig]) => {
-        // If the contract configuration is a string reference, skip validation.
+        // Skip validation if the contract configuration is just a string reference.
         if (typeof contractConfig !== 'object') return;
 
+        // Validate reserved words for field keys.
         contractConfig.fields.forEach((field) => {
             RESERVED_WORDS.forEach((reserved) => {
-                if (field.key.startsWith(reserved)) {
+                if (field.key === reserved) {
                     throw new Error(
-                        `Invalid field key "${field.key}" in contract "${contractConfig.name}": field keys cannot start with reserved word "${reserved}".`,
+                        `Invalid field key "${field.key}" in contract "${contractConfig.name}": field keys cannot be exactly the reserved word "${reserved}".`,
                     );
                 }
             });
         });
+
+        // Validate field IDs: must have no duplicates, start at 0, and have no gaps.
+        const fieldIds = contractConfig.fields.map((field) => field.id);
+        const uniqueIds = new Set(fieldIds);
+        if (uniqueIds.size !== fieldIds.length) {
+            throw new Error(`Duplicate field IDs found in contract "${contractConfig.name}".`);
+        }
+
+        // The fields don't need to be in order, so sort and check the sequence.
+        const sortedIds = [...uniqueIds].sort((a, b) => a - b);
+        for (let i = 0; i < sortedIds.length; i++) {
+            if (sortedIds[i] !== i) {
+                // If the smallest id isn't 0, or any gap exists, report an error.
+                const errMsg =
+                    sortedIds[0] !== 0
+                        ? `Field IDs for contract "${contractConfig.name}" must start at 0.`
+                        : `Field IDs for contract "${contractConfig.name}" must be sequential with no gaps.`;
+                throw new Error(errMsg);
+            }
+        }
     });
 }
