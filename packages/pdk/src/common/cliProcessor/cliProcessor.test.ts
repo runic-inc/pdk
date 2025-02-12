@@ -76,7 +76,11 @@ describe('CLI', () => {
 });
 
 describe('ProjectConfig validation', () => {
-    it('throws an error when a contract field key starts with the reserved word "metadata"', () => {
+    test('placeholder - remove when real tests are uncommented', () => {
+        expect(true).toBe(true);
+    });
+
+    it('throws an error when a contract field key is exactly the reserved word "metadata"', () => {
         const invalidProjectConfig: ProjectConfig = {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
@@ -105,10 +109,43 @@ describe('ProjectConfig validation', () => {
             'Invalid field key "metadata" in contract "MyContract": field keys cannot be exactly the reserved word "metadata"',
         );
     });
+
+    it('throws an error when there are duplicate field keys', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 1, key: 'fieldA', type: 'uint256', description: 'Duplicate Field A' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field keys/);
+    });
 });
 
 describe('ProjectConfig field ID validation', () => {
-    it('passes when field ids are sequential starting at 0 with no duplicates regardless of order', () => {
+    it('passes when there are no duplicate field ids, regardless of order or gaps', () => {
+        // Valid config: field ids are 2, 5, 9. They are not sequential,
+        // but that's acceptable since we only require uniqueness.
         const validProjectConfig: ProjectConfig = {
             name: 'validProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
@@ -122,8 +159,8 @@ describe('ProjectConfig field ID validation', () => {
                     imageURI: 'https://example.com/image',
                     fields: [
                         { id: 2, key: 'fieldC', type: 'uint256', description: 'Field C' },
-                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
-                        { id: 1, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                        { id: 5, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 9, key: 'fieldB', type: 'uint256', description: 'Field B' },
                     ],
                     features: [],
                     fragments: [],
@@ -169,67 +206,5 @@ describe('ProjectConfig field ID validation', () => {
         };
 
         expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field IDs/);
-    });
-
-    it('throws an error if field ids do not start at 0', () => {
-        const invalidProjectConfig: ProjectConfig = {
-            name: 'invalidProject' as ValidNameIdentifier,
-            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
-            contracts: {
-                myContract: {
-                    scopeName: 'default',
-                    name: 'MyContract' as ValidNameIdentifier,
-                    symbol: 'MYC',
-                    baseURI: 'https://example.com/base',
-                    schemaURI: 'https://example.com/schema',
-                    imageURI: 'https://example.com/image',
-                    fields: [
-                        { id: 1, key: 'fieldA', type: 'uint256', description: 'Field A' },
-                        { id: 2, key: 'fieldB', type: 'uint256', description: 'Field B' },
-                    ],
-                    features: [],
-                    fragments: [],
-                },
-            },
-            networks: {
-                local: { chain: 'anvil', rpc: 'http://localhost' },
-                testnet: { chain: 'anvil', rpc: 'http://localhost' },
-                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
-            },
-            plugins: [],
-        };
-
-        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/must start at 0/);
-    });
-
-    it('throws an error if field ids have gaps', () => {
-        const invalidProjectConfig: ProjectConfig = {
-            name: 'invalidProject' as ValidNameIdentifier,
-            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
-            contracts: {
-                myContract: {
-                    scopeName: 'default',
-                    name: 'MyContract' as ValidNameIdentifier,
-                    symbol: 'MYC',
-                    baseURI: 'https://example.com/base',
-                    schemaURI: 'https://example.com/schema',
-                    imageURI: 'https://example.com/image',
-                    fields: [
-                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
-                        { id: 2, key: 'fieldB', type: 'uint256', description: 'Field B' },
-                    ],
-                    features: [],
-                    fragments: [],
-                },
-            },
-            networks: {
-                local: { chain: 'anvil', rpc: 'http://localhost' },
-                testnet: { chain: 'anvil', rpc: 'http://localhost' },
-                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
-            },
-            plugins: [],
-        };
-
-        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/must be sequential with no gaps/);
     });
 });

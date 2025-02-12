@@ -92,12 +92,12 @@ function loadNetwork(config: NetworkConfig): any {
 
 const RESERVED_WORDS = ['metadata'];
 
-function validatePatchworkProject(project: PatchworkProject): void {
-    Object.entries(project.contracts).forEach(([contractKey, contractConfig]) => {
-        // Skip validation if the contract configuration is just a string reference.
+export function validatePatchworkProject(project: PatchworkProject): void {
+    Object.entries(project.contracts).forEach(([_, contractConfig]) => {
+        // Skip validation for string references.
         if (typeof contractConfig !== 'object') return;
 
-        // Validate reserved words for field keys.
+        // Validate that no field key is exactly a reserved word.
         contractConfig.fields.forEach((field) => {
             RESERVED_WORDS.forEach((reserved) => {
                 if (field.key === reserved) {
@@ -108,24 +108,18 @@ function validatePatchworkProject(project: PatchworkProject): void {
             });
         });
 
-        // Validate field IDs: must have no duplicates, start at 0, and have no gaps.
+        // Validate duplicate field keys.
+        const keys = contractConfig.fields.map((field) => field.key);
+        const uniqueKeys = new Set(keys);
+        if (uniqueKeys.size !== keys.length) {
+            throw new Error(`Duplicate field keys found in contract "${contractConfig.name}".`);
+        }
+
+        // Validate duplicate field IDs.
         const fieldIds = contractConfig.fields.map((field) => field.id);
         const uniqueIds = new Set(fieldIds);
         if (uniqueIds.size !== fieldIds.length) {
             throw new Error(`Duplicate field IDs found in contract "${contractConfig.name}".`);
-        }
-
-        // The fields don't need to be in order, so sort and check the sequence.
-        const sortedIds = [...uniqueIds].sort((a, b) => a - b);
-        for (let i = 0; i < sortedIds.length; i++) {
-            if (sortedIds[i] !== i) {
-                // If the smallest id isn't 0, or any gap exists, report an error.
-                const errMsg =
-                    sortedIds[0] !== 0
-                        ? `Field IDs for contract "${contractConfig.name}" must start at 0.`
-                        : `Field IDs for contract "${contractConfig.name}" must be sequential with no gaps.`;
-                throw new Error(errMsg);
-            }
         }
     });
 }
