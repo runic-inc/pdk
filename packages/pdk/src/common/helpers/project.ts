@@ -92,19 +92,34 @@ function loadNetwork(config: NetworkConfig): any {
 
 const RESERVED_WORDS = ['metadata'];
 
-function validatePatchworkProject(project: PatchworkProject): void {
-    Object.entries(project.contracts).forEach(([contractKey, contractConfig]) => {
-        // If the contract configuration is a string reference, skip validation.
+export function validatePatchworkProject(project: PatchworkProject): void {
+    Object.entries(project.contracts).forEach(([_, contractConfig]) => {
+        // Skip validation for string references.
         if (typeof contractConfig !== 'object') return;
 
+        // Validate that no field key is exactly a reserved word.
         contractConfig.fields.forEach((field) => {
             RESERVED_WORDS.forEach((reserved) => {
-                if (field.key.startsWith(reserved)) {
+                if (field.key === reserved) {
                     throw new Error(
-                        `Invalid field key "${field.key}" in contract "${contractConfig.name}": field keys cannot start with reserved word "${reserved}".`,
+                        `Invalid field key "${field.key}" in contract "${contractConfig.name}": field keys cannot be exactly the reserved word "${reserved}".`,
                     );
                 }
             });
         });
+
+        // Validate duplicate field keys.
+        const keys = contractConfig.fields.map((field) => field.key);
+        const uniqueKeys = new Set(keys);
+        if (uniqueKeys.size !== keys.length) {
+            throw new Error(`Duplicate field keys found in contract "${contractConfig.name}".`);
+        }
+
+        // Validate duplicate field IDs.
+        const fieldIds = contractConfig.fields.map((field) => field.id);
+        const uniqueIds = new Set(fieldIds);
+        if (uniqueIds.size !== fieldIds.length) {
+            throw new Error(`Duplicate field IDs found in contract "${contractConfig.name}".`);
+        }
     });
 }

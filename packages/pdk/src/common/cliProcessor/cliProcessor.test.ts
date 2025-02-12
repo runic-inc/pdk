@@ -76,7 +76,11 @@ describe('CLI', () => {
 });
 
 describe('ProjectConfig validation', () => {
-    it('throws an error when a contract field key starts with the reserved word "metadata"', () => {
+    test('placeholder - remove when real tests are uncommented', () => {
+        expect(true).toBe(true);
+    });
+
+    it('throws an error when a contract field key is exactly the reserved word "metadata"', () => {
         const invalidProjectConfig: ProjectConfig = {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
@@ -102,7 +106,105 @@ describe('ProjectConfig validation', () => {
         };
 
         expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
-            'Invalid field key "metadata" in contract "MyContract": field keys cannot start with reserved word "metadata"',
+            'Invalid field key "metadata" in contract "MyContract": field keys cannot be exactly the reserved word "metadata"',
         );
+    });
+
+    it('throws an error when there are duplicate field keys', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 1, key: 'fieldA', type: 'uint256', description: 'Duplicate Field A' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field keys/);
+    });
+});
+
+describe('ProjectConfig field ID validation', () => {
+    it('passes when there are no duplicate field ids, regardless of order or gaps', () => {
+        // Valid config: field ids are 2, 5, 9. They are not sequential,
+        // but that's acceptable since we only require uniqueness.
+        const validProjectConfig: ProjectConfig = {
+            name: 'validProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 2, key: 'fieldC', type: 'uint256', description: 'Field C' },
+                        { id: 5, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 9, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(validProjectConfig)).not.toThrow();
+    });
+
+    it('throws an error if there are duplicate field ids', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                myContract: {
+                    scopeName: 'default',
+                    name: 'MyContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [
+                        { id: 0, key: 'fieldA', type: 'uint256', description: 'Field A' },
+                        { id: 0, key: 'fieldB', type: 'uint256', description: 'Field B' },
+                    ],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field IDs/);
     });
 });
