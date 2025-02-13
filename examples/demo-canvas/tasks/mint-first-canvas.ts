@@ -7,7 +7,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 // Enum for MintMode matching the contract
 enum MintMode {
     OWNER = 0,
-    OPEN = 1
+    OPEN = 1,
 }
 
 // ABI for the Canvas contract functions we need
@@ -31,11 +31,75 @@ const canvasAbi = [
         name: 'mint',
         inputs: [
             { type: 'address', name: 'to' },
-            { type: 'bytes', name: 'data' }
+            { type: 'bytes', name: 'data' },
         ],
         outputs: [{ type: 'uint256' }],
         stateMutability: 'payable',
-    }
+    },
+] as const;
+
+const patchworkAbi = [
+    {
+        type: 'function',
+        name: 'getMintConfiguration',
+        inputs: [
+            {
+                name: 'addr',
+                type: 'address',
+                internalType: 'address',
+            },
+        ],
+        outputs: [
+            {
+                name: 'config',
+                type: 'tuple',
+                internalType: 'struct IPatchworkProtocol.MintConfig',
+                components: [
+                    {
+                        name: 'flatFee',
+                        type: 'uint256',
+                        internalType: 'uint256',
+                    },
+                    {
+                        name: 'active',
+                        type: 'bool',
+                        internalType: 'bool',
+                    },
+                ],
+            },
+        ],
+        stateMutability: 'view',
+    },
+    {
+        type: 'function',
+        name: 'setMintConfiguration',
+        inputs: [
+            {
+                name: 'addr',
+                type: 'address',
+                internalType: 'address',
+            },
+            {
+                name: 'config',
+                type: 'tuple',
+                internalType: 'struct IPatchworkProtocol.MintConfig',
+                components: [
+                    {
+                        name: 'flatFee',
+                        type: 'uint256',
+                        internalType: 'uint256',
+                    },
+                    {
+                        name: 'active',
+                        type: 'bool',
+                        internalType: 'bool',
+                    },
+                ],
+            },
+        ],
+        outputs: [],
+        stateMutability: 'nonpayable',
+    },
 ] as const;
 
 async function askQuestion(question: string): Promise<string> {
@@ -74,7 +138,7 @@ export async function mintCanvasTask({ deployConfig, deployedContracts }: TaskEx
                 functionName: 'ownerOf',
                 args: [0n],
             });
-            
+
             console.log('Canvas has already been minted. Owner of first canvas:', owner);
             return;
         } catch (error) {
@@ -86,6 +150,35 @@ export async function mintCanvasTask({ deployConfig, deployedContracts }: TaskEx
         const shouldMint = await askQuestion('\nNo canvas has been minted yet. Would you like to mint the first canvas? (y/n): ');
 
         if (shouldMint.toLowerCase() === 'y') {
+            //check minting is enabled
+            try {
+                const mintConfig = await publicClient.readContract({
+                    address: deployConfig.patchworkProtocol as `0x${string}`,
+                    abi: patchworkAbi,
+                    functionName: 'getMintConfiguration',
+                    args: [canvasContractAddress] as const,
+                });
+
+                if (mintConfig.active === false) {
+                    console.log('Minting is not enabled for this canvas. Attempting to enable it.');
+                    const { request } = await publicClient.simulateContract({
+                        address: deployConfig.patchworkProtocol as `0x${string}`,
+                        abi: patchworkAbi,
+                        functionName: 'setMintConfiguration',
+                        args: [canvasContractAddress, { flatFee: 0n, active: true }] as const,
+                        account,
+                    });
+
+                    const mintConfigHash = await walletClient.writeContract(request);
+                    console.log('Transaction sent:', mintConfigHash);
+                    const mintConfigReceipt = await publicClient.waitForTransactionReceipt({ hash: mintConfigHash });
+                    console.log('Minting enabled! Block:', mintConfigReceipt.blockNumber);
+                }
+            } catch (error) {
+                console.log('Error setting mint configuration:');
+                throw error;
+            }
+
             try {
                 console.log('Minting canvas...');
 

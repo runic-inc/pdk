@@ -6,7 +6,7 @@ const projectConfig: ProjectConfig = {
     name: 'canvas',
     contracts: {
         Canvas: {
-            scopeName: 'canvas',
+            scopeName: 'canvas-demo',
             name: 'Canvas',
             symbol: 'CANVAS',
             baseURI: 'https://canvas.patchwork.dev/',
@@ -31,7 +31,7 @@ const projectConfig: ProjectConfig = {
             fragments: ['Bubble'],
         },
         Bubble: {
-            scopeName: 'canvas',
+            scopeName: 'canvas-demo',
             name: 'Bubble',
             symbol: 'BUBBLE',
             baseURI: 'https://canvas.patchwork.dev/',
@@ -63,7 +63,7 @@ const projectConfig: ProjectConfig = {
     },
     scopes: [
         {
-            name: 'canvas',
+            name: 'canvas-demo',
         },
     ],
     networks: {
