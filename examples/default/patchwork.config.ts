@@ -1,5 +1,6 @@
-import { Feature, type ProjectConfig } from '@patchworkdev/common/types';
-import { anvil, base, baseSepolia } from 'viem/chains';
+/// <reference types="https://cdn.jsdelivr.net/npm/@patchworkdev/common@0.2.5/dist/types/index.d.ts" />
+
+import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 
 const projectConfig: ProjectConfig = {
     name: 'My Patchwork App',
@@ -36,18 +37,19 @@ const projectConfig: ProjectConfig = {
     ],
     networks: {
         local: {
-            chain: anvil,
+            chain: 'anvil',
             rpc: 'http://anvil:8545',
         },
         testnet: {
-            chain: baseSepolia,
+            chain: 'baseSepolia',
             rpc: 'http://anvil:8545',
         },
         mainnet: {
-            chain: base,
+            chain: 'base',
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [{ name: 'ponder' }, { name: 'react' }],
 };
 
 export default projectConfig;

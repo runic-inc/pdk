@@ -1,4 +1,8 @@
-import type { Chain } from 'viem';
+/**
+ * Patchwork Portable Project Types
+ *
+ * Do not add any dependencies to this file. This file is used to define a portable configuration for a Patchwork Project.
+ */
 
 export enum Feature {
     FRAGMENTMULTI = 'FRAGMENTMULTI',
@@ -76,9 +80,6 @@ export type ScopeConfig = {
     userPatch?: boolean;
     bankers?: string[];
     operators?: string[];
-    mintConfigs?: MintConfigs;
-    patchFees?: PatchFees;
-    assignFees?: AssignFees;
 };
 
 type Letter =
@@ -199,14 +200,20 @@ export type Deployment<T extends string> = {
     txHash?: string; // making this optional for now. Need to think whether it should stay optional or not
 };
 
-export type Network = {
-    chain: Chain;
+export type NetworkConfig = {
+    chain: string;
     rpc: string;
+};
+
+export type PluginConfig = {
+    name: string;
+    props?: any;
 };
 
 export type ProjectConfig<T extends string = 'local' | 'testnet' | 'mainnet'> = {
     name: ValidNameIdentifier;
     scopes: ScopeConfig[];
     contracts: Record<string, ContractConfig | string>;
-    networks?: Record<T, Network>;
+    networks?: Record<T, NetworkConfig>;
+    plugins?: PluginConfig[];
 };

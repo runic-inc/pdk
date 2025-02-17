@@ -79,7 +79,7 @@ export async function selectLocalNetwork(targetDir: string, useLocalPackages: bo
 export async function generateAllComponents(targetDir: string, useLocalPackages: boolean, configPath: string): Promise<void> {
     const pdkCommand = useLocalPackages ? 'pdk' : path.join(targetDir, 'node_modules', '.bin', 'pdk');
     try {
-        await execa(pdkCommand, ['generate', 'all', configPath], {
+        await execa(pdkCommand, ['generate', 'all'], {
             cwd: targetDir,
         });
     } catch (e) {

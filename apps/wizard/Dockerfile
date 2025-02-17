@@ -1,5 +1,8 @@
 FROM node:20-alpine AS base
 
+RUN apk add --no-cache npm
+RUN npm install -g pnpm@latest
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 WORKDIR /repo/
@@ -8,7 +11,6 @@ COPY --from=root package.json .
 COPY --from=root pnpm-workspace.yaml .
 COPY --from=root packages/common/package.json packages/common/package.json
 COPY --from=root ./apps/wizard/package.json apps/wizard/package.json
-RUN corepack enable
 
 # Install dependencies only when needed
 FROM base AS deps

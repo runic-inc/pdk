@@ -1,3 +1,5 @@
+/// <reference types="https://cdn.jsdelivr.net/npm/@patchworkdev/common@0.2.5/dist/types/index.d.ts" />
+
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 
 const projectConfig: ProjectConfig = {
@@ -65,28 +67,20 @@ const projectConfig: ProjectConfig = {
         },
     ],
     networks: {
-        base: {
-            chainId: 8453,
+        local: {
+            chain: 'anvil',
+            rpc: 'http://anvil:8545',
+        },
+        testnet: {
+            chain: 'baseSepolia',
+            rpc: 'http://anvil:8545',
+        },
+        mainnet: {
+            chain: 'base',
             rpc: 'http://anvil:8545',
         },
     },
-    deployments: [
-        {
-            network: 'base',
-            contracts: {
-                Canvas: {
-                    name: 'Canvas',
-                    address: '0x4e110000000003FaC58d6F09DbA701181Bb67738',
-                    block: 5302131,
-                },
-                Bubble: {
-                    name: 'Bubble',
-                    address: '0xB0Bb1eb0bb1E823D6eFfd2ED7Fdb67A78995AE7c',
-                    block: 5302131,
-                },
-            },
-        },
-    ],
+    plugins: [{ name: 'ponder' }, { name: 'react' }],
 };
 
 export default projectConfig;

@@ -5,7 +5,7 @@ export * from './codegen/jsonSchemaGen';
 export * from './codegen/mainContractGen';
 export * from './codegen/userContractGen';
 export * from './codegen/utils';
-export * from './codegen/validateSchema';
+export * from './codegen/validateJsonSchema';
 export * from './configgen/jsonContractConfigGen';
 export * from './configgen/jsonProjectConfigGen';
 export * from './configgen/jsonProjectConfigLoader';

@@ -1,5 +1,4 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
-import { anvil, base, baseSepolia } from 'viem/chains';
 
 const projectConfig: ProjectConfig = {
     name: 'Composable PFP Demo',
@@ -24,6 +23,12 @@ const projectConfig: ProjectConfig = {
                     key: 'name',
                     type: 'char32',
                     description: 'Name',
+                },
+                {
+                    id: 2,
+                    key: 'bg_color',
+                    type: 'bytes8',
+                    description: 'Background Color',
                 },
             ],
             features: [],
@@ -71,18 +76,19 @@ const projectConfig: ProjectConfig = {
     ],
     networks: {
         local: {
-            chain: anvil,
+            chain: 'anvil',
             rpc: 'http://anvil:8545',
         },
         testnet: {
-            chain: baseSepolia,
+            chain: 'baseSepolia',
             rpc: 'http://anvil:8545',
         },
         mainnet: {
-            chain: base,
+            chain: 'base',
             rpc: 'http://anvil:8545',
         },
     },
+    plugins: [{ name: 'ponder' }, { name: 'react' }],
 };
 
 export default projectConfig;

@@ -3,9 +3,11 @@ import { ProjectConfig } from '@patchworkdev/common';
 import fs from 'fs/promises';
 import * as path from 'path';
 import { Abi } from 'viem';
+import { PatchworkProject } from '../../types';
 import { ErrorCode, PDKError } from './error';
 import { logger } from './logger';
 import { SchemaModule } from './ponderSchemaMock';
+import { importProjectConfig } from './project';
 import { Default, tsLoader } from './tsLoader';
 
 async function findFileUpwards(directory: string, filename: string): Promise<string | null> {
@@ -59,19 +61,28 @@ export async function loadPonderSchema(ponderSchema: string): Promise<SchemaModu
     }
 }
 
-export async function importPatchworkConfig(config: string): Promise<ProjectConfig> {
+// Imports a ProjectConfig ts file and returns a fully loaded PatchworkProject
+export async function importPatchworkConfig(config: string): Promise<PatchworkProject> {
     try {
         // Resolve the full path
         const fullPath = path.isAbsolute(config) ? config : path.resolve(process.cwd(), config);
 
-        return (await tsLoader<Default<ProjectConfig>>(fullPath)).default;
+        let loadedConfig = (
+            await tsLoader<Default<ProjectConfig>>(fullPath, {
+                moduleOverrides: {
+                    '@patchworkdev/pdk/plugins': path.resolve(__dirname, '..', '..', 'plugins'),
+                },
+            })
+        ).default;
+        // TODO how can we check that this is a ProjectConfig and not a PatchworkProject?
+        let project = importProjectConfig(loadedConfig);
+        return project;
     } catch (error) {
         if (error instanceof Error) {
-            logger.error('Error importing ProjectConfig:', error.message);
+            throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, error.message);
         } else {
-            logger.error('An unknown error occurred while importing ProjectConfig');
+            throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`, error);
         }
-        throw new PDKError(ErrorCode.PROJECT_CONFIG_ERROR, `Error importing ProjectConfig at ${config}`);
     }
 }
 
@@ -115,7 +126,7 @@ export async function importABIFiles(abiDir: string) {
     return abiObjects;
 }
 
-export function getFragmentRelationships(projectConfig: ProjectConfig): Record<string, string[]> {
+export function getFragmentRelationships(projectConfig: ProjectConfig | PatchworkProject): Record<string, string[]> {
     const fragmentRelationships: Record<string, string[]> = {} as Record<string, string[]>;
 
     Object.entries(projectConfig.contracts).forEach(([contractName, contractConfig]) => {

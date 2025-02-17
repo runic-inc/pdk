@@ -1,9 +1,9 @@
-import projectConfig from '#/patchwork.config';
 import { trpc, useTrpcClient } from '@/generated/lib/trpc';
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
+import { anvil, base, baseSepolia, type Chain } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 
 /**
@@ -11,14 +11,20 @@ import { WagmiProvider } from 'wagmi';
  */
 const queryClient = new QueryClient();
 
+const chainMap: Record<'local' | 'testnet' | 'mainnet', Chain> = {
+    local: anvil,
+    testnet: baseSepolia,
+    mainnet: base,
+};
+
 /**
  * Wagmi config.
  * Update this to match your needs!
  */
 const config = getDefaultConfig({
-    appName: projectConfig.name,
+    appName: import.meta.env.VITE_NAME,
     projectId: import.meta.env.VITE_PUBLIC_WALLETCONNECT_PROJECTID, // Don't forget to update your env!
-    chains: [projectConfig.networks![import.meta.env.VITE_NETWORK].chain],
+    chains: [chainMap[import.meta.env.VITE_NETWORK]],
     ssr: true,
 });
 

@@ -6,7 +6,7 @@ export class TSProjectConfigGen {
     gen(projectConfig: ProjectConfig): string {
         const constantName = this.generateConstantName(projectConfig.name);
         
-        let out = `import { ContractConfig, Feature, FunctionConfig, MintConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
+        let out = `import { ContractConfig, Feature, FunctionConfig, ProjectConfig } from "@patchworkdev/common/types";\n\n`;
         out += `const ${constantName}: ProjectConfig = {\n`;
         out += `    name: "${projectConfig.name}",\n`;
         out += `    scopes: [\n`;
@@ -14,7 +14,26 @@ export class TSProjectConfigGen {
         out += `\n    ],\n`;
         out += `    contracts: {\n`;
         out += this.genContractsMap(projectConfig.contracts);
-        out += `\n    }\n`;
+        out += `\n    },\n`;
+        if (projectConfig.networks) {
+            out += `    networks: {\n`;
+            out += `        ${Object.entries(projectConfig.networks).map(([key, network]) => {
+                return `        ${key}: {\n            chain: "${network.chain}",\n            rpc: "${network.rpc}"\n        }`;
+            }).join(',\n')}\n`;
+            out += `    },\n`;
+        }
+        if (projectConfig.plugins && projectConfig.plugins.length > 0) {
+            out += `    plugins: [\n`;
+            out += projectConfig.plugins
+                .map(plugin => `        { name: "${plugin.name}" }`)
+                .join(',\n');
+            out += `\n    ],\n`;
+        } else {
+            out += `    plugins: [\n`;
+            out += `        { name: 'ponder' },\n`;
+            out += `        { name: 'react' }\n`;
+            out += `    ],\n`;
+        }
         out += `};\n\n`;
         out += `export default ${constantName};\n`;
         return out;
@@ -42,15 +61,6 @@ export class TSProjectConfigGen {
         }
         if (scopeConfig.operators && scopeConfig.operators.length > 0) {
             out += `            operators: [${scopeConfig.operators.map(operator => `"${operator}"`).join(', ')}],\n`;
-        }
-        if (scopeConfig.mintConfigs) {
-            out += `            mintConfigs: {${this.genRecordEntries(scopeConfig.mintConfigs)}},\n`;
-        }
-        if (scopeConfig.patchFees) {
-            out += `            patchFees: {${this.genRecordEntries(scopeConfig.patchFees)}},\n`;
-        }
-        if (scopeConfig.assignFees) {
-            out += `            assignFees: {${this.genRecordEntries(scopeConfig.assignFees)}}\n`;
         }
         out += `        }`;
         return out;

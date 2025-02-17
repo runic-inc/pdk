@@ -65,8 +65,8 @@ async function createPatchwork(configFile: string | undefined, options: CreatePa
                     initialValue: 'default',
                     options: [
                         { value: 'default', label: 'Default', hint: 'Basic starter template you can start customizing' },
-                        //{ value: 'demo-composable-pfp', label: 'Composable PFP demo', hint: 'Dynamic NFT app where users compose PFPs from minted traits' },
-                        //{ value: 'demo-canvas', label: 'Canvas demo', hint: 'Collaborative NFT app where users attach elements to a single NFT' },
+                        { value: 'demo-composable-pfp', label: 'Composable PFP demo', hint: 'Dynamic NFT app where users compose PFPs from minted traits' },
+                        { value: 'demo-canvas', label: 'Canvas demo', hint: 'Collaborative NFT app where users attach elements to a single NFT' },
                         { value: 'custom', label: 'Custom config file', hint: 'Provide your own patchwork.config.ts file' },
                     ],
                 });

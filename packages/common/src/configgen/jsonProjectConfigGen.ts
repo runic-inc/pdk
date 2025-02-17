@@ -13,10 +13,18 @@ export class JSONProjectConfigGen {
             if (contractConfigString.length > 0) { contractConfigString += ',\n' };
             contractConfigString += this.genContractConfig(key, value);
         });
+
+        // Create default plugins if none specified
+        const plugins = projectConfig.plugins || [
+            { name: 'ponder' },
+            { name: 'react' }
+        ];
+
         return `` +
             `{\n` +
             `    "$schema": "https://patchwork.dev/schema/patchwork-project-config.schema.json",\n` +
             `    "name": "${projectConfig.name}",\n` +
+            `    "plugins": ${JSON.stringify(plugins, null, 4).replace(/^/gm, '    ')},\n` + // Add plugins with proper indentation
             `    "scopes": {\n` +
             projectConfig.scopes.map(scope => {
                 return this.genScopeConfig(scope);
@@ -48,15 +56,6 @@ export class JSONProjectConfigGen {
         }
         if (scopeConfig.operators) {
             scopeProps.push(`"operators": [${scopeConfig.operators.map(operator => `"${operator}"`).join(',')}]`);
-        }
-        if (scopeConfig.mintConfigs) {
-            scopeProps.push(`"mintConfigs": ${this.genMintConfigs(scopeConfig.mintConfigs)}`);
-        }
-        if (scopeConfig.patchFees) {
-            scopeProps.push(`"patchFees": ${this.genPatchFees(scopeConfig.patchFees)}`);
-        }
-        if (scopeConfig.assignFees) {
-            scopeProps.push(`"assignFees": ${this.genAssignFees(scopeConfig.assignFees)}`);
         }
         return `        "${scopeConfig.name}": {\n` +
             ind(12, scopeProps.join(',\n')) +
