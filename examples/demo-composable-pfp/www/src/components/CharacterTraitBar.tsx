@@ -43,7 +43,7 @@ function TraitGroup({
 				className='mt-1 rounded-xl bg-white border border-black shadow-xl shadow-gray-900/20 w-48'
 			>
 				<div className='flex p-2 flex-col gap-y-2 overflow-y-scroll max-h-64'>
-					{traits &&
+					{traits && filterTraits(traits, type).length > 0 ? (
 						filterTraits(traits, type).map((item) => (
 							<div
 								key={item.id}
@@ -60,7 +60,14 @@ function TraitGroup({
 								/>
 								{item.trait_name}
 							</div>
-						))}
+						))
+					) : (
+						<div className='text-sm text-center font-medium'>
+							No traits found.
+							<br />
+							Mint some below!
+						</div>
+					)}
 				</div>
 			</PopoverPanel>
 		</Popover>
@@ -75,11 +82,15 @@ interface TraitBarProps {
 	colorHandler: (color: string) => void;
 }
 
-export function TraitBar({ color, colorHandler, ...rest }: TraitBarProps) {
+export function CharacterTraitBar({
+	color,
+	colorHandler,
+	...rest
+}: TraitBarProps) {
 	return (
 		<div className='w-full'>
 			<div className='text-center text-xs font-medium mb-2 text-gray-400'>
-				Select your traits
+				Build a PFP from your minted traits
 			</div>
 			<div className='grid grid-cols-6 gap-2 text-sm text-black font-medium w-full'>
 				<Popover className='relative'>

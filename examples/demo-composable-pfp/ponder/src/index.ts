@@ -1,6 +1,5 @@
-import { characterTraits } from '../ponder.schema';
+import { characterTraits } from 'ponder:schema';
 import { patchwork } from './generated/patchwork';
-import type Sharp from 'sharp';
 import { traits } from '../../assets/traits';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -42,9 +41,9 @@ patchwork.after('Character:Forge', async ({ event, context }) => {
 		event.args.traitTokenIds.map(async (tokenId, i) => {
 			const id = `${event.args.traitAddresses[i]}:${tokenId}`;
 			const fragment = await context.db.find(characterTraits, { id });
-			// await context.db.update(characterTraits, { id }).set({
-			// 	characterId: `${event.log.address}:${event.args.tokenId}`,
-			// });
+			await context.db.update(characterTraits, { id }).set({
+				characterId: `${event.log.address}:${event.args.tokenId}`,
+			});
 			return traits[fragment!.trait_id!]!;
 		})
 	);
@@ -55,10 +54,12 @@ patchwork.after('Character:Forge', async ({ event, context }) => {
 	const bg = event.args.bgColor.slice(10, 16);
 
 	const traitSvgs = await Promise.all(
-		assignedTraits.map(async (trait) => {
-			const svgPath = path.resolve(imageDir, trait.image);
-			return fs.readFile(svgPath, 'utf8');
-		})
+		assignedTraits
+			.sort((a, b) => a.type - b.type)
+			.map(async (trait) => {
+				const svgPath = path.resolve(imageDir, trait.image);
+				return fs.readFile(svgPath, 'utf8');
+			})
 	);
 	const compositeSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">

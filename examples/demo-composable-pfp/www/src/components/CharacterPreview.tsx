@@ -1,7 +1,7 @@
 import { TraitType } from '#/assets/traits';
 import { TraitExtended } from '@/types';
 
-interface TraitCollectorProps {
+interface CharacterPreviewProps {
 	selectedTraits: TraitExtended[];
 	selectedColor: string;
 }
@@ -14,10 +14,10 @@ function Layer({ trait }: { trait: TraitExtended | undefined }) {
 	);
 }
 
-export function TraitCollector({
+export function CharacterPreview({
 	selectedTraits,
 	selectedColor,
-}: TraitCollectorProps) {
+}: CharacterPreviewProps) {
 	const items: Record<TraitType, TraitExtended> = Object.fromEntries(
 		selectedTraits.map((trait) => [trait.trait_type, trait])
 	);
