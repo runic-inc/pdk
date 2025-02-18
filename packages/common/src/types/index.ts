@@ -63,15 +63,6 @@ export type FieldConfig = {
     functionConfig?: FunctionConfig;
 };
 
-export type MintConfig = {
-    flatFee: number;
-    active: boolean;
-};
-
-export type MintConfigs = Record<string, MintConfig>;
-export type PatchFees = Record<string, number>;
-export type AssignFees = Record<string, number>;
-
 export type ScopeConfig = {
     name: string;
     owner?: `0x${string}`;

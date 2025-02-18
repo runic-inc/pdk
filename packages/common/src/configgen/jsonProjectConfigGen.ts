@@ -1,7 +1,7 @@
 import { ContractSchemaImpl } from '../codegen/contractSchema';
 import { parseJson } from '../codegen/contractSchemaJsonParser';
 import { ind } from "../codegen/generator";
-import { ContractConfig, MintConfig, ProjectConfig, ScopeConfig } from "../types";
+import { ContractConfig, ProjectConfig, ScopeConfig } from "../types";
 import { JSONContractConfigGen } from './jsonContractConfigGen';
 
 export class JSONProjectConfigGen {
@@ -60,21 +60,6 @@ export class JSONProjectConfigGen {
         return `        "${scopeConfig.name}": {\n` +
             ind(12, scopeProps.join(',\n')) +
             `        }`;
-    }
-
-    genMintConfigs(mintConfigs: Record<string, MintConfig> | undefined): string {
-        if (!mintConfigs) return '{}';
-        return JSON.stringify(mintConfigs);
-    }
-
-    genPatchFees(patchFees: Record<string, number> | undefined): string {
-        if (!patchFees) return '{}';
-        return JSON.stringify(patchFees);
-    }
-
-    genAssignFees(assignFees: Record<string, number> | undefined): string {
-        if (!assignFees) return '{}';
-        return JSON.stringify(assignFees);
     }
 
     genContractConfig(name: string, value: string | ContractConfig): string {
