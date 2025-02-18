@@ -13,7 +13,6 @@ export class DeployScriptGen {
 
         const contractNames = Object.keys(projectConfig.contracts);
         const mainContractName = projectConfig.name.replace(/\s/g, '');
-
         let script = this.generateHeader(contractNames, contractsDir, projectConfig);
         script += this.generateContractDefinition(mainContractName);
         script += this.generateStateVariables();
@@ -141,13 +140,12 @@ export class DeployScriptGen {
             const contractKeyName = key.toLowerCase();
             const contractConfig = value as ContractConfig;
             const contractName = cleanAndCapitalizeFirstLetter(contractConfig.name);
-    
             script += `        ${contractName} ${contractKeyName} = new ${contractName}{salt: salt}(ppAddress, ownerAddress);\n`;
             script += `        assert(address(${contractKeyName}) == deployments.${key}.deployedAddress);\n`;
             script += `        console.log("${contractName} deployed at: ", address(${contractKeyName}));\n`;
             script += `        deployments.${key}.deployedAddress = address(${contractKeyName});\n\n`;
         });
-    
+
         // Register references
         Object.entries(projectConfig.contracts).forEach(([key, value]) => {
             const contractName = key;
@@ -157,14 +155,13 @@ export class DeployScriptGen {
                 }
             }
         });
-    
+
         // Check if we need whitelist operations
         const hasWhitelistOperations = Object.values(projectConfig.contracts).some(value => {
             const contractConfig = value as ContractConfig;
             const scopeConfig = this.findScope(contractConfig.scopeName, projectConfig);
             return scopeConfig.whitelist;
         });
-    
         // Only add pp declaration if we have whitelist operations
         let ppAdded = false;
         if (hasWhitelistOperations) {
@@ -182,7 +179,6 @@ export class DeployScriptGen {
                 }
             });
         }
-    
         for (const scopeConfig of projectConfig.scopes) {
             for (const operator of scopeConfig.operators || []) {
                 if (!ppAdded) {
