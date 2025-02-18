@@ -3,6 +3,7 @@ import { patchwork } from './generated/patchwork';
 import { traits } from '../../assets/traits';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { eq } from 'ponder';
 
 patchwork.after('CharacterTraits:Transfer', async ({ event, context }) => {
 	const [trait_id, trait_name, trait_type] = await Promise.all([
@@ -72,4 +73,18 @@ patchwork.after('Character:Forge', async ({ event, context }) => {
 		path.resolve(__dirname, '../assets/images/characters', filename),
 		compositeSvg
 	);
+});
+
+patchwork.after('Character:Burn', async ({ event, context }) => {
+	const x = await context.db.sql
+		.update(characterTraits)
+		.set({ characterId: null })
+		.where(
+			eq(
+				characterTraits.characterId,
+				`${event.log.address}:${event.args.tokenId}`
+			)
+		)
+		.returning();
+	console.log(x);
 });

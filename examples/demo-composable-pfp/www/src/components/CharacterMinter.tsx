@@ -7,6 +7,7 @@ import { useAccount } from 'wagmi';
 import { useEffect, useState } from 'react';
 import { TraitExtended } from '@/types';
 import { Address, Hex } from 'viem';
+import isSelected from '@/utils/isSelected';
 
 export function CharacterMinter() {
 	const { address } = useAccount();
@@ -43,10 +44,8 @@ export function CharacterMinter() {
 	}, [selectedTraits]);
 
 	const handleTraitSelect = (trait: TraitExtended) => {
-		if (selectedTraits.find((t) => t.tokenId === trait.tokenId)) {
-			setSelectedTraits(
-				selectedTraits.filter((t) => t.tokenId !== trait.tokenId)
-			);
+		if (isSelected(selectedTraits, trait)) {
+			setSelectedTraits(selectedTraits.filter((t) => t.id !== trait.id));
 		} else {
 			setSelectedTraits(
 				selectedTraits

@@ -19,7 +19,7 @@ export function TraitMinter() {
 			</div>
 			<button
 				className={twMerge(
-					'rounded-xl w-48 box-content transition-all py-2 bg-white text-black ring-1 ring-black font-semibold shadow-xl hover:scale-105',
+					'rounded-xl w-48 box-content transition-all py-2 bg-white text-black ring-1 ring-black font-bold shadow-xl hover:scale-105',
 					mintTraitsPending &&
 						'opacity-90 bg-gray-200 pointer-events-none'
 				)}
