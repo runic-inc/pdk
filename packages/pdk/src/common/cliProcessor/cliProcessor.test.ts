@@ -85,7 +85,7 @@ describe('ProjectConfig validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -115,7 +115,7 @@ describe('ProjectConfig validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -150,7 +150,7 @@ describe('ProjectConfig field ID validation', () => {
             name: 'validProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -182,7 +182,7 @@ describe('ProjectConfig field ID validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
