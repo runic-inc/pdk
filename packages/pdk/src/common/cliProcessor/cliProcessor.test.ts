@@ -85,7 +85,7 @@ describe('ProjectConfig validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -115,7 +115,7 @@ describe('ProjectConfig validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -140,6 +140,230 @@ describe('ProjectConfig validation', () => {
 
         expect(() => importProjectConfig(invalidProjectConfig)).toThrow(/Duplicate field keys/);
     });
+
+    // New tests for alphanumeric validation
+    it('throws an error when project name contains non-alphanumeric characters', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'invalid-project' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {},
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid project name "invalid-project": project name must contain only alphanumeric characters',
+        );
+    });
+
+    it('throws an error when contract name contains non-alphanumeric characters', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                'My-Contract': {
+                    scopeName: 'default',
+                    name: 'My-Contract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid contract name "My-Contract": contract name must contain only alphanumeric characters',
+        );
+    });
+
+    // New tests for contract key matching
+    it('throws an error when contract key does not match contract name', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                ContractOne: {
+                    scopeName: 'default',
+                    name: 'DifferentName' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Contract key mismatch: the key "ContractOne" must match the contract name "DifferentName"',
+        );
+    });
+
+    // New tests for contract reference validation
+    it('throws an error when banker references non-existent contract', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [
+                {
+                    name: 'default',
+                    whitelist: true,
+                    userAssign: true,
+                    userPatch: true,
+                    bankers: ['0x1234567890123456789012345678901234567890', 'NonExistentContract'],
+                },
+            ],
+            contracts: {
+                ExistingContract: {
+                    scopeName: 'default',
+                    name: 'ExistingContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid banker reference "NonExistentContract" in scope "default": must be an Ethereum address or a valid contract key',
+        );
+    });
+
+    it('throws an error when operator references non-existent contract', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [
+                {
+                    name: 'default',
+                    whitelist: true,
+                    userAssign: true,
+                    userPatch: true,
+                    operators: ['0x1234567890123456789012345678901234567890', 'NonExistentContract'],
+                },
+            ],
+            contracts: {
+                ExistingContract: {
+                    scopeName: 'default',
+                    name: 'ExistingContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid operator reference "NonExistentContract" in scope "default": must be an Ethereum address or a valid contract key',
+        );
+    });
+
+    it('throws an error when fragment references non-existent contract', () => {
+        const invalidProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
+            contracts: {
+                ExistingContract: {
+                    scopeName: 'default',
+                    name: 'ExistingContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: ['NonExistentContract'],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(invalidProjectConfig)).toThrow(
+            'Invalid fragment reference "NonExistentContract" in contract "ExistingContract": must be a valid contract key',
+        );
+    });
+
+    it('accepts valid Ethereum addresses in bankers and operators', () => {
+        const validProjectConfig: ProjectConfig = {
+            name: 'ValidProject' as ValidNameIdentifier,
+            scopes: [
+                {
+                    name: 'default',
+                    whitelist: true,
+                    userAssign: true,
+                    userPatch: true,
+                    bankers: ['0x1234567890123456789012345678901234567890', 'ExistingContract'],
+                    operators: ['0x0987654321098765432109876543210987654321', 'ExistingContract'],
+                },
+            ],
+            contracts: {
+                ExistingContract: {
+                    scopeName: 'default',
+                    name: 'ExistingContract' as ValidNameIdentifier,
+                    symbol: 'MYC',
+                    baseURI: 'https://example.com/base',
+                    schemaURI: 'https://example.com/schema',
+                    imageURI: 'https://example.com/image',
+                    fields: [],
+                    features: [],
+                    fragments: [],
+                },
+            },
+            networks: {
+                local: { chain: 'anvil', rpc: 'http://localhost' },
+                testnet: { chain: 'anvil', rpc: 'http://localhost' },
+                mainnet: { chain: 'anvil', rpc: 'http://localhost' },
+            },
+            plugins: [],
+        };
+
+        expect(() => importProjectConfig(validProjectConfig)).not.toThrow();
+    });
 });
 
 describe('ProjectConfig field ID validation', () => {
@@ -150,7 +374,7 @@ describe('ProjectConfig field ID validation', () => {
             name: 'validProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',
@@ -182,7 +406,7 @@ describe('ProjectConfig field ID validation', () => {
             name: 'invalidProject' as ValidNameIdentifier,
             scopes: [{ name: 'default', whitelist: true, userAssign: true, userPatch: true }],
             contracts: {
-                myContract: {
+                MyContract: {
                     scopeName: 'default',
                     name: 'MyContract' as ValidNameIdentifier,
                     symbol: 'MYC',

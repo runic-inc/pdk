@@ -92,12 +92,72 @@ function loadNetwork(config: NetworkConfig): any {
 
 const RESERVED_WORDS = ['metadata'];
 
+function isAlphanumeric(str: string): boolean {
+    return /^[a-zA-Z0-9]+$/.test(str);
+}
+
+// Checks if string is an Ethereum address
+function isEthereumAddress(str: string): boolean {
+    return /^0x[a-fA-F0-9]{40}$/.test(str);
+}
+
 export function validatePatchworkProject(project: PatchworkProject): void {
-    Object.entries(project.contracts).forEach(([_, contractConfig]) => {
-        // Skip validation for string references.
+    // Get all valid contract keys
+    const contractKeys = Object.keys(project.contracts);
+
+    // Validate project name is alphanumeric
+    if (!isAlphanumeric(project.name)) {
+        throw new Error(`Invalid project name "${project.name}": project name must contain only alphanumeric characters`);
+    }
+
+    // Validate scope references to contracts
+    project.scopes.forEach((scope) => {
+        // Validate bankers
+        if (scope.bankers) {
+            scope.bankers.forEach((banker) => {
+                if (!isEthereumAddress(banker) && !contractKeys.includes(banker)) {
+                    throw new Error(`Invalid banker reference "${banker}" in scope "${scope.name}": must be an Ethereum address or a valid contract key`);
+                }
+            });
+        }
+
+        // Validate operators
+        if (scope.operators) {
+            scope.operators.forEach((operator) => {
+                if (!isEthereumAddress(operator) && !contractKeys.includes(operator)) {
+                    throw new Error(`Invalid operator reference "${operator}" in scope "${scope.name}": must be an Ethereum address or a valid contract key`);
+                }
+            });
+        }
+    });
+
+    // Validate contracts
+    Object.entries(project.contracts).forEach(([contractKey, contractConfig]) => {
+        // Skip validation for string references
         if (typeof contractConfig !== 'object') return;
 
-        // Validate that no field key is exactly a reserved word.
+        // Validate contract name is alphanumeric
+        if (!isAlphanumeric(contractConfig.name)) {
+            throw new Error(`Invalid contract name "${contractConfig.name}": contract name must contain only alphanumeric characters`);
+        }
+
+        // Validate contract key matches contract name
+        if (contractKey !== contractConfig.name) {
+            throw new Error(
+                `Contract key mismatch: the key "${contractKey}" must match the contract name "${contractConfig.name}". Please update either the contract key or the name field to match.`,
+            );
+        }
+
+        // Validate fragments
+        if (contractConfig.fragments) {
+            contractConfig.fragments.forEach((fragment) => {
+                if (!contractKeys.includes(fragment)) {
+                    throw new Error(`Invalid fragment reference "${fragment}" in contract "${contractConfig.name}": must be a valid contract key`);
+                }
+            });
+        }
+
+        // Validate that no field key is exactly a reserved word
         contractConfig.fields.forEach((field) => {
             RESERVED_WORDS.forEach((reserved) => {
                 if (field.key === reserved) {
@@ -108,14 +168,14 @@ export function validatePatchworkProject(project: PatchworkProject): void {
             });
         });
 
-        // Validate duplicate field keys.
+        // Validate duplicate field keys
         const keys = contractConfig.fields.map((field) => field.key);
         const uniqueKeys = new Set(keys);
         if (uniqueKeys.size !== keys.length) {
             throw new Error(`Duplicate field keys found in contract "${contractConfig.name}".`);
         }
 
-        // Validate duplicate field IDs.
+        // Validate duplicate field IDs
         const fieldIds = contractConfig.fields.map((field) => field.id);
         const uniqueIds = new Set(fieldIds);
         if (uniqueIds.size !== fieldIds.length) {
