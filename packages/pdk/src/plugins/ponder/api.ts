@@ -52,7 +52,7 @@ function generateFilterInput(tableName: string, tableDefinition: Record<string, 
         .filter(([_, fieldDef]) => fieldDef.type !== 'many' && fieldDef.type !== 'one')
         .map(([fieldName, fieldDef]) => {
             const zodType = getZodType(fieldDef);
-            return `${fieldName}: ${zodType}.optional(),`;
+            return `${fieldName}: ${zodType}${fieldDef.isOptional ? '.nullable()' : ''}.optional(),`;
         })
         .join('\n        ');
 
@@ -67,10 +67,11 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
     const filterConditions = Object.entries(tableDefinition)
         .filter(([_, fieldDef]) => fieldDef.type !== 'many' && fieldDef.type !== 'one')
         .map(([fieldName, fieldDef]) => {
+            const nullable = fieldDef.isOptional ? `input.${fieldName} === null ? isNull(${tableName.toLowerCase()}.${fieldName}) : ` : '';
             if (fieldDef.type === 'hex') {
                 return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName} as \`0x\${string}\`) : undefined`;
             }
-            return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName}) : undefined`;
+            return `input.${fieldName} !== undefined ? ${nullable} eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName}) : undefined`;
         })
         .join(',\n          ');
 
@@ -85,7 +86,7 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
 async function generateTrpcApi(schema: SchemaModule): Promise<string[]> {
     let apiContent: string[] = [
         `
-import { eq, gt, and } from "@ponder/core";
+import { eq, gt, and, isNull } from "@ponder/core";
 import { publicProcedure, router } from "./trpc";
 import { z } from "zod";`,
     ];
