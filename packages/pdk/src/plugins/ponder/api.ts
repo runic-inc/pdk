@@ -52,7 +52,7 @@ function generateFilterInput(tableName: string, tableDefinition: Record<string, 
         .filter(([_, fieldDef]) => fieldDef.type !== 'many' && fieldDef.type !== 'one')
         .map(([fieldName, fieldDef]) => {
             const zodType = getZodType(fieldDef);
-            return `${fieldName}: ${zodType}.optional(),`;
+            return `${fieldName}: ${zodType}.optional()${fieldDef.isOptional ? '.nullable()' : ''},`;
         })
         .join('\n        ');
 
@@ -70,7 +70,7 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
             if (fieldDef.type === 'hex') {
                 return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName} as \`0x\${string}\`) : undefined`;
             }
-            return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName}) : undefined`;
+            return `input.${fieldName} !== undefined ? input.${fieldName} === null ? isNull(${tableName.toLowerCase()}.${fieldName}) : eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName}) : undefined`;
         })
         .join(',\n          ');
 
