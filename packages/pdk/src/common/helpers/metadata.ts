@@ -27,15 +27,15 @@ export type FieldTypeMap = {
     int8: number;
     int16: number;
     int32: number;
-    int64: number;
-    int128: number;
-    int256: number;
     uint8: number;
     uint16: number;
     uint32: number;
-    uint64: number;
-    uint128: number;
-    uint256: number;
+    int64: bigint;
+    int128: bigint;
+    int256: bigint;
+    uint64: bigint;
+    uint128: bigint;
+    uint256: bigint;
     char8: string;
     char16: string;
     char32: string;
@@ -44,7 +44,7 @@ export type FieldTypeMap = {
     bytes16: string;
     bytes32: string;
     literef: string;
-    address: string;
+    address: `0x${string}`;
     string: string;
 };
 
@@ -161,24 +161,25 @@ export function getBitLength(fieldType: FieldType): number {
 /*
  * Given a raw bigint and a field type from a JSON contract schema, returns the converted value
  */
-export function convertValue(value: bigint, fieldType: FieldType): boolean | number | string {
+export function convertValue(value: bigint, fieldType: FieldType): boolean | number | string | bigint {
     switch (fieldType) {
         case 'bool':
             return value !== 0n;
         case 'int8':
         case 'int16':
         case 'int32':
-        case 'int64':
-        case 'int128':
-        case 'int256':
         case 'uint8':
         case 'uint16':
         case 'uint32':
+        case 'literef':
+            return Number(value);
+        case 'int64':
+        case 'int128':
+        case 'int256':
         case 'uint64':
         case 'uint128':
         case 'uint256':
-        case 'literef':
-            return Number(value);
+            return BigInt(value);
         case 'char8':
         case 'char16':
         case 'char32':
@@ -195,7 +196,7 @@ export function convertValue(value: bigint, fieldType: FieldType): boolean | num
                 return utf8String;
             }
         case 'address':
-            return value.toString(16).padStart(40, '0');
+            return value.toString(16).padStart(40, '0') as `0x${string}`;
         case 'string':
             throw new Error('STRING type is not supported for packed metadata');
         default:

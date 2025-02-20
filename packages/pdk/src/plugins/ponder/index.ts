@@ -5,6 +5,7 @@ import { generateConfig } from './config';
 import { generatePonderEnv } from './env';
 import { generateEventHooks } from './eventHooks';
 import { generateSchema } from './schema';
+import { generateTypes } from './types';
 import { generateTypescriptSchemas } from './typescriptSchemas';
 
 type PonderPluginProps = {
@@ -54,6 +55,15 @@ export function ponder(props: PonderPluginProps = { trpc: true }): PDKPlugin {
                         enabled: () => props.trpc,
                         task: async (ctx) => {
                             const artifacts = await generateAPI(context.rootDir);
+                            for (const [key, value] of Object.entries(artifacts)) {
+                                ctx.artifacts[key] = value;
+                            }
+                        },
+                    },
+                    {
+                        title: 'Generating types',
+                        task: async (ctx) => {
+                            const artifacts = await generateTypes(context.rootDir);
                             for (const [key, value] of Object.entries(artifacts)) {
                                 ctx.artifacts[key] = value;
                             }

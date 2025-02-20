@@ -10,11 +10,18 @@ contract Canvas is CanvasGenerated {
         CanvasGenerated(manager_, owner_) 
     {}
 
-    function _mintSingle(address to, bytes calldata) internal override returns (uint256) {
+    function mint(address to, bytes calldata data) public override payable returns (uint256 tokenId) {
         if (_mintMode == MintMode.OWNER) {
-            require(msg.sender == owner(), "minting not allowed");
+            require(tx.origin == owner(), "minting not allowed");
+        } else {
+            if (msg.sender != _manager) {
+                return IPatchworkProtocol(_manager).mint{value: msg.value}(to, address(this), data);
+            }
         }
-        
+        return _mintSingle(to, data);
+    }
+
+    function _mintSingle(address to, bytes calldata) internal override returns (uint256) {        
         uint256 tokenId = _nextTokenId;
         _nextTokenId++;
         _safeMint(to, tokenId);

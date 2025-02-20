@@ -59,6 +59,7 @@ function generateFilterInput(tableName: string, tableDefinition: Record<string, 
     return `z.object({
         limit: z.number().min(1).max(100).default(10),
         lastTimestamp: z.number().optional(),
+        sortDir: z.string().optional().default("asc"),
         ${filterFields}
     })`;
 }
@@ -86,7 +87,7 @@ function generateWhereClause(tableName: string, tableDefinition: Record<string, 
 async function generateTrpcApi(schema: SchemaModule): Promise<string[]> {
     let apiContent: string[] = [
         `
-import { eq, gt, and, isNull } from "@ponder/core";
+import { and, asc, desc, eq, gt, isNull } from "@ponder/core";
 import { publicProcedure, router } from "./trpc";
 import { z } from "zod";`,
     ];
@@ -123,7 +124,9 @@ ${Object.entries(schema)
     getPaginated: publicProcedure
       .input(${filterInput})
       .query(async ({ input, ctx }) => {
-        const { limit, lastTimestamp, ...filters } = input;
+        const { limit, lastTimestamp, sortDir, ...filters } = input;
+        
+        const orderBy = sortDir === "desc" ? desc(${tableName}.timestamp) : asc(${tableName}.timestamp);
         
         const query = ctx.db
           .select()
