@@ -53,12 +53,12 @@ export type InferSchemaType<
     ExcludedKeys extends string = never, // Keys to exclude (default: none)
     ExcludedTypes extends keyof FieldTypeMap = never, // Types to exclude (default: none)
 > = {
-    [F in S['fields'][number] as F['key'] extends ExcludedKeys ? never : F['type'] extends ExcludedTypes ? never : F['key']]: F['arrayLength'] extends
+        [F in S['fields'][number]as F['key'] extends ExcludedKeys ? never : F['type'] extends ExcludedTypes ? never : F['key']]: F['arrayLength'] extends
         | 1
         | undefined
         ? FieldTypeMap[F['type']] | undefined
         : FieldTypeMap[F['type']][] | undefined;
-};
+    };
 
 export type Prettify<T> = {
     [K in keyof T]: T[K];
@@ -147,6 +147,12 @@ export function getBitLength(fieldType: FieldType): number {
             return 32 * 8;
         case 'char64':
             return 64 * 8;
+        case 'bytes8':
+            return 8 * 8;
+        case 'bytes16':
+            return 16 * 8;
+        case 'bytes32':
+            return 32 * 8;
         case 'literef':
             return 64;
         case 'address':
@@ -195,6 +201,10 @@ export function convertValue(value: bigint, fieldType: FieldType): boolean | num
             } else {
                 return utf8String;
             }
+        case 'bytes8':
+        case 'bytes16':
+        case 'bytes32':
+            return value.toString(16) as `0x${string}`;
         case 'address':
             return value.toString(16).padStart(40, '0') as `0x${string}`;
         case 'string':

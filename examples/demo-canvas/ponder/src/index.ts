@@ -1,5 +1,4 @@
-import { canvas, bubble } from '../ponder.schema';
-import sharp from 'sharp';
+import { bubble, canvas } from '../ponder.schema';
 import { patchwork } from './generated/patchwork';
 import { bubbleService } from './services';
 
@@ -14,41 +13,14 @@ import { bubbleService } from './services';
  *
  */
 
-
-patchwork.after('PatchworkProtocol:setup', async () => {
-    bubbleService.bubbles = [];
-    console.log('SIMD enabled:', sharp.simd());
-});
-
-patchwork.after('PatchworkProtocol:Assign', async ({ event, context }) => {
-    if (
-        event.args.targetAddress == process.env.CANVAS_ADDRESS &&
-        (event.args.fragmentAddress == process.env.BUBBLE_ADDRESS)
-    ) {
-        const id = event.args.fragmentAddress + '_' + event.args.fragmentTokenId;
-
-        const [color1, color2] = bubbleService.generateBubbleColors(event.transaction.from, Number(event.transaction.blockNumber));
-        console.log('color1', color1, 'color2', color2);
-        const b = await context.db.insert(bubble).values({
-            id,
-            owner: event.args.owner,
-            tokenId: event.args.fragmentTokenId,
-            mintTxId: event.transaction.hash,
-            // address: event.args.fragmentAddress,
-            contractId: event.args.targetAddress,
-            minter: event.transaction.from,
-            canvasId: event.args.targetTokenId.toString(),
-            // decorator1: color1,
-            // decorator2: color2,
-            // txHash: event.transaction.hash,
-            // dateTimeAdded: Number(event.block.timestamp),
-        });
-        // const latest = await Fragment.findUnique({ id });
-        // if (!latest) return console.log('Could not find bubble');
-
-        //comment out while testing minting
-        //await bubbleService.drawCanvas(b, context);
-
+patchwork.after('Bubble:Transfer', async ({ event, context }) => {
+    const bubbleId = `${event.log.address}:${event.args.tokenId}`;
+    const newBubble = await context.db.find(bubble, { id: bubbleId });
+    try {
+        if (newBubble) await bubbleService.drawCanvas(newBubble, context);
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 });
 
