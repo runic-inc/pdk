@@ -4,11 +4,11 @@ import * as path from 'path';
 export class PathsService {
     baseDir: string;
     constructor() {
-        this.baseDir = path.join(process.cwd(), 'generated');
+        this.baseDir = path.join(process.cwd(), 'assets');
     }
 
     pathToCanvasImage = (canvasId: number | bigint) => {
-        return path.join(this.baseDir, `/images/canvases/${canvasId}.svg`);
+        return path.join(this.baseDir, `/images/canvases/${canvasId}.png`);
     };
 
     pathToCheckpointImage = (canvasId: number | bigint, chk: number) => {

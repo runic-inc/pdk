@@ -16,8 +16,12 @@ import { bubbleService } from './services';
 patchwork.after('Bubble:Transfer', async ({ event, context }) => {
     const bubbleId = `${event.log.address}:${event.args.tokenId}`;
     const newBubble = await context.db.find(bubble, { id: bubbleId });
-
-    if (newBubble) await bubbleService.drawCanvas(newBubble, context);
+    try {
+        if (newBubble) await bubbleService.drawCanvas(newBubble, context);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
 });
 
 patchwork.after('Canvas:Transfer', async ({ event, context }) => {
