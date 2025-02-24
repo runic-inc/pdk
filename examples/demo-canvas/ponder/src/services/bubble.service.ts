@@ -1,92 +1,67 @@
 import { Context } from '@/generated';
-import { bubble } from '../../ponder.schema';
-import { existsSync, statSync } from 'fs';
-import { writeFile } from 'fs/promises';
-import { Address, Hex, keccak256 } from 'viem';
-import { metadataService, pathsService } from '.';
-import { Bubble } from '../generated/types';
 import Sharp from 'sharp';
-
-// TODO: temporary, try and use ponder's Bubble type instead of this
+import { Address, Hex, keccak256 } from 'viem';
+import { pathsService } from '.';
+import { Bubble } from '../generated/types';
 
 interface BubGeom {
     x: number;
     y: number;
     r: number;
-    // layer: number;
 }
 
 export class BubbleService {
     bubbles: Bubble[];
-    // layers: number;
     width: number;
     height: number;
     images: string[];
 
     constructor() {
         this.bubbles = [];
-        // Make sure this matches app and ui!!
-        // this.layers = 12;
         this.width = 8640 / 2;
         this.height = 4320 / 2;
         this.images = [
-            "../img/clown_face_flat.svg",
-            "../img/collision_flat.svg",
-            "../img/grinning_face_with_big_eyes_flat.svg",
-            "../img/grinning_squinting_face_flat.svg",
-            "../img/money-mouth_face_flat.svg",
-            "../img/rolling_on_the_floor_laughing_flat.svg",
-            "../img/see-no-evil_monkey_flat.svg",
-            "../img/smiling_cat_with_heart-eyes_flat.svg",
-            "../img/star-struck_flat.svg",
-            "../img/zipper-mouth_face_flat.svg",
+            '../img/clown_face_flat.svg',
+            '../img/collision_flat.svg',
+            '../img/grinning_face_with_big_eyes_flat.svg',
+            '../img/grinning_squinting_face_flat.svg',
+            '../img/money-mouth_face_flat.svg',
+            '../img/rolling_on_the_floor_laughing_flat.svg',
+            '../img/see-no-evil_monkey_flat.svg',
+            '../img/smiling_cat_with_heart-eyes_flat.svg',
+            '../img/star-struck_flat.svg',
+            '../img/zipper-mouth_face_flat.svg',
         ];
     }
 
-    // generateBubbleColors(address: Address, ownedCount: number): [string, string] {
-    //     console.log('Generating bubble colors for ', address, ownedCount);
-    //     const base = keccak256((address + ownedCount.toString()) as Hex).substring(2, 62);
-    //     const hash1 = parseInt(base.substring(0, 10), 16);
-    //     const hash2 = parseInt(base.substring(10, 20), 16);
-    //     const hash3 = parseInt(base.substring(20, 30), 16);
-    //     const hash4 = parseInt(base.substring(30, 40), 16);
-    //     const hash5 = parseInt(base.substring(40, 50), 16);
-    //     const hash6 = parseInt(base.substring(50), 16);
-
-    //     //const color1 = `hsla(${hash1 % 360}deg, ${90 + (hash2 % 10)}%, ${30 + (hash3 % 30)}%, 1)`;
-    //     //const color2 = `hsla(${hash6 % 360}deg, ${90 + (hash5 % 10)}%, ${40 + (hash4 % 40)}%, 0.75)`;
-
-    //     const color1 = `hsla(${hash1 % 360}deg, ${90 + (hash2 % 10)}%, ${30 + (hash3 % 40)}%, 1)`;
-    //     const color2 = `hsla(${hash6 % 360}deg, ${90 + (hash5 % 10)}%, ${25 + (hash4 % 50)}%, 0.7)`;
-
-    //     return [color1, color2];
-    // }
-
     generateBubbleGeometry(bubble: Bubble): BubGeom {
-        // const i = this.bubbles.findIndex(({ tokenId }) => tokenId == bubble.tokenId);
-        // const latestBubble = this.bubbles[checkpoint - 1]!;
-        const ts = bubble.timestamp ?? BigInt(new Date().toUTCString())
-        const seed = keccak256((bubble.owner + ts.toString()) as Hex).substring(2, 42);
+        const ts = bubble.timestamp ?? BigInt(new Date().toUTCString());
+        const seed = keccak256((bubble.owner + ts.toString()) as Hex).substring(
+            2,
+            42,
+        );
 
         const edgePadding = 0.01; // 1% of width
-        // const ctPerLayer = Math.ceil(checkpoint / this.layers);i
 
-        // eg subtract trancheDecrease from maxradius for every N tranche items in the count
-        // const tranche = 100;
-        // const trancheDecrease = 0.6;
-
-        // use trancheDecrease to lower starting radius
-        // const minStartRadius = 12;
-        // const maxStartRadius = 60;
-        // const radiusDelta = Math.floor(checkpoint / tranche) * trancheDecrease;
-        // const radius = Math.max(minStartRadius, maxStartRadius - radiusDelta);
-
-        const base = keccak256((bubble.minter + bubble.tokenId.toString()) as Hex).substring(2, 42);
-        const seedX = ((parseInt(seed, 16) * parseInt(base.substring(0, 20), 16)) % 1001) / 1001; // set to % 1000 / 1000
-        const seedY = ((parseInt(seed, 16) * parseInt(base.substring(20), 16)) % 1001) / 1001;
+        const base = keccak256(
+            (bubble.minter + bubble.tokenId.toString()) as Hex,
+        ).substring(2, 42);
+        const seedX =
+            ((parseInt(seed, 16) * parseInt(base.substring(0, 20), 16)) %
+                1001) /
+            1001; // set to % 1000 / 1000
+        const seedY =
+            ((parseInt(seed, 16) * parseInt(base.substring(20), 16)) % 1001) /
+            1001;
         // const r = Math.max(radius - ((checkpoint - i) / checkpoint) * (radius - radius * 0.1), radius - i);
-        const x = Math.min(this.width - this.width * edgePadding, Math.max(this.width * edgePadding, seedX * this.width));
-        const y = Math.min(this.height - this.height * (edgePadding * 2), Math.max(this.height * (edgePadding * 2), seedY * this.height));
+        const x = Math.min(
+            this.width - this.width * edgePadding,
+            Math.max(this.width * edgePadding, seedX * this.width),
+        );
+        const y = Math.min(
+            this.height - this.height * (edgePadding * 2),
+            Math.max(this.height * (edgePadding * 2), seedY * this.height),
+        );
 
         // const bubbleLayer = Math.floor(i / ctPerLayer);
 
@@ -130,7 +105,10 @@ export class BubbleService {
     }
 
     async drawCanvas(latestBubble: Bubble, context: Context): Promise<any> {
-        const image = this.selectImage(latestBubble.owner, latestBubble.timestamp ?? BigInt(new Date().toUTCString()));
+        const image = this.selectImage(
+            latestBubble.owner,
+            latestBubble.timestamp ?? BigInt(new Date().toUTCString()),
+        );
 
         let sharp: Sharp.Sharp;
         const outputPath = pathsService.pathToCanvasImage(latestBubble.tokenId);
@@ -145,36 +123,41 @@ export class BubbleService {
                     width: width,
                     height: height,
                     channels: 4,
-                    background: { r: 2, g: 6, b: 23, alpha: 1 }
-                }
-            })
+                    background: { r: 2, g: 6, b: 23, alpha: 1 },
+                },
+            });
         } else {
             // use previous canvas as source for new image
 
-            sharp = Sharp(pathsService.pathToCanvasImage(latestBubble.tokenId - 1n))
-
+            sharp = Sharp(
+                pathsService.pathToCanvasImage(latestBubble.tokenId - 1n),
+            );
         }
 
         const bubbleGeom = this.generateBubbleGeometry(latestBubble);
 
-        sharp.composite([{
-            input: image,
-            left: Math.round(bubbleGeom.x - bubbleGeom.r),
-            top: Math.round(bubbleGeom.y - bubbleGeom.r)
-        }])
+        sharp
+            .composite([
+                {
+                    input: image,
+                    left: Math.round(bubbleGeom.x - bubbleGeom.r),
+                    top: Math.round(bubbleGeom.y - bubbleGeom.r),
+                },
+            ])
             .toFile(outputPath);
 
         // ToDo: modify drawBubbleNft to take the following and then save nft and metadata
         // this.drawBubbleNft(latestBubble, image, bubbleGeom)
-
     }
 
     selectImage(owner: Address, timestamp: bigint): string {
-        const base = keccak256((owner + timestamp.toString()) as Hex).substring(2, 34);
+        const base = keccak256((owner + timestamp.toString()) as Hex).substring(
+            2,
+            34,
+        );
         const index = parseInt(base, 16) % 10;
-        console.log(this.images, base, index)
+        console.log(this.images, base, index);
         return this.images[index] as string;
-
     }
 
     drawBubbleNft(
@@ -431,57 +414,4 @@ export class BubbleService {
 
         return bubblesvg;
     }
-
-    // async saveImages(
-    //     svgObj: {
-    //         open: string;
-    //         bg: string;
-    //         bubbles: string[];
-    //         close: string;
-    //     },
-    //     checkpoint: number,
-    //     bubble: Bubble,
-    //     latestBubbleGeom: BubGeom,
-    //     context: Context,
-    // ) {
-    //     // Generate canvas image & update metadata
-    //     const canv = svgObj.open + svgObj.bg + svgObj.bubbles.join('\n') + svgObj.close;
-    //     await writeFile(pathsService.pathToCanvasImage(0), canv);
-    //     await writeFile(pathsService.pathToCheckpointImage(0, checkpoint), canv);
-
-    //     //comment out just now
-    //     // await this.saveCanvasStatus(checkpoint, context);
-    //     metadataService.generateCanvasMetadata(0n, checkpoint, bubble);
-    //     console.log(`Canvas ${checkpoint} generated`);
-
-    //     // Generate and save bubble image & metadata
-    //     const bubblecanv = this.drawBubbleNft(svgObj, checkpoint, bubble, latestBubbleGeom);
-    //     await writeFile(pathsService.pathToBubbleImage(bubble.tokenId), bubblecanv);
-    //     console.log('Bubble generated for Canvas ' + checkpoint);
-
-    //     // Generate canvas layers
-    //     // let generated = 0;
-    //     // Object.values(svgObj.bubbles).forEach(async (bubbles, i) => {
-    //     //     const layer = svgObj.open + bubbles.join('\n') + svgObj.close;
-    //     //     await writeFile(pathsService.pathToLayerImage(0, checkpoint, i), layer);
-    //     //     generated++;
-    //     //     if (generated == this.layers) {
-    //     //         console.log('Layers generated for Canvas ' + checkpoint);
-    //     //     }
-    //     // });
-    //     await this.saveCanvasStatus(checkpoint, context);
-    // }
-
-    // async saveCanvasStatus(id: number, ctx: Context): Promise<boolean> {
-    //     // const { Checkpoint } = ctx.db;
-    //     // await Checkpoint.update({
-    //     //     id: '0_' + id.toString().padStart(7, '0'),
-    //     //     data: ({ current }) => ({
-    //     //         fragmentId: current.fragmentId,
-    //     //         canvasId: current.canvasId,
-    //     //         assetsGenerated: true,
-    //     //     }),
-    //     // });
-    //     return true;
-    // }
 }
