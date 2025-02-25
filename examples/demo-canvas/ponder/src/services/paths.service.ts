@@ -11,44 +11,31 @@ export class PathsService {
         return path.join(this.baseDir, `/images/canvases/${canvasId}.png`);
     };
 
-    pathToCheckpointImage = (canvasId: number | bigint, chk: number) => {
-        const padId = canvasId.toString().padStart(3, '0');
-        const padChk = chk.toString().padStart(7, '0');
-        const pth = path.join(this.baseDir, 'images/checkpoints', `${padId}_${padChk}.svg`);
-        return pth;
-    };
-
     pathToBubbleImage = (id: number | bigint) => {
-        const pth = path.join(this.baseDir, '/images/bubbles', `${id.toString()}.svg`);
-        return pth;
-    };
-
-    pathToBrickImage = (id: number | bigint) => {
-        const pth = path.join(this.baseDir, '/images/bricks', `${id.toString()}.svg`);
-        return pth;
-    };
-
-    pathToLayerImage = (canvasId: number | bigint, chk: number, layer: number) => {
-        const padId = canvasId.toString().padStart(3, '0');
-        const padChk = chk.toString().padStart(7, '0');
-        const padLyr = layer.toString().padStart(2, '0');
-        const pth = path.join(this.baseDir, '/images/layers', `${padId}_${padChk}_${padLyr}.svg`);
+        const pth = path.join(
+            this.baseDir,
+            '/images/bubbles',
+            `${id.toString()}.png`,
+        );
         return pth;
     };
 
     pathToCanvasMetadata = (tokenid: number | bigint) => {
         console.log(tokenid);
-        const pth = path.join(this.baseDir, '/metadata/canvases', `${tokenid.toString()}.json`);
+        const pth = path.join(
+            this.baseDir,
+            '/metadata/canvases',
+            `${tokenid.toString()}.json`,
+        );
         return pth;
     };
 
     pathToBubbleMetadata = (tokenid: number | bigint) => {
-        const pth = path.join(this.baseDir, '/metadata/bubbles', `${tokenid.toString()}.json`);
-        return pth;
-    };
-
-    pathToBrickMetadata = (tokenid: number | bigint) => {
-        const pth = path.join(this.baseDir, '/metadata/bricks', `${tokenid.toString()}.json`);
+        const pth = path.join(
+            this.baseDir,
+            '/metadata/bubbles',
+            `${tokenid.toString()}.json`,
+        );
         return pth;
     };
 
