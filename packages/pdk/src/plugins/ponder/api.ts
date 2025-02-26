@@ -4,9 +4,15 @@ import { loadPonderSchema } from '../../common/helpers/config';
 // import { FieldDefinition, Schema } from "./ponderMocks";
 import { formatAndSaveFile } from '../../common/helpers/file';
 import { logger } from '../../common/helpers/logger';
-import { FieldDefinition, SchemaModule, TableDefinition } from '../../common/helpers/ponderSchemaMock';
+import {
+    FieldDefinition,
+    SchemaModule,
+    TableDefinition,
+} from '../../common/helpers/ponderSchemaMock';
 
-export async function generateAPI(rootDir: string): Promise<{ [key: string]: string }> {
+export async function generateAPI(
+    rootDir: string,
+): Promise<{ [key: string]: string }> {
     const schemaPath = path.join(rootDir, 'ponder', 'ponder.schema.ts');
     const apiOutputDir = path.join(rootDir, 'ponder', 'src', 'generated');
     const schema = await loadPonderSchema(schemaPath);
@@ -15,7 +21,9 @@ export async function generateAPI(rootDir: string): Promise<{ [key: string]: str
     try {
         await fs.access(apiOutputDir);
     } catch (error) {
-        logger.info(`API output directory does not exist. Creating ${apiOutputDir}`);
+        logger.info(
+            `API output directory does not exist. Creating ${apiOutputDir}`,
+        );
         await fs.mkdir(apiOutputDir, { recursive: true });
     }
 
@@ -26,7 +34,9 @@ export async function generateAPI(rootDir: string): Promise<{ [key: string]: str
     const outputPath = path.join(apiOutputDir, 'api.ts');
     // await fs.writeFile(outputPath, apiContent, 'utf8');
     await formatAndSaveFile(outputPath, output.join('\n'));
-    logger.info(`tRPC API generation completed. Output written to ${outputPath}`);
+    logger.info(
+        `tRPC API generation completed. Output written to ${outputPath}`,
+    );
     return { trpc: apiOutputDir };
 }
 
@@ -47,9 +57,15 @@ function getZodType(fieldDef: FieldDefinition): string {
     }
 }
 
-function generateFilterInput(tableName: string, tableDefinition: Record<string, FieldDefinition>): string {
+function generateFilterInput(
+    tableName: string,
+    tableDefinition: Record<string, FieldDefinition>,
+): string {
     const filterFields = Object.entries(tableDefinition)
-        .filter(([_, fieldDef]) => fieldDef.type !== 'many' && fieldDef.type !== 'one')
+        .filter(
+            ([_, fieldDef]) =>
+                fieldDef.type !== 'many' && fieldDef.type !== 'one',
+        )
         .map(([fieldName, fieldDef]) => {
             const zodType = getZodType(fieldDef);
             return `${fieldName}: ${zodType}${fieldDef.isOptional ? '.nullable()' : ''}.optional(),`;
@@ -64,11 +80,19 @@ function generateFilterInput(tableName: string, tableDefinition: Record<string, 
     })`;
 }
 
-function generateWhereClause(tableName: string, tableDefinition: Record<string, FieldDefinition>): string {
+function generateWhereClause(
+    tableName: string,
+    tableDefinition: Record<string, FieldDefinition>,
+): string {
     const filterConditions = Object.entries(tableDefinition)
-        .filter(([_, fieldDef]) => fieldDef.type !== 'many' && fieldDef.type !== 'one')
+        .filter(
+            ([_, fieldDef]) =>
+                fieldDef.type !== 'many' && fieldDef.type !== 'one',
+        )
         .map(([fieldName, fieldDef]) => {
-            const nullable = fieldDef.isOptional ? `input.${fieldName} === null ? isNull(${tableName.toLowerCase()}.${fieldName}) : ` : '';
+            const nullable = fieldDef.isOptional
+                ? `input.${fieldName} === null ? isNull(${tableName.toLowerCase()}.${fieldName}) : `
+                : '';
             if (fieldDef.type === 'hex') {
                 return `input.${fieldName} !== undefined ? eq(${tableName.toLowerCase()}.${fieldName}, input.${fieldName} as \`0x\${string}\`) : undefined`;
             }
@@ -97,7 +121,10 @@ import { z } from "zod";`,
     const apiObject = `
 export const api = {
 ${Object.entries(schema)
-    .filter((entry): entry is [string, TableDefinition] => entry[1].type === 'table')
+    .filter(
+        (entry): entry is [string, TableDefinition] =>
+            entry[1].type === 'table',
+    )
     .map(([tableName, entity]) => {
         // if (entity.type === "enum") {
         //     return "";
@@ -134,7 +161,7 @@ ${Object.entries(schema)
           .where((${tableName.toLowerCase()}) => 
             ${whereClause}
           )
-          .orderBy(${tableName}.timestamp)
+          .orderBy(orderBy)
           .limit(limit + 1);
         const items = await query;
         let nextTimestamp: number | undefined = undefined;
@@ -153,7 +180,9 @@ ${Object.entries(schema)
     .join('')}
 };
 `;
-    apiContent.push(`import {${[...imports].sort().join(',')}} from "../../ponder.schema"`);
+    apiContent.push(
+        `import {${[...imports].sort().join(',')}} from "../../ponder.schema"`,
+    );
     // apiContent.push(`type GetPaginatedOutput<T> = { items: T[], nextTimestamp: number | undefined }`);
     // [...imports].forEach((i) => {
     //     apiContent.push(`type ${_.upperFirst(_.camelCase(i))} = typeof ${i}.$inferSelect;`);
