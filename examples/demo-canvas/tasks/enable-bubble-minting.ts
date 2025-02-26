@@ -143,7 +143,7 @@ export async function enableBubbleMintTask({ deployConfig, deployedContracts }: 
             const shouldEnable = await askQuestion('\nDo you want to enable minting for bubbles? (y/n): ');
 
             if (shouldEnable.toLowerCase() === 'y') {
-                enableMint(publicClient, deployConfig.patchworkProtocol as `0x${string}`, bubbleContractAddress, account, walletClient);
+                await enableMint(publicClient, deployConfig.patchworkProtocol as `0x${string}`, bubbleContractAddress, account, walletClient);
             }
         }
     } catch (error) {
@@ -153,7 +153,7 @@ export async function enableBubbleMintTask({ deployConfig, deployedContracts }: 
 
     //add bubble as operator of scope
     try {
-        addOperator(deployConfig.patchworkProtocol as `0x${string}`, 'canvas-demo', bubbleContractAddress, publicClient, account, walletClient);
+        await addOperator(deployConfig.patchworkProtocol as `0x${string}`, 'canvas-demo', bubbleContractAddress, publicClient, account, walletClient);
     } catch (error) {
         console.error('Error adding bubble as operator of scope:', error);
         throw error;
