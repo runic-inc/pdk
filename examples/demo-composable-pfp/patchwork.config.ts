@@ -1,7 +1,7 @@
 import { Feature, ProjectConfig } from '@patchworkdev/common/types';
 
 const projectConfig: ProjectConfig = {
-    name: 'Composable PFP Demo',
+    name: 'ComposablePFPDemo',
     contracts: {
         Character: {
             scopeName: 'composable-pfp-demo',
@@ -36,7 +36,7 @@ const projectConfig: ProjectConfig = {
         },
         CharacterTraits: {
             scopeName: 'composable-pfp-demo',
-            name: 'Character Traits',
+            name: 'CharacterTraits',
             symbol: 'CHARTRAIT',
             baseURI: 'https://example.com/metadata/trait',
             schemaURI: 'https://example.com/schemas/trait.json',
